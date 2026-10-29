@@ -7,7 +7,7 @@
 
 **Resumen:** 76 componentes · 59 con Vue (51 VUE + 8 VUE+AEM) · 0 EN PROGRESO · 7 SIN VUE · 10 solo AEM (4 de ellos sin Figma).
 
-> Versión del CSV usada: "Lista de componentes (8)", ya con las correcciones de Jon (R4Jumbo y R4Popover hechos en Vue; enlaces de Figma y Storybook de R4HighlightMedia, R4ProgressBar y R4Sheet arreglados; R4HeroHome en WIP).
+> Versión del CSV usada: "Lista de componentes (9)", ya con las correcciones de Jon.
 
 ## Cómo leer este catálogo
 
@@ -85,13 +85,13 @@ El estado sale de las columnas del CSV: **Vue** (Hecho / WIP / No) y **AEM** (S�
 | R4ProgressBar | Compuesto | Hecho | VUE | R4ProgressBar | ✔ | E `1134:1091` | La página lo describe como cabecera de proceso completa (ver `lectura-confluence.md`, punto 17) |
 | R4Result | Compuesto | Hecho | VUE | R4Result · desact. | ✔ | P `423:364` | Evolución a R4Feedback. Documentación desactualizada |
 | R4RiskBox | Específico | Hecho | VUE+AEM | R4RiskBox | ✔ | E `3847:1419` | |
-| R4Section | Compuesto | Hecho | VUE | R4Section | ✔ | P `14424:530` | ⚠️ Changelog SM-24225: nueva prop `backgroundColor`; `style` pasa a controlar solo la estructura. Renombre de `style` a `variant` solo era candidato: **leer el código** |
+| R4Section | Compuesto | Hecho | VUE | R4Section | ✔ | P `22306:10316` | ⚠️ Changelog SM-24225: nueva prop `backgroundColor`; `style` pasa a controlar solo la estructura. Renombre de `style` a `variant` solo era candidato: **leer el código** |
 | R4SegmentedControls | Compuesto | Hecho | VUE | R4SegmentedControls | ✔ | P `11838:59196` | |
 | R4Sheet | Compuesto | Hecho | VUE | R4Sheet | ✔ | P `14424:530` | |
 | R4Splash | Específico | Hecho | VUE | R4Splash · desact. | ✔ | E `56:4892` | Documentación desactualizada. Es un R4Modal con imagen: habría que fusionarlos |
 | R4Steps | Compuesto | Hecho | VUE | R4Steps | ✔ | P `20981:200` | ⚠️ Changelog SM-24485: versión `medium` más compacta (indicador 40→32 px, gap 16→12, padding-top de textos 8→4) y nueva prop `showTitle` |
-| R4Table | Compuesto | Hecho | VUE+AEM | R4Table | ✔ | P `6321:2` | La database aún marca "Falta documentación", pero hay página (con dos APIs: ver `lectura-confluence.md`). Nodo Figma truncado en el CSV |
-| R4Tabs | Compuesto | Hecho | VUE | R4Tabs | ✔ | P `12959:4762` | El CSV (8) cambió el nodo; antes `13591:3199` (el de `r4tabs-layout-y-slot.md`): comprobar cuál es el vigente. ⚠️ Eje `layout` (`scrollable`/`fixed`); `Show Item1…8` sustituidos por **slot** (cambio rompedor). Ver `r4tabs-layout-y-slot.md` |
+| R4Table | Compuesto | Hecho | VUE+AEM | R4Table | ✔ | P `12959:4762` | La database aún marca "Falta documentación", pero hay página (con dos APIs: ver `lectura-confluence.md`) |
+| R4Tabs | Compuesto | Hecho | VUE | R4Tabs | ✔ | P `13591:3199` | ⚠️ Eje `layout` (`scrollable`/`fixed`); `Show Item1…8` sustituidos por **slot** (cambio rompedor). Ver `r4tabs-layout-y-slot.md` |
 | R4Tag | Simple | Hecho | VUE | R4Tag | ✔ | P `412:13524` | |
 | R4Text | Simple | Hecho | VUE | R4Text | ✔ | P `4089:77298` | |
 | R4Title | Simple | Hecho | VUE | R4Title | ✔ | P `6191:40114` | API (Confluence 2798944260, leído 2026-10-05): `text`, `level` (1-6, obligatorio), `size` (extraLarge2\|extraLarge\|large\|medium\|small), `align` (left\|center), `tag`. Sin `type`: Subtitle y Pretitle son estilos tipográficos |
@@ -124,7 +124,7 @@ Existen en Figma. No hay Vue utilizable.
 | R4PageTitleProcess | Específico | Hecho | SIN VUE | R4PageTitleProcess | E `1572:63` | |
 | R4Skeleton | Simple | Hecho | SIN VUE | R4Skeleton | P `26305:7381` | |
 | R4Spinner | Simple | Hecho | SIN VUE | R4Spinner | P `16359:6669` | |
-| R4Stats | Compuesto | Hecho | SIN VUE | R4Stats | P `25682:69` | Diseñado, no publicado. Ver `r4stats-y-ejes-agnosticos.md` (parcialmente obsoleto) y `CLAUDE.md`. El nodo del CSV (`25682:69`) difiere del que se manejaba (`27472:816`): comprobar |
+| R4Stats | Compuesto | Hecho | SIN VUE | R4Stats | P `25682:69` | Diseñado, no publicado. Ver `r4stats-y-ejes-agnosticos.md` (parcialmente obsoleto) y `CLAUDE.md` |
 | R4Tooltip | Simple | WIP | SIN VUE | R4Tooltip | P `12962:1983` | Falta documentación y completar el diseño |
 
 ## 4. No incluidos en la database
@@ -157,14 +157,6 @@ No aparecen en el CSV pero se usan en documentos o en Figma. **Estado Vue descon
 - **Nuevos en la lista:** R4Jumbo y R4Popover (ambos VUE, según Jon).
 - **Salen de la lista:** R4HeroMini, R4StatItem (queda como hijo de R4Stats).
 - **Sin cambios de estado:** el resto.
-
-## Incidencias del CSV a revisar con Jon
-
-1. **Enlaces de Figma repetidos:** R4InputAmount, Date, Email, Iban, NIF, Number, Password, Phone, Text y User apuntan todos a `6023:2393`; R4Section y R4Sheet a `14424:530`.
-2. **Storybook:** R4InputRadio cuelga de `atomos-inputs`; R4CardAccount (Específico) está en la rama de primitivos.
-3. **R4Table:** nodo Figma truncado (`6321:2`); la database sigue diciendo "Falta documentación" aunque hay página.
-4. **R4Tabs:** nodo nuevo `12959:4762` frente a `13591:3199` (anterior).
-5. **R4Stats:** nodo `25682:69` frente a `27472:816` (anterior).
 
 ## Fuente complementaria: Changelog
 
