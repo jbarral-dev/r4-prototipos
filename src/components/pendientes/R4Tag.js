@@ -2,7 +2,7 @@
 // Reconstrucción desde Figma (era VUE en el catálogo; Changelog SM-16547). API = "API componente" de Confluence (R4Tag, 2831843570):
 // text (obligatorio), color (red | blue | green | amber | neutralDark | neutralLight; por defecto red), size (small | medium; por defecto small),
 // bordered (boolean), icon (nombre del icono). <span> inline, icono decorativo (aria-hidden), sin interacción.
-// Reconstruido: color neutralDark y neutralLight (sin borde), size small y medium. NO reconstruido (no leído): red, blue, green, amber y bordered=true;
+// Reconstruido: color neutralDark, neutralLight y blue (sin borde; blue leído solo en small), size small y medium. NO reconstruido (no leído): red, green, amber y bordered=true;
 // si se piden se avisa por consola.
 import { defineComponent } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -18,8 +18,8 @@ export default defineComponent({
     icon: { type: String, default: undefined },
   },
   setup(props) {
-    if (!['neutralDark', 'neutralLight'].includes(props.color) || props.bordered) {
-      console.warn('R4Tag: solo están reconstruidos color neutralDark y neutralLight sin borde')
+    if (!['neutralDark', 'neutralLight', 'blue'].includes(props.color) || props.bordered) {
+      console.warn('R4Tag: solo están reconstruidos color neutralDark, neutralLight y blue sin borde')
     }
   },
   template: `

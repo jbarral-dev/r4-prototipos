@@ -43,7 +43,9 @@ export default defineComponent({
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
-    return { uid, modeItems, vacio, valores, ayuda, why, anuncio, body, pick, recientes, ejemplosPregunta }
+    // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
+    const itemProps = (r) => ({ name: r.name, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
+    return { itemProps, uid, modeItems, vacio, valores, ayuda, why, anuncio, body, pick, recientes, ejemplosPregunta }
   },
   template: `
     <div class="usearch-panel" role="region" aria-label="Buscar o preguntar">
@@ -78,11 +80,11 @@ export default defineComponent({
             <p class="usearch-panel__count">{{ api.results.length }} {{ api.results.length === 1 ? 'resultado' : 'resultados' }} para «{{ api.searchTerm }}»</p>
             <section v-if="valores.length" class="usearch-panel__section" :aria-labelledby="'usearch-val-' + uid">
               <h3 :id="'usearch-val-' + uid" class="usearch-panel__heading">Valores y fondos</h3>
-              <ul class="usearch-panel__results"><SearchResultItem v-for="r in valores" :key="r.name" :name="r.name" :meta="r.meta" :price="r.price" :variation="r.variation" @select="pick(r.name, $event)" /></ul>
+              <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in valores" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
             </section>
             <section v-if="ayuda.length" class="usearch-panel__section" :aria-labelledby="'usearch-ay-' + uid">
               <h3 :id="'usearch-ay-' + uid" class="usearch-panel__heading">Centro de ayuda</h3>
-              <ul class="usearch-panel__results"><SearchResultItem v-for="r in ayuda" :key="r.name" :name="r.name" :meta="r.meta" @select="pick(r.name, $event)" /></ul>
+              <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
             </section>
             <div class="usearch-panel__exit">
               <span>¿No encuentras lo que buscas?</span>

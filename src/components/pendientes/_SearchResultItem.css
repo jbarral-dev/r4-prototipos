@@ -47,3 +47,34 @@
   .r4-searchresult.has-action .r4-searchresult__price { color: var(--text-default); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-regular); }
   .r4-searchresult.has-action .r4-searchresult__variation { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-regular); }
 }
+
+/*
+ * searchResultItem · diseño con mercado (Figma "Fichas de Productos" 1117:20355 y "Contratar" 10083:12582). size lo decide la anchura de la fila (container query), no una prop.
+ * large (≥ 480): fila de 52 (padding 12/4, gap 12), logo 28, nombre body/m SemiBold, a la derecha ISIN · mercado · etiqueta en body/s text/muted con «·» de separador (gap 8).
+ * small (< 480): fila de 60 (padding 8/4, gap 12), logo 32, columna izquierda: nombre + «metadata1 · metadata2» (body/s text/muted); derecha: bandera + mercado (text/subdued) y etiqueta (gap 8).
+ * hover: fondo surface/subtle · divisor inferior border/subtle (showDivider; el último no lo lleva en la lista). La coincidencia buscada va en text/search-highlight.
+ */
+.r4-searchresult--rich { container-type: inline-size; padding: var(--spacing-3) var(--spacing-1); }
+.r4-searchresult--rich:hover { background: var(--surface-subtle); }
+.r4-searchresult--rich.has-divider { box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle); }
+.r4-searchresult--rich.has-divider:last-child { box-shadow: none; }
+
+.r4-searchresult__logo--tile { display: flex; align-items: center; justify-content: center; width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); border-radius: var(--radius-xs); background: var(--surface-inverse); color: var(--text-on-inverse); font-size: var(--size-body-s); line-height: 1; font-weight: var(--font-weight-bold); }
+.r4-searchresult--rich .r4-searchresult__name:hover { text-decoration: none; }
+.r4-searchresult__hl { color: var(--r4-text-search-highlight); }
+
+.r4-searchresult__sub { display: none; align-items: center; gap: var(--spacing-1); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-searchresult__info { display: flex; flex: none; align-items: center; gap: var(--spacing-2); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); white-space: nowrap; }
+.r4-searchresult__market { display: flex; align-items: center; gap: var(--spacing-1); }
+.r4-searchresult__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
+
+@container (min-width: 480px) {
+  .r4-searchresult__id:not(:last-child)::after, .r4-searchresult__market:not(:last-child)::after { content: '·'; margin-left: var(--spacing-2); }
+}
+@container (max-width: 479px) {
+  .r4-searchresult--rich .r4-searchresult__logo--tile { width: var(--spacing-8); height: var(--spacing-8); }
+  .r4-searchresult__sub { display: flex; }
+  .r4-searchresult__id { display: none; }
+  .r4-searchresult__market { color: var(--text-subdued); }
+}
+@container r4page (max-width: 599px) { .r4-searchresult--rich { padding-block: var(--spacing-2); } }

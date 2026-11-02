@@ -23,3 +23,6 @@
 
 .r4-tag .r4-icon { flex: none; width: var(--spacing-3); height: var(--spacing-3); }
 .r4-tag--medium .r4-icon { width: calc(var(--spacing-3) + var(--spacing-05)); height: calc(var(--spacing-3) + var(--spacing-05)); }
+
+/* color=blue (small, sin borde; leído en Figma dentro de searchResultItem): surface feedback/info/bg + texto feedback/info/text */
+.r4-tag--blue { background: var(--feedback-info-bg); color: var(--feedback-info-text); }
