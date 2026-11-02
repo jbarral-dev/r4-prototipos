@@ -9,16 +9,18 @@ import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } fro
 import FichaAccion from './FichaAccion.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
+import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
 import { crearEstado } from './_buscadorEstado.js'
 import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { FichaAccion, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     const desktopField = ref(null)
+    const trigger = ref(null)
     const mobileField = ref(null)
     const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
     const casos = Object.entries(casosFijos)
@@ -42,7 +44,7 @@ export default defineComponent({
       document.documentElement.classList.toggle('usearch-lock', !!(o && capa && getComputedStyle(capa).display !== 'none'))
     })
 
-    const cerrarYDevolverFoco = () => { api.cerrar(); const f = desktopField.value; if (f && f.$el.offsetParent !== null) f.focus() }
+    const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     const onDocClick = (e) => { if (api.open && !e.target.closest('.usearch, .usearch-mobile, .menu__compact-button, .facil')) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
@@ -54,17 +56,24 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
-    return { api, desktopField, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
+    return { api, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
   template: `
     <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
       <template #search>
         <div class="usearch" @focusout="onFocusOut">
-          <R4InputSearch ref="desktopField" v-model="api.query" size="small" reserve-actions :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
-                         @focus="api.abrir()" @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-            <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
-          </R4InputSearch>
-          <div v-if="api.open" class="usearch__dropdown"><R4Popover width="wider" density="none"><UnifiedSearchPanel :api="api" /></R4Popover></div>
+          <a ref="trigger" class="menu__top-item usearch__trigger" href="#" role="button" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" @click.prevent="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon name="ic-search-ai" /><span>{{ placeholder }}</span></a>
+          <div v-if="api.open" class="usearch__dropdown">
+            <R4Popover width="wider" density="none">
+              <div class="usearch__pop">
+                <R4InputSearch ref="desktopField" v-model="api.query" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                               @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+                  <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
+                </R4InputSearch>
+                <UnifiedSearchPanel :api="api" />
+              </div>
+            </R4Popover>
+          </div>
         </div>
       </template>
 
