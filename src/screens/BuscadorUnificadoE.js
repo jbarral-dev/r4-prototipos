@@ -47,13 +47,13 @@ export default defineComponent({
 
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-mobile, .menu__compact-button, .facil'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .menu__compact-button, .facil'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
     const onFocusOut = (e) => { // Tab fuera del campo y del popover (desktop): cierra
       const host = e.currentTarget
-      if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile')) api.cerrar()
+      if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile, .usearch')) api.cerrar()
     }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
@@ -65,23 +65,27 @@ export default defineComponent({
       <template #search>
         <div class="usearch" @focusout="onFocusOut">
           <a ref="trigger" class="menu__top-item usearch__trigger" href="#" role="button" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" @click.prevent="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon name="ic-search-ai" /><span>{{ placeholder }}</span></a>
-          <div v-if="api.open" class="usearch__dropdown">
-            <R4Popover width="wider" density="none">
-              <div class="usearch__pop">
-                <div class="usearch__fieldrow">
-                <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
-                               @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-                </R4InputSearch>
-                <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
-                </div>
-                <UnifiedSearchPanel :api="api" />
-              </div>
-            </R4Popover>
-          </div>
         </div>
       </template>
 
       <template #overlay>
+        <!-- Desktop: capa blanca sobre la franja negra del Menu; campo centrado (máx. 800) y el popover debajo, a 8 px -->
+        <div v-if="api.open" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
+          <div class="usearch-desk__center">
+            <div class="usearch__fieldrow">
+              <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                             @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+              </R4InputSearch>
+              <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
+            </div>
+            <div class="usearch-desk__pop">
+              <R4Popover width="wider" density="none">
+                <div class="usearch__pop"><UnifiedSearchPanel :api="api" /></div>
+              </R4Popover>
+            </div>
+          </div>
+        </div>
+
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
             <div class="usearch-mobile__bar usearch__fieldrow">

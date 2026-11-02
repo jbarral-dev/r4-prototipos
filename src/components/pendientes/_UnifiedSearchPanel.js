@@ -40,7 +40,12 @@ export default defineComponent({
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
     const composer = ref(null)
-    watch(() => props.api.chatView, async (v) => { if (v) { await nextTick(); composer.value?.querySelector('input')?.focus() } })
+    const promptEl = ref(null)
+    // El prompt crece con el texto (hasta el máximo del CSS, luego scroll) y el botón de enviar queda abajo a la derecha
+    const grow = () => { const t = promptEl.value; if (!t) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px' }
+    const onPromptInput = (e) => { props.api.prompt = e.target.value; grow() }
+    watch(() => props.api.prompt, async () => { await nextTick(); grow() })
+    watch(() => props.api.chatView, async (v) => { if (v) { await nextTick(); grow(); promptEl.value?.focus() } })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
     const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
@@ -50,7 +55,7 @@ export default defineComponent({
       : [{ texto: props.api.ejemplosPregunta[0], icon: 'ic-comments-alt' }]))
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, composer, pick, busquedas, preguntas }
+    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, composer, promptEl, onPromptInput, pick, busquedas, preguntas }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
@@ -125,9 +130,11 @@ export default defineComponent({
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->
       <div v-if="api.chatView" ref="composer" class="usearch-panel__composer">
-        <R4InputText class="usearch-panel__prompt" :model-value="api.prompt" placeholder="Escribe tu pregunta" aria-label="Tu pregunta al asistente"
-                     @update:model-value="api.prompt = $event" @keydown.enter.prevent="api.enviarPrompt()" />
-        <R4Button type="primary" size="medium" icon="ic-paper-plane" aria-label="Enviar pregunta" :disabled="!api.prompt.trim() || api.pending" @click="api.enviarPrompt()" />
+        <div class="usearch-panel__prompt">
+          <textarea ref="promptEl" class="usearch-panel__prompt-input" rows="1" :value="api.prompt" placeholder="Escribe tu pregunta" aria-label="Tu pregunta al asistente"
+                    @input="onPromptInput" @keydown.enter.exact.prevent="api.enviarPrompt()"></textarea>
+          <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar pregunta" :disabled="!api.prompt.trim() || api.pending" @click="api.enviarPrompt()" />
+        </div>
       </div>
     </div>
   `,
