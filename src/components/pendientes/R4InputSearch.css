@@ -47,7 +47,6 @@
 .r4-inputsearch__input::-webkit-search-cancel-button, .r4-inputsearch__input::-webkit-search-decoration { display: none; -webkit-appearance: none; }
 
 .r4-inputsearch__actions { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
-.r4-inputsearch__actions.is-idle { visibility: hidden; }
 .r4-inputsearch__erase {
   display: flex;
   align-items: center;

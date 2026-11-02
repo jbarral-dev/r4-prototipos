@@ -21,7 +21,6 @@ export default defineComponent({
     ariaLabel: { type: String, default: undefined },
     showErase: { type: Boolean, default: true },
     icon: { type: String, default: 'search' }, // extra del prototipo
-    reserveActions: { type: Boolean, default: false }, // extra del prototipo: reserva el hueco de «cerrar» para que el campo no cambie de ancho al enfocarlo
   },
   emits: ['update:modelValue', 'close', 'focus', 'submit', 'clear'],
   setup(props, { emit, attrs }) {
@@ -44,7 +43,7 @@ export default defineComponent({
       <input ref="input" v-bind="inputAttrs" class="r4-inputsearch__input" type="search" :value="modelValue" :placeholder="placeholder" :aria-label="ariaLabel || placeholder" :disabled="disabled"
              autocomplete="off" @input="onInput" @focus="onFocus" @keydown="onKeydown" />
       <slot name="status" />
-      <div v-if="showActions || reserveActions" class="r4-inputsearch__actions" :class="{ 'is-idle': !showActions }" :inert="!showActions">
+      <div v-if="showActions" class="r4-inputsearch__actions">
         <button v-if="showErase && hasValue" type="button" class="r4-inputsearch__erase" @click="erase">Borrar</button>
         <button type="button" class="r4-inputsearch__close" aria-label="Cerrar búsqueda" @click="$emit('close')"><Icon name="close" /></button>
       </div>
