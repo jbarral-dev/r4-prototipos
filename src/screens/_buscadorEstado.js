@@ -13,6 +13,7 @@ export function crearEstado() {
   const t0 = Date.now()
   const open = ref(false)
   const query = ref('')
+  const prompt = ref('') // texto del campo de prompt de la conversación (abajo del popover)
   const locked = ref(null) // 'search' | 'chat' | null: modo elegido a mano
   const thread = ref([]) // { role: 'user' | 'assistant', text, links? }
   const pending = ref(false)
@@ -29,6 +30,8 @@ export function crearEstado() {
   const mode = computed(() => locked.value || (thread.value.length ? 'chat' : ruta.value.mode)) // null = campo vacío sin conversación
   const searchTerm = computed(() => query.value.trim() || lastSent.value)
   const results = computed(() => buscar(searchTerm.value))
+  // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
+  const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
   const auto = computed(() => !locked.value && !thread.value.length && !!ruta.value.mode)
 
   const anotar = (evento, detalle = '') => {
@@ -40,13 +43,12 @@ export function crearEstado() {
   const avisar = (msg) => { toast.value = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.value = '' }, 2600) }
 
   watch(query, (q, prev) => {
-    if (!q && !thread.value.length) locked.value = null
     if (q && !prev) anotar('escribe', '')
   })
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { gen++; query.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { gen++; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -75,7 +77,8 @@ export function crearEstado() {
     if (m === mode.value) return
     anotar('CORRIGE modo', `${mode.value} → ${m}${query.value ? ` · «${query.value}»` : lastSent.value ? ` · «${lastSent.value}»` : ''}`)
     locked.value = m
-    if (m === 'search' && !query.value && lastSent.value) query.value = lastSent.value
+    if (m === 'chat' && !thread.value.length && query.value.trim()) { prompt.value = query.value; query.value = '' } // lo escrito arriba pasa al prompt de abajo
+    if (m === 'search' && !query.value) { const t = prompt.value.trim() || lastSent.value; if (t) { query.value = t; prompt.value = '' } } // vuelve a la búsqueda con lo último escrito
   }
 
   const nuevaConversacion = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
@@ -85,6 +88,7 @@ export function crearEstado() {
   const abrirBusqueda = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); const r = buscar(term)[0]; abrirResultado(r ? r.name : term) }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
   const abrirConversacion = (conv) => { gen++; query.value = ''; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
   const accion = (link) => {
@@ -104,7 +108,7 @@ export function crearEstado() {
   if (new URLSearchParams(location.search).get('u') === 'historial') cargarEstado('historial')
 
   return reactive({
-    open, query, locked, thread, pending, lastSent, toast, log, opciones, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, cargarEstado, accion, reiniciar, avisar, anotar,
+    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

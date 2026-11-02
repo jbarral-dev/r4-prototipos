@@ -11,7 +11,7 @@
 
 
 /* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
-.usearch-mobile { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
+.usearch-mobile { position: absolute; inset: 0; z-index: 6; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
 .usearch-mobile__bar { flex: none; padding: var(--spacing-4); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
 .usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3) var(--spacing-3) 0; }
 .usearch-mobile__panel .usearch-panel { flex: 1 1 0; }
@@ -46,3 +46,7 @@ html.usearch-lock { overflow: hidden; }
 .facil__cases button { margin-bottom: var(--spacing-1); }
 .facil__cases em { color: var(--feedback-warning-text); font-style: normal; }
 .facil__reset { text-align: center; font-weight: var(--font-weight-semibold); }
+
+/* Campo + cierre (el cierre aparece solo con el campo disabled, es decir, con la conversación pintada). El campo mantiene SIEMPRE su alto: no se comprime aunque el contenido crezca. */
+.usearch__fieldrow { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
+.usearch__fieldrow .r4-inputsearch { flex: 1 1 0; min-width: 0; }

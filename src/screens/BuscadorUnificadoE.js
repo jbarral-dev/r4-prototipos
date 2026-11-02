@@ -8,6 +8,7 @@
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
+import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
 import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
@@ -16,7 +17,7 @@ import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, R4Button, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     const desktopField = ref(null)
@@ -67,9 +68,12 @@ export default defineComponent({
           <div v-if="api.open" class="usearch__dropdown">
             <R4Popover width="wider" density="none">
               <div class="usearch__pop">
-                <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <div class="usearch__fieldrow">
+                <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
+                <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
+                </div>
                 <UnifiedSearchPanel :api="api" />
               </div>
             </R4Popover>
@@ -80,10 +84,11 @@ export default defineComponent({
       <template #overlay>
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
-            <div class="usearch-mobile__bar">
-              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+            <div class="usearch-mobile__bar usearch__fieldrow">
+              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
+              <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
             </div>
             <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
           </div>
