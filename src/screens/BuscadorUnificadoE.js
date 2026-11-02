@@ -35,7 +35,12 @@ export default defineComponent({
     }
     watch(() => api.open, (o) => { if (o) focusVisible() })
     // Al abrir la capa de mobile se bloquea el scroll de la página de debajo
-    watch(() => api.open, (o) => { document.documentElement.classList.toggle('usearch-lock', o) })
+    // (solo con la capa visible: en desktop quitar la barra de scroll desplazaba la página al abrir el popover)
+    watch(() => api.open, async (o) => {
+      await nextTick()
+      const capa = document.querySelector('.usearch-mobile')
+      document.documentElement.classList.toggle('usearch-lock', !!(o && capa && getComputedStyle(capa).display !== 'none'))
+    })
 
     const cerrarYDevolverFoco = () => { api.cerrar(); const f = desktopField.value; if (f && f.$el.offsetParent !== null) f.focus() }
     const onDocClick = (e) => { if (api.open && !e.target.closest('.usearch, .usearch-mobile, .menu__compact-button, .facil')) api.cerrar() }
@@ -55,7 +60,7 @@ export default defineComponent({
     <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
       <template #search>
         <div class="usearch" @focusout="onFocusOut">
-          <R4InputSearch ref="desktopField" v-model="api.query" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+          <R4InputSearch ref="desktopField" v-model="api.query" size="small" reserve-actions :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                          @focus="api.abrir()" @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
             <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
           </R4InputSearch>

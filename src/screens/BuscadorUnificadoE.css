@@ -1,7 +1,9 @@
 /* Prototipo de investigación · buscador unificado (variante E). Sin diseño en Figma: tokens semánticos y escala de Foundations. */
 
 /* Campo en la franja superior del Menu (desktop): 40 de alto en una franja de 52. El desplegable se ancla al borde derecho del campo. */
-.usearch { position: relative; width: calc(var(--spacing-16) * 6 - var(--spacing-8)); } /* 352 */
+.usearch { position: relative; width: max-content; }
+/* Ancho automático: el campo mide lo que su placeholder (field-sizing) más el padding de la caja; al escribir crece hasta un máximo */
+.usearch .r4-inputsearch__input { field-sizing: content; flex: none; max-width: calc(var(--spacing-16) * 4); }
 .usearch__dropdown { position: absolute; top: calc(100% + var(--spacing-2)); right: 0; z-index: 10; color: var(--text-default); }
 .usearch__dropdown .r4-popover { width: calc(var(--spacing-16) * 10); max-height: calc(100vh - var(--spacing-16) * 2); padding: var(--spacing-3); }
 .usearch__dropdown .usearch-panel { max-height: inherit; }

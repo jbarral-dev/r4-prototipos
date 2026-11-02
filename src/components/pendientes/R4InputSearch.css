@@ -20,6 +20,7 @@
   font-size: var(--size-body-m);
   line-height: var(--line-height-body-m);
 }
+.r4-inputsearch--small { height: var(--r4-component-inputsearch-size-small); } /* extra del prototipo: 32 de alto, resto como medium */
 .r4-inputsearch--large { height: var(--component-inputsearch-size-large); }
 .r4-inputsearch:hover:not(.is-disabled) { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default), var(--effect-card-hover-shadow); }
 .r4-inputsearch.is-focused, .r4-inputsearch.is-active { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-card-hover-shadow); }
@@ -47,6 +48,7 @@
 .r4-inputsearch__input::-webkit-search-cancel-button, .r4-inputsearch__input::-webkit-search-decoration { display: none; -webkit-appearance: none; }
 
 .r4-inputsearch__actions { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
+.r4-inputsearch__actions.is-idle { visibility: hidden; }
 .r4-inputsearch__erase {
   display: flex;
   align-items: center;

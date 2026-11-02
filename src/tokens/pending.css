@@ -5,7 +5,8 @@
  */
 :root {
   --r4-line-width: 1px;                          /* antes Size/Line Width/lineWidth y Components/Button/Global/lineWidth */
-  --r4-menu-bg: var(--color-neutral-gray-600);   /* antes Components/Menu/Component/darkItemBg (#3B3B3B): sin token semántico en Theme */
+  --r4-component-inputsearch-size-small: var(--spacing-8); /* R4InputSearch small (32): pedido por Jon, aún sin variante en Figma ni token en Components */
+  --r4-menu-bg:var(--color-neutral-gray-600);   /* antes Components/Menu/Component/darkItemBg (#3B3B3B): sin token semántico en Theme */
   --r4-menu-height: 76px;                        /* antes menuHeight (Layout, ya no existe): 76 desktop · 56 tablet y mobile */
   --grid-columns: 12;                            /* Nº de columnas de la rejilla: 12 · 8 · 4 (docs "R4Wrapper" y "Páginas de Procesos") */
   --r4-tabitem-min-width: 90px;                  /* ancho mínimo de _TabItem (Figma y Confluence R4Tabs): sin variable */
