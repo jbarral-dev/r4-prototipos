@@ -9,18 +9,6 @@
 .usearch__dropdown { position: absolute; top: calc(100% + var(--spacing-2)); right: 0; z-index: 10; color: var(--text-default); }
 .usearch__dropdown .r4-popover { width: calc(var(--spacing-16) * 10); max-height: calc(100vh - var(--spacing-16) * 2); padding: var(--spacing-3); }
 
-/* Indicador del modo dentro del campo (visible, no interactivo: el cambio se hace con el selector del panel) */
-.usearch__mode {
-  flex: none;
-  padding: 0 var(--spacing-2);
-  border-radius: var(--radius-full);
-  background: var(--surface-subtle);
-  color: var(--text-subdued);
-  font-size: var(--size-body-xs);
-  line-height: var(--line-height-body-s);
-  font-weight: var(--font-weight-semibold);
-  white-space: nowrap;
-}
 
 /* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
 .usearch-mobile { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
@@ -33,7 +21,6 @@
 .usearch-layer-enter-from, .usearch-layer-leave-to { transform: translateY(-100%); }
 @media (prefers-reduced-motion: reduce) { .usearch-layer-enter-active, .usearch-layer-leave-active { transition: none; } }
 html.usearch-lock { overflow: hidden; }
-@container r4page (max-width: 599px) { .usearch__mode { display: none; } } /* en mobile el selector del panel, justo debajo, ya muestra el modo y el campo necesita el ancho */
 
 /* Contenido de relleno de la página: cajas grises */
 .buscador__col { grid-column: 1 / -1; min-width: 0; }

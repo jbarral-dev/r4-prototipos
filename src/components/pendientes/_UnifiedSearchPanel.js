@@ -1,14 +1,13 @@
 // PENDIENTE-IT: no oficial. Prototipo de investigación (variante E: un solo campo decide el modo). NO es un componente del catálogo ni tiene diseño en Figma ni página en Confluence:
-// es una COMPOSICIÓN de componentes reconstruidos (R4SegmentedControls, R4Chip, R4Button, R4Notification, _SearchResultItem) con tokens semánticos; lo que no cubre ningún componente
+// es una COMPOSICIÓN de componentes reconstruidos (R4Tabs, R4Chip, R4Button, _SearchResultItem) con tokens semánticos; lo que no cubre ningún componente
 // (burbujas de mensaje, tarjeta «Preguntar», filas de ejemplos) son estilos propios mínimos y se avisan en «Pendiente / dudas».
 // Contrato: recibe el estado compartido (`api`, ver screens/_buscadorEstado.js) y pinta, bajo el campo, el panel según el modo: vacío (ejemplos) · Resultados · Conversación.
 // Hace visible y corregible el modo: selector Resultados | Conversación (siempre que haya modo) + frase que explica por qué se activó + región aria-live que lo anuncia.
 // Patrón «Búsqueda y selección de elementos» (Confluence 3950968833): sin coincidencias → estado vacío que dice qué se buscó y ofrece salida (aquí, preguntar al asistente).
 import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
-import R4SegmentedControls from './R4SegmentedControls.js'
+import R4Tabs from './R4Tabs.js'
 import R4Chip from './R4Chip.js'
 import R4Button from './R4Button.js'
-import R4Notification from './R4Notification.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import Icon from '../../icons/_Icon.js'
 import { recientes, ejemplosPregunta } from '../../data/buscador-unificado.js'
@@ -17,22 +16,20 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4SegmentedControls, R4Chip, R4Button, R4Notification, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Tabs, R4Chip, R4Button, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
-    const modeItems = [
-      { label: 'Resultados', value: 'search', icon: 'search' },
-      { label: 'Conversación', value: 'chat', icon: 'ic-comment-alt-dots' },
+    const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
+    const bodyId = 'usearch-body-' + uid
+    const modeTabs = [
+      { label: 'Resultados', id: 'usearch-tab-search-' + uid, panelId: bodyId },
+      { label: 'Conversación', id: 'usearch-tab-chat-' + uid, panelId: bodyId },
     ]
+    const activeTab = computed(() => (props.api.mode === 'chat' ? 1 : 0))
+    const onTab = (i) => props.api.setMode(i === 1 ? 'chat' : 'search')
     const vacio = computed(() => !props.api.mode || (props.api.mode === 'search' && !props.api.searchTerm))
     const valores = computed(() => props.api.results.filter((r) => r.kind !== 'ayuda'))
     const ayuda = computed(() => props.api.results.filter((r) => r.kind === 'ayuda'))
-    const why = computed(() => {
-      const a = props.api
-      if (a.locked) return `Has elegido ${a.locked === 'chat' ? 'Conversación' : 'Resultados'}.`
-      if (a.thread.length) return 'Tienes una conversación abierta con el asistente.'
-      return a.mode === 'chat' ? 'Lo has escrito como una pregunta, así que hablas con el asistente.' : 'Lo has escrito como un nombre, así que te mostramos resultados.'
-    })
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
@@ -42,21 +39,19 @@ export default defineComponent({
     const body = ref(null)
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
-    const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, modeItems, vacio, valores, ayuda, why, anuncio, body, pick, recientes, ejemplosPregunta }
+    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, pick, recientes, ejemplosPregunta }
   },
   template: `
     <div class="usearch-panel" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <div v-if="api.mode" class="usearch-panel__modebar">
-        <R4SegmentedControls size="small" type="iconAndText" :items="modeItems" :selected-value="api.mode" aria-label="Modo de la consulta" @select="api.setMode" />
-        <p v-if="api.opciones.explicacion" class="usearch-panel__why">{{ why }}</p>
+        <R4Tabs layout="fixed" :tabs="modeTabs" :active-tab="activeTab" aria-label="Modo de la consulta" @change="onTab" />
       </div>
 
-      <div ref="body" class="usearch-panel__body">
+      <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode ? 'tabpanel' : undefined" :aria-labelledby="api.mode ? modeTabs[activeTab].id : undefined">
         <!-- Vacío: campo sin texto -->
         <template v-if="vacio">
           <p v-if="api.opciones.caption" class="usearch-panel__caption">Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente.</p>
@@ -100,7 +95,6 @@ export default defineComponent({
 
         <!-- Conversación -->
         <template v-else>
-          <R4Notification class="usearch-panel__ai" type="info" :dismissible="false" text="Responde una inteligencia artificial y puede cometer errores." />
           <div v-if="!api.thread.length && api.query.trim()" class="usearch-panel__ask">
             <p class="usearch-panel__ask-label">Vas a preguntar al asistente</p>
             <p class="usearch-panel__ask-text">«{{ api.query.trim() }}»</p>

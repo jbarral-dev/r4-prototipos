@@ -66,9 +66,8 @@ export default defineComponent({
           <div v-if="api.open" class="usearch__dropdown">
             <R4Popover width="wider" density="none">
               <div class="usearch__pop">
-                <R4InputSearch ref="desktopField" v-model="api.query" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-                  <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
                 </R4InputSearch>
                 <UnifiedSearchPanel :api="api" />
               </div>
@@ -81,9 +80,8 @@ export default defineComponent({
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
             <div class="usearch-mobile__bar">
-              <R4InputSearch ref="mobileField" v-model="api.query" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-                <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
               </R4InputSearch>
             </div>
             <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
@@ -98,7 +96,6 @@ export default defineComponent({
             <fieldset class="facil__group"><legend>Panel</legend>
               <label><input type="checkbox" v-model="api.opciones.caption" /> Frase explicativa del campo vacío</label>
               <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Recientes y preguntas de ejemplo</label>
-              <label><input type="checkbox" v-model="api.opciones.explicacion" /> Frase «por qué este modo»</label>
             </fieldset>
             <fieldset class="facil__group"><legend>Casos de enrutado fijados</legend>
               <ul class="facil__cases"><li v-for="[k, c] in casos" :key="k"><button type="button" @click="api.usarTexto(k, 'caso del facilitador')"><b>{{ k }}</b> → {{ c.mode === 'chat' ? 'conversación' : 'resultados' }}<em v-if="c.fallo"> · fallo a propósito</em></button></li></ul>

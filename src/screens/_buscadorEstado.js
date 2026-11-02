@@ -19,7 +19,8 @@ export function crearEstado() {
   const lastSent = ref('')
   const toast = ref('')
   const log = ref([])
-  const opciones = reactive({ ejemplos: true, explicacion: true, caption: true })
+  let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
+  const opciones = reactive({ ejemplos: true, caption: true })
 
   const ruta = computed(() => enrutar(query.value))
   const mode = computed(() => locked.value || (thread.value.length ? 'chat' : ruta.value.mode)) // null = campo vacío sin conversación
@@ -41,8 +42,13 @@ export function crearEstado() {
   })
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
+  // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
+  const limpiar = () => { gen++; query.value = ''; locked.value = null; thread.value = []; lastSent.value = ''; pending.value = false }
+  // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
+  const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
+
   const abrir = () => { if (!open.value) { open.value = true; anotar('abre panel') } }
-  const cerrar = () => { if (open.value) { open.value = false; if (!thread.value.length) locked.value = null; anotar('cierra panel') } }
+  const cerrar = () => { if (open.value) { open.value = false; limpiar(); anotar('cierra panel') } }
 
   const enviar = () => {
     const text = query.value.trim()
@@ -52,7 +58,8 @@ export function crearEstado() {
     query.value = ''
     pending.value = true
     anotar('envía pregunta', text)
-    setTimeout(() => { thread.value.push({ role: 'assistant', ...responder(text) }); pending.value = false }, 900)
+    const g = gen
+    setTimeout(() => { if (g !== gen) return; thread.value.push({ role: 'assistant', ...responder(text) }); pending.value = false }, 900)
   }
   const enviarOBuscar = () => {
     if (mode.value === 'chat') enviar()
@@ -78,6 +85,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, ruta, mode, auto, searchTerm, results,
-    abrir, cerrar, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, accion, reiniciar, avisar, anotar,
   })
 }

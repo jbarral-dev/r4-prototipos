@@ -6,8 +6,7 @@
 .usearch-panel__live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* sr-only */
 
 .usearch-panel__modebar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-4); padding: var(--spacing-1) var(--spacing-1) var(--spacing-3); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
-.usearch-panel__modebar .r4-segmented { flex: none; width: auto; }
-.usearch-panel__why { flex: 1 1 12rem; margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.usearch-panel__modebar .r4-tabs { width: 100%; }
 
 .usearch-panel__body { display: flex; flex-direction: column; gap: var(--spacing-5); min-height: 0; padding: var(--spacing-4) var(--spacing-1) var(--spacing-1); overflow-y: auto; overscroll-behavior: contain; }
 .usearch-panel__section { display: flex; flex-direction: column; gap: var(--spacing-2); }
