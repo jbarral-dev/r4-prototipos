@@ -23,8 +23,8 @@ export default defineComponent({
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'usearch-body-' + uid
     const modeTabs = [
-      { label: 'Resultados', id: 'usearch-tab-search-' + uid, panelId: bodyId },
-      { label: 'Conversación', id: 'usearch-tab-chat-' + uid, panelId: bodyId },
+      { label: 'Buscador', id: 'usearch-tab-search-' + uid, panelId: bodyId },
+      { label: 'Chat', id: 'usearch-tab-chat-' + uid, panelId: bodyId },
     ]
     const activeTab = computed(() => (props.api.mode === 'chat' ? 1 : 0))
     const onTab = (i) => props.api.setMode(i === 1 ? 'chat' : 'search')
