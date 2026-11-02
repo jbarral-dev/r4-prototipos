@@ -24,7 +24,7 @@
 /* Alto y posición = viewport VISUAL (--usearch-vvh/--usearch-vvt los fija el JS): con el teclado nativo abierto la capa se encoge y el panel puede hacer scroll hasta el final */
 .usearch-mobile { position: absolute; top: var(--usearch-vvt, 0); left: 0; right: 0; height: var(--usearch-vvh, 100%); z-index: 6; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
 .usearch-mobile__bar { flex: none; padding: var(--spacing-4); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
-.usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3) var(--spacing-3) 0; }
+.usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3); } /* mismo aire abajo que a los lados: la caja del prompt (con su padding de 4) queda a 16 px de los tres bordes */
 .usearch-mobile__panel .usearch-panel { flex: 1 1 0; }
 @container r4page (max-width: 1023px) { .usearch-mobile { display: flex; } }
 /* Entrada de arriba abajo (animación propia: Figma no define movimiento) */
