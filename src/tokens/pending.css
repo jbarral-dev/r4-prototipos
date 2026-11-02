@@ -29,3 +29,6 @@
 /* Resaltado de la coincidencia en los resultados de búsqueda: Theme/text/search-highlight existe en Figma (Light → color/feedback/blue/500, Dark → blue/300) pero no en la colección volcada en theme.css */
 :root { --r4-text-search-highlight: var(--color-feedback-blue-500); }
 :root[data-theme="dark"] { --r4-text-search-highlight: var(--color-feedback-blue-300); }
+
+/* Scrim del buscador (desktop): capa negra con opacidad por debajo del popover. Sin token en la cascada (Figma no lo define): se prueba al 50 % */
+:root { --r4-scrim: color-mix(in srgb, var(--color-neutral-black) 50%, transparent); }

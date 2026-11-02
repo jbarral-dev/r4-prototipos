@@ -27,7 +27,9 @@ export default defineComponent({
     ]
     const activeTab = computed(() => (props.api.mode === 'chat' ? 1 : 0))
     const onTab = (i) => props.api.setMode(i === 1 ? 'chat' : 'search')
-    const vacio = computed(() => !props.api.mode || (props.api.mode === 'search' && !props.api.searchTerm))
+    // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
+    const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
+    const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.searchTerm))
     const valores = computed(() => props.api.results.filter((r) => r.kind !== 'ayuda'))
     const ayuda = computed(() => props.api.results.filter((r) => r.kind === 'ayuda'))
     const anuncio = computed(() => {
@@ -55,17 +57,17 @@ export default defineComponent({
       : [{ texto: props.api.ejemplosPregunta[0], icon: 'ic-comments-alt' }]))
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, composer, promptEl, onPromptInput, pick, busquedas, preguntas }
+    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, onPromptInput, pick, busquedas, preguntas }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
-      <div v-if="api.mode" class="usearch-panel__modebar">
+      <div v-if="api.mode && !preguntaPendiente" class="usearch-panel__modebar">
         <R4Tabs layout="fixed" :tabs="modeTabs" :active-tab="activeTab" aria-label="Modo de la consulta" @change="onTab" />
       </div>
 
-      <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode ? 'tabpanel' : undefined" :aria-labelledby="api.mode ? modeTabs[activeTab].id : undefined">
+      <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode && !preguntaPendiente ? 'tabpanel' : undefined" :aria-labelledby="api.mode && !preguntaPendiente ? modeTabs[activeTab].id : undefined">
         <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
         <template v-if="vacio">
           <p v-if="api.opciones.caption" class="usearch-panel__caption">Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente.</p>
@@ -89,8 +91,7 @@ export default defineComponent({
             <section v-if="valores.length" class="usearch-panel__section" aria-label="Resultados">
               <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in valores" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
             </section>
-            <section v-if="ayuda.length" class="usearch-panel__section" :aria-labelledby="'usearch-ay-' + uid">
-              <h3 :id="'usearch-ay-' + uid" class="usearch-panel__heading">Centro de ayuda</h3>
+            <section v-if="ayuda.length" class="usearch-panel__section" aria-label="Centro de ayuda">
               <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
             </section>
             <div class="usearch-panel__exit">
@@ -99,8 +100,11 @@ export default defineComponent({
             </div>
           </template>
           <div v-else class="usearch-panel__empty">
-            <p class="usearch-panel__empty-title">No hay resultados para «{{ api.searchTerm }}»</p>
-            <p>Prueba con otro nombre o cuéntaselo al asistente.</p>
+            <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
+            <div class="usearch-panel__empty-texts">
+              <p class="usearch-panel__empty-title">Sin coincidencias para tu búsqueda</p>
+              <p>Comprueba que esté bien escrito. Puedes buscar por nombre o ISIN.</p>
+            </div>
             <R4Button type="secondary" size="medium" icon="ic-comment-alt-dots" text="Preguntar al asistente" @click="api.setMode('chat')" />
           </div>
         </template>

@@ -70,6 +70,7 @@ export default defineComponent({
 
       <template #overlay>
         <!-- Desktop: capa blanca sobre la franja negra del Menu; campo centrado (máx. 800) y el popover debajo, a 8 px -->
+        <div v-if="api.open" class="usearch-scrim" aria-hidden="true"></div>
         <div v-if="api.open" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
             <div class="usearch__fieldrow">
