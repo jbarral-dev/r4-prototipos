@@ -2,7 +2,7 @@
  * R4InputSearch — valores leídos de Figma (medium 40 y large 48; interaction default · hover · focused · active · disabled): fondo surface/default, borde 1 px inside border/default,
  * radio 8 (component/input/radius), padding izquierdo 12, gap 12, lupa 16 (medium) / 20 (large) en icon/subdued, texto body/m en text/default, placeholder text/muted.
  * hover: + CardHoverShadow · focused y active: borde border/inverse + sombra · disabled: input/bg/disabled. «Borrar»: R4Link small (accent/link, 14 SemiBold) con separador a la derecha
- * (border/subtle, padding derecho 12); cerrar: botón circular de 24 con icono de 14 en icon/default. El trazo va "inside" en Figma → box-shadow inset.
+ * (border/subtle, padding derecho 12); cerrar: _ButtonClose circular (24 en medium, 32 en large) con ic-times al 60 % del botón (14,4 / 19,2) en icon/default; hover surface/subtle. El trazo va "inside" en Figma → box-shadow inset.
  */
 .r4-inputsearch {
   position: relative;
@@ -76,6 +76,9 @@
   color: var(--icon-default);
   cursor: pointer;
 }
-.r4-inputsearch__close .r4-icon { width: var(--spacing-3); height: var(--spacing-3); }
+/* _ButtonClose (Figma): size small 24 en el input medium, size medium 32 en el large; el icono ic-times ocupa el 60 % del botón (14,4 / 19,2) */
+.r4-inputsearch--large .r4-inputsearch__close { width: var(--spacing-8); height: var(--spacing-8); }
+.r4-inputsearch__close .r4-icon { width: calc(var(--spacing-6) * 0.6); height: calc(var(--spacing-6) * 0.6); }
+.r4-inputsearch--large .r4-inputsearch__close .r4-icon { width: calc(var(--spacing-8) * 0.6); height: calc(var(--spacing-8) * 0.6); }
 .r4-inputsearch__close:hover { background: var(--surface-subtle); }
 .r4-inputsearch__erase:focus-visible, .r4-inputsearch__close:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); } /* Changelog SM-23182 */
