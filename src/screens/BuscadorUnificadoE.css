@@ -25,6 +25,11 @@
 .usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3) var(--spacing-3) 0; }
 .usearch-mobile__panel .usearch-panel { flex: 1 1 0; }
 @container r4page (max-width: 1023px) { .usearch-mobile { display: flex; } }
+/* Entrada de arriba abajo (animación propia: Figma no define movimiento) */
+.usearch-layer-enter-active, .usearch-layer-leave-active { transition: transform 0.3s ease; }
+.usearch-layer-enter-from, .usearch-layer-leave-to { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) { .usearch-layer-enter-active, .usearch-layer-leave-active { transition: none; } }
+html.usearch-lock { overflow: hidden; }
 @container r4page (max-width: 599px) { .usearch__mode { display: none; } } /* en mobile el selector del panel, justo debajo, ya muestra el modo y el campo necesita el ancho */
 
 /* Contenido de relleno de la página: cajas grises */

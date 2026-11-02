@@ -1,31 +1,29 @@
-// Pantalla de PROTOTIPO DE INVESTIGACIÓN (Flujo B, sin diseño en Figma): variante E del plan «fusionar buscador y chat en r4.com» — un solo campo en la cabecera que decide el modo según lo escrito
-// (pregunta → conversación; palabra o nombre → resultados), con el modo visible y corregible. Se evalúa el ACCESO desde la cabecera y lo que despliega; el contenido de la página es de relleno.
-// Composición (TemplateDetail, superficie gris, sin Footer, como las fichas): Menu type=default (Cliente=Logado) con el campo R4InputSearch en el slot `search` de la franja superior (desktop) ·
-//   en tablet/mobile, la lupa de la barra compacta abre una capa a pantalla completa con el mismo campo y panel · R4Wrapper density=compact × 3 con cajas grises.
-// Un solo estado compartido (screens/_buscadorEstado.js): los dos hosts (desplegable de desktop y capa de tablet/mobile) lo pintan; el CSS muestra el que toca.
+// Pantalla de PROTOTIPO DE INVESTIGACIÓN (Flujo B, sin diseño en Figma): variante E del plan «fusionar buscador y chat en r4.com» — un solo campo que decide el modo según lo escrito
+// (pregunta → conversación; palabra o nombre → resultados), con el modo visible y corregible. Se evalúa el ACCESO desde la cabecera y lo que despliega.
+// Escenario real: la ficha de producto · Acción (FichaAccion, con su Menu y su contenido) más el buscador unificado. El campo R4InputSearch ocupa el sitio del enlace «Buscador» de la franja
+// superior del Menu (desktop) y es el disparador: al enfocarlo se abre el contenido dentro de un R4Popover anclado al campo. En tablet y mobile el disparador es la lupa de la barra compacta y el
+// contenido va en una capa por encima de la página que baja desde arriba (animación propia: Figma no define movimiento).
+// Un solo estado compartido (screens/_buscadorEstado.js): los dos hosts (popover de desktop y capa de tablet/mobile) lo pintan; el CSS muestra el que toca.
 // Datos de ejemplo: src/data/buscador-unificado.js (casos de enrutado fijados, resultados y respuestas guionizadas). Panel del facilitador: abajo a la izquierda (se oculta con ?f=0).
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
-import TemplateDetail from '../templates/TemplateDetail.js'
-import Menu from '../components/pendientes/Menu.js'
-import R4Wrapper from '../components/pendientes/R4Wrapper.js'
+import FichaAccion from './FichaAccion.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
-import R4Button from '../components/pendientes/R4Button.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
-import Icon from '../icons/_Icon.js'
 import { crearEstado } from './_buscadorEstado.js'
 import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { TemplateDetail, Menu, R4Wrapper, R4InputSearch, R4Popover, R4Button, UnifiedSearchPanel: _UnifiedSearchPanel, Icon },
+  components: { FichaAccion, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
-    document.title = 'Buscador unificado · Variante E · Prototipo'
     const api = crearEstado()
     const desktopField = ref(null)
     const mobileField = ref(null)
     const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
     const casos = Object.entries(casosFijos)
+    const placeholder = 'Busca o pregunta'
+    onMounted(() => { document.title = 'Buscador unificado · Variante E · Prototipo' })
 
     // Foco en el campo que se ve (el CSS oculta el otro por container query)
     const focusVisible = async () => {
@@ -36,62 +34,47 @@ export default defineComponent({
       }
     }
     watch(() => api.open, (o) => { if (o) focusVisible() })
+    // Al abrir la capa de mobile se bloquea el scroll de la página de debajo
+    watch(() => api.open, (o) => { document.documentElement.classList.toggle('usearch-lock', o) })
 
-    const placeholder = 'Busca o pregunta'
     const cerrarYDevolverFoco = () => { api.cerrar(); const f = desktopField.value; if (f && f.$el.offsetParent !== null) f.focus() }
     const onDocClick = (e) => { if (api.open && !e.target.closest('.usearch, .usearch-mobile, .menu__compact-button, .facil')) api.cerrar() }
-    // Los enlaces «#» del Menú (maqueta) recargarían el prototipo por el router de hash: se neutralizan
+    // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
-    const onFocusOut = (e) => { // Tab fuera del campo y del panel: cierra (solo desktop; en la capa a pantalla completa el foco queda atrapado en ella)
+    const onFocusOut = (e) => { // Tab fuera del campo y del popover (desktop): cierra
       const host = e.currentTarget
       if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile')) api.cerrar()
     }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
     return { api, desktopField, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
   template: `
-    <TemplateDetail>
-      <template #header>
-        <Menu type="default" @search="api.abrir()">
-          <template #search>
-            <div class="usearch" @focusout="onFocusOut">
-              <R4InputSearch ref="desktopField" v-model="api.query" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
-                             @focus="api.abrir()" @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-                <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
-              </R4InputSearch>
-              <div v-if="api.open" class="usearch__dropdown"><R4Popover width="wider" density="none"><UnifiedSearchPanel :api="api" /></R4Popover></div>
-            </div>
-          </template>
-        </Menu>
+    <FichaAccion @search="api.abrir()">
+      <template #search>
+        <div class="usearch" @focusout="onFocusOut">
+          <R4InputSearch ref="desktopField" v-model="api.query" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
+                         @focus="api.abrir()" @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+            <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
+          </R4InputSearch>
+          <div v-if="api.open" class="usearch__dropdown"><R4Popover width="wider" density="none"><UnifiedSearchPanel :api="api" /></R4Popover></div>
+        </div>
       </template>
 
-      <R4Wrapper density="compact">
-        <div class="r4-grid"><div class="buscador__col">
-          <div class="buscador__box buscador__box--tall"><h1 class="buscador__title">Página de ejemplo</h1><p>Contenido de relleno: el estudio evalúa solo el acceso del buscador unificado en la cabecera y lo que despliega.</p></div>
-        </div></div>
-      </R4Wrapper>
-      <R4Wrapper density="compact">
-        <div class="r4-grid"><div class="buscador__col buscador__row">
-          <div class="buscador__box"></div><div class="buscador__box"></div><div class="buscador__box"></div>
-        </div></div>
-      </R4Wrapper>
-      <R4Wrapper density="compact">
-        <div class="r4-grid"><div class="buscador__col"><div class="buscador__box buscador__box--tall"></div></div></div>
-      </R4Wrapper>
-
       <template #overlay>
-        <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
-          <div class="usearch-mobile__bar">
-            <R4InputSearch ref="mobileField" v-model="api.query" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
-                           @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-              <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
-            </R4InputSearch>
+        <Transition name="usearch-layer">
+          <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
+            <div class="usearch-mobile__bar">
+              <R4InputSearch ref="mobileField" v-model="api.query" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
+                             @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+                <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
+              </R4InputSearch>
+            </div>
+            <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
           </div>
-          <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
-        </div>
+        </Transition>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
 
@@ -113,6 +96,6 @@ export default defineComponent({
           </div>
         </details>
       </template>
-    </TemplateDetail>
+    </FichaAccion>
   `,
 })
