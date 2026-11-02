@@ -22,4 +22,10 @@
   overflow-wrap: anywhere;
 }
 
-.r4-notification__title { font-weight: var(--font-weight-bold); }
+.r4-notification__title { font: var(--font-weight-bold) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body); }
+
+/* Device=Mobile (Figma 9571:16727): título body/m bold y texto body/s; mismo padding, gap y colores. Se resuelve por el ancho del contenedor r4page (mobile ≤ 599). */
+@container r4page (max-width: 599px) {
+  .r4-notification { font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body); }
+  .r4-notification__title { font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); }
+}

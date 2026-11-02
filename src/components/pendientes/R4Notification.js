@@ -2,7 +2,7 @@
 // Reconstrucción desde Figma (era VUE en el catálogo). API = "API componente" de Confluence (R4Notification, 2799370241):
 // type ('error' | 'info' | 'warning' | 'success'), title, text, dismissible (por defecto true), primaryAction, secondaryAction.
 // Roles según la doc: info y success → role="status"; error y warning → role="alert". Icono decorativo (aria-hidden).
-// Reconstruido: type info, con title y text. NO reconstruido (no leído): error, warning y success, el botón de cierre
+// Reconstruido: type info, con title y text, en Device Desktop y Mobile (el CSS lo resuelve por el ancho del contenedor r4page, sin prop; Tablet usa Desktop porque Figma solo define esos dos). NO reconstruido (no leído): error, warning y success, el botón de cierre
 // (dismissible) y las acciones primaria/secundaria; si se piden se avisa por consola.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'

@@ -55,8 +55,11 @@ export default defineComponent({
       const host = e.currentTarget
       if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile, .usearch')) api.cerrar()
     }
-    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
+    // Teclado nativo: la capa de mobile sigue al viewport visual (si no, queda por detrás del teclado y el final del contenido no se alcanza con scroll)
+    const vv = window.visualViewport
+    const ajustarVV = () => { const s = document.documentElement.style; s.setProperty('--usearch-vvh', vv.height + 'px'); s.setProperty('--usearch-vvt', vv.offsetTop + 'px') }
+    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
+    onBeforeUnmount(() => { if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
     return { api, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
