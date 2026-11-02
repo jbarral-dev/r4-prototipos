@@ -1,0 +1,66 @@
+/*
+ * R4InputTextarea — valores leídos de Figma (6063:14983): _Textarea con padding 4 / 8, radio component/input/radius, trazo 1 px inside (border/default), fondo input/bg/default,
+ * texto body/l 18/26 en text/muted (placeholder) y resizer en la esquina; _Input Label (padding 4 0, body/m bold); _Input Caption (padding-top 2, body/s).
+ * Estados hover / focused / disabled / error con los mismos tokens que R4InputText (component/input/*, feedback/*).
+ */
+.r4-textarea {
+  --r4-input-bg: var(--component-input-bg-default);
+  --r4-input-border: var(--component-input-border-default);
+  --r4-input-focus: var(--effect-input-focus-shadow);
+  --r4-textarea-fs: var(--size-body-l);
+  --r4-textarea-lh: var(--line-height-body-l);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.r4-textarea--font-medium { --r4-textarea-fs: var(--size-body-m); --r4-textarea-lh: var(--line-height-body-m); }
+.r4-textarea--error {
+  --r4-input-bg: var(--feedback-error-bg);
+  --r4-input-border: var(--feedback-error-border);
+  --r4-input-focus: var(--effect-input-error-focus-shadow);
+}
+
+.r4-textarea__label { display: flex; align-items: center; gap: var(--spacing-1); padding: var(--spacing-1) 0; }
+.r4-textarea__label-text { font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); color: var(--text-default); }
+.r4-textarea__optional { font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body); color: var(--text-muted); }
+
+.r4-textarea__field {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--component-input-radius);
+  background: var(--r4-input-bg);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-input-border);
+}
+.r4-textarea__input {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  background: transparent;
+  color: var(--text-default);
+  font: var(--font-weight-regular) var(--r4-textarea-fs) / var(--r4-textarea-lh) var(--font-family-body);
+}
+.r4-textarea--resizable .r4-textarea__input { resize: vertical; }
+.r4-textarea__input::placeholder { color: var(--text-muted); opacity: 1; }
+
+/* hover (status default): borde hover */
+.r4-textarea:not(.r4-textarea--error):not(.r4-textarea--disabled) .r4-textarea__field:hover { --r4-input-border: var(--component-input-border-hover); }
+/* focused: borde focused + sombra del status */
+.r4-textarea:not(.r4-textarea--error) .r4-textarea__field:focus-within { --r4-input-border: var(--component-input-border-focused); }
+.r4-textarea__field:focus-within { box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-input-border), var(--r4-input-focus); }
+/* disabled */
+.r4-textarea--disabled .r4-textarea__field { background: var(--component-input-bg-disabled); box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default); }
+.r4-textarea--disabled .r4-textarea__input, .r4-textarea--disabled .r4-textarea__input::placeholder { color: var(--text-disabled); cursor: not-allowed; }
+
+/* extras: autoGrow (una línea y crece hasta maxRows) y acciones dentro de la caja, abajo a la derecha */
+.r4-textarea--grow .r4-textarea__input { max-height: calc(var(--r4-textarea-lh) * var(--r4-textarea-max-rows, 6)); overflow-y: auto; }
+.r4-textarea--has-actions .r4-textarea__input { padding-block: calc((var(--component-button-size-medium) - var(--r4-textarea-lh)) / 2); }
+.r4-textarea__actions { display: flex; flex: none; align-items: center; }
+
+.r4-textarea__caption { padding-top: var(--spacing-05); font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body); color: var(--text-default); }
+.r4-textarea--error .r4-textarea__caption { color: var(--feedback-error-text); }

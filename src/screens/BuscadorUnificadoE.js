@@ -74,10 +74,9 @@ export default defineComponent({
         <div v-if="api.open" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
             <div class="usearch__fieldrow">
-              <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+              <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
-              <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
             </div>
             <div class="usearch-desk__pop">
               <R4Popover width="wider" density="none">
@@ -90,10 +89,9 @@ export default defineComponent({
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
             <div class="usearch-mobile__bar usearch__fieldrow">
-              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :disabled="api.chatView" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
-              <R4Button v-if="api.chatView" type="text" size="medium" icon="close" aria-label="Cerrar búsqueda" @click="cerrarYDevolverFoco()" />
             </div>
             <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
           </div>

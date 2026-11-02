@@ -14,24 +14,7 @@
 .usearch-panel__caption, .usearch-panel__count { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
 .usearch-panel__chips { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
 
-.usearch-panel__examples, .usearch-panel__results, .usearch-panel__thread { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-.usearch-panel__example {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  width: 100%;
-  padding: var(--spacing-3);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--text-default);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.usearch-panel__example .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); color: var(--icon-subdued); }
-.usearch-panel__example:hover { background: var(--surface-subtle); }
-.usearch-panel__example:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.usearch-panel__results, .usearch-panel__thread { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
 
 .usearch-panel__exit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-2) var(--spacing-4); padding-top: var(--spacing-3); border-top: var(--r4-line-width) solid var(--border-subtle); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
 
@@ -52,7 +35,7 @@
 
 .usearch-panel__thread { gap: var(--spacing-3); }
 .usearch-msg { display: flex; flex-direction: column; gap: var(--spacing-1); max-width: 85%; padding: var(--spacing-3) var(--spacing-4); border-radius: var(--radius-sm); }
-.usearch-msg--user { align-self: flex-end; background: var(--surface-inverse); color: var(--text-on-inverse); }
+.usearch-msg--user { align-self: flex-end; background: var(--accent-subtle); color: var(--text-default); } /* gama primary de Renta 4 (ruby) vía el token de Theme accent/subtle */
 .usearch-msg--assistant { align-self: flex-start; background: var(--surface-subtle); }
 .usearch-msg--pending .usearch-msg__text { color: var(--text-subdued); }
 .usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); opacity: 0.8; }
@@ -63,30 +46,3 @@
 .usearch-panel--chat { flex: 1 1 auto; }
 .usearch-panel--chat .usearch-panel__body { flex: 1 1 auto; min-height: calc(var(--spacing-16) * 4); }
 .usearch-panel__composer { flex: none; padding: var(--spacing-3) var(--spacing-1) var(--spacing-1); }
-/* Caja del prompt con el aspecto de R4InputText (radio, fondo y trazo del input); el botón vive dentro y se queda abajo a la derecha cuando el texto crece */
-.usearch-panel__prompt {
-  display: flex;
-  align-items: flex-end;
-  gap: var(--spacing-2);
-  padding: var(--spacing-1) var(--spacing-1) var(--spacing-1) var(--spacing-3);
-  border-radius: var(--component-input-radius);
-  background: var(--component-input-bg-default);
-  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default);
-}
-.usearch-panel__prompt:hover { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-hover); }
-.usearch-panel__prompt:focus-within { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-input-focus-shadow); }
-.usearch-panel__prompt-input {
-  flex: 1 1 0;
-  min-width: 0;
-  height: var(--component-button-size-medium);
-  max-height: calc(var(--line-height-body-l) * 6 + var(--component-button-size-medium) - var(--line-height-body-l)); /* hasta 6 líneas; luego scroll */
-  padding-block: calc((var(--component-button-size-medium) - var(--line-height-body-l)) / 2);
-  border: 0;
-  outline: 0;
-  resize: none;
-  background: transparent;
-  color: var(--text-default);
-  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
-}
-.usearch-panel__prompt-input::placeholder { color: var(--text-muted); opacity: 1; }
-.usearch-panel__prompt .r4-button { flex: none; }
