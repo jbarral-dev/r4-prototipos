@@ -16,7 +16,7 @@ export default defineComponent({
   props: {
     modelValue: { type: String, default: '' },
     placeholder: { type: String, default: 'Buscar producto' },
-    size: { type: String, default: 'medium', validator: (v) => ['small', 'medium', 'large'].includes(v) }, // `small` (32) es extra del prototipo
+    size: { type: String, default: 'medium', validator: (v) => ['medium', 'large'].includes(v) },
     disabled: { type: Boolean, default: false },
     ariaLabel: { type: String, default: undefined },
     showErase: { type: Boolean, default: true },
