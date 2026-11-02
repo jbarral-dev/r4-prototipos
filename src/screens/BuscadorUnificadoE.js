@@ -52,10 +52,10 @@ export default defineComponent({
     return { api, desktopField, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
   template: `
-    <FichaAccion @search="api.abrir()">
+    <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
       <template #search>
         <div class="usearch" @focusout="onFocusOut">
-          <R4InputSearch ref="desktopField" v-model="api.query" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
+          <R4InputSearch ref="desktopField" v-model="api.query" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                          @focus="api.abrir()" @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
             <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
           </R4InputSearch>
@@ -67,7 +67,7 @@ export default defineComponent({
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
             <div class="usearch-mobile__bar">
-              <R4InputSearch ref="mobileField" v-model="api.query" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" :icon="api.mode === 'chat' ? 'ic-comment-alt-dots' : 'search'"
+              <R4InputSearch ref="mobileField" v-model="api.query" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 <template #status><span v-if="api.mode" class="usearch__mode" aria-hidden="true">{{ api.mode === 'chat' ? 'Conversación' : 'Resultados' }}</span></template>
               </R4InputSearch>

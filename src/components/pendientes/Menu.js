@@ -32,6 +32,7 @@ export default defineComponent({
     userName: { type: String, default: 'ROBERTO' },
     hasNotifications: { type: Boolean, default: true },
     advisorLabel: { type: String, default: 'Tu asesor' },
+    searchIcon: { type: String, default: 'search' }, // extra del prototipo del buscador unificado: icono del botón de búsqueda de la barra compacta
   },
   emits: ['back', 'close', 'menu', 'search'],
   template: `
@@ -85,7 +86,7 @@ export default defineComponent({
         <div class="menu__compact">
           <a class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
           <div class="menu__compact-actions">
-            <button type="button" class="menu__compact-button" aria-label="Buscar" @click="$emit('search')"><Icon name="search" /></button>
+            <button type="button" class="menu__compact-button" aria-label="Buscar" @click="$emit('search')"><Icon :name="searchIcon" /></button>
             <button type="button" class="menu__compact-button menu__compact-button--burger" aria-label="Menú" aria-haspopup="true" aria-expanded="false" @click="$emit('menu')"><Icon name="ic-bars" /></button>
           </div>
         </div>

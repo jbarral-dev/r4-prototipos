@@ -40,6 +40,7 @@ export default defineComponent({
   name: 'FichaAccion',
   // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
   emits: ['search'],
+  props: { searchIcon: { type: String, default: 'search' } },
   directives: { dragScroll },
   components: {
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
@@ -86,7 +87,7 @@ export default defineComponent({
   template: `
     <TemplateDetail>
       <template #header>
-        <Menu type="default" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
+        <Menu type="default" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
