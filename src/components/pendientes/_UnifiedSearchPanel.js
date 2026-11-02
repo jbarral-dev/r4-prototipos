@@ -44,7 +44,7 @@ export default defineComponent({
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
-    const itemProps = (r) => ({ name: r.name, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
+    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
     return { itemProps, uid, modeItems, vacio, valores, ayuda, why, anuncio, body, pick, recientes, ejemplosPregunta }
   },
   template: `

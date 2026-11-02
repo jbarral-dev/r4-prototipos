@@ -8,7 +8,7 @@
 //    etiqueta; showType = hay type), showDivider (por defecto true) — más `highlight` (texto buscado: la coincidencia del nombre va en text/search-highlight, SemiBold).
 //    size small | large NO es prop: lo resuelve el CSS por el ancho de la propia fila (container query): large (una línea: logo 28 · nombre · ISIN · mercado · etiqueta) a partir de 480 px;
 //    small (dos líneas: nombre y «metadata1 · metadata2» a la izquierda; mercado y etiqueta a la derecha). interaction hover lo resuelve el CSS. En large Figma solo muestra metadata2.
-//    *`logoText` es EXTRA del prototipo: el logo real (_Logo, imagen de la empresa) no se tiene como asset; se pinta una ficha oscura con la inicial. Datos de ejemplo.
+//    `logoSrc` (URL del iso-* del recurso «Resources - Logos») y `logoText` son EXTRAS del prototipo: el _Logo de Figma es una instancia de imagen; si no hay logo en el recurso se pinta una ficha oscura con la inicial.
 // Interactividad (CLAUDE.md: un solo elemento interactivo): el nombre es el <a> y se estira con ::after para que toda la fila sea clicable; la acción de mobile queda por encima.
 // NO reconstruido: showBuyButton en el diseño con mercado (el botón «Comprar» del hover en large está oculto en Figma).
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
@@ -23,6 +23,7 @@ export default defineComponent({
   components: { Icon, R4Button, R4Tag },
   props: {
     logo: { type: String, default: undefined },
+    logoSrc: { type: String, default: undefined }, // URL del logo (recurso «Resources - Logos», iso-*)
     logoText: { type: String, default: undefined },
     name: { type: String, required: true },
     meta: { type: Array, default: () => [] },
@@ -45,7 +46,7 @@ export default defineComponent({
       if (props.tone === 'muted' || !props.variation) return 'is-muted'
       return props.variation.trim().startsWith('-') || props.variation.trim().startsWith('−') ? 'is-negative' : 'is-positive'
     })
-    const rich = computed(() => !!(props.type || props.market || props.metadata2 || props.logoText))
+    const rich = computed(() => !!(props.type || props.market || props.metadata2 || props.logoText || props.logoSrc))
     // Coincidencia sin acentos ni mayúsculas: se resalta la consulta completa o, si no está, la palabra más larga que aparezca
     const parts = computed(() => {
       const n = props.name
@@ -63,7 +64,8 @@ export default defineComponent({
   },
   template: `
     <li class="r4-searchresult" :class="{ 'has-action': action, 'r4-searchresult--rich': rich, 'has-divider': rich && showDivider }">
-      <span v-if="logoText" class="r4-searchresult__logo r4-searchresult__logo--tile" aria-hidden="true">{{ logoText }}</span>
+      <img v-if="logoSrc" class="r4-searchresult__logo r4-searchresult__logo--img" :src="logoSrc" alt="" />
+      <span v-else-if="logoText" class="r4-searchresult__logo r4-searchresult__logo--tile" aria-hidden="true">{{ logoText }}</span>
       <Icon v-else-if="logo" class="r4-searchresult__logo" :name="logo" />
       <div class="r4-searchresult__content">
         <div class="r4-searchresult__left">
