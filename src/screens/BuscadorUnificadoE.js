@@ -45,7 +45,8 @@ export default defineComponent({
     })
 
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
-    const onDocClick = (e) => { if (api.open && !e.target.closest('.usearch, .usearch-mobile, .menu__compact-button, .facil')) api.cerrar() }
+    // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-mobile, .menu__compact-button, .facil'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -96,6 +97,10 @@ export default defineComponent({
             <fieldset class="facil__group"><legend>Panel</legend>
               <label><input type="checkbox" v-model="api.opciones.caption" /> Frase explicativa del campo vacío</label>
               <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Recientes y preguntas de ejemplo</label>
+            </fieldset>
+            <fieldset class="facil__group"><legend>Estado de partida</legend>
+              <button type="button" class="facil__reset" @click="api.cargarEstado('nuevo')">Usuario que aún no ha interactuado</button>
+              <button type="button" class="facil__reset" @click="api.cargarEstado('historial')">Usuario que ya ha buscado y preguntado</button>
             </fieldset>
             <fieldset class="facil__group"><legend>Casos de enrutado fijados</legend>
               <ul class="facil__cases"><li v-for="[k, c] in casos" :key="k"><button type="button" @click="api.usarTexto(k, 'caso del facilitador')"><b>{{ k }}</b> → {{ c.mode === 'chat' ? 'conversación' : 'resultados' }}<em v-if="c.fallo"> · fallo a propósito</em></button></li></ul>

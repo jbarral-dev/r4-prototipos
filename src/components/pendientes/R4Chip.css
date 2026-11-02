@@ -34,3 +34,7 @@
 .r4-chip:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-default), var(--effect-card-focus-outline); }
 .r4-chip.is-selected:focus-visible { box-shadow: inset 0 0 0 var(--spacing-05) var(--border-inverse), var(--effect-card-focus-outline); }
 .r4-chip[aria-disabled='true'] { background: var(--component-input-bg-disabled); color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+/* Icono a la izquierda (showIcon en Figma): medium 16 · small 14, gap 8 · 4, icon/subdued */
+.r4-chip__icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); margin-right: var(--spacing-2); color: var(--icon-subdued); }
+.r4-chip--small .r4-chip__icon { width: calc(var(--spacing-4) - var(--spacing-05)); height: calc(var(--spacing-4) - var(--spacing-05)); margin-right: var(--spacing-1); }

@@ -7,7 +7,7 @@
 //    De Conversación a Resultados, el campo recupera la última pregunta enviada para buscarla.
 //  · Se registra cada acción en `log` (y en window.__buscadorLog) para el facilitador.
 import { reactive, ref, computed, watch } from '../../vendor/vue.esm-browser.prod.js'
-import { enrutar, buscar, responder } from '../data/buscador-unificado.js'
+import { enrutar, buscar, responder, norm, populares, ejemplosPregunta } from '../data/buscador-unificado.js'
 
 export function crearEstado() {
   const t0 = Date.now()
@@ -19,6 +19,9 @@ export function crearEstado() {
   const lastSent = ref('')
   const toast = ref('')
   const log = ref([])
+  // Historial del usuario (sobrevive a cerrar el panel): búsquedas hechas y conversaciones con el asistente. Vacío = usuario que aún no ha interactuado.
+  const historial = reactive({ busquedas: [], conversaciones: [] })
+  let convActual = null // conversación del historial que se está pintando (los mensajes nuevos se añaden a ella)
   let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
   const opciones = reactive({ ejemplos: true, caption: true })
 
@@ -43,7 +46,7 @@ export function crearEstado() {
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { gen++; query.value = ''; locked.value = null; thread.value = []; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { gen++; query.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -53,17 +56,19 @@ export function crearEstado() {
   const enviar = () => {
     const text = query.value.trim()
     if (!text || pending.value) return
+    if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(3) }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
     query.value = ''
     pending.value = true
     anotar('envía pregunta', text)
     const g = gen
-    setTimeout(() => { if (g !== gen) return; thread.value.push({ role: 'assistant', ...responder(text) }); pending.value = false }, 900)
+    const th = thread.value // si el panel se reinicia antes de que conteste, la respuesta se guarda igualmente en su conversación del historial
+    setTimeout(() => { th.push({ role: 'assistant', ...responder(text) }); if (g === gen) pending.value = false }, 900)
   }
   const enviarOBuscar = () => {
     if (mode.value === 'chat') enviar()
-    else if (query.value.trim()) anotar('intro en resultados', query.value.trim())
+    else if (query.value.trim()) { anotar('intro en resultados', query.value.trim()); if (results.value.length) registrarBusqueda(query.value.trim()) }
   }
 
   const setMode = (m) => {
@@ -73,18 +78,33 @@ export function crearEstado() {
     if (m === 'search' && !query.value && lastSent.value) query.value = lastSent.value
   }
 
-  const nuevaConversacion = () => { thread.value = []; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
+  const nuevaConversacion = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
   const usarTexto = (text, origen) => { query.value = text; abrir(); anotar('elige ' + origen, text) }
-  const abrirResultado = (name) => { anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
+  const registrarBusqueda = (term) => { const k = norm(term); historial.busquedas = [term, ...historial.busquedas.filter((b) => norm(b) !== k)].slice(0, 4) }
+  // Chip de «Búsquedas»: lleva a la ficha del primer resultado de esa búsqueda
+  const abrirBusqueda = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); const r = buscar(term)[0]; abrirResultado(r ? r.name : term) }
+  // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
+  const abrirConversacion = (conv) => { gen++; query.value = ''; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
+  const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
   const accion = (link) => {
     anotar('acción del asistente', link.label)
     if (link.toast === '__resultados__') setMode('search')
     else { avisar(`Prototipo: ${link.toast}`); cerrar() }
   }
-  const reiniciar = () => { open.value = false; query.value = ''; locked.value = null; thread.value = []; lastSent.value = ''; pending.value = false; toast.value = ''; log.value = []; window.__buscadorLog = [] }
+  const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado('nuevo') }
+  // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas
+  const conversacionEjemplo = (q) => ({ titulo: q, thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
+  const cargarEstado = (tipo) => {
+    limpiar()
+    historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
+    historial.conversaciones = tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
+    anotar('estado de partida', tipo)
+  }
+  if (new URLSearchParams(location.search).get('u') === 'historial') cargarEstado('historial')
 
   return reactive({
-    open, query, locked, thread, pending, lastSent, toast, log, opciones, ruta, mode, auto, searchTerm, results,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, accion, reiniciar, avisar, anotar,
+    open, query, locked, thread, pending, lastSent, toast, log, opciones, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

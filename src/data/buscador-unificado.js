@@ -64,7 +64,7 @@ export function buscar(texto) {
 }
 
 // ── Estado vacío ──
-export const recientes = ['Telefónica', 'Fidelity']
+export const populares = ['Telefónica', 'Santander', 'Iberdrola', 'Fidelity'] // búsquedas populares: se muestran a quien aún no ha buscado nada
 export const ejemplosPregunta = [
   '¿Qué necesito para abrir una cuenta?',
   '¿Cómo funcionan los planes de pensiones?',

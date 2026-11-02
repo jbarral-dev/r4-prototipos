@@ -10,7 +10,6 @@ import R4Chip from './R4Chip.js'
 import R4Button from './R4Button.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import Icon from '../../icons/_Icon.js'
-import { recientes, ejemplosPregunta } from '../../data/buscador-unificado.js'
 
 let panelUid = 0
 
@@ -39,9 +38,15 @@ export default defineComponent({
     const body = ref(null)
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
+    // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
+    const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
+    const busquedas = computed(() => (hayBusquedas.value ? props.api.historial.busquedas : props.api.populares).map((t) => ({ texto: t, icon: hayBusquedas.value ? 'ic-history' : 'ic-search' })))
+    const preguntas = computed(() => (props.api.historial.conversaciones.length
+      ? props.api.historial.conversaciones.map((c) => ({ texto: c.titulo, conv: c, icon: 'ic-history' }))
+      : [{ texto: props.api.ejemplosPregunta[0], icon: 'ic-comments-alt' }]))
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, pick, recientes, ejemplosPregunta }
+    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, valores, ayuda, anuncio, body, pick, busquedas, preguntas }
   },
   template: `
     <div class="usearch-panel" role="region" aria-label="Buscar o preguntar">
@@ -52,19 +57,19 @@ export default defineComponent({
       </div>
 
       <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode ? 'tabpanel' : undefined" :aria-labelledby="api.mode ? modeTabs[activeTab].id : undefined">
-        <!-- Vacío: campo sin texto -->
+        <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
         <template v-if="vacio">
           <p v-if="api.opciones.caption" class="usearch-panel__caption">Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente.</p>
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
-            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas recientes</h3>
+            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas</h3>
             <div class="usearch-panel__chips">
-              <R4Chip v-for="r in recientes" :key="r" size="small" :label="r" @click="api.usarTexto(r, 'reciente')" />
+              <R4Chip v-for="b in busquedas" :key="b.texto" size="small" :label="b.texto" :icon="b.icon" @click="api.abrirBusqueda(b.texto)" />
             </div>
           </section>
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
-            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">Preguntas frecuentes</h3>
+            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">Preguntas</h3>
             <ul class="usearch-panel__examples">
-              <li v-for="q in ejemplosPregunta" :key="q"><button type="button" class="usearch-panel__example" @click="api.usarTexto(q, 'pregunta de ejemplo')"><Icon name="ic-comment-alt-dots" /><span>{{ q }}</span></button></li>
+              <li v-for="q in preguntas" :key="q.texto"><button type="button" class="usearch-panel__example" @click="q.conv ? api.abrirConversacion(q.conv) : api.preguntar(q.texto)"><Icon :name="q.icon" /><span>{{ q.texto }}</span></button></li>
             </ul>
           </section>
         </template>
