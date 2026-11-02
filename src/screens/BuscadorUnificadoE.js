@@ -63,7 +63,7 @@ export default defineComponent({
   template: `
     <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
       <template #search>
-        <div class="usearch" @focusout="onFocusOut">
+        <div class="usearch">
           <a ref="trigger" class="menu__top-item usearch__trigger" href="#" role="button" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" @click.prevent="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon name="ic-search-ai" /><span>{{ placeholder }}</span></a>
         </div>
       </template>
