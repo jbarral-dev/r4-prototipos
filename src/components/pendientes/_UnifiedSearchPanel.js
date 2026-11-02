@@ -129,7 +129,6 @@ export default defineComponent({
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
             <li class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></li>
           </ol>
-          <R4Button v-if="api.thread.length" class="usearch-panel__reset" type="text" size="medium" icon="ic-undo" text="Nueva conversación" @click="api.nuevaConversacion()" />
         </template>
       </div>
 

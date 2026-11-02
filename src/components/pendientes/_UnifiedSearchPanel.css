@@ -31,7 +31,6 @@
 .usearch-panel__ask-text { margin: 0; font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
 .usearch-panel__ask-actions { display: flex; align-items: center; gap: var(--spacing-3); padding-top: var(--spacing-1); }
 .usearch-panel__hint { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
-.usearch-panel__reset { align-self: flex-start; }
 
 .usearch-panel__thread { gap: var(--spacing-3); }
 .usearch-msg { display: flex; flex-direction: column; gap: var(--spacing-1); max-width: 85%; padding: var(--spacing-3) var(--spacing-4); border-radius: var(--radius-sm); }
