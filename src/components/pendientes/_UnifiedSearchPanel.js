@@ -109,7 +109,8 @@ export default defineComponent({
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
             <div class="usearch-panel__empty-texts">
               <p class="usearch-panel__empty-title">Sin coincidencias para tu búsqueda</p>
-              <p>Comprueba que esté bien escrito. Puedes buscar por nombre o ISIN.</p>
+              <p>Comprueba que «{{ api.searchTerm }}» esté bien escrito.</p>
+              <p>También puedes probar preguntando a nuestro asistente.</p>
             </div>
             <R4Button type="secondary" size="medium" icon="ic-comment-alt-dots" text="Preguntar al asistente" @click="api.setMode('chat')" />
           </div>
@@ -117,7 +118,7 @@ export default defineComponent({
 
         <!-- Conversación -->
         <template v-else>
-          <div v-if="!api.thread.length && api.query.trim()" class="usearch-panel__ask">
+          <div v-if="!api.thread.length && api.query.trim() && !api.chatView" class="usearch-panel__ask">
             <p class="usearch-panel__ask-label">Vas a preguntar al asistente</p>
             <p class="usearch-panel__ask-text">«{{ api.query.trim() }}»</p>
             <div class="usearch-panel__ask-actions">

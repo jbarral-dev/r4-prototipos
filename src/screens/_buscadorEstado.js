@@ -61,7 +61,7 @@ export function crearEstado() {
     if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(3) }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
-    query.value = ''
+    query.value = text // el campo conserva siempre la cadena (también al cambiar de pestaña); en mobile mantiene así la X para cerrar la capa
     pending.value = true
     anotar('envía pregunta', text)
     const g = gen
@@ -69,7 +69,7 @@ export function crearEstado() {
     setTimeout(() => { th.push({ role: 'assistant', ...responder(text) }); if (g === gen) pending.value = false }, 900)
   }
   const enviarOBuscar = () => {
-    if (mode.value === 'chat') enviar()
+    if (mode.value === 'chat') { if (!thread.value.length || query.value.trim() !== lastSent.value) enviar() } // el campo conserva la pregunta enviada: Intro sin cambiarla no la repite
     else if (query.value.trim()) { anotar('intro en resultados', query.value.trim()); if (results.value.length) registrarBusqueda(query.value.trim()) }
   }
 
@@ -77,7 +77,6 @@ export function crearEstado() {
     if (m === mode.value) return
     anotar('CORRIGE modo', `${mode.value} → ${m}${query.value ? ` · «${query.value}»` : lastSent.value ? ` · «${lastSent.value}»` : ''}`)
     locked.value = m
-    if (m === 'chat' && !thread.value.length && query.value.trim()) { prompt.value = query.value; query.value = '' } // lo escrito arriba pasa al prompt de abajo
     if (m === 'search' && !query.value) { const t = prompt.value.trim() || lastSent.value; if (t) { query.value = t; prompt.value = '' } } // vuelve a la búsqueda con lo último escrito
   }
 
@@ -87,7 +86,7 @@ export function crearEstado() {
   // Chip de «Búsquedas»: lleva a la ficha del primer resultado de esa búsqueda
   const abrirBusqueda = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); const r = buscar(term)[0]; abrirResultado(r ? r.name : term) }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
-  const abrirConversacion = (conv) => { gen++; query.value = ''; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const abrirConversacion = (conv) => { gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
