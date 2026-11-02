@@ -8,6 +8,7 @@
 // NO reconstruido: Type Blocked, Cliente=Sin logar, el menú desplegable (megamenú de desktop y panel del hamburguesa: no están en el diseño), la foto del asesor (es una imagen del
 //   diseño: se pinta una inicial), los submenús (los ítems con `hasChildren` solo llevan la flecha).
 // Datos de ejemplo (prototipo): navItems, userName, advisor.
+// Extra del prototipo del buscador unificado: slot `search` (sustituye al enlace «Buscador» de la franja superior en desktop; en tablet/mobile el botón de la lupa emite `search`).
 import { defineComponent } from '../../../vendor/vue.esm-browser.prod.js'
 import R4ProgressBar from './R4ProgressBar.js'
 import R4BrandTypes from './R4BrandTypes.js'
@@ -56,7 +57,7 @@ export default defineComponent({
           <div class="menu__top">
             <div class="menu__top-content">
               <a class="menu__top-item" href="#"><Icon name="ic-star" /><span>Favoritos</span></a>
-              <a class="menu__top-item" href="#"><Icon name="search" /><span>Buscador</span></a>
+              <slot name="search"><a class="menu__top-item" href="#"><Icon name="search" /><span>Buscador</span></a></slot>
               <a class="menu__top-item menu__top-item--advisor" href="#"><span class="menu__avatar menu__avatar--small" aria-hidden="true">A</span><span>{{ advisorLabel }}</span></a>
             </div>
           </div>

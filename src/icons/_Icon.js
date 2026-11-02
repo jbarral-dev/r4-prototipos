@@ -4,6 +4,7 @@
 import { defineComponent, computed, h } from '../../vendor/vue.esm-browser.prod.js'
 import { icons } from './icons.js'
 import './icons.ficha.js' // registra los iconos de la ficha de producto en el mismo registro
+import './icons.buscador.js' // registra los iconos del buscador unificado
 
 const Icon = defineComponent({
   name: '_Icon',

@@ -1,0 +1,53 @@
+/* Prototipo de investigación · buscador unificado (variante E). Sin diseño en Figma: tokens semánticos y escala de Foundations. */
+
+/* Campo en la franja superior del Menu (desktop): 40 de alto en una franja de 52. El desplegable se ancla al borde derecho del campo. */
+.usearch { position: relative; width: calc(var(--spacing-16) * 6 - var(--spacing-8)); } /* 352 */
+.usearch__dropdown { position: absolute; top: calc(100% + var(--spacing-2)); right: 0; z-index: 10; color: var(--text-default); }
+.usearch__dropdown .r4-popover { width: calc(var(--spacing-16) * 10); max-height: calc(100vh - var(--spacing-16) * 2); padding: var(--spacing-3); }
+.usearch__dropdown .usearch-panel { max-height: inherit; }
+
+/* Indicador del modo dentro del campo (visible, no interactivo: el cambio se hace con el selector del panel) */
+.usearch__mode {
+  flex: none;
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-subtle);
+  color: var(--text-subdued);
+  font-size: var(--size-body-xs);
+  line-height: var(--line-height-body-s);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+/* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
+.usearch-mobile { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
+.usearch-mobile__bar { flex: none; padding: var(--spacing-4); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
+.usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3) var(--spacing-3) 0; }
+.usearch-mobile__panel .usearch-panel { flex: 1 1 0; }
+@container r4page (max-width: 1023px) { .usearch-mobile { display: flex; } }
+@container r4page (max-width: 599px) { .usearch__mode { display: none; } } /* en mobile el selector del panel, justo debajo, ya muestra el modo y el campo necesita el ancho */
+
+/* Contenido de relleno de la página: cajas grises */
+.buscador__col { grid-column: 1 / -1; min-width: 0; }
+.buscador__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gutter); }
+.buscador__box { display: flex; flex-direction: column; gap: var(--spacing-3); min-height: calc(var(--spacing-16) * 2); padding: var(--spacing-6); border-radius: var(--radius-sm); background: var(--surface-subtle); color: var(--text-subdued); }
+.buscador__box--tall { min-height: calc(var(--spacing-16) * 4); }
+.buscador__title { margin: 0; color: var(--text-default); font-family: var(--font-family-headings); font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); font-weight: var(--font-weight-bold); }
+@container r4page (max-width: 599px) { .buscador__row { grid-template-columns: 1fr; } }
+
+.buscador__toast { position: absolute; left: 50%; bottom: var(--spacing-8); transform: translateX(-50%); max-width: calc(100% - var(--spacing-8)); padding: var(--spacing-3) var(--spacing-5); border-radius: var(--radius-sm); background: var(--surface-inverse); color: var(--text-on-inverse); font-size: var(--size-body-s); line-height: var(--line-height-body-s); pointer-events: none; }
+
+/* Panel del facilitador (herramienta de la sesión, no forma parte del diseño) */
+.facil { position: absolute; left: var(--spacing-3); bottom: var(--spacing-3); z-index: 5; width: calc(var(--spacing-16) * 5); max-width: calc(100% - var(--spacing-6)); border: var(--r4-line-width) solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); pointer-events: auto; }
+.facil > summary { padding: var(--spacing-2) var(--spacing-3); cursor: pointer; font-weight: var(--font-weight-semibold); }
+.facil__body { display: flex; flex-direction: column; gap: var(--spacing-2); max-height: 60vh; padding: 0 var(--spacing-3) var(--spacing-3); overflow-y: auto; }
+.facil__group { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: var(--spacing-2); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); }
+.facil__group legend { padding: 0 var(--spacing-1); font-weight: var(--font-weight-semibold); }
+.facil__cases, .facil__log { margin: 0; padding: 0; list-style: none; }
+.facil__log { max-height: calc(var(--spacing-16) * 2); overflow-y: auto; }
+.facil__log li { padding: var(--spacing-05) 0; }
+.facil__log span { color: var(--text-muted); }
+.facil__cases button, .facil__reset { width: 100%; padding: var(--spacing-1) var(--spacing-2); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); background: var(--surface-default); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.facil__cases button { margin-bottom: var(--spacing-1); }
+.facil__cases em { color: var(--feedback-warning-text); font-style: normal; }
+.facil__reset { text-align: center; font-weight: var(--font-weight-semibold); }
