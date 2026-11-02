@@ -9,6 +9,7 @@ import R4Tabs from './R4Tabs.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
+import R4Notification from './R4Notification.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import Icon from '../../icons/_Icon.js'
@@ -17,7 +18,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4InputTextarea, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -70,7 +71,7 @@ export default defineComponent({
       <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode && !preguntaPendiente ? 'tabpanel' : undefined" :aria-labelledby="api.mode && !preguntaPendiente ? modeTabs[activeTab].id : undefined">
         <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
         <template v-if="vacio">
-          <p v-if="api.opciones.caption" class="usearch-panel__caption">Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente.</p>
+          <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas</h3>
             <div class="usearch-panel__chips">
