@@ -60,6 +60,8 @@
 /* extras: autoGrow (una línea y crece hasta maxRows) y acciones dentro de la caja, abajo a la derecha */
 .r4-textarea--grow .r4-textarea__input { max-height: calc(var(--r4-textarea-lh) * var(--r4-textarea-max-rows, 6)); overflow-y: auto; }
 .r4-textarea--has-actions .r4-textarea__input { padding-block: calc((var(--component-button-size-medium) - var(--r4-textarea-lh)) / 2); }
+/* con acciones dentro, el aire a la derecha iguala al de arriba y abajo para que el botón quede centrado en su esquina */
+.r4-textarea--has-actions .r4-textarea__field { padding-right: var(--spacing-1); }
 .r4-textarea__actions { display: flex; flex: none; align-items: center; }
 
 .r4-textarea__caption { padding-top: var(--spacing-05); font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body); color: var(--text-default); }
