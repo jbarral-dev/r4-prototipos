@@ -14,7 +14,7 @@ export const accion = {
     market: { name: 'BME', flag: 'flag-spain' },
     priceTarget: { label: 'Precio objetivo R4', value: '20,10 €', recommendation: 'Mantener' },
     breadcrumbs: [
-      { label: 'Invertir', href: '#' },
+      { label: 'Bolsas y derivados', href: '#' },
       { label: 'Bolsas', href: '#' },
       { label: 'Bolsa Nacional', href: '#' },
       { label: 'IBERDROLA' }, // sin href = página actual
