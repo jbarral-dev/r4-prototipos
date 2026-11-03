@@ -57,7 +57,7 @@
                   <div class="portada__contenido">
                     <R4PageTitleSection title="Prototipos R4" description="Prototipos funcionales (provisionales) construidos con los componentes reconstruidos del Design System. Cada uno tiene su propia dirección." />
                     <R4Section v-for="g in grupos" :key="g.titulo" appearance="boxed" background-color="white" :title="g.titulo">
-                      <R4NavigationItems size="medium" :items="g.items" :aria-label="g.titulo" />
+                      <R4NavigationItems size="medium" :icon-is-boxed="false" :items="g.items" :aria-label="g.titulo" />
                     </R4Section>
                   </div>
                 </div>
