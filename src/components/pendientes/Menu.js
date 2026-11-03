@@ -5,8 +5,8 @@
 // Reconstruido: type=process (Cliente=Logado: Menu + R4ProgressBar; sin tocar en esta revisión) y type=default (Cliente=Logado):
 //   · Desktop (≥ 1024): franja de usuario (favoritos · perfil · cerrar sesión) + barra principal (isotipo · ítems · buscar · «Contratar») + submenú (enlaces de la sección).
 //   · Tablet (600–1023): barra compacta de 76 (isotipo · buscar · hamburguesa roja 48). Mobile (≤ 599): barra de 56 (isotipo · buscar 56 · hamburguesa 56 a sangre).
-// NO reconstruido: Type Blocked, Cliente=Sin logar y Potencial, el menú desplegable (megamenú de desktop y panel del hamburguesa: no se ha leído) ni los submenús de cada ítem; estados hover/pressed
-//   de los ítems (no están en las variantes leídas); la sección activa del submenú (en Figma todos los enlaces están en default).
+// NO reconstruido: Type Blocked, Cliente=Sin logar y Potencial, el menú desplegable (megamenú de desktop y panel del hamburguesa: no se ha leído) ni los submenús de cada ítem; estados pressed y disabled
+//   de los ítems de la barra (Figma solo da color al hover: #707070). Leídos: ítem de la barra Default/Hover/Current y ítem del submenú Default/Active (texto y trazo inferior de 2 en accent).
 // Discrepancias de Figma (generación antigua): el «Desktop» de 1024 solapa los ítems con la lupa y el botón (no caben en 1024: se deja scroll horizontal en los ítems); el botón «Contratar» pasa a solo icono
 //   (ic-plus-square) por debajo de 1280 como en esa variante; la pestaña activa lleva un trazo superior #3b3b3b literal (no tiene variable).
 // Datos de ejemplo (prototipo): navItems, subNavItems, userName.
@@ -29,8 +29,15 @@ export default defineComponent({
     totalSteps: { type: Number, default: 3 },
     showClose: { type: Boolean, default: true },
     // type=default
-    navItems: { type: Array, default: () => [{ label: 'Tu cuenta', current: true }, { label: 'Carteras gestionadas' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados' }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }] }, // { label, href?, current? }
-    subNavItems: { type: Array, default: () => [{ label: 'Transferencias' }, { label: 'Traspasos' }, { label: 'Movimientos e informes' }, { label: 'Asesoramiento' }, { label: 'Otras operaciones y consultas' }] }, // { label, href? }
+    navItems: { type: Array, default: () => [{ label: 'Tu cuenta' }, { label: 'Carteras gestionadas' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados', current: true }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }] }, // { label, href?, current? }
+    subNavItems: { type: Array, default: () => [
+      { label: 'Bolsas', href: 'https://www.r4.com/portal?TX=goto&FWD=MAIN11&PORTLET=BLS002&PAG=1', current: true },
+      { label: 'ETFs', href: 'https://www.r4.com/productos-inversion/etfs' },
+      { label: 'CFDs', href: 'https://www.r4.com/portal?TX=carteras&OPC=37&HOJA=4&INT=7&CAB=10&PAG=11' },
+      { label: 'Derivados', href: 'https://www.r4.com/portal?TX=carteras&CTD=FYO&OPC=37&INT=4&PAG=8&HOJA=1&CAB=8' },
+      { label: 'Warrants', href: 'https://www.r4.com/portal?TX=carteras&OPC=37&PAG=8&HOJA=5&CAB=7&INT=3' },
+      { label: 'Criptoactivos', href: 'https://www.r4.com/productos-inversion/cripto' },
+    ] }, // { label, href?, current? }: hijos de la sección actual (Bolsas y derivados)
     ctaText: { type: String, default: 'Contratar' },
     userName: { type: String, default: 'Alex' },
     searchIcon: { type: String, default: undefined }, // extra del prototipo del buscador unificado: icono propio para los botones de búsqueda (por defecto, los de Figma)
@@ -78,8 +85,8 @@ export default defineComponent({
                 </nav>
               </div>
               <div class="menu__right">
-                <slot name="search"><button type="button" class="menu__search" aria-label="Buscar" @click="$emit('search')"><Icon :name="searchIcon || 'ic-search-24'" /></button></slot>
-                <R4Button class="menu__cta" type="primary" size="large" icon="ic-shopping-cart" :text="ctaText" />
+                <slot name="search"><button type="button" class="menu__search" aria-label="Buscar" @click="$emit('search')"><Icon :class="{ 'menu__search-ai': searchIcon }" :name="searchIcon || 'ic-search-24'" /></button></slot>
+                <R4Button class="menu__cta" type="primary" size="large" icon="ic-plus-square" :text="ctaText" />
                 <R4Button class="menu__cta menu__cta--icon" type="primary" size="large" icon="ic-plus-square" :aria-label="ctaText" />
               </div>
             </div>
@@ -87,7 +94,7 @@ export default defineComponent({
           <div class="menu__sub">
             <nav class="menu__sub-content" aria-label="Secundaria">
               <ul class="menu__sub-list">
-                <li v-for="(it, i) in subNavItems" :key="i"><a class="menu__sub-item" :href="it.href || '#'">{{ it.label }}</a></li>
+                <li v-for="(it, i) in subNavItems" :key="i"><a class="menu__sub-item" :class="{ 'menu__sub-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>
               </ul>
             </nav>
           </div>
@@ -97,7 +104,7 @@ export default defineComponent({
           <a class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
           <div class="menu__compact-actions">
             <button type="button" class="menu__compact-button menu__compact-button--search" aria-label="Buscar" @click="$emit('search')">
-              <Icon v-if="searchIcon" :name="searchIcon" />
+              <Icon v-if="searchIcon" class="menu__icon-custom" :name="searchIcon" />
               <template v-else><Icon class="menu__icon-tablet" name="ic-search-24" /><Icon class="menu__icon-mobile" name="search" /></template>
             </button>
             <button type="button" class="menu__compact-button menu__compact-button--burger" aria-label="Menú" aria-haspopup="true" aria-expanded="false" @click="$emit('menu')"><Icon name="ic-bars" /></button>

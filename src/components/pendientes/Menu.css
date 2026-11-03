@@ -99,10 +99,13 @@
 .menu__nav li { display: flex; }
 .menu__nav-item { display: flex; align-items: center; padding-inline: var(--spacing-2); color: var(--text-on-inverse); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-regular); text-decoration: none; white-space: nowrap; }
 /* Ítem actual: pestaña blanca que arranca 4 por debajo del borde superior y se une al submenú */
-.menu__nav-item--current { padding-top: var(--spacing-1); background: var(--surface-default); color: var(--text-default); box-shadow: inset 0 var(--spacing-1) 0 var(--r4-menu-bg); }
+.menu__nav-item:hover { background: var(--r4-menu-item-hover); }
+.menu__nav-item--current, .menu__nav-item--current:hover { padding-top: var(--spacing-1); background: var(--surface-default); color: var(--text-default); box-shadow: inset 0 var(--spacing-1) 0 var(--r4-menu-bg); }
 
 .menu__search { display: flex; align-items: center; justify-content: center; width: var(--component-button-size-large); height: var(--component-button-size-large); padding: 0; border: 0; border-radius: var(--component-button-radius); background: transparent; color: var(--text-on-inverse); cursor: pointer; }
 .menu__search .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+/* ic-search-ai ocupa todo su cuadro; la lupa de Figma (Application / Search) ocupa 18,75 de 24: se escala el icono de IA a esa proporción */
+.menu__search .menu__search-ai, .menu__compact-button .r4-icon.menu__icon-custom { width: calc(var(--spacing-6) * 25 / 32); height: calc(var(--spacing-6) * 25 / 32); }
 .menu.menu--default .menu__cta--icon { display: none; }
 
 /* Submenú */
@@ -112,6 +115,7 @@
 .menu__sub-list::-webkit-scrollbar { display: none; }
 .menu__sub-list li { display: flex; }
 .menu__sub-item { display: flex; align-items: center; padding-inline: var(--spacing-2); color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; white-space: nowrap; }
+.menu__sub-item--current { color: var(--accent-default); box-shadow: inset 0 calc(var(--spacing-05) * -1) 0 var(--accent-default); }
 
 /* «Contratar» solo con icono por debajo de 1280 (Figma: variante Desktop) */
 @container r4page (max-width: 1279px) {
@@ -137,5 +141,6 @@
   .menu__compact-button--search { width: var(--spacing-14); height: var(--spacing-14); border-radius: 0; }
   .menu__compact-button--burger { width: var(--spacing-14); height: var(--spacing-14); margin-left: 0; }
   .menu__compact-button .menu__icon-tablet { display: none; }
+  .menu__compact-button .r4-icon.menu__icon-custom { width: var(--spacing-4); height: var(--spacing-4); }
   .menu__compact-button .menu__icon-mobile { display: block; width: var(--spacing-4); height: var(--spacing-4); }
 }
