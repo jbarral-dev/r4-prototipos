@@ -1,7 +1,7 @@
 /* Prototipo de investigación · buscador unificado (variante F, conversación primero). Reutiliza de la variante E (BuscadorUnificadoE.css): scrim, .usearch-mobile, .usearch-layer, facilitador, toast. */
 
 /* R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que la conversación haga scroll por dentro y el prompt quede abajo (o todo centrado en la primera carga) */
-.csearch-sheet__body { display: flex; flex-direction: column; height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2)); }
+.csearch-sheet__body { display: flex; flex-direction: column; margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4)); } /* el contenido del Sheet arranca a 8 px de la cabecera: +16 = 24 */
 @container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet { display: none; } }
 
 /* Capa de tablet y mobile: barra con título y cierre (mismos tokens y medidas que la cabecera del R4Sheet bottom: 40 de botón) */

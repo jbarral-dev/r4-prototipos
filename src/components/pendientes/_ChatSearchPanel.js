@@ -100,7 +100,7 @@ export default defineComponent({
       <!-- Bajo la caja del prompt (patrón de los chats): nueva conversación e historial. Con la conversación en blanco no hay nada que cerrar, así que no se ofrece «Nueva conversación» -->
       <nav v-if="enHistorial || api.thread.length || api.conversaciones.length" class="csearch__links" aria-label="Conversaciones">
         <R4Button v-if="enHistorial" type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver()" />
-        <R4Button v-if="api.thread.length || enHistorial" type="text" size="medium" text="Nueva conversación" @click="nueva()" />
+        <R4Button v-if="api.thread.length || enHistorial" type="text" size="medium" icon="ic-plus" text="Nueva conversación" @click="nueva()" />
         <R4Button v-if="!enHistorial && api.conversaciones.length" type="text" size="medium" icon="ic-history" text="Historial" @click="api.verHistorial()" />
       </nav>
     </div>
