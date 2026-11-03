@@ -144,3 +144,8 @@
   .menu__compact-button .r4-icon.menu__icon-custom { width: var(--spacing-4); height: var(--spacing-4); }
   .menu__compact-button .menu__icon-mobile { display: block; width: var(--spacing-4); height: var(--spacing-4); }
 }
+
+/* burgerOnlyMobile (extra del prototipo del menú hamburguesa): sin hamburguesa a partir de tablet */
+@container r4page (min-width: 600px) {
+  .menu--burger-mobile .menu__compact-button--burger { display: none; }
+}

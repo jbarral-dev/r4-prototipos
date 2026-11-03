@@ -1,0 +1,61 @@
+/*
+ * _MenuHamburguesa — valores leídos de Figma («Navegación - Potenciales», Menu Layer 1614:673 / 1668:2394 y Button Group 1614:794):
+ * capa de 390 × 590 bajo la cabecera de 56 · fondo surface/default · padding 20 vertical / 16 horizontal · nivel 1: gap 16 entre los tres R4NavigationItems · nivel 2: gap 40 entre «Volver» y el bloque,
+ * y 16 entre el enlace de sección (R4Link large) y la lista · Button Group: padding 16, gap 16, borde superior 1 border/subtle, fondo surface/default.
+ * Ocupa todo el ancho y el alto bajo la cabecera (el Button Group queda fijo al fondo y la capa hace scroll si no cabe).
+ * Solo existe en mobile (< 600): por encima el CSS lo oculta.
+ * Movimiento (no definido en Figma): entrada desde la derecha, 0,28 s como R4Sheet.
+ */
+.menu-hamburguesa {
+  position: fixed;
+  inset: var(--r4-menu-height) 0 0 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-default);
+  pointer-events: auto;
+}
+
+.menu-hamburguesa__stage { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.menu-hamburguesa__panes { position: absolute; inset: 0; }
+
+.menu-hamburguesa__pane {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-5) var(--spacing-4);
+  overflow-y: auto;
+  background: var(--surface-default);
+}
+/* Niveles 2+: «Volver» y bloque separados 40 */
+.menu-hamburguesa__back { align-self: flex-start; }
+.menu-hamburguesa__pane:not(:first-child) { gap: var(--spacing-10); }
+.menu-hamburguesa__section { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.menu-hamburguesa__title { align-self: flex-start; text-transform: uppercase; }
+
+.menu-hamburguesa__actions {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4);
+  background: var(--surface-default);
+  box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle);
+}
+
+/* Movimiento: el panel y cada capa entran/salen por la derecha */
+.menu-hamburguesa-enter-active, .menu-hamburguesa-leave-active,
+.menu-pane-enter-active, .menu-pane-leave-active { transition: transform 0.28s ease; }
+.menu-hamburguesa-enter-from, .menu-hamburguesa-leave-to,
+.menu-pane-enter-from, .menu-pane-leave-to { transform: translateX(100%); }
+@media (prefers-reduced-motion: reduce) {
+  .menu-hamburguesa-enter-active, .menu-hamburguesa-leave-active,
+  .menu-pane-enter-active, .menu-pane-leave-active { transition: none; }
+}
+
+/* Solo mobile */
+@container r4page (min-width: 600px) {
+  .menu-hamburguesa { display: none; }
+}

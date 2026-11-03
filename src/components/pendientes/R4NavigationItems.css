@@ -52,3 +52,10 @@
 
 /* iconIsBoxed=false (R4Icon style=plain): sin caja ni fondo, icono de 20 en gris oscuro (component/icon/plain/neutralDark) */
 .r4-navitems__icon:not(.r4-navitems__icon--boxed) { width: var(--spacing-5); height: var(--spacing-5); color: var(--component-icon-plain-neutraldark); }
+
+/* showLine=false por ítem (Figma): sin línea inferior */
+.r4-navitems__item.has-no-line::after { display: none; }
+
+/* hasCardContainer=true (size medium, default): CardContainer (surface/default, trazo border/subtle de 1, radio 8) y padding de 16 por los cuatro lados; sin línea */
+.r4-navitems--card .r4-navitems__item { padding: var(--spacing-4); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--surface-default); }
+.r4-navitems--card .r4-navitems__item::after { display: none; }

@@ -4,7 +4,9 @@
 // size (large | medium; obligatorio), hasCardContainer (boolean, false), iconIsBoxed (boolean, true).
 // Semántica según la doc: <nav> > <ul> > <li> con <a> (el foco cae en el ítem completo; iconos y chevron decorativos).
 // Reconstruido (leído en Figma): size medium, hasCardContainer=false (ítem plano con línea inferior), estados default / hover / focused / pressed / disabled.
-// NO reconstruido: size large, hasCardContainer=true (con CardContainer), showLine/showLink = false, density default/relaxed solo como gap.
+// Extras del prototipo del menú hamburguesa (Figma «Navegación - Potenciales», 1614:673): cada ítem admite showLine (false oculta la línea inferior; en Figma showLine) y hasCardContainer=true se
+//   reconstruye solo en size medium y estado default (CardContainer: surface/default, trazo border/subtle de 1, radio 8, padding 16; sus estados hover/focus no se han leído: se reutilizan los del ítem plano).
+// NO reconstruido: size large, hasCardContainer=true con otros estados, density default/relaxed solo como gap.
 // Extra: cada ítem admite showLink (false oculta el chevron; en Figma showLink, Changelog SM-24193; la API de la doc no lo recoge). El icono es obligatorio en la API; en el menú de acciones lleva ic-clock sin flecha (Jon).
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -22,15 +24,15 @@ export default defineComponent({
   },
   emits: ['select'],
   setup(props) {
-    if (props.size !== 'medium' || props.hasCardContainer) console.warn('R4NavigationItems: solo está reconstruido size="medium" sin hasCardContainer')
-    const classes = computed(() => ['r4-navitems', 'r4-navitems--' + props.density])
+    if (props.size !== 'medium') console.warn('R4NavigationItems: solo está reconstruido size="medium"')
+    const classes = computed(() => ['r4-navitems', 'r4-navitems--' + props.density, { 'r4-navitems--card': props.hasCardContainer }])
     return { classes }
   },
   template: `
     <nav :aria-label="ariaLabel">
       <ul :class="classes">
         <li v-for="(it, i) in items" :key="i" class="r4-navitems__li">
-          <a class="r4-navitems__item" :class="{ 'is-disabled': it.disabled }" :href="it.disabled ? undefined : it.linkHref" :aria-disabled="it.disabled ? 'true' : undefined"
+          <a class="r4-navitems__item" :class="{ 'is-disabled': it.disabled, 'has-no-line': it.showLine === false }" :href="it.disabled ? undefined : it.linkHref" :aria-disabled="it.disabled ? 'true' : undefined"
              @click="$emit('select', it, $event)">
             <span v-if="it.icon" class="r4-navitems__icon" :class="{ 'r4-navitems__icon--boxed': iconIsBoxed }"><Icon :name="it.icon" /></span>
             <span class="r4-navitems__text">
