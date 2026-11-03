@@ -21,6 +21,7 @@ export default defineComponent({
     ariaLabel: { type: String, default: undefined },
     showErase: { type: Boolean, default: true },
     icon: { type: String, default: 'search' }, // extra del prototipo
+    showClose: { type: Boolean, default: true }, // extra del prototipo: sin aspa, «Borrar» pierde su separador y su padding derecho
   },
   emits: ['update:modelValue', 'close', 'focus', 'submit', 'clear'],
   setup(props, { emit, attrs }) {
@@ -38,13 +39,13 @@ export default defineComponent({
     return { input, focused, hasValue, showActions, onInput, erase, onKeydown, onFocus, onFocusout, inputAttrs, focus }
   },
   template: `
-    <div role="search" class="r4-inputsearch" :class="[$attrs.class, 'r4-inputsearch--' + size, { 'is-focused': focused, 'is-active': hasValue, 'is-disabled': disabled }]" :style="$attrs.style" @focusout="onFocusout">
+    <div role="search" class="r4-inputsearch" :class="[$attrs.class, 'r4-inputsearch--' + size, { 'is-focused': focused, 'is-active': hasValue, 'is-disabled': disabled, 'r4-inputsearch--no-close': !showClose }]" :style="$attrs.style" @focusout="onFocusout">
       <Icon class="r4-inputsearch__icon" :name="icon" />
       <input ref="input" v-bind="inputAttrs" class="r4-inputsearch__input" type="search" :value="modelValue" :placeholder="placeholder" :aria-label="ariaLabel || placeholder" :disabled="disabled"
              autocomplete="off" @input="onInput" @focus="onFocus" @keydown="onKeydown" />
       <div v-if="showActions" class="r4-inputsearch__actions">
         <button v-if="showErase && hasValue" type="button" class="r4-inputsearch__erase" @click="erase">Borrar</button>
-        <button type="button" class="r4-inputsearch__close" aria-label="Cerrar búsqueda" @click="$emit('close')"><Icon name="close" /></button>
+        <button v-if="showClose" type="button" class="r4-inputsearch__close" aria-label="Cerrar búsqueda" @click="$emit('close')"><Icon name="close" /></button>
       </div>
     </div>
   `,

@@ -62,6 +62,7 @@
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
 }
+.r4-inputsearch--no-close .r4-inputsearch__erase { padding-right: 0; border-right: 0; } /* sin aspa no hay a quién separar */
 .r4-inputsearch__erase:hover { color: var(--accent-link-hover); text-decoration: underline; }
 .r4-inputsearch__close {
   display: flex;
