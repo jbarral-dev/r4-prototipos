@@ -7,18 +7,22 @@
 import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Button from './R4Button.js'
 import R4InputTextarea from './R4InputTextarea.js'
+import R4NavigationItems from './R4NavigationItems.js'
 import _SearchResultItem from './_SearchResultItem.js'
 
 export default defineComponent({
   name: '_ChatSearchPanel',
-  components: { R4Button, R4InputTextarea, SearchResultItem: _SearchResultItem },
+  components: { R4Button, R4InputTextarea, R4NavigationItems, SearchResultItem: _SearchResultItem },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const body = ref(null)
     const promptEl = ref(null)
-    const vacio = computed(() => !props.api.thread.length)
+    const vacio = computed(() => !props.api.thread.length && props.api.vista === 'chat')
+    const enHistorial = computed(() => props.api.vista === 'historial')
+    const historialItems = computed(() => props.api.conversaciones.map((c) => ({ title: c.titulo, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
     const anuncio = computed(() => {
       const last = props.api.thread[props.api.thread.length - 1]
+      if (props.api.vista === 'historial') return 'Conversaciones anteriores.'
       if (props.api.pending) return 'El asistente está escribiendo.'
       if (!last || last.role === 'user') return ''
       return last.kind === 'results' ? `${last.items.length} resultados para ${last.term}.` : 'Respuesta del asistente.'
@@ -38,7 +42,11 @@ export default defineComponent({
       else el.scrollTop = el.scrollHeight
     })
     const focus = () => promptEl.value?.focus()
-    return { body, promptEl, vacio, anuncio, valores, ayuda, itemProps, pick, focus }
+    // Tras cambiar de conversación el foco vuelve a la caja del prompt (si hay caja)
+    const onConv = (it, e) => { e.preventDefault(); props.api.abrirConversacion(it.conv); nextTick(focus) }
+    const nueva = () => { props.api.nuevaConversacion(); nextTick(focus) }
+    const volver = () => { props.api.volverAlChat(); nextTick(focus) }
+    return { body, promptEl, vacio, enHistorial, historialItems, onConv, nueva, volver, anuncio, valores, ayuda, itemProps, pick, focus }
   },
   template: `
     <div class="csearch" :class="{ 'csearch--empty': vacio }" role="region" aria-label="Asistente de búsqueda">
@@ -46,8 +54,14 @@ export default defineComponent({
 
       <!-- Primera carga: saludo y descripción; la caja del prompt (abajo) forma con ellos un bloque centrado en vertical -->
       <div v-if="vacio" class="csearch__hero">
-        <h3 class="csearch__greeting">Hola, ¿en qué puedo ayudarte?</h3>
-        <p class="csearch__lead">Pregúntame lo que necesites sobre Renta 4 o escribe el nombre de un producto para encontrarlo.</p>
+        <h3 class="csearch__greeting">{{ api.nueva ? '¿Con qué te puedo ayudar ahora?' : 'Hola, ¿en qué puedo ayudarte?' }}</h3>
+        <p v-if="!api.nueva" class="csearch__lead">Pregúntame lo que necesites sobre Renta 4 o escribe el nombre de un producto para encontrarlo.</p>
+      </div>
+
+      <!-- Historial: lista de conversaciones anteriores (la más reciente primero) -->
+      <div v-else-if="enHistorial" class="csearch__body csearch__history">
+        <h3 class="csearch__history-title">Conversaciones anteriores</h3>
+        <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Conversaciones anteriores" @select="onConv" />
       </div>
 
       <div v-else ref="body" class="csearch__body">
@@ -68,10 +82,6 @@ export default defineComponent({
                 <p class="csearch-turn__group">Centro de ayuda</p>
                 <ul class="usearch-panel__results" aria-label="Centro de ayuda"><SearchResultItem v-for="(r, i) in ayuda(m)" :key="'a' + i" v-bind="itemProps(r, m)" @select="pick(r.name, $event)" /></ul>
               </template>
-              <div class="csearch-turn__exit">
-                <span>¿Buscabas otra cosa?</span>
-                <R4Button type="text" size="medium" icon="ic-comment-alt-dots" text="Preguntar al asistente" :disabled="api.pending" @click="api.preguntarSobre(m.term)" />
-              </div>
             </template>
           </li>
           <li v-if="api.pending" class="csearch-turn csearch-turn--assistant" aria-hidden="true">
@@ -80,12 +90,19 @@ export default defineComponent({
         </ol>
       </div>
 
-      <div class="csearch__composer">
+      <div v-if="!enHistorial" class="csearch__composer">
         <R4InputTextarea ref="promptEl" class="csearch__prompt" :model-value="api.prompt" auto-grow :max-rows="6" font-size="medium" :resizable="false" submit-on-enter
                          placeholder="Pregunta o busca un producto" aria-label="Tu pregunta o búsqueda" @update:model-value="api.prompt = $event" @submit="api.enviar()">
           <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar" :disabled="!api.prompt.trim() || api.pending" @click="api.enviar()" />
         </R4InputTextarea>
       </div>
+
+      <!-- Bajo la caja del prompt (patrón de los chats): nueva conversación e historial. Con la conversación en blanco no hay nada que cerrar, así que no se ofrece «Nueva conversación» -->
+      <nav v-if="enHistorial || api.thread.length || api.conversaciones.length" class="csearch__links" aria-label="Conversaciones">
+        <R4Button v-if="enHistorial" type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver()" />
+        <R4Button v-if="api.thread.length || enHistorial" type="text" size="medium" text="Nueva conversación" @click="nueva()" />
+        <R4Button v-if="!enHistorial && api.conversaciones.length" type="text" size="medium" icon="ic-history" text="Historial" @click="api.verHistorial()" />
+      </nav>
     </div>
   `,
 })

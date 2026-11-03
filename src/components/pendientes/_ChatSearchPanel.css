@@ -26,4 +26,7 @@
 .csearch-turn--results > .usearch-msg__who { padding-inline: var(--spacing-1); }
 .csearch-turn__intro { margin: 0; padding-inline: var(--spacing-1); }
 .csearch-turn__group { margin: var(--spacing-2) 0 0; padding-inline: var(--spacing-1); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
-.csearch-turn__exit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-2) var(--spacing-4); padding-top: var(--spacing-3); border-top: var(--r4-line-width) solid var(--border-subtle); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+/* Enlaces bajo la caja del prompt: nueva conversación e historial */
+.csearch__links { flex: none; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--spacing-1) var(--spacing-4); padding-top: var(--spacing-2); }
+.csearch__history { gap: var(--spacing-3); }
+.csearch__history-title { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }

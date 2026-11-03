@@ -92,6 +92,10 @@ export default defineComponent({
               <ul class="facil__cases"><li v-for="[k, c] in casos" :key="k"><button type="button" @click="api.usarTexto(k, 'caso del facilitador')"><b>{{ k }}</b> → {{ c.mode === 'chat' ? 'texto' : 'resultados' }}<em v-if="c.fallo"> · fallo a propósito</em></button></li></ul>
               <ul class="facil__cases"><li><button type="button" @click="api.usarTexto('¿Cómo funcionan los planes de pensiones?', 'pregunta')"><b>¿Cómo funcionan los planes de pensiones?</b> → texto</button></li></ul>
             </fieldset>
+            <fieldset class="facil__group"><legend>Estado de partida</legend>
+              <button type="button" class="facil__reset" @click="api.cargarEstado('nuevo')">Usuario sin conversaciones previas</button>
+              <button type="button" class="facil__reset" @click="api.cargarEstado('historial')">Usuario con historial</button>
+            </fieldset>
             <fieldset class="facil__group"><legend>Registro ({{ api.log.length }})</legend>
               <ol class="facil__log"><li v-for="(l, i) in api.log" :key="i"><span>{{ l.t }}s</span> <b>{{ l.evento }}</b> {{ l.detalle }}</li></ol>
             </fieldset>
