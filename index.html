@@ -9,18 +9,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="src/tokens/tokens.css" />
   <link rel="stylesheet" href="src/styles/base.css" />
+  <link rel="stylesheet" href="src/components/pendientes/R4Section.css" />
   <link rel="stylesheet" href="src/components/pendientes/R4NavigationItems.css" />
   <style>
     .indice { max-width: calc(var(--spacing-12) * 12); margin: 0 auto; padding: var(--spacing-12) var(--spacing-6); }
     .indice h1 { margin: 0 0 var(--spacing-2); font-family: var(--font-family-headings); font-size: var(--size-heading-l); line-height: var(--line-height-heading-l); }
-    .indice p { margin: 0 0 var(--spacing-6); color: var(--text-subdued); }
-    .indice h2 { margin: var(--spacing-8) 0 var(--spacing-3); font-family: var(--font-family-headings); font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); }
+    .indice p { margin: 0 0 var(--spacing-8); color: var(--text-subdued); }
+    .indice__secciones { display: flex; flex-direction: column; gap: var(--spacing-12); }
+    .indice__secciones .r4-navitems__li, .indice__secciones nav { width: 100%; }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script type="module">
     import { createApp } from './vendor/vue.esm-browser.prod.js'
+    import R4Section from './src/components/pendientes/R4Section.js'
     import R4NavigationItems from './src/components/pendientes/R4NavigationItems.js'
 
     // Cada prototipo vive en su carpeta (<nombre>/). Al crear uno nuevo, se añade aquí. Iconos: los de Figma ya registrados (elección provisional).
@@ -39,16 +42,17 @@
     ]
 
     createApp({
-      components: { R4NavigationItems },
+      components: { R4Section, R4NavigationItems },
       setup: () => ({ grupos }),
       template: `
         <main class="indice">
           <h1>Prototipos R4</h1>
           <p>Prototipos funcionales (provisionales) construidos con los componentes reconstruidos del Design System. Cada uno tiene su propia dirección.</p>
-          <section v-for="g in grupos" :key="g.titulo">
-            <h2>{{ g.titulo }}</h2>
-            <R4NavigationItems size="medium" :items="g.items" :aria-label="g.titulo" />
-          </section>
+          <div class="indice__secciones">
+            <R4Section v-for="g in grupos" :key="g.titulo" appearance="plain" :title="g.titulo">
+              <R4NavigationItems size="medium" :items="g.items" :aria-label="g.titulo" />
+            </R4Section>
+          </div>
         </main>`,
     }).mount('#app')
 
