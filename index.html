@@ -9,45 +9,52 @@
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="src/tokens/tokens.css" />
   <link rel="stylesheet" href="src/styles/base.css" />
+  <link rel="stylesheet" href="src/components/pendientes/R4NavigationItems.css" />
   <style>
     .indice { max-width: calc(var(--spacing-12) * 12); margin: 0 auto; padding: var(--spacing-12) var(--spacing-6); }
     .indice h1 { margin: 0 0 var(--spacing-2); font-family: var(--font-family-headings); font-size: var(--size-heading-l); line-height: var(--line-height-heading-l); }
     .indice p { margin: 0 0 var(--spacing-6); color: var(--text-subdued); }
     .indice h2 { margin: var(--spacing-8) 0 var(--spacing-3); font-family: var(--font-family-headings); font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); }
-    .indice ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--spacing-2); }
-    .indice a { display: block; padding: var(--spacing-3) var(--spacing-4); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); text-decoration: none; }
-    .indice a:hover { background: var(--surface-subtle); }
-    .indice a:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
-    .indice a b { display: block; }
-    .indice a span { color: var(--text-subdued); font-size: var(--size-body-s); }
   </style>
 </head>
 <body>
-  <main class="indice">
-    <h1>Prototipos R4</h1>
-    <p>Prototipos funcionales (provisionales) construidos con los componentes reconstruidos del Design System. Cada uno tiene su propia dirección.</p>
+  <div id="app"></div>
+  <script type="module">
+    import { createApp } from './vendor/vue.esm-browser.prod.js'
+    import R4NavigationItems from './src/components/pendientes/R4NavigationItems.js'
 
-    <h2>Investigación</h2>
-    <ul>
-      <li><a href="prototipos/buscador-f/"><b>Buscador unificado · variante F</b><span>Conversación primero, sin pestañas</span></a></li>
-      <li><a href="prototipos/buscador-e/"><b>Buscador unificado · variante E</b><span>Tabs Buscador | Chat</span></a></li>
-    </ul>
+    // Cada prototipo vive en su carpeta (<nombre>/). Al crear uno nuevo, se añade aquí. Iconos: los de Figma ya registrados (elección provisional).
+    const grupos = [
+      { titulo: 'Investigación', items: [
+        { title: 'Buscador unificado · variante F', description: 'Conversación primero, sin pestañas', icon: 'ic-comments-alt', linkHref: 'buscador-f/' },
+        { title: 'Buscador unificado · variante E', description: 'Tabs Buscador | Chat', icon: 'ic-search-ai', linkHref: 'buscador-e/' },
+      ] },
+      { titulo: 'Fichas de producto', items: [
+        { title: 'Ficha de acción', description: 'Desktop y mobile', icon: 'ic-file-alt', linkHref: 'ficha-accion/' },
+      ] },
+      { titulo: 'Procesos', items: [
+        { title: 'Doble factor · vincular app', icon: 'ic-info-circle', linkHref: 'doble-factor/' },
+        { title: 'Alta de cuenta · datos de contacto', icon: 'ic-paper-plane', linkHref: 'alta-cuenta/' },
+      ] },
+    ]
 
-    <h2>Fichas de producto</h2>
-    <ul>
-      <li><a href="prototipos/ficha-accion/"><b>Ficha de acción</b><span>Desktop y mobile</span></a></li>
-    </ul>
+    createApp({
+      components: { R4NavigationItems },
+      setup: () => ({ grupos }),
+      template: `
+        <main class="indice">
+          <h1>Prototipos R4</h1>
+          <p>Prototipos funcionales (provisionales) construidos con los componentes reconstruidos del Design System. Cada uno tiene su propia dirección.</p>
+          <section v-for="g in grupos" :key="g.titulo">
+            <h2>{{ g.titulo }}</h2>
+            <R4NavigationItems size="medium" :items="g.items" :aria-label="g.titulo" />
+          </section>
+        </main>`,
+    }).mount('#app')
 
-    <h2>Procesos</h2>
-    <ul>
-      <li><a href="prototipos/doble-factor/"><b>Doble factor · vincular app</b></a></li>
-      <li><a href="prototipos/alta-cuenta/"><b>Alta de cuenta · datos de contacto</b></a></li>
-    </ul>
-  </main>
-  <script>
     // Compatibilidad con los enlaces antiguos (…/#buscador-f): redirigen a la dirección propia del prototipo
     const antiguo = location.hash.replace('#', '')
-    if (['doble-factor', 'alta-cuenta', 'ficha-accion', 'buscador-e', 'buscador-f'].includes(antiguo)) location.replace('prototipos/' + antiguo + '/' + location.search)
+    if (['doble-factor', 'alta-cuenta', 'ficha-accion', 'buscador-e', 'buscador-f'].includes(antiguo)) location.replace(antiguo + '/' + location.search)
   </script>
 </body>
 </html>
