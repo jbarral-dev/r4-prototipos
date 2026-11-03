@@ -1,0 +1,13 @@
+/* Prototipo de investigación · buscador unificado (variante F, conversación primero). Reutiliza de la variante E (BuscadorUnificadoE.css): scrim, .usearch-mobile, .usearch-layer, facilitador, toast. */
+
+/* R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que la conversación haga scroll por dentro y el prompt quede abajo (o todo centrado en la primera carga) */
+.csearch-sheet__body { display: flex; flex-direction: column; height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2)); }
+@container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet { display: none; } }
+
+/* Capa de tablet y mobile: barra con título y cierre (mismos tokens y medidas que la cabecera del R4Sheet bottom: 40 de botón) */
+.csearch-mobile__bar { display: flex; flex: none; align-items: center; gap: var(--spacing-2); padding: var(--spacing-2) var(--spacing-2) var(--spacing-2) var(--spacing-4); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
+.csearch-mobile__title { flex: 1 1 0; min-width: 0; margin: 0; font-family: var(--font-family-headings); font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); font-weight: var(--font-weight-bold); color: var(--text-default); }
+.csearch-mobile__close { display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-default); cursor: pointer; }
+.csearch-mobile__close:hover { background: var(--surface-subtle); }
+.csearch-mobile__close .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.csearch-mobile__close:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }

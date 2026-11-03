@@ -1,0 +1,29 @@
+/*
+ * _ChatSearchPanel (prototipo de investigación, variante F: conversación primero). Sin diseño en Figma: composición con tokens semánticos de los componentes existentes.
+ * Reutiliza las burbujas (.usearch-msg*) y la lista de resultados (.usearch-panel__results) de _UnifiedSearchPanel.css. Superficie: la pone el host (R4Sheet o capa a pantalla completa).
+ */
+.csearch { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.csearch__live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* sr-only */
+
+/* Primera carga: saludo + descripción + caja del prompt, centrados en vertical */
+.csearch--empty { justify-content: center; gap: var(--spacing-6); }
+.csearch__hero { display: flex; flex-direction: column; gap: var(--spacing-2); text-align: center; }
+.csearch__greeting { margin: 0; font-family: var(--font-family-headings); font-size: var(--size-heading-m); line-height: var(--line-height-heading-m); font-weight: var(--font-weight-bold); }
+.csearch__lead { margin: 0; color: var(--text-subdued); }
+
+/* Conversación: los mensajes ocupan el alto disponible (con scroll) y el prompt queda fijo debajo */
+.csearch__body { position: relative; flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.csearch__composer { flex: none; }
+.csearch:not(.csearch--empty) .csearch__composer { padding-top: var(--spacing-3); }
+
+.csearch-thread { display: flex; flex-direction: column; gap: var(--spacing-3); margin: 0; padding: 0; list-style: none; }
+.csearch-turn { display: flex; flex-direction: column; }
+.csearch-turn--user .usearch-msg { align-self: flex-end; }
+.csearch-turn--assistant .usearch-msg { align-self: flex-start; }
+
+/* Respuesta con resultados: ocupa todo el ancho, sin burbuja (la fila de resultado ya es una superficie interactiva) */
+.csearch-turn--results { gap: var(--spacing-2); }
+.csearch-turn--results > .usearch-msg__who { padding-inline: var(--spacing-1); }
+.csearch-turn__intro { margin: 0; padding-inline: var(--spacing-1); }
+.csearch-turn__group { margin: var(--spacing-2) 0 0; padding-inline: var(--spacing-1); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
+.csearch-turn__exit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-2) var(--spacing-4); padding-top: var(--spacing-3); border-top: var(--r4-line-width) solid var(--border-subtle); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
