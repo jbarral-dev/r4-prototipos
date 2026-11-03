@@ -10,6 +10,7 @@ import FichaAccion from './FichaAccion.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
+import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
 import { crearEstado } from './_buscadorEstado.js'
@@ -17,10 +18,13 @@ import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, R4Button, R4InputSearch, R4Popover, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
+    // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige en el facilitador o con ?c=sheet.
+    const contenedor = ref(new URLSearchParams(location.search).get('c') === 'sheet' ? 'sheet' : 'popover')
     const desktopField = ref(null)
+    const sheetField = ref(null)
     const trigger = ref(null)
     const mobileField = ref(null)
     const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
@@ -31,7 +35,8 @@ export default defineComponent({
     // Foco en el campo que se ve (el CSS oculta el otro por container query)
     const focusVisible = async () => {
       await nextTick()
-      for (const f of [mobileField.value, desktopField.value]) {
+      if (contenedor.value === 'sheet') await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
+      for (const f of [mobileField.value, desktopField.value, sheetField.value]) {
         const el = f && f.$el
         if (el && el.offsetParent !== null && getComputedStyle(el.closest('.usearch-mobile') || el).display !== 'none') { f.focus(); return }
       }
@@ -47,7 +52,7 @@ export default defineComponent({
 
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .menu__compact-button, .facil'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .r4-sheet, .menu__compact-button, .facil'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -61,7 +66,7 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
     onBeforeUnmount(() => { if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
-    return { api, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
+    return { api, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
   template: `
     <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
@@ -74,7 +79,7 @@ export default defineComponent({
       <template #overlay>
         <!-- Desktop: capa blanca sobre la franja negra del Menu; campo centrado (máx. 800) y el popover debajo, a 8 px -->
         <div v-if="api.open" class="usearch-scrim" aria-hidden="true"></div>
-        <div v-if="api.open" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
+        <div v-if="api.open && contenedor === 'popover'" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
             <div class="usearch__fieldrow">
               <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
@@ -87,6 +92,20 @@ export default defineComponent({
               </R4Popover>
             </div>
           </div>
+        </div>
+
+        <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
+        <div v-if="contenedor === 'sheet'" class="usearch-sheet">
+          <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheet__body">
+              <div class="usearch__fieldrow">
+                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                               @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+                </R4InputSearch>
+              </div>
+              <UnifiedSearchPanel :api="api" />
+            </div>
+          </R4Sheet>
         </div>
 
         <Transition name="usearch-layer">
@@ -105,6 +124,10 @@ export default defineComponent({
         <details v-if="mostrarFacilitador" class="facil">
           <summary>Facilitador</summary>
           <div class="facil__body">
+            <fieldset class="facil__group"><legend>Contenedor (desktop)</legend>
+              <label><input type="radio" value="popover" v-model="contenedor" /> R4Popover bajo el campo</label>
+              <label><input type="radio" value="sheet" v-model="contenedor" /> R4Sheet lateral (side)</label>
+            </fieldset>
             <fieldset class="facil__group"><legend>Panel</legend>
               <label><input type="checkbox" v-model="api.opciones.caption" /> Frase explicativa del campo vacío</label>
               <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Recientes y preguntas de ejemplo</label>
