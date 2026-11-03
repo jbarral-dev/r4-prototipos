@@ -59,6 +59,8 @@ No todos los componentes diseñados en Figma están desarrollados en Vue: de ah�
   siguen usando de momento). No están en el catálogo. Se reconstruyen desde ese archivo en `pendientes/`, como no oficiales.
   En páginas de proceso el Menu es `Type=Process` y no hay Footer (la pantalla del doble factor no lo lleva: es coherente).
   `_Browser` es solo marco de presentación: **no se construye**.
+  **El Menu de ese archivo (nodo `11704:13876`, Figma `Nm43qr42xJN1XPNYYVqrdf`) es el que está en producción** (Jon, 2026-11-03); el Header más nuevo del archivo
+  "Proyectos - Fichas de Productos" está lejos de implementarse y **no se usa**. `Menu type=default` se reconstruye desde ese nodo (`Cliente=Logado`; Sin logar y Potencial sin hacer).
 - **Stack del prototipo:** lo único conocido de IT es que usa **Vue.js**; Jon no sabe más hasta dar acceso al repo. **En el
   equipo de Jon no se puede instalar Node.js ni usar npm** (proxy corporativo y sin admin): no propongas nada que lo requiera.
   Stack **sin build**: Vue 3 como módulo ES local (`vendor/vue.esm-browser.prod.js`, descargado una vez por Jon), componentes

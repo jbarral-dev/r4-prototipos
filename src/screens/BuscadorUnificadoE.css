@@ -1,18 +1,18 @@
 /* Prototipo de investigación · buscador unificado (variante E). Sin diseño en Figma: tokens semánticos y escala de Foundations. */
 
-/* Campo en la franja superior del Menu (desktop): 40 de alto en una franja de 52. El desplegable se ancla al borde derecho del campo. */
+/* Campo sobre la barra principal del Menu (desktop): 40 de alto en una barra de 76. El desplegable se ancla al borde derecho del campo. */
 .usearch { position: relative; }
 .usearch__trigger { cursor: pointer; }
 /* Dentro del popover: campo medium a todo el ancho y, debajo, el panel (el panel absorbe la altura que sobra y hace scroll) */
 .usearch__pop { display: flex; flex-direction: column; gap: var(--spacing-3); max-height: calc(100vh - var(--spacing-16) * 2 - var(--spacing-6)); }
 .usearch__pop .usearch-panel { flex: 1 1 auto; min-height: 0; max-height: none; }
 
-/* Desktop: capa blanca que se superpone a la franja negra del Menu (alto = franja). Campo centrado con máx. 800 y el popover a 8 px debajo, del mismo ancho que el campo.
+/* Desktop: capa blanca que se superpone a la barra principal oscura del Menu (justo bajo la franja de usuario de 36; alto = barra). Campo centrado con máx. 800 y el popover a 8 px debajo, del mismo ancho que el campo.
    Vive en la capa de superposición de la Template (arriba del todo de la página), como la de tablet/mobile. */
-.usearch-desk { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: none; align-items: center; justify-content: center; height: calc(var(--spacing-12) + var(--spacing-1)); padding-inline: var(--spacing-6); background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
+.usearch-desk { position: absolute; top: var(--spacing-9); left: 0; right: 0; z-index: 10; display: none; align-items: center; justify-content: center; height: var(--r4-menu-height); padding-inline: var(--spacing-6); background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
 .usearch-desk__center { position: relative; width: min(100%, calc(var(--spacing-16) * 12.5)); }
 /* El popover queda a 4 px del borde inferior de la capa blanca (no del campo): mitad del aire de la barra + 4 */
-.usearch-desk__pop { position: absolute; top: calc(100% + (var(--spacing-12) + var(--spacing-1) - var(--spacing-10)) / 2 + var(--spacing-1)); left: 0; right: 0; }
+.usearch-desk__pop { position: absolute; top: calc(100% + (var(--r4-menu-height) - var(--spacing-10)) / 2 + var(--spacing-1)); left: 0; right: 0; }
 /* Scrim: capa negra con opacidad por debajo de la capa blanca y del popover (desktop) */
 .usearch-scrim { position: absolute; inset: 0; z-index: 9; display: none; background: var(--r4-scrim); pointer-events: auto; }
 @container r4page (min-width: 1024px) { .usearch-scrim { display: block; } }

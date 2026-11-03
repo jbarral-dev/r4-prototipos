@@ -6,24 +6,22 @@
 :root {
   --r4-line-width: 1px;                          /* antes Size/Line Width/lineWidth y Components/Button/Global/lineWidth */
   --r4-menu-bg:var(--color-neutral-gray-600);   /* antes Components/Menu/Component/darkItemBg (#3B3B3B): sin token semántico en Theme */
-  --r4-menu-height: 76px;                        /* antes menuHeight (Layout, ya no existe): 76 desktop · 56 tablet y mobile */
+  --r4-menu-height: 76px;                        /* antes menuHeight (Layout, ya no existe): 76 desktop y tablet · 56 mobile (Figma: Menu Device=Tablet 76, Device=Mobile 56) */
+  --r4-menu-max-width: 1512px;                   /* antes Size/Screen/menuMaxWidth (1512, generación antigua): ancho máximo del contenido de la franja de usuario y de la barra principal del Menu */
   --grid-columns: 12;                            /* Nº de columnas de la rejilla: 12 · 8 · 4 (docs "R4Wrapper" y "Páginas de Procesos") */
   --r4-tabitem-min-width: 90px;                  /* ancho mínimo de _TabItem (Figma y Confluence R4Tabs): sin variable */
 }
 
 @container r4page (max-width: 1023px) {
-  .r4-layout-modes { --r4-menu-height: 56px; --grid-columns: 8; }
+  .r4-layout-modes { --grid-columns: 8; }
 }
 @container r4page (max-width: 599px) {
-  .r4-layout-modes { --grid-columns: 4; }
+  .r4-layout-modes { --r4-menu-height: 56px; --grid-columns: 4; }
 }
 
-/* Menu · Cliente=Logado (Header desktop de las fichas; generación antigua de variables, sin equivalente en Theme) */
+/* Menu · Cliente=Logado (generación antigua de variables, sin equivalente en Theme) */
 :root {
-  --r4-menu-top-text: var(--surface-muted);                                    /* antes colors/neutral/textLighter (#E0E0E0): texto de la franja superior */
-  --r4-menu-border: color-mix(in srgb, var(--color-neutral-white) 20%, transparent); /* borde inferior de la barra principal: blanco al 20 % */
-  --r4-menu-profile-divider: var(--text-disabled);                             /* antes colors/neutral/borderLight (#ABABAB): separador del perfil */
-  --r4-avatar-notification: #d0800a;                                           /* punto de notificación del avatar (#D0800A): sin token en la cascada actual */
+  --r4-menu-profile-divider: var(--text-disabled);                             /* antes Colors/Neutral/Border/colorBorder (#ABABAB): separador de la franja de usuario y borde inferior del submenú */
 }
 
 /* Resaltado de la coincidencia en los resultados de búsqueda: Theme/text/search-highlight existe en Figma (Light → color/feedback/blue/500, Dark → blue/300) pero no en la colección volcada en theme.css */

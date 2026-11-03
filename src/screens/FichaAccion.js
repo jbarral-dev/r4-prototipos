@@ -40,7 +40,7 @@ export default defineComponent({
   name: 'FichaAccion',
   // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
   emits: ['search'],
-  props: { searchIcon: { type: String, default: 'search' } },
+  props: { searchIcon: { type: String, default: undefined } },
   directives: { dragScroll },
   components: {
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,

@@ -1,14 +1,16 @@
 // PENDIENTE-IT: no oficial. Sustituir cuando exista en la librería Vue.
-// Reconstrucción desde Figma: componente "Menu" del archivo "Templates | 1.0" (antiguo, vigente) y, para las fichas de producto, el `Header` desktop (Cliente - Logado) y el `Menu`
-// mobile (Type=Default, Cliente=Logado) del archivo "Proyectos - Fichas de Productos". No hay doc de API en Confluence.
+// Reconstrucción desde Figma: componente "Menu" del archivo "R4 Design System | Templates | 1.0" (nodo 11704:13876, el que está EN PRODUCCIÓN según Jon, 2026-11-03; sustituye a la
+// versión más nueva de las fichas, que está lejos de implementarse). No hay doc de API en Confluence. Mezcla generaciones de tokens: se usan los nuevos (ver Menu.css).
 // Eje Device (Desktop XL | Desktop | Tablet | Mobile) resuelto por el CSS (container query `r4page`), no por prop.
-// Reconstruido: type=process (Cliente=Logado: Menu + R4ProgressBar) y type=default (Cliente=Logado).
-//   · Desktop (≥ 1024): franja superior (Favoritos · Buscador · Tu asesor) + barra principal (isotipo · navegación · «Invertir» · perfil).
-//   · Tablet y mobile (≤ 1023): barra compacta de 56 px (isotipo · buscar · hamburguesa roja). Tablet no tiene diseño: se usa la barra compacta porque la navegación de desktop no cabe.
-// NO reconstruido: Type Blocked, Cliente=Sin logar, el menú desplegable (megamenú de desktop y panel del hamburguesa: no están en el diseño), la foto del asesor (es una imagen del
-//   diseño: se pinta una inicial), los submenús (los ítems con `hasChildren` solo llevan la flecha).
-// Datos de ejemplo (prototipo): navItems, userName, advisor.
-// Extra del prototipo del buscador unificado: slot `search` (sustituye al enlace «Buscador» de la franja superior en desktop; en tablet/mobile el botón de la lupa emite `search`).
+// Reconstruido: type=process (Cliente=Logado: Menu + R4ProgressBar; sin tocar en esta revisión) y type=default (Cliente=Logado):
+//   · Desktop (≥ 1024): franja de usuario (favoritos · perfil · cerrar sesión) + barra principal (isotipo · ítems · buscar · «Contratar») + submenú (enlaces de la sección).
+//   · Tablet (600–1023): barra compacta de 76 (isotipo · buscar · hamburguesa roja 48). Mobile (≤ 599): barra de 56 (isotipo · buscar 56 · hamburguesa 56 a sangre).
+// NO reconstruido: Type Blocked, Cliente=Sin logar y Potencial, el menú desplegable (megamenú de desktop y panel del hamburguesa: no se ha leído) ni los submenús de cada ítem; estados hover/pressed
+//   de los ítems (no están en las variantes leídas); la sección activa del submenú (en Figma todos los enlaces están en default).
+// Discrepancias de Figma (generación antigua): el «Desktop» de 1024 solapa los ítems con la lupa y el botón (no caben en 1024: se deja scroll horizontal en los ítems); el botón «Contratar» pasa a solo icono
+//   (ic-plus-square) por debajo de 1280 como en esa variante; la pestaña activa lleva un trazo superior #3b3b3b literal (no tiene variable).
+// Datos de ejemplo (prototipo): navItems, subNavItems, userName.
+// Extra del prototipo del buscador unificado: slot `search` (sustituye al botón de la lupa de la barra principal en desktop; en tablet/mobile el botón de la lupa emite `search`) y `searchIcon`.
 import { defineComponent } from '../../../vendor/vue.esm-browser.prod.js'
 import R4ProgressBar from './R4ProgressBar.js'
 import R4BrandTypes from './R4BrandTypes.js'
@@ -27,12 +29,11 @@ export default defineComponent({
     totalSteps: { type: Number, default: 3 },
     showClose: { type: Boolean, default: true },
     // type=default
-    navItems: { type: Array, default: () => [{ label: 'Mi cuenta' }, { label: 'Análisis' }, { label: 'Asesoramiento' }] }, // { label, href?, hasChildren? }
-    ctaText: { type: String, default: 'Invertir' },
-    userName: { type: String, default: 'ROBERTO' },
-    hasNotifications: { type: Boolean, default: true },
-    advisorLabel: { type: String, default: 'Tu asesor' },
-    searchIcon: { type: String, default: 'search' }, // extra del prototipo del buscador unificado: icono del botón de búsqueda de la barra compacta
+    navItems: { type: Array, default: () => [{ label: 'Tu cuenta', current: true }, { label: 'Carteras gestionadas' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados' }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }] }, // { label, href?, current? }
+    subNavItems: { type: Array, default: () => [{ label: 'Transferencias' }, { label: 'Traspasos' }, { label: 'Movimientos e informes' }, { label: 'Asesoramiento' }, { label: 'Otras operaciones y consultas' }] }, // { label, href? }
+    ctaText: { type: String, default: 'Contratar' },
+    userName: { type: String, default: 'Alex' },
+    searchIcon: { type: String, default: undefined }, // extra del prototipo del buscador unificado: icono propio para los botones de búsqueda (por defecto, los de Figma)
   },
   emits: ['back', 'close', 'menu', 'search'],
   template: `
@@ -55,38 +56,50 @@ export default defineComponent({
 
       <template v-else>
         <div class="menu__desktop">
-          <div class="menu__top">
-            <div class="menu__top-content">
-              <a class="menu__top-item" href="#"><Icon name="ic-star" /><span>Favoritos</span></a>
-              <slot name="search"><a class="menu__top-item" href="#"><Icon name="search" /><span>Buscador</span></a></slot>
-              <a class="menu__top-item menu__top-item--advisor" href="#"><span class="menu__avatar menu__avatar--small" aria-hidden="true">A</span><span>{{ advisorLabel }}</span></a>
+          <div class="menu__user">
+            <div class="menu__user-content">
+              <R4Button type="text" size="large" icon="star" aria-label="Favoritos" />
+              <span class="menu__divider" aria-hidden="true"></span>
+              <a class="menu__profile" href="#">
+                <span class="menu__profile-main"><Icon name="ic-user-circle" /><span class="menu__profile-name">Hola, {{ userName }}</span></span>
+                <Icon name="chevron-down" />
+              </a>
+              <a class="menu__logout" href="#" aria-label="Cerrar sesión"><Icon name="ic-power-off" /></a>
             </div>
           </div>
           <div class="menu__main">
             <div class="menu__main-content">
               <div class="menu__left">
                 <a class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
-                <nav aria-label="Principal">
+                <nav class="menu__nav-wrap" aria-label="Principal">
                   <ul class="menu__nav">
-                    <li v-for="(it, i) in navItems" :key="i"><a class="menu__nav-item" :href="it.href || '#'"><span>{{ it.label }}</span><Icon v-if="it.hasChildren" name="ic-angle-down" /></a></li>
+                    <li v-for="(it, i) in navItems" :key="i"><a class="menu__nav-item" :class="{ 'menu__nav-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>
                   </ul>
                 </nav>
               </div>
               <div class="menu__right">
-                <R4Button type="secondary" :text="ctaText" />
-                <a class="menu__profile" href="#" :aria-label="'Perfil de ' + userName">
-                  <span class="menu__avatar" aria-hidden="true">{{ userName.charAt(0) }}<span v-if="hasNotifications" class="menu__avatar-dot"></span></span>
-                  <span class="menu__profile-name"><span>Hola, {{ userName }}</span><Icon name="ic-angle-down" /></span>
-                </a>
+                <slot name="search"><button type="button" class="menu__search" aria-label="Buscar" @click="$emit('search')"><Icon :name="searchIcon || 'ic-search-24'" /></button></slot>
+                <R4Button class="menu__cta" type="primary" size="large" icon="ic-shopping-cart" :text="ctaText" />
+                <R4Button class="menu__cta menu__cta--icon" type="primary" size="large" icon="ic-plus-square" :aria-label="ctaText" />
               </div>
             </div>
+          </div>
+          <div class="menu__sub">
+            <nav class="menu__sub-content" aria-label="Secundaria">
+              <ul class="menu__sub-list">
+                <li v-for="(it, i) in subNavItems" :key="i"><a class="menu__sub-item" :href="it.href || '#'">{{ it.label }}</a></li>
+              </ul>
+            </nav>
           </div>
         </div>
 
         <div class="menu__compact">
           <a class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
           <div class="menu__compact-actions">
-            <button type="button" class="menu__compact-button" aria-label="Buscar" @click="$emit('search')"><Icon :name="searchIcon" /></button>
+            <button type="button" class="menu__compact-button menu__compact-button--search" aria-label="Buscar" @click="$emit('search')">
+              <Icon v-if="searchIcon" :name="searchIcon" />
+              <template v-else><Icon class="menu__icon-tablet" name="ic-search-24" /><Icon class="menu__icon-mobile" name="search" /></template>
+            </button>
             <button type="button" class="menu__compact-button menu__compact-button--burger" aria-label="Menú" aria-haspopup="true" aria-expanded="false" @click="$emit('menu')"><Icon name="ic-bars" /></button>
           </div>
         </div>
