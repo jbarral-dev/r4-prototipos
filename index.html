@@ -15,6 +15,8 @@
     .portada { container-type: inline-size; container-name: r4page; min-height: 100vh; background: var(--surface-page); }
     /* Contenido a 6 de 12 columnas (desktop) · 6 de 8 (tablet) · 4 de 4 (mobile), centrado: mismo criterio que las páginas de proceso */
     .portada__contenido { grid-column: 4 / span 6; display: flex; flex-direction: column; gap: var(--spacing-12); }
+    /* El slot de R4Section alinea a la izquierda y los hijos encogen: la lista ocupa todo el ancho */
+    .portada__contenido .r4-section__slot > nav { width: 100%; }
     @container r4page (max-width: 1023px) { .portada__contenido { grid-column: 2 / span 6; } }
     @container r4page (max-width: 599px) { .portada__contenido { grid-column: 1 / -1; } }
   </style>
@@ -30,7 +32,7 @@
 
     // Cada prototipo vive en su carpeta (<nombre>/). Al crear uno nuevo, se añade aquí. Iconos: los de Figma ya registrados (elección provisional).
     const grupos = [
-      { titulo: 'Investigación', items: [
+      { titulo: 'Chatbot', items: [
         { title: 'Buscador unificado · variante F', description: 'Conversación primero, sin pestañas', icon: 'ic-comments-alt', linkHref: 'buscador-f/' },
         { title: 'Buscador unificado · variante E', description: 'Tabs Buscador | Chat', icon: 'ic-search-ai', linkHref: 'buscador-e/' },
       ] },
@@ -54,7 +56,7 @@
                 <div class="r4-grid">
                   <div class="portada__contenido">
                     <R4PageTitleSection title="Prototipos R4" description="Prototipos funcionales (provisionales) construidos con los componentes reconstruidos del Design System. Cada uno tiene su propia dirección." />
-                    <R4Section v-for="g in grupos" :key="g.titulo" appearance="plain" :title="g.titulo">
+                    <R4Section v-for="g in grupos" :key="g.titulo" appearance="boxed" background-color="white" :title="g.titulo">
                       <R4NavigationItems size="medium" :items="g.items" :aria-label="g.titulo" />
                     </R4Section>
                   </div>
