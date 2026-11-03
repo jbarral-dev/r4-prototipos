@@ -22,7 +22,7 @@ export default defineComponent({
   setup() {
     const api = crearEstado()
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige en el facilitador o con ?c=sheet.
-    const contenedor = ref(new URLSearchParams(location.search).get('c') === 'sheet' ? 'sheet' : 'popover')
+    const contenedor = ref(new URLSearchParams(location.search).get('c') === 'popover' ? 'popover' : 'sheet')
     const desktopField = ref(null)
     const sheetField = ref(null)
     const trigger = ref(null)
