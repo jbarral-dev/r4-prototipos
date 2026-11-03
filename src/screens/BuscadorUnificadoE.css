@@ -23,6 +23,7 @@
 /* Desktop con R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que el panel haga scroll por dentro y el prompt quede abajo */
 .usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-3); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2)); }
 .usearch-sheet__body .usearch-panel { flex: 1 1 0; }
+.usearch-sheet .r4-inputsearch__close { display: none; } /* el cierre lo da el _ButtonClose del Sheet: sin aspa duplicada en el campo (se mantiene «Borrar») */
 @container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet { display: none; } }
 
 /* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
