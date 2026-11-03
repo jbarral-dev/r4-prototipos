@@ -20,6 +20,8 @@ while ($listener.IsListening) {
     $rel = [Uri]::UnescapeDataString($ctx.Request.Url.AbsolutePath).TrimStart('/')
     if ($rel -eq '') { $rel = 'index.html' }
     $path = [IO.Path]::GetFullPath((Join-Path $root $rel))
+    # Una carpeta sirve su index.html (como GitHub Pages): prototipos/<nombre>/
+    if (Test-Path $path -PathType Container) { $path = Join-Path $path 'index.html' }
     if (-not $path.StartsWith($root) -or -not (Test-Path $path -PathType Leaf)) {
       $res.StatusCode = 404
       $bytes = [Text.Encoding]::UTF8.GetBytes('404')

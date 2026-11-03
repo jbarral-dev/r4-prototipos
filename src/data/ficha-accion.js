@@ -1,9 +1,12 @@
 // DATOS DE EJEMPLO (prototipo) de la ficha de acción. En producción vendrían de backend. Los valores salen de los textos del Figma
 // ("Proyectos - Fichas de Productos", frames cl-ficha-accion--dk y ficha-accion--mb); lo que no estaba en el diseño se ha inventado y se marca con «(inventado)».
+// Los logos se resuelven respecto a este módulo (no al documento): cada prototipo vive en su propia carpeta
+const logo = (f) => new URL('../assets/logos/' + f, import.meta.url).href
+
 export const accion = {
   producto: {
     productName: 'IBERDROLA',
-    logoURL: 'src/assets/logos/iso-ibe.svg',
+    logoURL: logo('iso-ibe.svg'),
     price: 20.49,
     currency: 'EUR',
     variation: 0.74,

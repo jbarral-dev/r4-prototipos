@@ -65,6 +65,10 @@ No todos los componentes diseñados en Figma están desarrollados en Vue: de ah�
   como módulos `.js` (`defineComponent` + `template`, mismas props y nombres que en Figma), CSS plano con variables CSS
   (tokens semánticos) y container queries. Se sirve con `serve.ps1` (PowerShell, localhost). Sin Tailwind, Router ni Pinia.
   Provisional: al llegar el repo de IT, cada componente se migra a su formato (SFC) o se sustituye por el oficial.
+- **Un prototipo = una carpeta con su URL** (decisión de Jon, 2026-11-03). Estructura: `prototipos/<nombre>/index.html` (solo importa su pantalla y su CSS, y la monta con
+  `src/montar.js`); lo compartido (tokens, `styles/componentes.css`, componentes, iconos, data) vive en `src/` y es el mismo para todos. La portada `index.html` lista los
+  prototipos: **al crear uno nuevo, añádelo ahí**. Rutas de recursos (logos…) respecto al módulo con `new URL(…, import.meta.url)`, nunca relativas al documento.
+  Un componente nuevo o una variante nueva (p. ej. Menu mobile) se añade a `src/components/pendientes/` por props, sin cambiar el comportamiento de los prototipos existentes.
 - **Hasta tener acceso al repo de IT, creas tú todos los componentes** (incluso los `VUE` del catálogo), en `pendientes/`.
 - **Tokens = cascada de 6 capas con alias, NO una lista plana de hex.** Lee la página de Confluence "Arquitecturas de tokens"
   (3694592029) antes de tocar tokens. Colecciones de Primitivos 1.2 (`LXKe53jePjDEAVhdYCU4ed`): Foundations (literales) →

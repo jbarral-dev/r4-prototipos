@@ -2,6 +2,9 @@
 // El enrutado es una SIMULACIÓN con casos fijados de antemano (el plan dice: se evalúa el concepto, no la regla; en producto sería una clasificación de intención).
 // Para cambiar un caso, edita `casosFijos`. Los dos casos de enrutado FALLIDO a propósito llevan `fallo: true` (el plan pide incluir dos).
 
+// Los logos se resuelven respecto a este módulo (no al documento): cada prototipo vive en su propia carpeta
+const logo = (f) => new URL('../assets/logos/' + f, import.meta.url).href
+
 export const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[¿?¡!.,;:]/g, ' ').replace(/\s+/g, ' ').trim()
 
 // Casos fijados: texto normalizado → modo. `nota` explica el caso al facilitador.
@@ -34,19 +37,19 @@ export function enrutar(texto) {
 // Logos: iso-* de «Resources - Logos» (Figma YGLS4oEvLsYd8H13Kfylx5, página Isos). Fidelity no está en ese recurso: se queda la inicial (logoText).
 // DATOS DE EJEMPLO: ISIN, tickers, mercados y vencimientos son ilustrativos, no reales.
 export const catalogo = [
-  { kind: 'valor', name: 'Telefónica', logoSrc: 'src/assets/logos/iso-tef.svg', metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
-  { kind: 'valor', name: 'Telefónica', logoSrc: 'src/assets/logos/iso-tef.svg', metadata1: 'O2D', metadata2: 'DE000A1J5RX9', market: 'XETRA', marketFlag: 'flag-germany', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
-  { kind: 'valor', name: 'Telefónica', logoSrc: 'src/assets/logos/iso-tef.svg', metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['telefonica', 'cfd'] },
-  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: 'src/assets/logos/iso-tef.svg', metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
-  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: 'src/assets/logos/iso-tef.svg', metadata1: 'Entregas', metadata2: 'Jun 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
-  { kind: 'valor', name: 'Iberdrola', logoSrc: 'src/assets/logos/iso-ibe.svg', metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['iberdrola', 'accion', 'acciones'] },
-  { kind: 'valor', name: 'Iberdrola', logoSrc: 'src/assets/logos/iso-ibe.svg', metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['iberdrola', 'cfd'] },
-  { kind: 'valor', name: 'Futuro Iberdrola', logoSrc: 'src/assets/logos/iso-ibe.svg', metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['iberdrola', 'futuro', 'futuros'] },
-  { kind: 'valor', name: 'Banco Santander', logoSrc: 'src/assets/logos/iso-san.svg', metadata1: 'SAN', metadata2: 'ES0113900J37', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['santander', 'accion', 'acciones'] },
+  { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
+  { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'O2D', metadata2: 'DE000A1J5RX9', market: 'XETRA', marketFlag: 'flag-germany', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
+  { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['telefonica', 'cfd'] },
+  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'Entregas', metadata2: 'Jun 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['iberdrola', 'accion', 'acciones'] },
+  { kind: 'valor', name: 'Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['iberdrola', 'cfd'] },
+  { kind: 'valor', name: 'Futuro Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['iberdrola', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Banco Santander', logoSrc: logo('iso-san.svg'), metadata1: 'SAN', metadata2: 'ES0113900J37', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['santander', 'accion', 'acciones'] },
   { kind: 'fondo', name: 'Fidelity European Growth Fund', logoText: 'F', metadata1: 'Renta variable europea', metadata2: 'LU0296857971', type: 'Fondo', keys: ['fidelity', 'fondo', 'fondos', 'europa', 'europeo', 'renta variable'] },
   { kind: 'fondo', name: 'Fidelity World Fund', logoText: 'F', metadata1: 'Renta variable global', metadata2: 'LU0346388373', type: 'Fondo', keys: ['fidelity', 'fondo', 'fondos', 'global'] },
-  { kind: 'fondo', name: 'Renta 4 Pegasus', logoSrc: 'src/assets/logos/iso-r4.svg', metadata1: 'Renta variable mixta', metadata2: 'ES0173319115', type: 'Fondo', keys: ['pegasus', 'fondo', 'fondos', 'renta 4'] },
-  { kind: 'fondo', name: 'Plan de pensiones Renta 4 Jubilación', logoSrc: 'src/assets/logos/iso-r4.svg', metadata1: 'Plan de pensiones', metadata2: 'N5012', type: 'Plan de pensiones', keys: ['jubilacion', 'pensiones', 'plan de pensiones', 'ahorro'] },
+  { kind: 'fondo', name: 'Renta 4 Pegasus', logoSrc: logo('iso-r4.svg'), metadata1: 'Renta variable mixta', metadata2: 'ES0173319115', type: 'Fondo', keys: ['pegasus', 'fondo', 'fondos', 'renta 4'] },
+  { kind: 'fondo', name: 'Plan de pensiones Renta 4 Jubilación', logoSrc: logo('iso-r4.svg'), metadata1: 'Plan de pensiones', metadata2: 'N5012', type: 'Plan de pensiones', keys: ['jubilacion', 'pensiones', 'plan de pensiones', 'ahorro'] },
   { kind: 'ayuda', name: '¿Cómo abrir una cuenta en Renta 4?', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['cuenta', 'abrir', 'alta', 'cliente'] },
   { kind: 'ayuda', name: 'Comisiones de custodia y de mantenimiento', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['comisiones', 'custodia', 'tarifas'] },
   { kind: 'ayuda', name: 'No me llega el código de verificación al móvil', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['codigo', 'sms', 'movil', 'verificacion', 'firma'] },
