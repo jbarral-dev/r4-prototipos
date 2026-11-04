@@ -54,24 +54,33 @@ export const clienteLogado = {
   favoritos: { title: 'Favoritos', href: h('favoritos'), icon: 'ic-star' },
 }
 
-// DATOS DE EJEMPLO del prototipo «Menú hamburguesa con idiomas (Luxemburgo)». Los textos de navegación son los del site de Renta 4 Luxemburgo (captura de Jon, 2026-11-04);
-// los destinos (href) son hashes ficticios. Usuario potencial (no logado): sin caja de perfil, sin favoritos y sin niveles inferiores.
+// DATOS DE EJEMPLO del prototipo «Menú hamburguesa con idiomas (Luxemburgo)». Los textos de navegación son los del site de Renta 4 Luxemburgo (captura y mensajes de Jon, 2026-11-04) y los de las capas de
+// idiomas y sites, los de Figma «Navegación - Potenciales» (1714:11479); los destinos (href) son hashes ficticios. Usuario potencial (no logado): sin caja de perfil ni Favoritos.
 export const potencialLuxemburgo = {
-  languages: { ariaLabel: 'Idioma', value: 'es', items: [{ label: 'ES', value: 'es' }, { label: 'EN', value: 'en' }] },
   items: [
     { title: 'Quiénes somos', href: h('quienes-somos') },
     { title: 'Nuestros Servicios', href: h('nuestros-servicios') },
-    { title: 'Nuestros Valores', href: h('nuestros-valores') },
+    { title: 'Nuestros Valores', href: h('nuestros-valores'), children: [
+      { title: 'Servicios MANCO', href: h('nuestros-valores/servicios-manco') },
+      { title: 'Inversión Sostenible', href: h('nuestros-valores/inversion-sostenible') },
+    ] },
     { title: 'Fondos Alternativos', href: h('fondos-alternativos') },
     { title: 'Renta 4 (SICAV)', href: h('renta-4-sicav') },
     { title: 'Noticias de interés', href: h('noticias-de-interes') },
   ],
-  sites: { ariaLabel: 'Otros sitios de Renta 4', items: [
-    { title: 'Renta 4 Banco', href: h('sitios/banco') },
-    { title: 'Renta 4 Wealth', href: h('sitios/wealth') },
-    { title: 'Renta 4 Gestora', href: h('sitios/gestora') },
-    { title: 'Renta 4 Pensiones', href: h('sitios/pensiones') },
+  languages: { label: 'Idiomas', icon: 'ic-flag-alt', value: 'es', options: [
+    { label: 'Español (ES)', value: 'es' },
+    { label: 'Inglés (GB)', value: 'en' },
+  ] },
+  sites: { label: 'Otros sites', icon: 'ic-globe', value: 'lu', options: [
+    { label: 'LUXEMBURGO', summary: 'Luxemburgo', value: 'lu', href: h('sitios/luxemburgo') },
+    { label: 'RENTA 4 BANCO', summary: 'Renta 4 Banco', value: 'banco', href: h('sitios/banco') },
+    { label: 'RENTA 4 WEALTH', summary: 'Renta 4 Wealth', value: 'wealth', href: h('sitios/wealth') },
+    { label: 'RENTA 4 GESTORA', summary: 'Renta 4 Gestora', value: 'gestora', href: h('sitios/gestora') },
+    { label: 'RENTA 4 PENSIONES', summary: 'Renta 4 Pensiones', value: 'pensiones', href: h('sitios/pensiones') },
   ] },
   ctaText: 'Contáctanos',
+  ctaIcon: 'ic-user-headset',
   secondaryText: 'Cómo contratar',
+  secondaryIcon: 'ic-question-circle',
 }

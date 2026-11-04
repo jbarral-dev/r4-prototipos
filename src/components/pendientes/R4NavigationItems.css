@@ -57,7 +57,7 @@
 .r4-navitems__item.has-no-line::after { display: none; }
 
 /* hasCardContainer=true (size medium, default): CardContainer (surface/default, trazo border/subtle de 1, radio card/radius = 0) y padding de 16 por los cuatro lados; sin línea */
-.r4-navitems--card .r4-navitems__item { padding: var(--spacing-4); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--component-card-radius); background: var(--surface-default); }
+.r4-navitems--card .r4-navitems__item { padding: calc(var(--spacing-4) - var(--r4-line-width)); /* el trazo de Figma es interior: el ítem mide 16 + contenido + 16 */ border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--component-card-radius); background: var(--surface-default); }
 .r4-navitems--card .r4-navitems__item::after { display: none; }
 /* Estados del CardContainer (Figma): hover → trazo border/default + sombra card hover (fondo igual) · pressed → fondo surface/subtle + trazo border/inverse · focused → anillo card focus (trazo y fondo del default) · disabled → fondo card/bg/disabled */
 .r4-navitems--card .r4-navitems__item:hover:not(.is-disabled) { background: var(--surface-default); border-color: var(--border-default); box-shadow: var(--effect-card-hover-shadow); }

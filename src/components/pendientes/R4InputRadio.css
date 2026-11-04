@@ -1,0 +1,73 @@
+/*
+ * R4InputRadio type=button — valores leídos de Figma (Primitivos 1.2, R4InputRadio y _Radio Button):
+ * _Input Label/Default: padding vertical 4, texto body/m Bold (text/default). _Radio Button Group vertical: gap 20, padding vertical 8. _Input Caption: padding-top 2, body/s; Error en feedback/error/text.
+ * _Radio Button: padding 12, gap 4, radio input/radius, fondo input/bg/default, trazo de 1 interior; texto body/l Regular (text/default).
+ *   hover → trazo input/border/hover · focused → trazo input/border/focused + sombra de foco de input · pressed → trazo input/border/focused ·
+ *   disabled → fondo input/bg/disabled, trazo default, texto text/disabled · Active (seleccionada) → trazo de 2 en input/border/focused + check de 16 (icon/default) a la derecha.
+ */
+.r4-input-radio {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.r4-input-radio__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) 0;
+}
+.r4-input-radio__legend-text {
+  font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-radio__optional {
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-muted);
+}
+
+.r4-input-radio__group { display: flex; flex-direction: column; gap: var(--spacing-5); padding: var(--spacing-2) 0; }
+
+.r4-input-radio__option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-3);
+  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
+  color: var(--text-default);
+  cursor: pointer;
+}
+.r4-input-radio__option--disabled { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+/* El <input> nativo es la propia placa del botón: cubre toda la opción y pinta el trazo; el texto y el check van encima */
+.r4-input-radio__input {
+  appearance: none;
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  border-radius: var(--component-input-radius);
+  background: var(--component-input-bg-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default);
+  cursor: inherit;
+}
+.r4-input-radio__input:hover:not(:disabled) { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-hover); }
+.r4-input-radio__input:active:not(:disabled) { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused); }
+.r4-input-radio__input:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-input-focus-shadow); }
+.r4-input-radio__input:checked { box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-focused); }
+.r4-input-radio__input:checked:focus-visible { box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-focused), var(--effect-input-focus-shadow); }
+.r4-input-radio__input:disabled { background: var(--component-input-bg-disabled); box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default); }
+.r4-input-radio__input:checked:disabled { box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-default); }
+
+.r4-input-radio__text { position: relative; flex: 1 1 0; min-width: 0; pointer-events: none; }
+.r4-input-radio__check { position: relative; flex: none; display: none; width: var(--spacing-4); height: var(--spacing-4); color: var(--icon-default); pointer-events: none; }
+.r4-input-radio__input:checked ~ .r4-input-radio__check { display: block; }
+
+.r4-input-radio__caption {
+  padding-top: var(--spacing-05);
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-radio--error .r4-input-radio__caption { color: var(--feedback-error-text); }

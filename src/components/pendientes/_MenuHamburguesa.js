@@ -6,7 +6,8 @@
 // que entra desde la derecha (cualquier profundidad, mismo patrón); «Volver» la devuelve a la derecha y vuelve a la anterior; la capa de un ítem con hijos lleva un enlace con su nombre a su propia página
 // (cierra el panel y navega); el ítem de usuario navega a «Tu perfil» y cierra; los CTA («Contratar», «Cerrar sesión») quedan fijos abajo.
 // Props (extras del prototipo, no vienen de ninguna API): `open`, `user` { name, description, href }, `items` árbol { title, href, children? }, `favoritos`, `ctaText`, `logoutText`, `id`.
-// Extras del prototipo con idiomas (Luxemburgo, sin diseño): `languages` (R4SegmentedControls arriba de la primera capa), `sites` (lista aparte de navegación entre sites), `ctaIcon`, `secondaryText`/`secondaryIcon`.
+// Extras del prototipo con idiomas (Luxemburgo, Figma «Navegación - Potenciales» 1714:11479): `languages` y `sites` (ítems con card en la primera capa que abren una capa con R4InputRadio; al cambiar de opción
+// se cierra el menú), `ctaIcon`, `secondaryText`/`secondaryIcon`. En esas capas los CTA siguen fijos abajo. El nombre de la capa es el label del radio (no hay título aparte).
 // Eventos: `close` (el panel pide cerrarse), `navigate` (item), `language` (value).
 // Accesibilidad (decisión propia, sin guía en la doc): panel con role="region" y aria-label «Menú»; solo la capa superior es interactiva (las de debajo, `inert`); al abrir una capa el foco va a «Volver»,
 // al volver, al ítem que la abrió; Escape retrocede una capa o, en la primera, cierra. No hay focus trap: el aspa de la cabecera, que sigue visible, es la salida natural.
@@ -15,22 +16,24 @@ import { defineComponent, ref, computed, watch, nextTick } from '../../../vendor
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Link from './R4Link.js'
 import R4Button from './R4Button.js'
-import R4SegmentedControls from './R4SegmentedControls.js'
+import R4InputRadio from './R4InputRadio.js'
 import { iconComponent } from '../../icons/_Icon.js'
 
 const IcArrowLeft = iconComponent('ic-arrow-left')
 
 export default defineComponent({
   name: '_MenuHamburguesa',
-  components: { R4NavigationItems, R4Link, R4Button, R4SegmentedControls },
+  components: { R4NavigationItems, R4Link, R4Button, R4InputRadio },
   props: {
     open: { type: Boolean, default: false },
     id: { type: String, default: 'menu-hamburguesa' },
     user: { type: Object, default: null },
     items: { type: Array, required: true },
     favoritos: { type: Object, default: null },
-    languages: { type: Object, default: null }, // { items: [{ label, value }], value, ariaLabel }: selector de idioma arriba de la primera capa (caso Luxemburgo)
-    sites: { type: Object, default: null }, // { ariaLabel, items: [{ title, href }] }: lista aparte de navegación entre sites, bajo la navegación principal
+    // Selectores de la primera capa (caso Luxemburgo, Figma 1714:11479): cada uno es un NavigationItem con card que abre una capa con R4InputRadio.
+    // { label, icon, value, options: [{ label, value, summary?, href? }] }; `summary` = texto del ítem cuando la opción está seleccionada (por defecto, su label).
+    languages: { type: Object, default: null },
+    sites: { type: Object, default: null },
     ctaText: { type: String, default: 'Contratar' },
     logoutText: { type: String, default: 'Cerrar sesión' },
     ctaIcon: { type: String, default: 'ic-plus-square' }, // icono del CTA principal ('' = sin icono)
@@ -46,7 +49,11 @@ export default defineComponent({
     const toItem = (it, extra) => ({ title: it.title, icon: it.icon, linkHref: it.href || '#', showLink: !!(it.children && it.children.length), ...extra, node: it })
     const userItems = computed(() => (props.user ? [{ title: props.user.name, description: props.user.description, icon: 'ic-user', linkHref: props.user.href, showLink: true, user: true }] : []))
     const mainItems = computed(() => props.items.map((it) => toItem(it, { showLine: false })))
-    const siteItems = computed(() => (props.sites ? props.sites.items.map((it) => toItem(it, { showLine: false })) : []))
+    const selectorItem = (sel, kind) => {
+      const current = sel.options.find((o) => o.value === sel.value)
+      return { title: (current && (current.summary || current.label)) || sel.label, icon: sel.icon, linkHref: '#', showLink: true, node: { title: sel.label, radio: { ...sel, kind } } }
+    }
+    const selectorItems = computed(() => [props.languages && selectorItem(props.languages, 'language'), props.sites && selectorItem(props.sites, 'site')].filter(Boolean))
     const favItems = computed(() => (props.favoritos ? [toItem(props.favoritos, { showLine: false })] : []))
     const levelItems = (node) => node.children.map((it, i) => toItem(it, { showLine: i < node.children.length - 1 }))
 
@@ -61,7 +68,7 @@ export default defineComponent({
     const go = (node, e) => { emit('navigate', node); emit('close') }
     const select = (it, e) => {
       e.preventDefault()
-      if (it.node && it.node.children && it.node.children.length) {
+      if (it.node && ((it.node.children && it.node.children.length) || it.node.radio)) {
         openers.push(e.currentTarget)
         path.value = [...path.value, it.node]
         focusPane()
@@ -69,6 +76,13 @@ export default defineComponent({
         emit('navigate', it.user ? { title: props.user.name, href: props.user.href } : it.node)
         emit('close')
       }
+    }
+    // Cambiar de opción en una capa de radios cierra el menú y navega (al site elegido) o cambia de idioma
+    const pick = (radio, value) => {
+      const option = radio.options.find((o) => o.value === value)
+      if (radio.kind === 'language') emit('language', value)
+      else emit('navigate', { title: option.label, href: option.href })
+      emit('close')
     }
     const back = () => {
       if (!path.value.length) return
@@ -81,7 +95,7 @@ export default defineComponent({
     const reset = () => { path.value = []; openers = [] }
     watch(() => props.open, (v) => { if (v) { reset() } })
 
-    return { root, path, panes, userItems, mainItems, siteItems, favItems, levelItems, select, back, go, onKeydown, reset, IcArrowLeft }
+    return { root, path, panes, userItems, mainItems, selectorItems, favItems, levelItems, select, pick, back, go, onKeydown, reset, IcArrowLeft }
   },
   template: `
     <Transition name="menu-hamburguesa" @after-leave="reset">
@@ -90,11 +104,14 @@ export default defineComponent({
           <TransitionGroup name="menu-pane" tag="div" class="menu-hamburguesa__panes">
             <div v-for="(p, i) in panes" :key="p.key" class="menu-hamburguesa__pane" :inert="i < panes.length - 1">
               <template v-if="!p.node">
-                <R4SegmentedControls v-if="languages" size="medium" :items="languages.items" :selected-value="languages.value" :aria-label="languages.ariaLabel" @select="$emit('language', $event)" />
-                <R4NavigationItems v-if="userItems.length"size="medium" has-card-container :items="userItems" aria-label="Tu perfil" @select="select" />
+                <R4NavigationItems v-if="userItems.length" size="medium" has-card-container :items="userItems" aria-label="Tu perfil" @select="select" />
                 <R4NavigationItems size="medium" :icon-is-boxed="false" :items="mainItems" aria-label="Secciones" @select="select" />
-                <R4NavigationItems v-if="siteItems.length" size="medium" :icon-is-boxed="false" :items="siteItems" :aria-label="sites.ariaLabel" @select="select" />
-                <R4NavigationItems v-if="favItems.length"size="medium" :icon-is-boxed="false" :items="favItems" aria-label="Accesos directos" @select="select" />
+                <R4NavigationItems v-if="selectorItems.length" size="medium" density="default" has-card-container :icon-is-boxed="false" :items="selectorItems" aria-label="Idioma y sitio" @select="select" />
+                <R4NavigationItems v-if="favItems.length" size="medium" :icon-is-boxed="false" :items="favItems" aria-label="Accesos directos" @select="select" />
+              </template>
+              <template v-else-if="p.node.radio">
+                <R4Link class="menu-hamburguesa__back" type="standalone" size="medium" href="#" :icon-left="IcArrowLeft" @click.prevent="back">Volver</R4Link>
+                <R4InputRadio :label="p.node.radio.label" required :options="p.node.radio.options" :selected-value="p.node.radio.value" @change="pick(p.node.radio, $event)" />
               </template>
               <template v-else>
                 <R4Link class="menu-hamburguesa__back" type="standalone" size="medium" href="#" :icon-left="IcArrowLeft" @click.prevent="back">Volver</R4Link>

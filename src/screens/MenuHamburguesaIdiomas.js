@@ -1,8 +1,9 @@
 // Pantalla: menú hamburguesa con selector de idioma · caso Renta 4 Luxemburgo (usuario potencial, no logado). Sin diseño en Figma: se compone con lo ya reconstruido (Flujo B).
-// Referencia de la web de Luxemburgo (captura de Jon) y benchmark PSG (Figma «Navegación - Potenciales», 1624:566): el PSG pone las entradas secundarias en una banda superior y el idioma abajo,
-// en una capa propia; aquí, por decisión de Jon, el idioma va ARRIBA de la capa (R4SegmentedControls ES | EN) y la navegación entre sites es una lista aparte bajo la navegación principal.
-// Mismo Menu y misma interacción que «Cliente logado» (hamburguesa ⇄ aspa, solo mobile, panel por la derecha). Sin caja de perfil. Main vacío (Jon).
-// Datos de ejemplo: src/data/menu-hamburguesa.js (potencialLuxemburgo). El cambio de idioma solo cambia el valor seleccionado (no traduce los textos) y el atributo lang de la página.
+// Diseño: Figma «Navegación - Potenciales» (bYhmzXdiu7ugIr8U2vY8Hp), sección «Mobile - Menu - idiomas y Sites» (1714:11479): tras la navegación, dos NavigationItem con card (idioma actual con ic-flag-alt y site
+// actual con ic-globe) que abren una capa con R4InputRadio type=button («Idiomas» / «Otros sites»). Al cambiar de opción se cierra el menú y se navega al site o a la versión del idioma elegidos.
+// Mismo Menu y misma interacción que «Cliente logado» (hamburguesa ⇄ aspa, solo mobile, panel por la derecha). Sin caja de perfil (usuario potencial). Main vacío (Jon).
+// Datos de ejemplo: src/data/menu-hamburguesa.js (potencialLuxemburgo). El cambio de idioma solo cambia el valor seleccionado (no traduce los textos) y el atributo lang de la página;
+// elegir otro site solo cambia el hash de la URL (los destinos son ficticios), así que el site actual sigue siendo Luxemburgo.
 import { defineComponent, ref, watch, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import TemplateDetail from '../templates/TemplateDetail.js'
 import Menu from '../components/pendientes/Menu.js'
@@ -16,7 +17,7 @@ export default defineComponent({
     document.title = 'Menú hamburguesa con idiomas · Luxemburgo · Prototipo R4'
     const abierto = ref(false)
     const idioma = ref(potencialLuxemburgo.languages.value)
-    const languages = () => ({ ...potencialLuxemburgo.languages, value: idioma.value })
+    const languages = () => ({ ...potencialLuxemburgo.languages, value: idioma.value }) // el idioma elegido es el único estado que cambia; el site actual es siempre Luxemburgo
     const toggle = () => { abierto.value = !abierto.value }
     const navegar = (item) => { if (item && item.href) location.hash = item.href.replace(/^#/, '') }
     const cambiarIdioma = (v) => { idioma.value = v; document.documentElement.lang = v }
@@ -36,7 +37,7 @@ export default defineComponent({
       </template>
       <template #overlay>
         <MenuHamburguesa id="menu-hamburguesa" :open="abierto" :items="potencialLuxemburgo.items" :languages="languages()" :sites="potencialLuxemburgo.sites"
-                         :cta-text="potencialLuxemburgo.ctaText" cta-icon="" :secondary-text="potencialLuxemburgo.secondaryText"
+                         :cta-text="potencialLuxemburgo.ctaText" :cta-icon="potencialLuxemburgo.ctaIcon" :secondary-text="potencialLuxemburgo.secondaryText" :secondary-icon="potencialLuxemburgo.secondaryIcon"
                          @close="abierto = false" @navigate="navegar" @language="cambiarIdioma" />
       </template>
     </TemplateDetail>
