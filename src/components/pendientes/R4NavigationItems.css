@@ -56,6 +56,6 @@
 /* showLine=false por ítem (Figma): sin línea inferior */
 .r4-navitems__item.has-no-line::after { display: none; }
 
-/* hasCardContainer=true (size medium, default): CardContainer (surface/default, trazo border/subtle de 1, radio 8) y padding de 16 por los cuatro lados; sin línea */
-.r4-navitems--card .r4-navitems__item { padding: var(--spacing-4); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-sm); background: var(--surface-default); }
+/* hasCardContainer=true (size medium, default): CardContainer (surface/default, trazo border/subtle de 1, radio card/radius = 0) y padding de 16 por los cuatro lados; sin línea */
+.r4-navitems--card .r4-navitems__item { padding: var(--spacing-4); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--component-card-radius); background: var(--surface-default); }
 .r4-navitems--card .r4-navitems__item::after { display: none; }
