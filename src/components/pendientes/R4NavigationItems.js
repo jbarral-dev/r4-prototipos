@@ -5,7 +5,7 @@
 // Semántica según la doc: <nav> > <ul> > <li> con <a> (el foco cae en el ítem completo; iconos y chevron decorativos).
 // Reconstruido (leído en Figma): size medium, hasCardContainer=false (ítem plano con línea inferior), estados default / hover / focused / pressed / disabled.
 // Extras del prototipo del menú hamburguesa (Figma «Navegación - Potenciales», 1614:673): cada ítem admite showLine (false oculta la línea inferior; en Figma showLine) y hasCardContainer=true se
-//   reconstruye solo en size medium y estado default (CardContainer: surface/default, trazo border/subtle de 1, radio card/radius = 0, padding 16; sus estados hover/focus no se han leído: se reutilizan los del ítem plano).
+//   reconstruye solo en size medium y estado default (CardContainer: surface/default, trazo border/subtle de 1, radio card/radius = 0, padding 16; estados default / hover / focused / pressed / disabled leídos del CardContainer; no se reconstruye el estado selected, de 2 px).
 // NO reconstruido: size large, hasCardContainer=true con otros estados, density default/relaxed solo como gap.
 // Extra: cada ítem admite showLink (false oculta el chevron; en Figma showLink, Changelog SM-24193; la API de la doc no lo recoge). El icono es obligatorio en la API; en el menú de acciones lleva ic-clock sin flecha (Jon).
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
