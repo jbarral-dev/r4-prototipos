@@ -33,10 +33,12 @@ icons['ic-plus-square'] = {
   markup: '<path d="M12 7.5V8.5C12 8.70625 11.8313 8.875 11.625 8.875H8.875V11.625C8.875 11.8313 8.70625 12 8.5 12H7.5C7.29375 12 7.125 11.8313 7.125 11.625V8.875H4.375C4.16875 8.875 4 8.70625 4 8.5V7.5C4 7.29375 4.16875 7.125 4.375 7.125H7.125V4.375C7.125 4.16875 7.29375 4 7.5 4H8.5C8.70625 4 8.875 4.16875 8.875 4.375V7.125H11.625C11.8313 7.125 12 7.29375 12 7.5ZM15 2.5V13.5C15 14.3281 14.3281 15 13.5 15H2.5C1.67188 15 1 14.3281 1 13.5V2.5C1 1.67188 1.67188 1 2.5 1H13.5C14.3281 1 15 1.67188 15 2.5ZM13.5 13.3125V2.6875C13.5 2.58438 13.4156 2.5 13.3125 2.5H2.6875C2.58438 2.5 2.5 2.58438 2.5 2.6875V13.3125C2.5 13.4156 2.58438 13.5 2.6875 13.5H13.3125C13.4156 13.5 13.5 13.4156 13.5 13.3125Z" fill="currentColor"/>',
 }
 
-// ic-times (24 px, Primitivos 1.2 «↳ Icons»): aspa del botón de la barra compacta con el menú hamburguesa abierto (Figma «Navegación - Potenciales», nodo 1572:13100)
-icons['ic-times'] = {
+// ic-times-thin (24 px): aspa del botón de la barra compacta con el menú hamburguesa abierto. NO ES UN ICONO DE FIGMA (decisión de Jon, 2026-11-04): el ic-times de Primitivos 1.2 es de otra familia
+// (brazos de ~3,2 px) y desentona con la hamburguesa de la cabecera (barras de 1,875 px, «Application / Menu»). Se construye con dos barras del mismo grosor y esquinas que las de la hamburguesa
+// (1,875 de alto, radio 0,1875, de 19,5 de largo), cruzadas a ±45° sobre el centro. Sustituir por el icono de Figma si diseño lo añade a la familia fina.
+icons['ic-times-thin'] = {
   size: 24,
-  markup: '<path d="M14.2311 12L19.2805 6.95062C19.5725 6.65859 19.5725 6.18468 19.2805 5.89218L18.1072 4.7189C17.8152 4.42687 17.3413 4.42687 17.0488 4.7189L11.9999 9.76874L6.95052 4.71937C6.65849 4.42734 6.18458 4.42734 5.89208 4.71937L4.71927 5.89218C4.42724 6.18421 4.42724 6.65812 4.71927 6.95062L9.76864 12L4.71927 17.0494C4.42724 17.3414 4.42724 17.8153 4.71927 18.1078L5.89255 19.2811C6.18458 19.5731 6.65849 19.5731 6.95099 19.2811L11.9999 14.2312L17.0493 19.2806C17.3413 19.5727 17.8152 19.5727 18.1077 19.2806L19.281 18.1073C19.573 17.8153 19.573 17.3414 19.281 17.0489L14.2311 12Z" fill="currentColor"/>',
+  markup: '<rect x="2.25" y="11.0625" width="19.5" height="1.875" rx="0.1875" transform="rotate(45 12 12)" fill="currentColor"/><rect x="2.25" y="11.0625" width="19.5" height="1.875" rx="0.1875" transform="rotate(-45 12 12)" fill="currentColor"/>',
 }
 
 // ic-user (20 px): icono del ítem de usuario del menú hamburguesa (Figma 1614:676, R4Icon boxed accentLight)

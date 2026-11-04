@@ -40,7 +40,7 @@ export default defineComponent({
     ] }, // { label, href?, current? }: hijos de la sección actual (Bolsas y derivados)
     ctaText: { type: String, default: 'Contratar' },
     userName: { type: String, default: 'Alex' },
-    // Extras del prototipo del menú hamburguesa (Figma «Navegación - Potenciales», 1572:13100): con el panel abierto la hamburguesa pasa a aspa (ic-times) y aria-expanded=true;
+    // Extras del prototipo del menú hamburguesa (Figma «Navegación - Potenciales», 1572:13100): con el panel abierto la hamburguesa pasa a aspa (ic-times-thin, derivado de la hamburguesa: no es de Figma) y aria-expanded=true;
     // burgerOnlyMobile oculta la hamburguesa por encima de 599 (por decisión de Jon el panel es solo mobile); menuControls = id del panel (aria-controls).
     menuOpen: { type: Boolean, default: false },
     burgerOnlyMobile: { type: Boolean, default: false },
@@ -112,7 +112,7 @@ export default defineComponent({
               <Icon v-if="searchIcon" class="menu__icon-custom" :name="searchIcon" />
               <template v-else><Icon class="menu__icon-tablet" name="ic-search-24" /><Icon class="menu__icon-mobile" name="search" /></template>
             </button>
-            <button type="button" class="menu__compact-button menu__compact-button--burger" :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'" :aria-expanded="menuOpen ? 'true' : 'false'" :aria-controls="menuControls" @click="$emit('menu')"><Icon :name="menuOpen ? 'ic-times' : 'ic-bars'" /></button>
+            <button type="button" class="menu__compact-button menu__compact-button--burger" :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'" :aria-expanded="menuOpen ? 'true' : 'false'" :aria-controls="menuControls" @click="$emit('menu')"><Icon :name="menuOpen ? 'ic-times-thin' : 'ic-bars'" /></button>
           </div>
         </div>
       </template>
