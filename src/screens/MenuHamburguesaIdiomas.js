@@ -1,4 +1,4 @@
-// Pantalla: menú hamburguesa con selector de idioma · caso Renta 4 Luxemburgo (usuario potencial, no logado). Sin diseño en Figma: se compone con lo ya reconstruido (Flujo B).
+// VERSIÓN 1 (enfoque anterior a la reunión de equipo del 2026-11-04; congelada, el nuevo enfoque va en la v2). Pantalla: menú hamburguesa con selector de idioma · caso Renta 4 Luxemburgo (usuario potencial, no logado). Sin diseño en Figma: se compone con lo ya reconstruido (Flujo B).
 // Diseño: Figma «Navegación - Potenciales» (bYhmzXdiu7ugIr8U2vY8Hp), sección «Mobile - Menu - idiomas y Sites» (1714:11479): tras la navegación, dos NavigationItem con card (idioma actual con ic-flag-alt y site
 // actual con ic-globe) que abren una capa con R4InputRadio type=button («Idiomas» / «Otros sites»). Al cambiar de opción se cierra el menú y se navega al site o a la versión del idioma elegidos.
 // Mismo Menu y misma interacción que «Cliente logado» (hamburguesa ⇄ aspa, solo mobile, panel por la derecha). Sin caja de perfil (usuario potencial). Main vacío (Jon).
@@ -14,7 +14,7 @@ export default defineComponent({
   name: 'MenuHamburguesaIdiomas',
   components: { TemplateDetail, Menu, MenuHamburguesa: _MenuHamburguesa },
   setup() {
-    document.title = 'Menú hamburguesa con idiomas · Luxemburgo · Prototipo R4'
+    document.title = 'Menú hamburguesa con idiomas · Luxemburgo · v1 · Prototipo R4'
     const abierto = ref(false)
     const idioma = ref(potencialLuxemburgo.languages.value)
     const languages = () => ({ ...potencialLuxemburgo.languages, value: idioma.value }) // el idioma elegido es el único estado que cambia; el site actual es siempre Luxemburgo

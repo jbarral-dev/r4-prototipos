@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Menú hamburguesa · Cliente logado · v2 · Prototipo R4</title>
+  <!-- Fuentes de marca (Open Sans, Exo 2). Provisional: IT las servirá desde su propia librería. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Compartido por todos los prototipos -->
+  <link rel="stylesheet" href="../../src/tokens/tokens.css" />
+  <link rel="stylesheet" href="../../src/styles/base.css" />
+  <link rel="stylesheet" href="../../src/styles/componentes.css" />
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    import { montar } from '../../src/montar.js'
+    import Pantalla from '../../src/screens/MenuHamburguesaLogadoV2.js'
+    montar(Pantalla)
+  </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// Pantalla: menú hamburguesa · Cliente logado. Figma «Navegación - Potenciales» (bYhmzXdiu7ugIr8U2vY8Hp), sección «Mobile - Menu - Cliente Logado» (1555:1109):
+// VERSIÓN 1 (enfoque anterior a la reunión de equipo del 2026-11-04; congelada, el nuevo enfoque va en la v2). Pantalla: menú hamburguesa · Cliente logado. Figma «Navegación - Potenciales» (bYhmzXdiu7ugIr8U2vY8Hp), sección «Mobile - Menu - Cliente Logado» (1555:1109):
 //   página vacía con cabecera (1555:1110), capa de nivel 1 (1572:13077) y capa de segundo nivel de «Tu cuenta» (1668:2393). Tablet y desktop: no hay diseño.
 // Composición (TemplateDetail, superficie gris, sin Footer): Menu type=default + Main VACÍO (así lo pide Jon) + el panel _MenuHamburguesa en la capa `overlay`.
 // Responsive: la hamburguesa y el panel solo existen en mobile (< 600, por decisión de Jon). En tablet la barra compacta se queda sin hamburguesa (Menu `burgerOnlyMobile`):
@@ -15,7 +15,7 @@ export default defineComponent({
   name: 'MenuHamburguesaLogado',
   components: { TemplateDetail, Menu, MenuHamburguesa: _MenuHamburguesa },
   setup() {
-    document.title = 'Menú hamburguesa · Cliente logado · Prototipo R4'
+    document.title = 'Menú hamburguesa · Cliente logado · v1 · Prototipo R4'
     const abierto = ref(false)
     const toggle = () => { abierto.value = !abierto.value }
     const navegar = (item) => { if (item && item.href) location.hash = item.href.replace(/^#/, '') }
