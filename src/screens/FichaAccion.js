@@ -2,7 +2,7 @@
 //   desktop cl-ficha-accion--dk (2463:42378; variantes con Derivados = Opciones: 2478:41029 y 2481:36427) · mobile ficha-accion--mb (2448:15016; con Opciones: 2454:15572;
 //   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
-// Composición (TemplateDetail, superficie gris, sin Footer): R4Wrapper density=compact × 3. Desktop: [R4PageTitleProduct] · [R4Tabs + (R4ChartLine | Resumen)] · [Derivados | Recomendación].
+// Composición (TemplateDetail, superficie gris, sin Footer): R4Wrapper density=compact × 3. Desktop: [R4PageTitleProduct] · [R4Tabs + (R4ChartLine | Resumen)] · [Derivados | Recomendación]. (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y se
 //   corrigen en mobile/tablet los espacios entre wrappers con márgenes derivados de la density (ver ficha-accion.css).
 // Interacciones: tabs (solo «Detalle» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
@@ -125,7 +125,7 @@ export default defineComponent({
 
       <R4Wrapper v-if="tab === 0" density="compact" class="ficha__w3">
         <div class="r4-grid">
-          <R4Section class="ficha__derivados" appearance="boxed" background-color="white" title="Derivados">
+          <R4Section class="ficha__derivados" appearance="boxed" background-color="white" title="Productos relacionados">
             <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de derivado">
               <R4Chip v-for="c in d.derivados.categorias" :key="c.id" size="small" :label="c.label" :selected="categoria === c.id" @click="categoria = c.id" />
             </div>
