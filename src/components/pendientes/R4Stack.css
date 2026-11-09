@@ -1,0 +1,34 @@
+/*
+ * R4Stack (spec de Jon, 5 nov 2026): flex + gap con los 5 tokens --r4-stack-* (pending.css). Sin padding, fondo, borde, radio ni márgenes.
+ * Vertical: ancho 100 % (fill). Horizontal: ancho a contenido (hug), limitado al del padre.
+ */
+.r4-stack { display: flex; gap: var(--r4-stack-gap); min-width: 0; }
+
+.r4-stack--gap-tight { --r4-stack-gap: var(--r4-stack-tight); }
+.r4-stack--gap-snug { --r4-stack-gap: var(--r4-stack-snug); }
+.r4-stack--gap-default { --r4-stack-gap: var(--r4-stack-default); }
+.r4-stack--gap-loose { --r4-stack-gap: var(--r4-stack-loose); }
+.r4-stack--gap-section { --r4-stack-gap: var(--r4-stack-section); }
+
+.r4-stack--vertical { flex-direction: column; width: 100%; }
+.r4-stack--horizontal { flex-direction: row; width: fit-content; max-width: 100%; }
+.r4-stack--wrap { flex-wrap: wrap; }
+
+.r4-stack--align-start { align-items: flex-start; }
+.r4-stack--align-center { align-items: center; }
+.r4-stack--align-end { align-items: flex-end; }
+.r4-stack--align-stretch { align-items: stretch; }
+
+/*
+ * divider: línea de 1 px centrada en el gap. El gap pasa a ser el padding del propio separador (la línea se pinta solo en el área de contenido),
+ * así la distancia entre hermanos sigue siendo exactamente el gap.
+ */
+.r4-stack--divider { gap: 0; }
+.r4-stack__divider {
+  flex: none;
+  box-sizing: content-box;
+  background: var(--border-subtle);
+  background-clip: content-box;
+}
+.r4-stack--vertical > .r4-stack__divider { align-self: stretch; height: var(--r4-line-width); padding-block: calc((var(--r4-stack-gap) - var(--r4-line-width)) / 2); }
+.r4-stack--horizontal > .r4-stack__divider { align-self: stretch; width: var(--r4-line-width); padding-inline: calc((var(--r4-stack-gap) - var(--r4-line-width)) / 2); }

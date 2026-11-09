@@ -24,6 +24,9 @@ export const accion = {
     secondaryActions: [{ label: 'Configurar tiempo real', icon: 'ic-clock', showLink: false }],
   },
 
+  // Caja de riesgo (_RiskBox): «6 / 6» en el Figma de la ficha de acción (el mismo 6/6 de la fila «Riesgo» del Resumen)
+  riesgo: { riskLevel: 6, maxRisk: 6 },
+
   // Capa fija al hacer scroll (fixedProductTitleLayer): muestra el mercado del producto (BME), igual que el título
   capaFija: { market: { name: 'BME', flag: 'flag-spain' } },
 

@@ -3,7 +3,9 @@
 //   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets, extra pendiente de llevar al Sistema).
-//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | Resumen] · [layout 8-4: Productos relacionados | Recomendación].
+//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=loose (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
+//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=loose), como en el Figma desktop. En el Figma mobile la caja va ENCIMA DEL TÍTULO del producto (primer Wrapper): como el DOM
+//   es único se mantiene la posición de desktop (sobre el Resumen) en todos los anchos; discrepancia anotada en «Pendiente / dudas».
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
 //   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y el
@@ -17,6 +19,8 @@ import TemplateDetail from '../templates/TemplateDetail.js'
 import Menu from '../components/pendientes/Menu.js'
 import FixedProductTitle from '../components/pendientes/FixedProductTitle.js'
 import R4Wrapper from '../components/pendientes/R4Wrapper.js'
+import R4Stack from '../components/pendientes/R4Stack.js'
+import _RiskBox from '../components/pendientes/_RiskBox.js'
 import R4Section from '../components/pendientes/R4Section.js'
 import R4PageTitleProduct from '../components/pendientes/R4PageTitleProduct.js'
 import R4Tabs from '../components/pendientes/R4Tabs.js'
@@ -46,7 +50,7 @@ export default defineComponent({
   props: { searchIcon: { type: String, default: undefined } },
   directives: { dragScroll },
   components: {
-    TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
+    TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem, ChartGauge: _ChartGauge,
   },
   setup() {
@@ -110,15 +114,18 @@ export default defineComponent({
             <R4ChartLine timeline="today" :points="d.grafico.points" :domain="d.grafico.domain" :progress="d.grafico.progress" :y-labels="d.grafico.yLabels" :x-labels="d.grafico.xLabels"
                          :periods="d.grafico.periods" :selected-period="period" aria-label="Evolución del precio de IBERDROLA en el día de hoy" @period="period = $event" />
           </div>
-          <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
-            <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" />
-            <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">
-              <R4Popover width="wide">
-                <p class="ficha__market-title">En otros mercados</p>
-                <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
-              </R4Popover>
-            </div>
-          </R4Section>
+          <R4Stack gap="loose">
+            <RiskBox v-bind="d.riesgo" />
+            <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
+              <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" />
+              <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">
+                <R4Popover width="wide">
+                  <p class="ficha__market-title">En otros mercados</p>
+                  <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+                </R4Popover>
+              </div>
+            </R4Section>
+          </R4Stack>
         </template>
         <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
       </R4Wrapper>

@@ -1,0 +1,41 @@
+/*
+ * _RiskBox (Figma, variante mediaQuery=mobile = la horizontal): fondo surface/default, borde de 1 px border/inverse, padding spacing/2 (8), gap spacing/3 (12), contenido centrado en vertical.
+ * Nivel: Exo 2 Bold, size/heading/s con su line-height, gap 4 entre «N», «/» y «M»; el nivel en text/disabled, el resto en text/default. Se pinta en una caja de 20 de alto sin recortar
+ * (como la capa «Mask group»), de modo que la caja mide 40 (8 + 24 de dos líneas de texto + 8).
+ * Texto: Open Sans Regular, 9 / 12 px (sin token: pending.css), text/default.
+ * Discrepancia: el gap de 4 del nivel usa en Figma la variable antigua Space/Margin/marginXXS; se usa su equivalente de la escala (spacing/1).
+ */
+.r4-riskbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding: var(--spacing-2);
+  background: var(--surface-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-inverse); /* trazo interior de 1 px (Figma): no suma a los 40 de alto */
+}
+
+.r4-riskbox__level {
+  display: flex;
+  flex: none;
+  align-items: center;
+  height: calc(var(--spacing-4) + var(--spacing-1));
+  gap: var(--spacing-1);
+  color: var(--text-default);
+  font-family: var(--font-family-headings);
+  font-size: var(--size-heading-s);
+  line-height: var(--line-height-heading-s);
+  font-weight: var(--font-weight-bold);
+}
+.r4-riskbox__value { color: var(--text-disabled); }
+
+.r4-riskbox__text {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-default);
+  font-family: var(--font-family-body);
+  font-size: var(--r4-riskbox-text-size);
+  line-height: var(--r4-riskbox-text-line-height);
+  font-weight: var(--font-weight-regular);
+}
