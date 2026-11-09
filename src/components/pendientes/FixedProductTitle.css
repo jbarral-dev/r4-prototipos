@@ -3,8 +3,9 @@
  * grid/containerPadding (12 mobile · 24 desktop).
  * Mobile: padding vertical 12 (alto 48); izquierda gap 8 con padding derecho 24: logo 24 + nombre body/m Regular (elipsis); derecha gap 4: variación Exo 2 Medium 12/16 en chart/negative|positive
  *   (texto «(-2,85%)», sin separación entre partes) y precio Exo 2 SemiBold 16/24.
- * Desktop/tablet (≥ 600): padding vertical 16 y alto 72 (el botón de 40 manda; Jon: 24 → 16); izquierda gap 16: logo 32, nombre body/xl Regular (20/28), separador de 1 px (surface/muted, alto completo) y mercado
- *   (gap 16 con el separador; bandera 24 + nombre body/m en text/subdued, gap 8); derecha gap 24: variación Exo 2 Medium body/l (18/26) y precio Exo 2 SemiBold heading/s (gap 12, alineados abajo) + R4Button primary.
+ * Desktop/tablet (≥ 600; releído el 2026-11-09 tras los ajustes de Jon): padding vertical 12 (como mobile) y alto 56 (el botón de 32 manda); izquierda gap 16: logo 32, nombre body/l Regular (18/26),
+ *   separador de 1 px (surface/muted, alto completo) y mercado (gap 16 con el separador; bandera 16 + nombre body/m en text/subdued, gap 4); derecha gap 24: variación (la misma de mobile, 12/16, con
+ *   padding-bottom 2) y precio Exo 2 SemiBold heading/xs (20/24) (gap 8, alineados abajo) + R4Button primary medium (32).
  */
 .r4-fixedproducttitle {
   width: 100%;
@@ -46,18 +47,17 @@
 
 /* Desktop y tablet */
 @container r4page (min-width: 600px) {
-  .r4-fixedproducttitle { padding-block: var(--spacing-4); }
   .r4-fixedproducttitle__left { gap: var(--spacing-4); }
   .r4-fixedproducttitle__logo { width: var(--spacing-8); height: var(--spacing-8); }
-  .r4-fixedproducttitle__name { flex: none; max-width: 100%; font-size: var(--size-body-xl); line-height: var(--line-height-body-xl); }
+  .r4-fixedproducttitle__name { flex: none; max-width: 100%; font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
   .r4-fixedproducttitle__market { display: flex; align-self: stretch; align-items: center; gap: var(--spacing-4); min-width: 0; color: var(--text-subdued); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); white-space: nowrap; }
   .r4-fixedproducttitle__market::before { content: ''; align-self: stretch; width: var(--r4-line-width); background: var(--surface-muted); }
-  .r4-fixedproducttitle__market > span { display: flex; align-items: center; gap: var(--spacing-2); }
-  .r4-fixedproducttitle__market .r4-icon { flex: none; width: var(--spacing-6); height: var(--spacing-6); }
+  .r4-fixedproducttitle__market > span { display: flex; align-items: center; gap: var(--spacing-1); }
+  .r4-fixedproducttitle__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }
   .r4-fixedproducttitle__right { gap: var(--spacing-6); }
-  .r4-fixedproducttitle__figures { align-items: flex-end; gap: var(--spacing-3); }
-  .r4-fixedproducttitle__variation { font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
-  .r4-fixedproducttitle__price { font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); }
+  .r4-fixedproducttitle__figures { align-items: flex-end; gap: var(--spacing-2); }
+  .r4-fixedproducttitle__variation { padding-bottom: var(--spacing-05); }
+  .r4-fixedproducttitle__price { font-size: var(--size-heading-xs); line-height: var(--line-height-heading-xs); }
   .r4-fixedproducttitle .r4-fixedproducttitle__cta.r4-button { display: inline-flex; }
 }
 

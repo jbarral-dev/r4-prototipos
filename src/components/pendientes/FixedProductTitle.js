@@ -2,7 +2,8 @@
 // Reconstrucción desde Figma de `fixedProductTitleLayer` (componente local del archivo "Proyectos - Fichas de Productos", 2756:76562; variantes mediaQuery = mobile | desktop; sin página de
 // Confluence ni entrada en el catálogo). Es la capa que, al hacer scroll y salir R4PageTitleProduct del viewport, queda fija justo debajo de la cabecera.
 //   · mobile (< 600): logo 24 + nombre del producto (truncado) a la izquierda; variación (12) y precio (16) a la derecha.
-//   · desktop y tablet (≥ 600; tablet no tiene diseño): logo 32, nombre en body/xl, separador y mercado (bandera 24 + nombre del índice/mercado), variación (18), precio (24) y botón «Contratar».
+//   · desktop y tablet (≥ 600; tablet no tiene diseño): logo 32, nombre en body/l, separador y mercado (bandera 16 + nombre del índice/mercado), variación (12), precio (20) y botón «Contratar» medium.
+//     (Releído el 2026-11-09 tras los ajustes de Jon en Figma: alto 56, antes 72.)
 // mediaQuery NO es una prop (decisión de Jon): lo resuelve el CSS por el ancho del contenedor `r4page`; se renderizan los elementos de ambas variantes y el CSS oculta los que no tocan.
 // Asociada a R4PageTitleProduct (Jon): la pantalla la muestra cuando el título emite `visible-change = false`; va en la cabecera sticky, debajo del Menu. Aparece y desaparece con fundido
 // (0,2 s; sin animación con prefers-reduced-motion).
@@ -50,7 +51,7 @@ export default defineComponent({
             <span v-if="variation !== undefined" class="r4-fixedproducttitle__variation" :class="variation >= 0 ? 'is-positive' : 'is-negative'">({{ sign }}{{ fmt(Math.abs(variation)) }}%)</span>
             <span class="r4-fixedproducttitle__price">{{ fmt(price) }}{{ symbol }}</span>
           </span>
-          <R4Button class="r4-fixedproducttitle__cta" type="primary" :text="ctaText" @click="$emit('cta')" />
+          <R4Button class="r4-fixedproducttitle__cta" type="primary" size="medium" :text="ctaText" @click="$emit('cta')" />
         </div>
       </div>
     </div>
