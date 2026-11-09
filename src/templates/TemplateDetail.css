@@ -19,6 +19,21 @@
   width: 100%;
 }
 
+/*
+ * headerSticky="main": solo la barra principal del Menu queda fija. Para que `position: sticky` tenga como bloque contenedor toda la página (y no solo la cabecera), el contenedor
+ * de la cabecera y los del Menu pasan a `display: contents`; la franja de usuario y el submenú siguen en el flujo y se van con el scroll.
+ * `header-extra` (FixedProductTitle) es un contenedor sticky de alto 0 bajo la barra: la capa se superpone sin empujar el contenido al aparecer.
+ */
+.template-detail__header--main { position: static; display: contents; }
+.template-detail__header--main .menu { display: contents; }
+@container r4page (min-width: 1024px) {
+  .template-detail__header--main .menu--default .menu__desktop { display: contents; }
+}
+.template-detail__header--main .menu__main,
+.template-detail__header--main .menu__compact { position: sticky; top: 0; z-index: 100; }
+.template-detail__header--main .template-detail__header-extra { position: sticky; top: var(--r4-menu-height); z-index: 99; height: 0; }
+.template-detail__header--main .r4-fixedproducttitle { position: absolute; top: 0; left: 0; right: 0; }
+
 .template-detail__main {
   display: flex;
   flex: 1 1 auto;

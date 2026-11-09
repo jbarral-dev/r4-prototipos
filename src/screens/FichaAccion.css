@@ -1,32 +1,24 @@
 /*
- * Ficha de acción — colocación en la rejilla y ajustes por contenedor (`r4page`). Todo el responsive lo resuelve el CSS.
- * Desktop (≥ 1024, 12 columnas): título a 12 · tabs a 12 · gráfico 8 + resumen 4 · derivados 8 + recomendación 4 (Figma).
- * Tablet (8 columnas, sin diseño) y mobile (4): todo a ancho completo, apilado.
+ * Ficha de acción — ajustes por contenedor (`r4page`). Todo el responsive lo resuelve el CSS.
+ * La colocación en la rejilla la hace la prop `layout` de R4Wrapper (12 · 12 · 8-4 · 8-4): desktop (≥ 1024, 12 columnas) título 12 · tabs 12 · gráfico 8 + resumen 4 · productos
+ * relacionados 8 + recomendación 4 (Figma); tablet (8 columnas, sin diseño) y mobile (4): todo a ancho completo, apilado.
  */
-.ficha__col { grid-column: 1 / -1; min-width: 0; }
+.ficha__placeholder { margin: 0; color: var(--text-muted); }
 
-/* El panel de la pestaña usa subgrid para que sus hijos se coloquen en las columnas de la rejilla del Wrapper */
-.ficha__panel { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; row-gap: var(--r4-wrapper-gap); min-width: 0; }
-.ficha__chart, .ficha__resumen { grid-column: 1 / -1; min-width: 0; }
-.ficha__placeholder { grid-column: 1 / -1; margin: 0; color: var(--text-muted); }
-
-.ficha__derivados, .ficha__reco { grid-column: 1 / -1; min-width: 0; align-self: start; }
-
-@container r4page (min-width: 1024px) {
-  .ficha__chart { grid-column: 1 / span 8; }
-  .ficha__resumen { grid-column: 9 / span 4; align-self: start; }
-  .ficha__derivados { grid-column: 1 / span 8; }
-  .ficha__reco { grid-column: 9 / span 4; }
-}
+/*
+ * Espacios entre wrappers. En el Figma (desktop) las tabs y el gráfico comparten Wrapper (gap = density, 32); aquí son dos Wrappers (un Wrapper = una fila-patrón) y entre ellos habría
+ * 2 × density: se corrige con un margen derivado del propio gap (--r4-wrapper-gap = density). Es un apaño de esta pantalla: se quita si se acepta ese espacio.
+ */
+.ficha__w3 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* tabs → gráfico: 32 (24 en mobile) */
 
 /*
  * Reparto de wrappers en tablet y mobile. Figma mobile: [título 24 tabs 24 gráfico] —48— [resumen 24 derivados 24 recomendación]. El DOM es el de desktop
- * ([título] [tabs, gráfico, resumen] [derivados, recomendación]); se corrigen los saltos con márgenes derivados del propio gap del Wrapper (--r4-wrapper-gap = density).
+ * ([título] [tabs] [gráfico, resumen] [derivados, recomendación]); se corrigen los saltos con márgenes derivados del propio gap del Wrapper (--r4-wrapper-gap = density).
  */
 @container r4page (max-width: 1023px) {
   .ficha__w2 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* título → tabs: 24 en lugar de 48 */
   .ficha__resumen { margin-top: var(--r4-wrapper-gap); }          /* gráfico → resumen: 48 en lugar de 24 */
-  .ficha__w3 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* resumen → derivados: 24 en lugar de 48 */
+  .ficha__w4 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* resumen → derivados: 24 en lugar de 48 */
 }
 
 /* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */

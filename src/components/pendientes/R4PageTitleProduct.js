@@ -54,8 +54,10 @@ export default defineComponent({
     let io = null
     const observe = () => {
       if (io) io.disconnect()
+      // Con la cabecera `headerSticky="main"` solo la barra principal queda fija (el .menu es display: contents y no tiene caja): se mide esa barra.
+      const bar = [...document.querySelectorAll('.template-detail__header--main .menu__main, .template-detail__header--main .menu__compact')].find((el) => el.getClientRects().length)
       const menu = root.value.closest('.template-detail__header, body')?.querySelector('.menu')
-      const top = menu ? menu.getBoundingClientRect().height : parseFloat(getComputedStyle(root.value).getPropertyValue('--r4-menu-height')) || 0
+      const top = bar ? bar.getBoundingClientRect().height : menu ? menu.getBoundingClientRect().height : parseFloat(getComputedStyle(root.value).getPropertyValue('--r4-menu-height')) || 0
       io = new IntersectionObserver(([e]) => emit('visible-change', e.isIntersecting), { rootMargin: `-${Math.round(top)}px 0px 0px 0px` })
       io.observe(root.value)
     }

@@ -36,3 +36,21 @@ main > .r4-wrapper:first-child .r4-wrapper__container { padding-top: var(--wrapp
 }
 
 .r4-wrapper .r4-grid { row-gap: var(--r4-wrapper-gap); }
+
+/*
+ * Prop `layout` (extra, ver cabecera de R4Wrapper.js): la Grid la pinta el Wrapper y los hijos directos se colocan por orden.
+ * Por defecto (12, y todo lo que colapsa) cada hijo ocupa la fila entera. Umbrales: Tablet ≤ 1023, Mobile ≤ 599 (rejilla de 12 / 8 / 4 columnas por modo).
+ */
+.r4-wrapper__grid { align-items: start; }
+.r4-wrapper__grid > * { grid-column: 1 / -1; min-width: 0; }
+
+@container r4page (min-width: 1024px) {
+  .r4-wrapper__grid--8-4 > :nth-child(odd) { grid-column: 1 / span 8; }
+  .r4-wrapper__grid--8-4 > :nth-child(even) { grid-column: 9 / span 4; }
+  .r4-wrapper__grid--6 > * { grid-column: 4 / span 6; }
+  .r4-wrapper__grid--4 > * { grid-column: 5 / span 4; }
+}
+
+@container r4page (min-width: 600px) and (max-width: 1023px) {
+  .r4-wrapper__grid--6 > *, .r4-wrapper__grid--4 > * { grid-column: 2 / span 6; }
+}

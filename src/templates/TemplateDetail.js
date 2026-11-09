@@ -7,13 +7,16 @@
 // contenedor del mismo nombre (`r4page`) a tamaño de viewport, así los fixed se colocan sobre la ventana y los container queries siguen funcionando dentro.
 import { defineComponent } from '../../vendor/vue.esm-browser.prod.js'
 
+// Extra del prototipo: `headerSticky` = 'all' (por defecto: toda la cabecera queda fija al hacer scroll) | 'main' (solo queda fija la barra principal del Menu, `.menu__main`; en tablet y mobile,
+// `.menu__compact`; la franja de usuario y el submenú se van con el scroll, y la capa `header-extra` se pega justo debajo de la barra).
 export default defineComponent({
   name: 'TemplateDetail',
+  props: { headerSticky: { type: String, default: 'all', validator: (v) => ['all', 'main'].includes(v) } },
   template: `
     <div class="template-detail">
       <div class="template-detail__container">
         <div class="template-detail__page r4-layout-modes">
-          <div class="template-detail__header"><slot name="header" /><slot name="header-extra" /></div>
+          <div class="template-detail__header" :class="{ 'template-detail__header--main': headerSticky === 'main' }"><slot name="header" /><div class="template-detail__header-extra"><slot name="header-extra" /></div></div>
           <main class="template-detail__main"><slot /></main>
           <slot name="dock" />
         </div>
