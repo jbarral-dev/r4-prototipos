@@ -6,12 +6,6 @@
 .ficha__placeholder { margin: 0; color: var(--text-muted); }
 
 /*
- * Espacios entre wrappers. En el Figma (desktop) las tabs y el gráfico comparten Wrapper (gap = density, 32); aquí son dos Wrappers (un Wrapper = una fila-patrón) y entre ellos habría
- * 2 × density: se corrige con un margen derivado del propio gap (--r4-wrapper-gap = density). Es un apaño de esta pantalla: se quita si se acepta ese espacio.
- */
-.ficha__w3 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* tabs → gráfico: 32 (24 en mobile) */
-
-/*
  * Reparto de wrappers en tablet y mobile. Figma mobile: [título 24 tabs 24 gráfico] —48— [resumen 24 derivados 24 recomendación]. El DOM es el de desktop
  * ([título] [tabs] [gráfico, resumen] [derivados, recomendación]); se corrigen los saltos con márgenes derivados del propio gap del Wrapper (--r4-wrapper-gap = density).
  */

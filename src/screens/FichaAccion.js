@@ -5,7 +5,7 @@
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets, extra pendiente de llevar al Sistema).
 //   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | Resumen] · [layout 8-4: Productos relacionados | Recomendación].
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
-//   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): el espacio tabs → gráfico se corrige con un margen derivado de la density (ver FichaAccion.css).
+//   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
 //   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y se
 //   corrigen en mobile/tablet los espacios entre wrappers con márgenes derivados de la density (ver FichaAccion.css).
 // Interacciones: tabs (solo «Detalle» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
