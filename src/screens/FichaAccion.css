@@ -6,13 +6,11 @@
 .ficha__placeholder { margin: 0; color: var(--text-muted); }
 
 /*
- * Reparto de wrappers en tablet y mobile. Figma mobile: [título 24 tabs 24 gráfico] —48— [resumen 24 derivados 24 recomendación]. El DOM es el de desktop
- * ([título] [tabs] [gráfico, resumen] [derivados, recomendación]); se corrigen los saltos con márgenes derivados del propio gap del Wrapper (--r4-wrapper-gap = density).
+ * Tablet y mobile: el Figma mobile reparte los wrappers de otra manera ([título 24 tabs 24 gráfico] —48— [resumen 24 derivados 24 recomendación]); aquí se dejan los espacios naturales
+ * de los Wrappers (sin márgenes negativos). Queda solo la separación gráfico → resumen (48), dentro del mismo Wrapper.
  */
 @container r4page (max-width: 1023px) {
-  .ficha__w2 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* título → tabs: 24 en lugar de 48 */
-  .ficha__resumen { margin-top: var(--r4-wrapper-gap); }          /* gráfico → resumen: 48 en lugar de 24 */
-  .ficha__w4 { margin-top: calc(var(--r4-wrapper-gap) * -1); }  /* resumen → derivados: 24 en lugar de 48 */
+  .ficha__resumen { margin-top: var(--r4-wrapper-gap); }
 }
 
 /* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */
