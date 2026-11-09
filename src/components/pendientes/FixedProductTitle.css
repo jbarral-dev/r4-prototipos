@@ -52,7 +52,7 @@
   .r4-fixedproducttitle__name { flex: none; max-width: 100%; font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
   .r4-fixedproducttitle__market { display: flex; align-self: stretch; align-items: center; gap: var(--spacing-4); min-width: 0; color: var(--text-subdued); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); white-space: nowrap; }
   .r4-fixedproducttitle__market::before { content: ''; align-self: stretch; width: var(--r4-line-width); background: var(--surface-muted); }
-  .r4-fixedproducttitle__market > span { display: flex; align-items: center; gap: var(--spacing-1); }
+  .r4-fixedproducttitle__market-item { display: flex; align-items: center; gap: var(--spacing-1); } /* bandera + nombre (frame «market» interior de Figma, gap 4); el gap de 16 del exterior es solo el del separador */
   .r4-fixedproducttitle__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }
   .r4-fixedproducttitle__right { gap: var(--spacing-6); }
   .r4-fixedproducttitle__figures { align-items: flex-end; gap: var(--spacing-2); }

@@ -42,8 +42,10 @@ export default defineComponent({
           <img v-if="logoURL" class="r4-fixedproducttitle__logo" :src="logoURL" alt="" aria-hidden="true" />
           <span class="r4-fixedproducttitle__name">{{ productName }}</span>
           <span v-if="market" class="r4-fixedproducttitle__market">
-            <Icon v-if="market.flag" :name="market.flag" />
-            <span>{{ market.name }}</span>
+            <span class="r4-fixedproducttitle__market-item">
+              <Icon v-if="market.flag" :name="market.flag" />
+              <span>{{ market.name }}</span>
+            </span>
           </span>
         </div>
         <div class="r4-fixedproducttitle__right">
