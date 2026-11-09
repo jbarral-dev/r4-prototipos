@@ -6,8 +6,8 @@
 //   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | Resumen] · [layout 8-4: Productos relacionados | Recomendación].
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
-//   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y los
-//   espacios entre wrappers son los naturales (sin márgenes negativos; ver FichaAccion.css).
+//   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y el
+//   espaciado vertical es solo el de los R4Wrapper (paddings y gap de la density compact), sin márgenes verticales en la pantalla.
 // Interacciones: tabs (solo «Detalle» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
 //   como en la variante con Opciones del Figma) · «Mercado» del Resumen abre el sheet «En otros mercados» (bottom en <1024, side en ≥1024) · en mobile el título del producto, al salir del
 //   viewport, deja fija bajo la cabecera la capa fixedProductTitleLayer (Figma 2756:76562, variantes mobile y desktop) y las acciones van en el R4ButtonDock.

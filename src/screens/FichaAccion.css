@@ -5,13 +5,7 @@
  */
 .ficha__placeholder { margin: 0; color: var(--text-muted); }
 
-/*
- * Tablet y mobile: el Figma mobile reparte los wrappers de otra manera ([título 24 tabs 24 gráfico] —48— [resumen 24 derivados 24 recomendación]); aquí se dejan los espacios naturales
- * de los Wrappers (sin márgenes negativos). Queda solo la separación gráfico → resumen (48), dentro del mismo Wrapper.
- */
-@container r4page (max-width: 1023px) {
-  .ficha__resumen { margin-top: var(--r4-wrapper-gap); }
-}
+/* Sin márgenes verticales: todo el espaciado vertical sale de los paddings y el gap de los R4Wrapper (density compact). */
 
 /* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */
 @container r4page (max-width: 599px) {
