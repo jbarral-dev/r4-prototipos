@@ -30,15 +30,15 @@
 :root[data-theme="dark"] { --r4-text-search-highlight: var(--color-feedback-blue-300); }
 
 /*
- * R4Stack: colección `Stack` (stack/tight · snug · default · loose · section). Propuesta de Jon (especificación R4Stack.md, 5 nov 2026): aún NO existe en Figma ni en Confluence,
+ * R4Stack: colección `Stack` (stack/xs · sm · md · lg · xl). Propuesta de Jon (especificación R4Stack.md v1.0, 10 nov 2026): aún NO existe en Figma ni en Confluence,
  * así que no está en la cascada de tokens. Se declara aquí, conservando el alias a la escala `spacing` de Foundations (valen lo mismo en todos los breakpoints, sin modos).
  */
 :root {
-  --r4-stack-tight: var(--spacing-1);     /* 4 · campo con su ayuda o error; etiqueta con su valor */
-  --r4-stack-snug: var(--spacing-2);      /* 8 · elementos de un mismo bloque */
-  --r4-stack-default: var(--spacing-4);   /* 16 · campos consecutivos, ítems de una lista */
-  --r4-stack-loose: var(--spacing-6);     /* 24 · entre grupos; cabecera de caja y su contenido; caja de riesgo y Resumen */
-  --r4-stack-section: var(--spacing-8);   /* 32 · bloques distintos dentro de una caja autónoma */
+  --r4-stack-xs: var(--spacing-1);     /* 4 · campo con su ayuda o error; etiqueta con su valor */
+  --r4-stack-sm: var(--spacing-2);      /* 8 · elementos de un mismo bloque */
+  --r4-stack-md: var(--spacing-4);   /* 16 · campos consecutivos, ítems de una lista */
+  --r4-stack-lg: var(--spacing-6);     /* 24 · entre grupos; cabecera de caja y su contenido; caja de riesgo y Resumen */
+  --r4-stack-xl: var(--spacing-8);   /* 32 · bloques distintos dentro de una caja autónoma */
 }
 
 /* _RiskBox (archivo "Fichas de Productos"): el texto explicativo usa 9 px / 12 px en Figma, sin variable ni valor equivalente en la escala de Typography */

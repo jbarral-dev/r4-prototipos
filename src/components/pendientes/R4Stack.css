@@ -1,14 +1,14 @@
 /*
- * R4Stack (spec de Jon, 5 nov 2026): flex + gap con los 5 tokens --r4-stack-* (pending.css). Sin padding, fondo, borde, radio ni márgenes.
+ * R4Stack (spec v1.0, 10 nov 2026): flex + gap con los 5 tokens --r4-stack-* (pending.css). Sin padding, fondo, borde, radio ni márgenes.
  * Vertical: ancho 100 % (fill). Horizontal: ancho a contenido (hug), limitado al del padre.
  */
 .r4-stack { display: flex; gap: var(--r4-stack-gap); min-width: 0; }
 
-.r4-stack--gap-tight { --r4-stack-gap: var(--r4-stack-tight); }
-.r4-stack--gap-snug { --r4-stack-gap: var(--r4-stack-snug); }
-.r4-stack--gap-default { --r4-stack-gap: var(--r4-stack-default); }
-.r4-stack--gap-loose { --r4-stack-gap: var(--r4-stack-loose); }
-.r4-stack--gap-section { --r4-stack-gap: var(--r4-stack-section); }
+.r4-stack--gap-xs { --r4-stack-gap: var(--r4-stack-xs); }
+.r4-stack--gap-sm { --r4-stack-gap: var(--r4-stack-sm); }
+.r4-stack--gap-md { --r4-stack-gap: var(--r4-stack-md); }
+.r4-stack--gap-lg { --r4-stack-gap: var(--r4-stack-lg); }
+.r4-stack--gap-xl { --r4-stack-gap: var(--r4-stack-xl); }
 
 .r4-stack--vertical { flex-direction: column; width: 100%; }
 .r4-stack--horizontal { flex-direction: row; width: fit-content; max-width: 100%; }

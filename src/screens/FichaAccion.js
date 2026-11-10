@@ -3,8 +3,8 @@
 //   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets, extra pendiente de llevar al Sistema).
-//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=loose (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
-//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=loose), como en el Figma desktop. En el Figma mobile la caja va ENCIMA DEL TÍTULO del producto (primer Wrapper): como el DOM
+//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
+//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En el Figma mobile la caja va ENCIMA DEL TÍTULO del producto (primer Wrapper): como el DOM
 //   es único se mantiene la posición de desktop (sobre el Resumen) en todos los anchos; discrepancia anotada en «Pendiente / dudas».
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
@@ -114,7 +114,7 @@ export default defineComponent({
             <R4ChartLine timeline="today" :points="d.grafico.points" :domain="d.grafico.domain" :progress="d.grafico.progress" :y-labels="d.grafico.yLabels" :x-labels="d.grafico.xLabels"
                          :periods="d.grafico.periods" :selected-period="period" aria-label="Evolución del precio de IBERDROLA en el día de hoy" @period="period = $event" />
           </div>
-          <R4Stack gap="loose">
+          <R4Stack gap="lg">
             <RiskBox v-bind="d.riesgo" />
             <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
               <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" />
