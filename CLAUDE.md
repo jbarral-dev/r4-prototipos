@@ -103,7 +103,7 @@ No todos los componentes diseñados en Figma están desarrollados en Vue: de ah�
   (`position: sticky; top: 0`)** al hacer scroll. Lo hace `TemplateProcess`.
 - **Responsive de las páginas de proceso** (Confluence "Páginas de Procesos", 3497656350, leída en vivo; tabla por ancho de
   referencia 1024 · 768 · 390): columnas 12 / 8 / 4; contenido 6 de 12 · 6 de 8 · 4 de 4; padding vertical y espacio entre bloques
-  48 / 40 / 32; padding horizontal 24 / 24 / 12; ancho máx. 1368. Se implementa con las **variables de modo de Figma**
+  48 / 40 / 32; padding horizontal 24 / 24 / 12; ancho máx. de la Grid 1176 (desde 1176) y 1368 (desde 1440), fluida por debajo (R4Wrapper v1.2). Se implementa con las **variables de modo de Figma**
   (colecciones Layout, Typography y 1. Grid: Desktop XL / Desktop / Tablet / Mobile) en `src/tokens/tokens.css`, aplicadas por el
   ancho del **contenedor** `r4page` (la Template) con container queries. Umbrales 1024 / 768: inferidos de esa tabla.
   El contenido de la pantalla puede **cambiar** entre breakpoints (p. ej. mobile del doble factor: sin QR, con campo + botón copiar):
@@ -114,7 +114,8 @@ No todos los componentes diseñados en Figma están desarrollados en Vue: de ah�
 - **Checkbox:** SÍ hay página de Confluence con tabla de API (R4InputCheckbox, 2810708014); una búsqueda por título parcial no la encontró. Para localizar docs usa `docs/design-system/fuentes-confluence.md` (solo páginas autorizadas), no búsquedas por título.
 - **Flujo B (lección de la 1.ª prueba):** antes de componer, contrasta Figma y Confluence (solo las páginas autorizadas de `fuentes-confluence.md`) en anchos de contenido y tokens: en la 1.ª prueba hubo que decidir entre dos anchos de columnas y se siguió "Páginas de Procesos" (la más reciente); deja las discrepancias en "Pendiente / dudas".
 - **Decisiones de Jon sobre contradicciones de la documentación (2026-10-05) — ya NO son dudas:**
-  - Ancho máximo del contenedor: **1368 px**. Padding horizontal: **24 (desktop/tablet) / 12 (mobile)**.
+  - Ancho máximo de la Grid (actualizado 2026-11-11 con R4Wrapper v1.2, que manda sobre la cifra única de 1368): **1176 px desde 1176** (`grid/maxWidthDesktopL`) y **1368 px desde 1440** (`grid/maxWidthDesktopXL`); por debajo, fluida. El padding horizontal es **siempre interno** (ancho útil 1128 / 1320). Padding horizontal: **24 (desktop/tablet) / 12 (mobile)**.
+    Esos dos tokens aún no están en Figma (Jon los actualizará): viven en `src/tokens/pending.css` (`--r4-grid-maxwidth-desktop-l/-xl`). El Menu y la cabecera fija siguen a 1368 (decisión de Jon: se dejan).
   - Breakpoints: **tablet empieza en 600 px** (mobile < 600); los 768 px son solo el tamaño del *frame* de Figma que representa tablet. Desktop desde 1024.
   - Fondo de página `surface/page` Light = **#F7F7F7** (la variable de Figma manda; la página de tokens se corrige).
   - Se mantiene la propiedad `type` en las APIs aunque la regla de Nomenclatura (antigua) la desaconseje; puede revisarse.
@@ -150,7 +151,7 @@ Si en esta carpeta todavía **no hay proyecto Vue** (`package.json`, `src/`), si
 2. **Proyecto base.** Antes de crearlo, **propón a Jon el stack** (Vite + Vue, versión de Vue, TypeScript sí/no, enfoque de estilos y cómo cargar los tokens) y espera su confirmación. Si Jon indica el stack que usa IT, úsalo. Crea el proyecto con la carpeta `src/components/pendientes/` ya preparada.
 3. **Prueba de humo con una pantalla pequeña.** Pide a Jon el enlace de Figma de una pantalla sencilla (por ejemplo, una de proceso con pocos componentes: R4PageTitleProcess, R4InputText, R4Button). Constrúyela siguiendo el flujo obligatorio y comprueba, antes de dar nada por bueno, que has:
    - leído el Changelog y el catálogo para cada componente;
-   - respetado Template y Wrapper (todo dentro de un Wrapper, `isFirst`, density);
+   - respetado Template y Wrapper (todo dentro de un Wrapper, primer Wrapper con `--wrapper-paddingtopfirstwrapper`, density);
    - guardado los componentes reconstruidos en `src/components/pendientes/`;
    - listado al final lo que has reconstruido y cuáles eran `VUE` en el catálogo.
 4. **Revisión con Jon.** Muéstrale el resultado con una captura y las decisiones que hayas tenido que inferir. Si algo no encaja, propón el cambio concreto para este `CLAUDE.md` en lugar de corregirlo solo en esta sesión.
@@ -232,7 +233,7 @@ estilos ni componentes. Sin diseño no hay "interpretación visual libre": lo qu
    **afecte a la composición**, se pregunta en una sola tanda (máx. 4 preguntas); lo demás se infiere y se lista al final.
 2. **Elegir la anatomía de página.** Con `templates-y-wrapper.md` y Confluence (Páginas de Procesos, R4Wrapper): Template
    (Process / Landing / Detail / Post / States), Menu y Footer según el tipo, superficie (`app` gris / `marketing` blanca) y estructura
-   Wrapper → Slot → Grid. Si no hay anatomía para ese tipo (dashboard, listados, autenticación…), **proponla a Jon antes de construir**.
+   Wrapper → Grid (R4Wrapper v1.2: sin Slot intermedio; la Grid siempre la pone el Wrapper y los hijos se colocan con `layout`). Si no hay anatomía para ese tipo (dashboard, listados, autenticación…), **proponla a Jon antes de construir**.
 3. **Mapear necesidades → componentes.** Haz la tabla "necesidad → componente → estado en catálogo → ¿ya en `pendientes/`?".
    Usa el catálogo y el Changelog (en vivo) y la página de Confluence de cada componente (API, accesibilidad). Reglas:
    - Reutiliza lo de `pendientes/`; no lo recrees.
@@ -280,13 +281,17 @@ Detalle y razonamiento en el documento importado al final. Estado: **propuesta v
 Aplícala por defecto y avisa si Figma muestra otra cosa.
 
 - Todo contenido vive dentro de un **Wrapper**. Nada suelto en `Main`. Un Wrapper = un bloque (salvo layouts de columnas explícitos).
-- El **primer Wrapper** abre con `spacing/page-start` (48/40/32), que ignora la `density`. En la API: `isFirst`. El último sigue la `density`.
+- **Anatomía y API del Wrapper (Confluence R4Wrapper v1.2, 11 nov 2026):** dos niveles, R4Wrapper (ancho completo, fondo, padding vertical) → Grid (centrada, ancho máximo, padding horizontal interno, columnas). Sin Slot intermedio.
+  Props: `backgroundColor`, `density` (por defecto `default`) y `layout` (`12` · `8-4` · `6` · `4`, por defecto `12`; ya es API oficial, no un extra). **El Wrapper siempre lleva su Grid: la pantalla nunca añade una `.r4-grid` propia**;
+  sus hijos directos se colocan por orden según `layout` (un Wrapper = un `layout`: otro reparto, otro Wrapper). `6`/`4` centrados (tablet 6 de 8, mobile 4 de 4); `8-4` apila en tablet y mobile. Para apilar varios elementos en una celda, un **R4Stack** (cuenta como un hijo).
+- **R4Stack (Confluence v1.2, propuesta sin Figma):** espacio entre hermanos dentro de una celda/caja (`gap` xs 4 · sm 8 · md 16 · lg 24 · xl 32; `wrap` por defecto true). Va dentro del Wrapper, nunca al revés; sin padding ni márgenes en los hijos.
+- El **primer Wrapper** abre con `--wrapper-paddingtopfirstwrapper` (48/40/32), que ignora la `density`; sin prop (la doc vigente no tiene `isFirst`). El último sigue la `density`.
 - Escala `density` (tabla responsive de la página R4Wrapper, la fuente de los valores): `compact` 32/28/24 · `default` 48/40/32 · `relaxed` 64/56/48 (desktop/tablet/mobile). Una sola density por página (excluyendo el primero).
   **Qué density usar** lo decide el contexto/Template (página "Templates" + R4Wrapper): **web pública → `relaxed`** (64 arriba y abajo en desktop) · **área de clientes → `compact`** (32) ·
   procesos, fichas de producto y posts → `default` (48). No son valores en conflicto: "Templates" da el valor de dos contextos y R4Wrapper los nombra y escala por breakpoint.
   **Confirmado por Jon:** todo proceso (incluido "Alta de cuenta") cuenta como proceso → `default`, nunca como área de clientes.
   El padding-top del **primer** Wrapper de cualquier template es siempre el token `--wrapper-paddingtopfirstwrapper` (48/40/32), con cualquier density;
-  debe **apuntar a ese token** (hoy: `main > .r4-wrapper:first-child` en `R4Wrapper.css`), nunca a un valor ni a la density.
+  debe **apuntar a ese token** (hoy: `main > .r4-wrapper:first-child` en `R4Wrapper.css`, aplicado al propio wrapper), nunca a un valor ni a la density.
 - La **banda de color la pone siempre el Wrapper**; los bloques (R4HighlightMedia…) van con `background=none`.
 - Ningún Wrapper con `backgroundColor` igual a la superficie de página. `app` = gris (`none`, `white`, `brandPrimary`, `brandSecondary`). `marketing` = blanco (`none`, `grey`, `brandPrimary`, `brandSecondary`).
 - Nunca dos Wrappers consecutivos con el mismo `backgroundColor` distinto de `none`.

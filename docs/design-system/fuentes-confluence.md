@@ -70,6 +70,7 @@
 | R4Shortcuts | 3508928525 | current | 2026-03-03 |
 | R4Skeleton | 3165159428 | current | 2026-08-24 |
 | R4Spinner | 3160408139 | current | 2026-08-24 |
+| R4Stack (añadida por Jon, 2026-11-11) | 4073521217 | current | 2026-11-11 (v1.2) |
 | R4Stats | 3950313474 | current | 2026-09-21 |
 | R4Steps | 3632758924 | current | 2026-10-01 |
 | R4Table | 3001581575 | current | 2026-03-03 |
@@ -120,7 +121,7 @@
 | Área de Clientes | 3729588298 | current | 2026-06-24 |
 | Páginas de Procesos | 3497656350 | current | 2026-09-01 |
 | Potenciales | 3758030865 | current | 2026-06-28 |
-| R4Wrapper | 3767762951 | current | 2026-09-24 |
+| R4Wrapper | 3767762951 | current | 2026-11-11 (v1.2) |
 | Templates | 3749380135 | current | 2026-06-28 |
 
 ### Patrones (id `3950903297`)

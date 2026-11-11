@@ -7,13 +7,14 @@
 ## 1. Reglas firmes (consistentes entre páginas)
 - Tokens: cascada Foundations → Brand → Theme → Components (+ Typography y Layout por modo); capa más alta posible; nunca hex.
 - Grid: 12 / 8 / 4 columnas, gutter 24. Contenido de procesos: 6/12 · 6/8 · 4/4. Resultados: 4/12 (6/12 a 1024 px).
-- R4Wrapper: `density` relaxed 64/56/48 · default 48/40/32 · compact 32/28/24; gap de la grid = padding; primer Wrapper → `--wrapper-paddingTopFirstWrapper`; sin prop `isFirst`; sin `mediaQuery` en código.
+- R4Wrapper (v1.2, 11 nov 2026): `density` relaxed 64/56/48 · default 48/40/32 · compact 32/28/24; gap de la grid = padding; primer Wrapper → `--wrapper-paddingTopFirstWrapper`; sin prop `isFirst`; sin `mediaQuery` en código; anatomía R4Wrapper → Grid (sin Slot); prop `layout` (12 · 8-4 · 6 · 4); Grid con ancho máx. 1176 (desde 1176) y 1368 (desde 1440).
+- R4Stack (v1.2): `gap` xs/sm/md/lg/xl (4/8/16/24/32), `direction`, `align`, `wrap` (por defecto true), `divider`; vive dentro de las celdas de la Grid del Wrapper.
 - Procesos: R4ProgressBar entre Header y Main; sin Footer.
 - Nomenclatura: componentes `R4PascalCase`; props y valores `camelCase`.
 - La API de código está en la tabla «API componente» de cada página, no en las props de Figma (que existen solo para diseñar: `showX`, `mediaQuery`, `interaction`…).
 
 ## 2. Contradicciones entre páginas autorizadas — RESUELTAS por Jon (2026-10-05) donde se indica
-1. **Ancho máximo del contenedor:** RESUELTO → **1368 px**.
+1. **Ancho máximo del contenedor:** RESUELTO → 1368 px; **actualizado 2026-11-11 (R4Wrapper v1.2): 1176 desde 1176 px y 1368 desde 1440 px**, fluida por debajo.
 2. **Padding horizontal:** RESUELTO → **24 (desktop/tablet) / 12 (mobile)**.
 3. **Tablet:** RESUELTO → el cambio a tablet es a partir de **600 px**; 768 es solo el tamaño del frame de Figma que representa tablet.
 4. **`surface/page` (Light):** RESUELTO → **#F7F7F7** (Figma); Jon corrige la página de tokens.

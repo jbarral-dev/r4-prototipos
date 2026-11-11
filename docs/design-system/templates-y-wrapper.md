@@ -1,5 +1,9 @@
 # Templates y componente Wrapper — modelo v2
 
+> **Actualización 2026-11-11:** este documento es la propuesta original. La página de Confluence R4Wrapper **v1.2** (3767762951) manda en lo siguiente y lo sustituye:
+> anatomía de dos niveles (R4Wrapper → Grid, sin Slot intermedio); prop `layout` (`12` · `8-4` · `6` · `4`, por defecto `12`) como API oficial; **no hay prop `isFirst`** (el primer Wrapper usa siempre `wrapper/paddingTopFirstWrapper`, token que sustituye al `spacing/page-start` de abajo);
+> ancho máximo de la Grid 1176 (desde 1176) y 1368 (desde 1440). Las secciones 1 (escala de densidades: aún válida), 3, 4 y 5 siguen vigentes; la `isFirst` de la sección 2 y el «Slot» de las anatomías están obsoletos.
+
 Estado: propuesta montada en Figma (Anatomy → página Templates). Pendiente de validar y de decidir su ubicación definitiva.
 
 ## 1. Escala de densidades del Wrapper
