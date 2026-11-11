@@ -35,7 +35,6 @@ export const accion = {
     { label: 'Valoración' },
     { label: 'Dividendos' },
     { label: 'Salud financiera' },
-    { label: 'Informes R4' },
   ],
 
   // Gráfico intradía. La serie son los 7 vértices de la línea del Figma (valores en €, inventados a partir de la forma); las etiquetas del eje Y son las del mobile (precio en €):
