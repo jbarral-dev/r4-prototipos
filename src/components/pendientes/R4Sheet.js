@@ -17,7 +17,15 @@ import R4Button from './R4Button.js'
 
 let uid = 0
 let locks = 0 // sheets abiertos y visibles: mientras haya alguno la página no hace scroll (clase en <html>)
-const setLock = (on) => { locks = Math.max(0, locks + (on ? 1 : -1)); document.documentElement.classList.toggle('r4-scroll-lock', locks > 0) }
+let savedY = 0
+// iOS Safari ignora overflow: hidden en <html>: se fija el <body> (position: fixed + top negativo) y se restaura la posición al soltar el último bloqueo
+const setLock = (on) => {
+  const was = locks > 0
+  locks = Math.max(0, locks + (on ? 1 : -1))
+  const now = locks > 0
+  if (now && !was) { savedY = window.scrollY; document.documentElement.classList.add('r4-scroll-lock'); document.body.style.top = `-${savedY}px` }
+  else if (!now && was) { document.documentElement.classList.remove('r4-scroll-lock'); document.body.style.top = ''; window.scrollTo(0, savedY) }
+}
 
 export default defineComponent({
   name: 'R4Sheet',

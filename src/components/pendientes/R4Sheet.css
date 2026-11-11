@@ -20,7 +20,7 @@
 
 .r4-sheet--bottom {
   inset: auto 0 0 0;
-  max-height: 100%;
+  max-height: var(--r4-sheet-bottom-maxheight);
   border-radius: var(--component-sheet-bottom-radius) var(--component-sheet-bottom-radius) 0 0;
 }
 .r4-sheet--side {
@@ -110,3 +110,6 @@
 
 /* Con un sheet visible abierto la página no hace scroll (la clase la pone/quita R4Sheet en <html>); scrollbar-gutter evita el salto de ancho al ocultar la barra */
 html.r4-scroll-lock { overflow: hidden; scrollbar-gutter: stable; }
+html.r4-scroll-lock body { position: fixed; width: 100%; overflow: hidden; }
+.r4-sheet__scrim { touch-action: none; }
+.r4-sheet__content { overscroll-behavior: contain; }

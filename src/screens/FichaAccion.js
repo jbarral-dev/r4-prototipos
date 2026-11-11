@@ -225,8 +225,8 @@ export default defineComponent({
         <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
           <ChartComparePanel v-model="gr.query" placeholder="Buscar por valor, símbolo o ISIN" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
         </R4Sheet>
-        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Configuración del gráfico" :open="gr.sheet === 'config'" :primary-action-label="gr.dirty ? 'Guardar ajustes' : undefined"
-                 :secondary-action-label="gr.dirty ? 'Cancelar' : undefined" @primary="gr.saveDraft()" @secondary="gr.close()" @close="gr.close()">
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Configuración del gráfico" :open="gr.sheet === 'config'" primary-action-label="Guardar ajustes"
+                 secondary-action-label="Cancelar" @primary="gr.saveDraft()" @secondary="gr.close()" @close="gr.close()">
           <ChartConfigPanel v-model="gr.draft" :groups="gc.configuracion" />
         </R4Sheet>
         <R4Sheet class="ficha__sheet ficha__sheet--actions" position="bottom" title="Más acciones" :open="actionsSheetOpen" @close="actionsSheetOpen = false">

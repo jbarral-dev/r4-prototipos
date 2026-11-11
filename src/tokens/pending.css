@@ -51,3 +51,7 @@
 
 /* Scrim del buscador (desktop): capa negra con opacidad por debajo del popover. Sin token en la cascada (Figma no lo define): se prueba al 50 % */
 :root { --r4-scrim: color-mix(in srgb, var(--color-neutral-black) 50%, transparent); }
+
+/* Alto máximo del R4Sheet bottom: en Figma 680 px (Figma no admite unidades porcentuales); en código 80 % del alto visible (Jon). dvh descuenta la barra del navegador móvil; vh de reserva. */
+:root { --r4-sheet-bottom-maxheight: 80vh; }
+@supports (height: 1dvh) { :root { --r4-sheet-bottom-maxheight: 80dvh; } }
