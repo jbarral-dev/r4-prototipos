@@ -137,12 +137,12 @@ export const graficoControles = {
   candles: velas,
   // Valores con los que se puede comparar (inventados; el Figma muestra «Prosegur» y «Prosegur Cash» con sus ISIN). `points`: precios de ejemplo en las mismas 7 marcas de tiempo que la serie principal.
   comparables: [
-    { name: 'Prosegur', ticker: 'PSG', isin: 'ES0175438003', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'P', points: [2.48, 2.36, 2.4, 2.37, 2.43, 2.52, 2.47] },
-    { name: 'Prosegur Cash', ticker: 'CASH', isin: 'ES0105229001', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'P', points: [0.58, 0.57, 0.6, 0.59, 0.61, 0.6, 0.62] },
-    { name: 'Repsol', ticker: 'REP', isin: 'ES0173516115', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'R', points: [13.9, 14.2, 14.8, 14.6, 15.1, 15.4, 15.2] },
-    { name: 'Telefónica', ticker: 'TEF', isin: 'ES0178430E18', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'T', points: [3.9, 3.8, 3.95, 3.9, 4.0, 4.1, 4.05] },
-    { name: 'Banco Santander', ticker: 'SAN', isin: 'ES0113900J37', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'S', points: [5.1, 5.25, 5.3, 5.2, 5.4, 5.5, 5.45] },
-    { name: 'Inditex', ticker: 'ITX', isin: 'ES0148396007', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoText: 'I', points: [42.1, 43.0, 43.8, 43.2, 44.5, 44.9, 44.6] },
+    { name: 'Prosegur', ticker: 'PSG', isin: 'ES0175438003', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-psg.svg'), points: [2.48, 2.36, 2.4, 2.37, 2.43, 2.52, 2.47] },
+    { name: 'Prosegur Cash', ticker: 'CASH', isin: 'ES0105229001', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-psg.svg'), points: [0.58, 0.57, 0.6, 0.59, 0.61, 0.6, 0.62] },
+    { name: 'Repsol', ticker: 'REP', isin: 'ES0173516115', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-rep.svg'), points: [13.9, 14.2, 14.8, 14.6, 15.1, 15.4, 15.2] },
+    { name: 'Telefónica', ticker: 'TEF', isin: 'ES0178430E18', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-tef.svg'), points: [3.9, 3.8, 3.95, 3.9, 4.0, 4.1, 4.05] },
+    { name: 'Banco Santander', ticker: 'SAN', isin: 'ES0113900J37', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-san.svg'), points: [5.1, 5.25, 5.3, 5.2, 5.4, 5.5, 5.45] },
+    { name: 'Inditex', ticker: 'ITX', isin: 'ES0148396007', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', logoSrc: logo('iso-itx.svg'), points: [42.1, 43.0, 43.8, 43.2, 44.5, 44.9, 44.6] },
   ],
   // Grupos de «Configuración» (textos del Figma). Los `value` son ids internos.
   configuracion: [

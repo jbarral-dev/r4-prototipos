@@ -32,7 +32,7 @@ export default defineComponent({
     <div class="r4-comparepanel">
       <R4InputSearch :model-value="modelValue" :placeholder="placeholder" aria-label="Buscar valor para comparar" @update:model-value="$emit('update:modelValue', $event)" @close="$emit('close')" />
       <ul v-if="state === 'results'" class="r4-comparepanel__results" aria-label="Resultados de la búsqueda">
-        <SearchResultItem v-for="(r, i) in results" :key="r.ticker" :name="r.name" :logo-text="r.logoText" :metadata1="r.ticker" :metadata2="r.isin" :market="r.market" :market-flag="r.marketFlag"
+        <SearchResultItem v-for="(r, i) in results" :key="r.ticker" :name="r.name" :logo-src="r.logoSrc" :logo-text="r.logoText" :metadata1="r.ticker" :metadata2="r.isin" :market="r.market" :market-flag="r.marketFlag"
                           :type="r.type" :highlight="modelValue" :show-divider="i < results.length - 1" @select="pick(r, $event)" />
       </ul>
       <div v-else class="r4-comparepanel__empty" aria-live="polite">
