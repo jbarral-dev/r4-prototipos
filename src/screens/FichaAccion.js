@@ -4,8 +4,9 @@
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets, extra pendiente de llevar al Sistema).
 //   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
-//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En el Figma mobile la caja va ENCIMA DEL TÍTULO del producto (primer Wrapper): como el DOM
-//   es único se mantiene la posición de desktop (sobre el Resumen) en todos los anchos; discrepancia anotada en «Pendiente / dudas».
+//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile (≤ 599, Figma 2816:102389) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
+//   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Tablet (sin diseño) mantiene la posición de desktop. Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
+//   el padding-top del primer Wrapper (token) porque `main > :first-child` lo seguiría siendo el oculto.
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
 //   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y el
@@ -100,6 +101,10 @@ export default defineComponent({
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
       </template>
 
+      <R4Wrapper v-if="tab === 0" density="compact" layout="12" class="ficha__w0">
+        <RiskBox v-bind="d.riesgo" />
+      </R4Wrapper>
+
       <R4Wrapper density="compact" layout="12" class="ficha__w1">
         <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" />
       </R4Wrapper>
@@ -115,7 +120,7 @@ export default defineComponent({
                          :periods="d.grafico.periods" :selected-period="period" aria-label="Evolución del precio de IBERDROLA en el día de hoy" @period="period = $event" />
           </div>
           <R4Stack gap="lg">
-            <RiskBox v-bind="d.riesgo" />
+            <RiskBox class="ficha__riskbox-inline" v-bind="d.riesgo" />
             <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
               <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" />
               <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">

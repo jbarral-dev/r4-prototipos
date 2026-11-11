@@ -7,6 +7,15 @@
 
 /* Sin márgenes verticales: todo el espaciado vertical sale de los paddings y el gap de los R4Wrapper (density compact). */
 
+/* Caja de riesgo: mobile (≤ 599) en su propio primer Wrapper sobre el título; desde 600 va sobre el Resumen y ese Wrapper se oculta */
+@container r4page (max-width: 599px) {
+  .ficha__riskbox-inline { display: none; }
+}
+@container r4page (min-width: 600px) {
+  .ficha__w0 { display: none; }
+  .ficha__w1 .r4-wrapper__container { padding-top: var(--wrapper-paddingtopfirstwrapper); }
+}
+
 /* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */
 @container r4page (max-width: 599px) {
   .ficha__resumen .r4-section__header {
