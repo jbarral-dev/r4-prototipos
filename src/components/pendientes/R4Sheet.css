@@ -113,3 +113,4 @@ html.r4-scroll-lock { overflow: hidden; scrollbar-gutter: stable; }
 html.r4-scroll-lock body { position: fixed; width: 100%; overflow: hidden; }
 .r4-sheet__scrim { touch-action: none; }
 .r4-sheet__content { overscroll-behavior: contain; }
+.r4-sheet--bottom.is-full-height { height: var(--r4-sheet-bottom-maxheight); }

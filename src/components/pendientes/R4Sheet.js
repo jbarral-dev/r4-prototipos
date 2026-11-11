@@ -37,6 +37,7 @@ export default defineComponent({
     open: { type: Boolean, default: false },
     primaryActionLabel: { type: String, default: undefined }, // con label hay bloque de acciones (showActions)
     secondaryActionLabel: { type: String, default: undefined },
+    fullHeight: { type: Boolean, default: false }, // extra: el bottom sheet ocupa siempre su alto máximo (contenido de altura variable, p. ej. un buscador con resultados)
   },
   emits: ['close', 'primary', 'secondary'],
   setup(props, { emit }) {
@@ -82,7 +83,7 @@ export default defineComponent({
     <div class="r4-sheet-layer" :class="$attrs.class" :style="$attrs.style">
     <Transition name="r4-sheet-scrim"><div v-if="open" class="r4-sheet__scrim" aria-hidden="true" @click="$emit('close')"></div></Transition>
     <Transition :name="'r4-sheet-' + position">
-      <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': primaryActionLabel || secondaryActionLabel }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
+      <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': primaryActionLabel || secondaryActionLabel, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
           <h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>

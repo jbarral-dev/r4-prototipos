@@ -222,7 +222,7 @@ export default defineComponent({
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
         </R4Sheet>
-        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" full-height title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
           <ChartComparePanel v-model="gr.query" placeholder="Buscar por valor, símbolo o ISIN" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
         </R4Sheet>
         <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Configuración del gráfico" :open="gr.sheet === 'config'" primary-action-label="Guardar ajustes"
