@@ -7,11 +7,11 @@
 
 /* Sin márgenes verticales: todo el espaciado vertical sale de los paddings y el gap de los R4Wrapper (density compact). */
 
-/* Caja de riesgo: mobile (≤ 599) en su propio primer Wrapper sobre el título; desde 600 va sobre el Resumen y ese Wrapper se oculta */
-@container r4page (max-width: 599px) {
+/* Caja de riesgo: mobile y tablet (≤ 1023) en su propio primer Wrapper sobre el título; desde 1024 (desktop) va sobre el Resumen y ese Wrapper se oculta */
+@container r4page (max-width: 1023px) {
   .ficha__riskbox-inline { display: none; }
 }
-@container r4page (min-width: 600px) {
+@container r4page (min-width: 1024px) {
   .ficha__w0 { display: none; }
   .ficha__w1 { padding-top: var(--wrapper-paddingtopfirstwrapper); }
 }

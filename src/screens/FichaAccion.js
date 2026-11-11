@@ -4,8 +4,8 @@
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets ya documentados en Confluence R4Wrapper v1.2).
 //   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
-//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile (≤ 599, Figma 2816:102389) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
-//   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Tablet (sin diseño) mantiene la posición de desktop. Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
+//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile y tablet (≤ 1023; mobile Figma 2816:102389, tablet extrapolado por decisión de Jon, 2026-11-11) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
+//   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
 //   el padding-top del primer Wrapper (token) porque `main > :first-child` lo seguiría siendo el oculto.
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
