@@ -106,8 +106,8 @@ export default defineComponent({
       { label: 'Líneas', value: 'line', icon: 'ic-chart-line', disabled: gr.comparing },
       { label: 'Velas', value: 'candle', icon: 'ic-chart-candlestick', disabled: gr.comparing },
     ])
-    const chartLabel = computed(() => (gr.compared
-      ? `Comparación de la variación porcentual de ${d.producto.productName} y ${gr.compared.name} en el día de hoy`
+    const chartLabel = computed(() => (gr.comparing
+      ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} en el día de hoy`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} en el día de hoy`))
 
     return { resumen, popover, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
@@ -142,7 +142,7 @@ export default defineComponent({
               <template #filters>
                 <div class="ficha__chart-anchor ficha__chart-anchor--compare">
                   <R4Chip type="multiple" icon="ic-exchange" label="Comparar" :selected="gr.panel === 'compare' || gr.sheet === 'compare' || gr.comparing" :expanded="gr.panel === 'compare' || gr.sheet === 'compare'"
-                          :badge="gr.comparing ? 2 : undefined" badge-aria-label="2 valores en el gráfico" aria-haspopup="dialog" @click="gr.open('compare')" />
+                          :badge="gr.comparing ? 1 + gr.compared.length : undefined" :badge-aria-label="1 + gr.compared.length + ' valores en el gráfico'" :disabled="gr.full" aria-haspopup="dialog" @click="gr.open('compare')" />
                   <div v-if="gr.panel === 'compare'" class="ficha__chart-popover" role="dialog" aria-label="Comparar valores">
                     <R4Popover width="wider">
                       <ChartComparePanel v-model="gr.query" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
@@ -167,7 +167,7 @@ export default defineComponent({
               <template v-if="gr.comparing" #comparing>
                 <ul class="r4-chartline__comparing" aria-label="Series del gráfico">
                   <ChartComparativeChip :ticker="gc.ticker" :color="1" />
-                  <ChartComparativeChip :ticker="gr.compared.ticker" :color="2" removable :remove-label="'Quitar ' + gr.compared.name + ' de la comparación'" @remove="gr.uncompare()" />
+                  <ChartComparativeChip v-for="c in gr.compared" :key="c.ticker" :ticker="c.ticker" :color="c.color" removable :remove-label="'Quitar ' + c.name + ' de la comparación'" @remove="gr.uncompare(c.ticker)" />
                 </ul>
               </template>
             </R4ChartLine>
