@@ -1,45 +1,43 @@
 /*
- * Density (Confluence, R4Wrapper): relaxed 64/56/48 · default 48/40/32 · compact 32/28/24 (desktop/tablet/mobile).
+ * Anatomía (Confluence R4Wrapper v1.2): R4Wrapper (contenedor externo, ancho completo, fondo y padding vertical) → Grid (centrada, ancho máximo, padding horizontal interno, columnas con gutter).
+ * Density (Confluence): relaxed 64/56/48 · default 48/40/32 · compact 32/28/24 (desktop/tablet/mobile).
  * default sale de wrapper/paddingDefault (Figma, modos Layout); compact y relaxed vienen de la documentación (--r4-density-*).
  * El primer R4Wrapper de la página usa wrapper/paddingTopFirstWrapper (documentación). Los valores por modo los pone
  * `.r4-layout-modes` (tokens.css) según el ancho de la Template; el Wrapper no decide breakpoints.
- * El gap vertical de la Grid interior = mismo valor que el padding vertical de la density (--r4-wrapper-gap).
+ * El gap vertical de la Grid = mismo valor que el padding vertical de la density (--r4-wrapper-gap).
  */
 .r4-wrapper {
   width: 100%;
   --r4-wrapper-gap: var(--wrapper-paddingdefault);
-  --r4-wrapper-pad: var(--r4-wrapper-gap);
+  padding-block: var(--r4-wrapper-gap);
 }
 
 .r4-wrapper--density-compact { --r4-wrapper-gap: var(--wrapper-paddingcompact); }
 .r4-wrapper--density-relaxed { --r4-wrapper-gap: var(--wrapper-paddingrelaxed); }
 
 /* padding-top del primer wrapper de la página (el gap sigue la density) */
-main > .r4-wrapper:first-child .r4-wrapper__container { padding-top: var(--wrapper-paddingtopfirstwrapper); }
+main > .r4-wrapper:first-child { padding-top: var(--wrapper-paddingtopfirstwrapper); }
 
 .r4-wrapper--bg-white { background: var(--surface-default); }
 .r4-wrapper--bg-grey { background: var(--surface-subtle); }
 .r4-wrapper--bg-brandPrimary { background: var(--accent-default); }
 .r4-wrapper--bg-brandSecondary { background: var(--secondary-light); }
 
-.r4-wrapper__container {
-  display: flex;
-  justify-content: center;
-  padding-block: var(--r4-wrapper-gap);
-}
-
-.r4-wrapper__slot {
-  flex: 1 1 0;
-  min-width: 0;
-  max-width: var(--grid-containermaxwidth);
+/*
+ * Grid: centrada, fluida (100 %) por debajo de 1176; desde 1176 limita con grid/maxWidthDesktopL (1176) y desde 1440 con grid/maxWidthDesktopXL (1368).
+ * El padding horizontal (grid/containerPadding) es siempre interno: el ancho útil es 1128 (Desktop L) y 1320 (Desktop XL). box-sizing: border-box (base.css).
+ */
+.r4-wrapper .r4-grid {
+  margin-inline: auto;
   padding-inline: var(--grid-containerpadding);
+  row-gap: var(--r4-wrapper-gap);
 }
-
-.r4-wrapper .r4-grid { row-gap: var(--r4-wrapper-gap); }
+@container r4page (min-width: 1176px) { .r4-wrapper .r4-grid { max-width: var(--r4-grid-maxwidth-desktop-l); } }
+@container r4page (min-width: 1440px) { .r4-wrapper .r4-grid { max-width: var(--r4-grid-maxwidth-desktop-xl); } }
 
 /*
- * Prop `layout` (extra, ver cabecera de R4Wrapper.js): la Grid la pinta el Wrapper y los hijos directos se colocan por orden.
- * Por defecto (12, y todo lo que colapsa) cada hijo ocupa la fila entera. Umbrales: Tablet ≤ 1023, Mobile ≤ 599 (rejilla de 12 / 8 / 4 columnas por modo).
+ * Prop `layout`: los hijos DIRECTOS se colocan por orden. Por defecto (12, y todo lo que colapsa) cada hijo ocupa la fila entera.
+ * Umbrales: Tablet ≤ 1023, Mobile ≤ 599 (rejilla de 12 / 8 / 4 columnas por modo).
  */
 .r4-wrapper__grid { align-items: start; }
 .r4-wrapper__grid > * { grid-column: 1 / -1; min-width: 0; }

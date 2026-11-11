@@ -1,19 +1,14 @@
 /*
  * Layout propio de la pantalla (no del sistema de diseño). Todo el responsive es CSS (container query `r4page` de la Template).
- * Contenido: 6 de 12 columnas (desktop, cols 4–9) · 6 de 8 (tablet, cols 2–7) · 4 de 4 (mobile) — tabla de "Páginas de Procesos".
+ * Contenido: 6 de 12 columnas (desktop) · 6 de 8 (tablet) · 4 de 4 (mobile) — las pone R4Wrapper con layout="6" (tabla de "Páginas de Procesos").
  * El espacio vertical entre bloques lo pone el R4Wrapper (row-gap = padding vertical de la density: 48 / 40 / 32).
  */
-.screen-2fa__col { grid-column: 4 / span 6; }
 
 /* Variantes de contenido por breakpoint: desktop y tablet (ancho) frente a mobile (estrecho) */
 .screen-2fa__only-narrow { display: none; }
 .screen-2fa__col.screen-2fa__only-narrow { display: none; }
 
-@container r4page (max-width: 1023px) {
-  .screen-2fa__col { grid-column: 2 / span 6; }
-}
 @container r4page (max-width: 599px) {
-  .screen-2fa__col { grid-column: 1 / span 4; }
   .screen-2fa__only-wide,
   .screen-2fa__col.screen-2fa__only-wide { display: none; }
   .screen-2fa__only-narrow { display: block; }

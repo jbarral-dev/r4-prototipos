@@ -13,7 +13,7 @@
 }
 @container r4page (min-width: 600px) {
   .ficha__w0 { display: none; }
-  .ficha__w1 .r4-wrapper__container { padding-top: var(--wrapper-paddingtopfirstwrapper); }
+  .ficha__w1 { padding-top: var(--wrapper-paddingtopfirstwrapper); }
 }
 
 /* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */

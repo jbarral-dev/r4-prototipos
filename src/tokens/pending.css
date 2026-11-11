@@ -9,7 +9,9 @@
   --r4-menu-height: 76px;                        /* antes menuHeight (Layout, ya no existe): 76 desktop y tablet · 56 mobile (Figma: Menu Device=Tablet 76, Device=Mobile 56) */
   --r4-menu-item-hover: var(--color-neutral-gray-500); /* Menu: fondo del ítem de la barra en hover (#707070): sin token semántico de superficie con ese gris */
   --r4-menu-max-width: 1512px;                  /* antes Size/Screen/menuMaxWidth (1512, generación antigua): ancho máximo del contenido de la franja de usuario y de la barra principal del Menu */
-  --grid-columns: 12;                            /* Nº de columnas de la rejilla: 12 · 8 · 4 (docs "R4Wrapper" y "Páginas de Procesos") */
+  --r4-grid-maxwidth-desktop-l: 1176px;          /* grid/maxWidthDesktopL (Confluence R4Wrapper v1.2): ancho máximo de la Grid desde 1176; aún sin variable en Figma (layout.txt solo trae containerMaxWidth) */
+  --r4-grid-maxwidth-desktop-xl: var(--grid-containermaxwidth); /* grid/maxWidthDesktopXL (antes containerMaxWidth, renombrado en la v1.2): 1368 desde 1440 */
+  --grid-columns: 12;                           /* Nº de columnas de la rejilla: 12 · 8 · 4 (docs "R4Wrapper" y "Páginas de Procesos") */
   --r4-tabitem-min-width: 90px;                  /* ancho mínimo de _TabItem (Figma y Confluence R4Tabs): sin variable */
 }
 

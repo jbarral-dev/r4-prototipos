@@ -1,11 +1,8 @@
 /*
- * Layout propio de la pantalla. Columnas por breakpoint según "Páginas de Procesos": 6 de 12 (cols 4–9) · 6 de 8 (cols 2–7) · 4 de 4.
+ * Layout propio de la pantalla. Las columnas (6 de 12 · 6 de 8 · 4 de 4, «Páginas de Procesos») las pone R4Wrapper con layout="6".
  * El espacio entre título, formulario y acción lo pone el R4Wrapper (row-gap = padding de la density: 48 / 40 / 32).
  * Separación entre campos del formulario: spacing/6 (24 px) — INFERIDA: ni Figma ni Confluence la definen.
  */
-.alta__col { grid-column: 4 / span 6; }
-@container r4page (max-width: 1023px) { .alta__col { grid-column: 2 / span 6; } }
-@container r4page (max-width: 599px) { .alta__col { grid-column: 1 / span 4; } }
 
 .alta__form {
   display: flex;

@@ -41,8 +41,7 @@ const Content = defineComponent({
   },
   // Orden del DOM = orden de lectura (título → contenido → acción); la rejilla coloca cada bloque en sus columnas.
   template: `
-    <R4Wrapper>
-      <div class="r4-grid">
+    <R4Wrapper layout="6">
         <div class="screen-2fa__col">
           <div class="screen-2fa__only-wide"><R4PageTitleProcess title="Asocia Renta 4 a un autenticador" /></div>
           <div class="screen-2fa__only-narrow"><R4PageTitleProcess title="Asocia Renta 4 a tu autenticador" /></div>
@@ -70,7 +69,6 @@ const Content = defineComponent({
         </div>
 
         <div class="screen-2fa__col"><R4Button text="Continuar" width="full-width" /></div>
-      </div>
     </R4Wrapper>
   `,
 })

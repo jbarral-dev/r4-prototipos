@@ -43,16 +43,14 @@ const Content = defineComponent({
   },
   // Orden del DOM = orden de lectura = orden de foco: título → email → teléfono → check legal → Continuar.
   template: `
-    <R4Wrapper>
-      <div class="r4-grid">
-        <div class="alta__col"><R4PageTitleProcess title="Datos de contacto" /></div>
-        <form class="alta__col alta__form" novalidate @submit.prevent="continuar">
-          <R4InputEmail v-model="form.email" required :status="errors.email ? 'Error' : 'Default'" :caption="errors.email || undefined" @blur="validate('email')" />
-          <R4InputPhone v-model="form.phone" required :status="errors.phone ? 'Error' : 'Default'" :caption="errors.phone || undefined" @blur="validate('phone')" />
-          <R4InputCheckbox v-model="form.legal" :options="legalOptions" required />
-        </form>
-        <div class="alta__col"><R4Button text="Continuar" width="full-width" :disabled="!aceptado" @click="continuar" /></div>
-      </div>
+    <R4Wrapper layout="6">
+      <div class="alta__col"><R4PageTitleProcess title="Datos de contacto" /></div>
+      <form class="alta__col alta__form" novalidate @submit.prevent="continuar">
+        <R4InputEmail v-model="form.email" required :status="errors.email ? 'Error' : 'Default'" :caption="errors.email || undefined" @blur="validate('email')" />
+        <R4InputPhone v-model="form.phone" required :status="errors.phone ? 'Error' : 'Default'" :caption="errors.phone || undefined" @blur="validate('phone')" />
+        <R4InputCheckbox v-model="form.legal" :options="legalOptions" required />
+      </form>
+      <div class="alta__col"><R4Button text="Continuar" width="full-width" :disabled="!aceptado" @click="continuar" /></div>
     </R4Wrapper>
   `,
 })

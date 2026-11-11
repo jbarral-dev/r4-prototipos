@@ -2,7 +2,7 @@
 //   desktop cl-ficha-accion--dk (2463:42378; variantes con Derivados = Opciones: 2478:41029 y 2481:36427) · mobile ficha-accion--mb (2448:15016; con Opciones: 2454:15572;
 //   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
-// Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets, extra pendiente de llevar al Sistema).
+// Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets ya documentados en Confluence R4Wrapper v1.2).
 //   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
 //   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile (≤ 599, Figma 2816:102389) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
 //   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Tablet (sin diseño) mantiene la posición de desktop. Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
