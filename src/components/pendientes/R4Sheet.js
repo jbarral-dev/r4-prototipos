@@ -7,6 +7,7 @@
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
 // primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
+// Scroll (decisión de Jon): mientras haya un sheet visible abierto la página no hace scroll (clase r4-scroll-lock en <html>, contador compartido entre sheets).
 // Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
 // (`.r4-sheet-layer`, display: contents) que recibe la class/style de la pantalla. Figma no define el velo: opacidad provisional (ver pending.css).
 // bottom/side los decide el CSS del contenedor en la ficha (la doc: bottom para móvil/tablet, side para escritorio): la pantalla monta una de cada y el CSS oculta la que no toca.
@@ -15,6 +16,8 @@ import Icon from '../../icons/_Icon.js'
 import R4Button from './R4Button.js'
 
 let uid = 0
+let locks = 0 // sheets abiertos y visibles: mientras haya alguno la página no hace scroll (clase en <html>)
+const setLock = (on) => { locks = Math.max(0, locks + (on ? 1 : -1)); document.documentElement.classList.toggle('r4-scroll-lock', locks > 0) }
 
 export default defineComponent({
   name: 'R4Sheet',
@@ -33,6 +36,8 @@ export default defineComponent({
     const root = ref(null)
     const closeBtn = ref(null)
     let opener = null
+    let locked = false
+    const lock = (on) => { if (on === locked) return; locked = on; setLock(on) }
 
     const focusables = () => [...root.value.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])')]
     const visible = () => root.value && root.value.getClientRects().length > 0 // el CSS oculta la variante que no toca (en la capa envolvente; offsetParent no sirve con position: fixed)
@@ -52,13 +57,16 @@ export default defineComponent({
       if (isOpen) {
         opener = document.activeElement
         await nextTick()
-        if (visible()) closeBtn.value?.focus()
-      } else if (opener && typeof opener.focus === 'function') {
+        if (visible()) { lock(true); closeBtn.value?.focus() }
+      } else {
+        lock(false)
+      }
+      if (!isOpen && opener && typeof opener.focus === 'function') {
         opener.focus()
         opener = null
       }
     })
-    onBeforeUnmount(() => { opener = null })
+    onBeforeUnmount(() => { opener = null; lock(false) })
 
     return { titleId, root, closeBtn, onKeydown }
   },

@@ -107,3 +107,6 @@
 @media (prefers-reduced-motion: reduce) {
   .r4-sheet-scrim-enter-active, .r4-sheet-scrim-leave-active { transition: none; }
 }
+
+/* Con un sheet visible abierto la página no hace scroll (la clase la pone/quita R4Sheet en <html>); scrollbar-gutter evita el salto de ancho al ocultar la barra */
+html.r4-scroll-lock { overflow: hidden; scrollbar-gutter: stable; }
