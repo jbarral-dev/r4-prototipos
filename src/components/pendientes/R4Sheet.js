@@ -5,23 +5,26 @@
 // Extras del prototipo (la doc dice que lo abre/cierra el padre y no define la API): `open` (boolean) y el evento `close`.
 // Accesibilidad según la doc: role="dialog" aria-modal="true" aria-labelledby (título) · botón de cierre con aria-label "Cerrar" · Escape cierra · foco al botón de cierre al abrir,
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
-// Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido. NO reconstruido: showBackLink (ic-arrow-left) y el bloque
-// de acciones (showActions: primaria + texto); la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
+// Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
+// primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
 // bottom/side los decide el CSS del contenedor en la ficha (la doc: bottom para móvil/tablet, side para escritorio): la pantalla monta una de cada y el CSS oculta la que no toca.
 import { defineComponent, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
+import R4Button from './R4Button.js'
 
 let uid = 0
 
 export default defineComponent({
   name: 'R4Sheet',
-  components: { Icon },
+  components: { Icon, R4Button },
   props: {
     position: { type: String, default: 'bottom', validator: (v) => ['bottom', 'side'].includes(v) },
     title: { type: String, default: undefined },
     open: { type: Boolean, default: false },
+    primaryActionLabel: { type: String, default: undefined }, // con label hay bloque de acciones (showActions)
+    secondaryActionLabel: { type: String, default: undefined },
   },
-  emits: ['close'],
+  emits: ['close', 'primary', 'secondary'],
   setup(props, { emit }) {
     const titleId = `r4-sheet-title-${++uid}`
     const root = ref(null)
@@ -58,12 +61,16 @@ export default defineComponent({
   },
   template: `
     <Transition :name="'r4-sheet-' + position">
-      <div v-if="open" ref="root" class="r4-sheet" :class="'r4-sheet--' + position" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
+      <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': primaryActionLabel || secondaryActionLabel }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
           <h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>
         </div>
         <div class="r4-sheet__content"><div class="r4-sheet__slot"><slot /></div></div>
+        <div v-if="primaryActionLabel || secondaryActionLabel" class="r4-sheet__actions">
+          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" @click="$emit('primary', $event)" />
+          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" @click="$emit('secondary', $event)" />
+        </div>
       </div>
     </Transition>
   `,

@@ -83,3 +83,21 @@
 @container r4page (min-width: 600px) {
   .ficha__sheet--actions { display: none; }
 }
+
+/*
+ * Controles del gráfico (Comparar · Configurar · tipo de gráfico), Figma «Acciones Gráfico (Desktop)» 2813:74279 y «(Mobile)» 2816:98718.
+ * Comparar y Configurar son R4Chip type=multiple; cada uno lleva su R4Popover anclado debajo (a 8 px, alineado a la izquierda del chip) en ≥ 1024 px; por debajo, bottom sheet (como «En otros mercados»).
+ * El tipo de gráfico es un R4SegmentedControls (Líneas | Velas) desde 600 px; en mobile (< 600) un R4Button solo icono que alterna (Figma).
+ */
+.ficha__chart-anchor { position: relative; display: inline-flex; }
+.ficha__chart-popover { display: none; position: absolute; z-index: 200; top: calc(100% + var(--spacing-2)); left: 0; }
+@container r4page (min-width: 1024px) {
+  .ficha__chart-popover { display: block; }
+  .ficha__sheet--chart { display: none; }
+}
+@container r4page (max-width: 599px) {
+  .ficha__viz-segmented { display: none; }
+}
+@container r4page (min-width: 600px) {
+  .r4-button.ficha__viz-button { display: none; }
+}

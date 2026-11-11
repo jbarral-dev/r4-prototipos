@@ -17,7 +17,12 @@
 @import url("../components/pendientes/R4Breadcrumb.css");
 @import url("../components/pendientes/R4Tabs.css");
 @import url("../components/pendientes/R4SegmentedControls.css");
+@import url("../components/pendientes/R4Badge.css");
+@import url("../components/pendientes/R4Spinner.css");
 @import url("../components/pendientes/R4Chip.css");
+@import url("../components/pendientes/_ChartComparativeChip.css");
+@import url("../components/pendientes/_ChartConfigPanel.css");
+@import url("../components/pendientes/_ChartComparePanel.css");
 @import url("../components/pendientes/R4Tag.css");
 @import url("../components/pendientes/R4ListDetail.css");
 @import url("../components/pendientes/R4ChartLine.css");

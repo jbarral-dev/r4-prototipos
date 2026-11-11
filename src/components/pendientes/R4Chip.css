@@ -1,31 +1,51 @@
 /*
- * R4Chip — valores leídos de Figma (type=simple; medium y small × 6 interacciones, verificados con sus variables): alto medium 40 (component/chip/size/medium) · small 32 (…/small); padding horizontal 16 · 12;
- * gap icono-texto 8 · 4; radio component/chip/radius; texto SemiBold body/m (16/24) en medium y body/s (14/20) en small; icono 16 · 14. default: surface/default + borde 1 px border/default,
- * texto text/subdued, icono icon/subdued · hover: + CardHoverShadow · focused: CardFocusOutline · pressed: surface/page + borde 1 px border/inverse · selected: surface/page + borde 2 px
- * border/inverse, texto text/default, icono icon/default · disabled: input/bg/disabled, texto text/disabled, icono icon/disabled. El trazo va "inside" en Figma → box-shadow inset para no cambiar el tamaño al seleccionar.
+ * R4Chip — valores leídos de Figma (type=simple y multiple; medium y small × 6 interacciones, verificados con sus variables): alto medium 40 (component/chip/size/medium) · small 32 (…/small);
+ * padding horizontal 16 · 12; gap icono-texto 8 · 4; radio component/chip/radius; texto SemiBold body/m (16/24) en medium y body/s (14/20) en small; icono 16 · 14.
+ * default: surface/default + borde 1 px border/default, texto text/subdued, icono icon/subdued · hover: + CardHoverShadow · focused: CardFocusOutline · pressed: surface/page + borde 1 px
+ * border/inverse · selected: surface/page + borde 2 px border/inverse, texto text/default, icono icon/default · disabled: input/bg/disabled, texto text/disabled, icono icon/disabled.
+ * El trazo va "inside" en Figma → box-shadow inset para no cambiar el tamaño al seleccionar.
+ * type=multiple: padding izquierdo 16 · 12 y derecho 12 · 8 (spacing/3 · spacing/2); grupo izquierdo (icono + texto + badge, gap 8 · 4, padding derecho 8 · 4) y chevron (20 en medium, 14 en small).
+ * Las medidas van en variables (--r4-chip-*) para que un contenedor pueda pedir el tamaño small por contenedor (R4ChartLine: medium en desktop, small en mobile) sin cambiar la API.
  */
 .r4-chip {
+  --r4-chip-height: var(--component-chip-size-medium);
+  --r4-chip-gap: var(--spacing-2);
+  --r4-chip-pad: var(--spacing-4);
+  --r4-chip-pad-end: var(--spacing-3);
+  --r4-chip-font: var(--size-body-m);
+  --r4-chip-line: var(--line-height-body-m);
+  --r4-chip-icon: var(--spacing-4);
+  --r4-chip-chevron: var(--spacing-5);
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  height: var(--component-chip-size-medium);
-  gap: var(--spacing-2);
-  padding: 0 var(--spacing-4);
+  height: var(--r4-chip-height);
+  gap: var(--r4-chip-gap);
+  padding: 0 var(--r4-chip-pad);
   border: 0;
   border-radius: var(--component-chip-radius);
   background: var(--surface-default);
   box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-default);
   color: var(--text-subdued);
   font-family: var(--font-family-body);
-  font-size: var(--size-body-m);
-  line-height: var(--line-height-body-m);
+  font-size: var(--r4-chip-font);
+  line-height: var(--r4-chip-line);
   font-weight: var(--font-weight-semibold);
   text-align: center;
   white-space: nowrap;
   cursor: pointer;
 }
-.r4-chip--small { height: var(--component-chip-size-small); gap: var(--spacing-1); padding: 0 var(--spacing-3); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-chip--small {
+  --r4-chip-height: var(--component-chip-size-small);
+  --r4-chip-gap: var(--spacing-1);
+  --r4-chip-pad: var(--spacing-3);
+  --r4-chip-pad-end: var(--spacing-2);
+  --r4-chip-font: var(--size-body-s);
+  --r4-chip-line: var(--line-height-body-s);
+  --r4-chip-icon: calc(var(--spacing-4) - var(--spacing-05));
+  --r4-chip-chevron: calc(var(--spacing-4) - var(--spacing-05));
+}
 
 .r4-chip:hover:not(.is-selected):not([aria-disabled='true']) {
   box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-default), var(--effect-card-hover-shadow);
@@ -37,7 +57,13 @@
 .r4-chip[aria-disabled='true'] { background: var(--component-input-bg-disabled); color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
 
 /* Icono a la izquierda (showIcon en Figma): medium 16 · small 14; color icon/subdued (selected: icon/default · disabled: icon/disabled) */
-.r4-chip__icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); color: var(--icon-subdued); }
-.r4-chip--small .r4-chip__icon { width: calc(var(--spacing-4) - var(--spacing-05)); height: calc(var(--spacing-4) - var(--spacing-05)); }
+.r4-chip__icon { flex: none; width: var(--r4-chip-icon); height: var(--r4-chip-icon); color: var(--icon-subdued); }
 .r4-chip.is-selected .r4-chip__icon { color: var(--icon-default); }
 .r4-chip[aria-disabled='true'] .r4-chip__icon { color: var(--icon-disabled); }
+
+/* type=multiple: grupo izquierdo + chevron (Content: space-between, sin gap; el grupo izquierdo lleva el padding derecho que separa el texto del chevron) */
+.r4-chip--multiple { justify-content: space-between; gap: 0; padding: 0 var(--r4-chip-pad-end) 0 var(--r4-chip-pad); }
+.r4-chip__left { display: inline-flex; align-items: center; gap: var(--r4-chip-gap); padding-right: var(--r4-chip-gap); }
+.r4-chip__chevron { flex: none; width: var(--r4-chip-chevron); height: var(--r4-chip-chevron); color: var(--icon-default); }
+.r4-chip[aria-disabled='true'] .r4-chip__chevron { color: var(--icon-disabled); }
+.r4-chip--multiple.is-selected .r4-chip__left .r4-badge { margin-left: calc(var(--spacing-1) - var(--r4-chip-gap)); } /* Label: texto + badge a gap marginXXS (4) */

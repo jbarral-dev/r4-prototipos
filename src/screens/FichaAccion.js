@@ -11,11 +11,14 @@
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
 //   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y el
 //   espaciado vertical es solo el de los R4Wrapper (paddings y gap de la density compact), sin márgenes verticales en la pantalla.
+// Controles del gráfico (Figma «Acciones Gráfico», desktop 2813:74279 y mobile 2816:98718; estado y reglas en _graficoEstado.js): R4Chip «Comparar» y «Configurar» (type=multiple, con badge) + selector de tipo
+//   Líneas | Velas (R4SegmentedControls; en mobile, R4Button de icono). Comparar: R4Popover (≥ 1024) o R4Sheet bottom con buscador y resultados; al elegir un valor se añade su serie (eje en %), se deshabilitan
+//   Configurar y el tipo de gráfico y salen los chips de series (_ChartComparativeChip); su aspa sale del modo. Configurar: R4Popover o R4Sheet con indicadores; al aplicarlos salta un R4Spinner y se pintan.
 // Interacciones: tabs (solo «Detalle» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
 //   como en la variante con Opciones del Figma) · «Mercado» del Resumen abre el sheet «En otros mercados» (bottom en <1024, side en ≥1024) · en mobile el título del producto, al salir del
 //   viewport, deja fija bajo la cabecera la capa fixedProductTitleLayer (Figma 2756:76562, variantes mobile y desktop) y las acciones van en el R4ButtonDock.
 // Datos de ejemplo: src/data/ficha-accion.js.
-import { defineComponent, ref, computed, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, ref, reactive, computed, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import TemplateDetail from '../templates/TemplateDetail.js'
 import Menu from '../components/pendientes/Menu.js'
 import FixedProductTitle from '../components/pendientes/FixedProductTitle.js'
@@ -28,6 +31,10 @@ import R4Tabs from '../components/pendientes/R4Tabs.js'
 import R4ChartLine from '../components/pendientes/R4ChartLine.js'
 import R4ListDetail from '../components/pendientes/R4ListDetail.js'
 import R4Chip from '../components/pendientes/R4Chip.js'
+import R4SegmentedControls from '../components/pendientes/R4SegmentedControls.js'
+import _ChartComparativeChip from '../components/pendientes/_ChartComparativeChip.js'
+import _ChartConfigPanel from '../components/pendientes/_ChartConfigPanel.js'
+import _ChartComparePanel from '../components/pendientes/_ChartComparePanel.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Link from '../components/pendientes/R4Link.js'
@@ -39,7 +46,8 @@ import _ProductActionsMenu from '../components/pendientes/_ProductActionsMenu.js
 import _SearchResultItem from '../components/pendientes/_SearchResultItem.js'
 import _ChartGauge from '../components/pendientes/_ChartGauge.js'
 import { iconComponent } from '../icons/_Icon.js'
-import { accion } from '../data/ficha-accion.js'
+import { accion, graficoControles } from '../data/ficha-accion.js'
+import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
 
 const IcArrowRight = iconComponent('ic-arrow-right')
@@ -53,6 +61,7 @@ export default defineComponent({
   components: {
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem, ChartGauge: _ChartGauge,
+    R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
   },
   setup() {
     document.title = `${accion.producto.productName} · Acciones · Renta 4`
@@ -90,7 +99,18 @@ export default defineComponent({
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
     const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
 
-    return { resumen, popover, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight }
+    // Controles del gráfico (Comparar · Configurar · tipo de gráfico): estado y reglas en _graficoEstado.js
+    const gc = graficoControles
+    const gr = reactive(useGraficoControles(d.grafico, gc))
+    const vizItems = computed(() => [
+      { label: 'Líneas', value: 'line', icon: 'ic-chart-line', disabled: gr.comparing },
+      { label: 'Velas', value: 'candle', icon: 'ic-chart-candlestick', disabled: gr.comparing },
+    ])
+    const chartLabel = computed(() => (gr.compared
+      ? `Comparación de la variación porcentual de ${d.producto.productName} y ${gr.compared.name} en el día de hoy`
+      : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} en el día de hoy`))
+
+    return { resumen, popover, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -116,8 +136,41 @@ export default defineComponent({
       <R4Wrapper id="ficha-panel" density="compact" :layout="tab === 0 ? '8-4' : '12'" class="ficha__w3" role="tabpanel" :aria-labelledby="'ficha-tab-' + tab">
         <template v-if="tab === 0">
           <div class="ficha__chart">
-            <R4ChartLine timeline="today" :points="d.grafico.points" :domain="d.grafico.domain" :progress="d.grafico.progress" :y-labels="d.grafico.yLabels" :x-labels="d.grafico.xLabels"
-                         :periods="d.grafico.periods" :selected-period="period" aria-label="Evolución del precio de IBERDROLA en el día de hoy" @period="period = $event" />
+            <R4ChartLine timeline="today" :points="gr.chart.points" :domain="gr.chart.domain" :progress="d.grafico.progress" :y-labels="gr.chart.yLabels" :x-labels="d.grafico.xLabels"
+                         :visualization="gr.visualization" :candles="gc.candles" :compare-series="gr.chart.compareSeries" :overlays="gr.overlays" :loading="gr.loading"
+                         :periods="d.grafico.periods" :selected-period="period" :aria-label="chartLabel" @period="period = $event">
+              <template #filters>
+                <div class="ficha__chart-anchor ficha__chart-anchor--compare">
+                  <R4Chip type="multiple" icon="ic-exchange" label="Comparar" :selected="gr.panel === 'compare' || gr.sheet === 'compare' || gr.comparing" :expanded="gr.panel === 'compare' || gr.sheet === 'compare'"
+                          :badge="gr.comparing ? 2 : undefined" badge-aria-label="2 valores en el gráfico" aria-haspopup="dialog" @click="gr.open('compare')" />
+                  <div v-if="gr.panel === 'compare'" class="ficha__chart-popover" role="dialog" aria-label="Comparar valores">
+                    <R4Popover width="wider">
+                      <ChartComparePanel v-model="gr.query" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
+                    </R4Popover>
+                  </div>
+                </div>
+                <div class="ficha__chart-anchor ficha__chart-anchor--config">
+                  <R4Chip type="multiple" icon="ic-cog" label="Configurar" :selected="gr.panel === 'config' || gr.sheet === 'config' || gr.selected.length > 0" :expanded="gr.panel === 'config' || gr.sheet === 'config'"
+                          :badge="gr.selected.length || undefined" :badge-aria-label="gr.selected.length + ' indicadores aplicados'" :disabled="gr.comparing" aria-haspopup="dialog" @click="gr.open('config')" />
+                  <div v-if="gr.panel === 'config'" class="ficha__chart-popover" role="dialog" aria-label="Configuración del gráfico">
+                    <R4Popover width="wide">
+                      <ChartConfigPanel :model-value="gr.selected" :groups="gc.configuracion" @update:model-value="gr.setIndicators($event)" />
+                    </R4Popover>
+                  </div>
+                </div>
+              </template>
+              <template #visualization>
+                <R4SegmentedControls class="ficha__viz-segmented" size="medium" type="iconAndText" aria-label="Tipo de gráfico" :items="vizItems" :selected-value="gr.visualization" @select="gr.visualization = $event" />
+                <R4Button class="ficha__viz-button" type="secondary" size="medium" :icon="gr.visualization === 'line' ? 'ic-chart-candlestick' : 'ic-chart-line'"
+                          :aria-label="gr.visualization === 'line' ? 'Ver gráfico de velas' : 'Ver gráfico de líneas'" :disabled="gr.comparing" @click="gr.toggleVisualization()" />
+              </template>
+              <template v-if="gr.comparing" #comparing>
+                <ul class="r4-chartline__comparing" aria-label="Series del gráfico">
+                  <ChartComparativeChip :ticker="gc.ticker" :color="1" />
+                  <ChartComparativeChip :ticker="gr.compared.ticker" :color="2" removable :remove-label="'Quitar ' + gr.compared.name + ' de la comparación'" @remove="gr.uncompare()" />
+                </ul>
+              </template>
+            </R4ChartLine>
           </div>
           <R4Stack gap="lg">
             <RiskBox class="ficha__riskbox-inline" v-bind="d.riesgo" />
@@ -168,6 +221,13 @@ export default defineComponent({
         <slot name="overlay" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+        </R4Sheet>
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
+          <ChartComparePanel v-model="gr.query" placeholder="Buscar por valor, símbolo o ISIN" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
+        </R4Sheet>
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Configuración del gráfico" :open="gr.sheet === 'config'" :primary-action-label="gr.dirty ? 'Guardar ajustes' : undefined"
+                 :secondary-action-label="gr.dirty ? 'Cancelar' : undefined" @primary="gr.saveDraft()" @secondary="gr.close()" @close="gr.close()">
+          <ChartConfigPanel v-model="gr.draft" :groups="gc.configuracion" />
         </R4Sheet>
         <R4Sheet class="ficha__sheet ficha__sheet--actions" position="bottom" title="Más acciones" :open="actionsSheetOpen" @close="actionsSheetOpen = false">
           <R4NavigationItems size="medium" density="narrow" :icon-is-boxed="false" :items="actionItems" aria-label="Más acciones" @select="actionsSheetOpen = false" />

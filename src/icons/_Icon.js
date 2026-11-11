@@ -7,6 +7,7 @@ import './icons.ficha.js' // registra los iconos de la ficha de producto en el m
 import './icons.buscador.js' // registra los iconos del buscador unificado
 import './icons.menu.js' // registra los iconos del Menu (type=default)
 import './icons.idiomas.js' // registra los iconos del menú con idiomas y sites
+import './icons.grafico.js' // registra los iconos de los controles del gráfico (comparar, configurar, líneas, velas)
 
 const Icon = defineComponent({
   name: '_Icon',
