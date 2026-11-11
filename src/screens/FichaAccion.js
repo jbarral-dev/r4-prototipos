@@ -121,7 +121,7 @@ export default defineComponent({
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
       </template>
 
-      <R4Wrapper v-if="tab === 0" density="compact" layout="12" class="ficha__w0">
+      <R4Wrapper density="compact" layout="12" class="ficha__w0">
         <RiskBox v-bind="d.riesgo" />
       </R4Wrapper>
 
