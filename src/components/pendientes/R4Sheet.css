@@ -98,3 +98,12 @@
   .r4-sheet-bottom-enter-active, .r4-sheet-bottom-leave-active,
   .r4-sheet-side-enter-active, .r4-sheet-side-leave-active { transition: none; }
 }
+
+/* Scrim: velo sobre la página, justo debajo del sheet; recibe los clics (la capa de superposición no los intercepta) y cierra. La capa envolvente no genera caja. */
+.r4-sheet-layer { display: contents; }
+.r4-sheet__scrim { position: fixed; inset: 0; z-index: 299; background: var(--r4-scrim); pointer-events: auto; }
+.r4-sheet-scrim-enter-active, .r4-sheet-scrim-leave-active { transition: opacity 0.28s ease; }
+.r4-sheet-scrim-enter-from, .r4-sheet-scrim-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .r4-sheet-scrim-enter-active, .r4-sheet-scrim-leave-active { transition: none; }
+}

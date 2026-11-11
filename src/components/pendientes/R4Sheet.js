@@ -7,6 +7,8 @@
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
 // primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
+// Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
+// (`.r4-sheet-layer`, display: contents) que recibe la class/style de la pantalla. Figma no define el velo: opacidad provisional (ver pending.css).
 // bottom/side los decide el CSS del contenedor en la ficha (la doc: bottom para móvil/tablet, side para escritorio): la pantalla monta una de cada y el CSS oculta la que no toca.
 import { defineComponent, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -16,6 +18,7 @@ let uid = 0
 
 export default defineComponent({
   name: 'R4Sheet',
+  inheritAttrs: false, // class/style/atributos van a la capa envolvente (la pantalla oculta la variante que no toca con su CSS)
   components: { Icon, R4Button },
   props: {
     position: { type: String, default: 'bottom', validator: (v) => ['bottom', 'side'].includes(v) },
@@ -32,7 +35,7 @@ export default defineComponent({
     let opener = null
 
     const focusables = () => [...root.value.querySelectorAll('a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])')]
-    const visible = () => root.value && getComputedStyle(root.value).display !== 'none' // el CSS oculta la variante que no toca (offsetParent no sirve con position: fixed)
+    const visible = () => root.value && root.value.getClientRects().length > 0 // el CSS oculta la variante que no toca (en la capa envolvente; offsetParent no sirve con position: fixed)
 
     const onKeydown = (e) => {
       if (e.key === 'Escape') { e.stopPropagation(); emit('close'); return }
@@ -60,6 +63,8 @@ export default defineComponent({
     return { titleId, root, closeBtn, onKeydown }
   },
   template: `
+    <div class="r4-sheet-layer" :class="$attrs.class" :style="$attrs.style">
+    <Transition name="r4-sheet-scrim"><div v-if="open" class="r4-sheet__scrim" aria-hidden="true" @click="$emit('close')"></div></Transition>
     <Transition :name="'r4-sheet-' + position">
       <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': primaryActionLabel || secondaryActionLabel }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
@@ -73,5 +78,6 @@ export default defineComponent({
         </div>
       </div>
     </Transition>
+    </div>
   `,
 })
