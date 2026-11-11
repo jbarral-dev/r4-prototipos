@@ -14,7 +14,7 @@
 // Controles del gráfico (Figma «Acciones Gráfico», desktop 2813:74279 y mobile 2816:98718; estado y reglas en _graficoEstado.js): R4Chip «Comparar» y «Configurar» (type=multiple, con badge) + selector de tipo
 //   Líneas | Velas (R4SegmentedControls; en mobile, R4Button de icono). Comparar: R4Popover (≥ 1024) o R4Sheet bottom con buscador y resultados; al elegir un valor se añade su serie (eje en %), se deshabilitan
 //   Configurar y el tipo de gráfico y salen los chips de series (_ChartComparativeChip); su aspa sale del modo. Configurar: R4Popover o R4Sheet con indicadores; al aplicarlos salta un R4Spinner y se pintan.
-// Interacciones: tabs (solo «Detalle» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
+// Interacciones: tabs (Resumen, Análisis R4, Valoración, Dividendos y Salud financiera, según Jon, 2026-11-11; solo «Resumen» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
 //   como en la variante con Opciones del Figma) · «Mercado» del Resumen abre el sheet «En otros mercados» (bottom en <1024, side en ≥1024) · en mobile el título del producto, al salir del
 //   viewport, deja fija bajo la cabecera la capa fixedProductTitleLayer (Figma 2756:76562, variantes mobile y desktop) y las acciones van en el R4ButtonDock.
 // Datos de ejemplo: src/data/ficha-accion.js.

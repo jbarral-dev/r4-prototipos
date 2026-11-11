@@ -30,11 +30,11 @@ export const accion = {
   // Capa fija al hacer scroll (fixedProductTitleLayer): muestra el mercado del producto (BME), igual que el título
   capaFija: { market: { name: 'BME', flag: 'flag-spain' } },
 
-  tabs: [
-    { label: 'Detalle' },
-    { label: 'Informes' },
-    { label: 'Análisis técnico' },
-    { label: 'Fundamentales & estimaciones' },
+    { label: 'Resumen' },
+    { label: 'Análisis R4' },
+    { label: 'Valoración' },
+    { label: 'Dividendos' },
+    { label: 'Salud financiera' },
     { label: 'Informes R4' },
   ],
 
