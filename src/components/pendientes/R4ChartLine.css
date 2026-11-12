@@ -144,18 +144,20 @@
 
 /*
  * Hover / toque (estilo Coinbase, pedido por Jon): línea vertical de 1 px (chart/baseline) en el punto, punto sobre cada serie, la parte DERECHA de la serie atenuada con una máscara
- * de opacidad (35 %; sin depender del color de fondo: en la ficha el fondo es surface/page, no blanco) y un R4Popover (narrow, density none) SIEMPRE por encima del gráfico, centrado
+ * de opacidad (50 %; sin depender del color de fondo: en la ficha el fondo es surface/page, no blanco) y un R4Popover (narrow, density none) SIEMPRE por encima del gráfico, centrado
  * sobre la línea y sin salirse del área de trazado. Su contenido son R4Text small centrados (valor en strong; fecha y hora en la misma línea). El popover no captura el puntero.
  * En táctil, touch-action: pan-y deja el scroll vertical y el arrastre horizontal mueve el punto.
  */
 .r4-chartline__plot { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 .r4-chartline__plot.is-hovering .r4-chartline__indicator { visibility: hidden; }
 .r4-chartline__plot.is-hovering .r4-chartline__reveal {
-  -webkit-mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.35) var(--r4-hx));
-  mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.35) var(--r4-hx));
+  -webkit-mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.5) var(--r4-hx));
+  mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.5) var(--r4-hx));
 }
 .r4-chartline__hover { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; }
 .r4-chartline__hover::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: var(--r4-line-width); background: var(--chart-baseline); }
+/* El R4Popover se ajusta al contenido (no usa los anchos fijos narrow/default/wide/wider): ocupa lo mínimo y deja ver el gráfico, sobre todo en mobile */
+.r4-chartline__tip .r4-popover { width: max-content; }
 .r4-chartline__tip { position: absolute; bottom: calc(100% + var(--spacing-2)); z-index: 3; width: max-content; pointer-events: none; }
 .r4-chartline__tip-body { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-05); text-align: center; white-space: nowrap; }
 .r4-chartline__tip-body p { margin: 0; }
