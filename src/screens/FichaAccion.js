@@ -166,7 +166,7 @@ export default defineComponent({
           <div class="ficha__chart">
             <R4ChartLine timeline="today" :points="gr.chart.points" :domain="gr.chart.domain" :progress="gr.progress" :y-labels="gr.chart.yLabels" :x-labels="gr.xLabels"
                          :visualization="gr.visualization" :candles="gr.candles" :compare-series="gr.chart.compareSeries" :overlays="gr.overlays" :loading="gr.loading"
-                         :periods="d.grafico.periods" :selected-period="period" :aria-label="chartLabel" @period="period = $event">
+                         :point-labels="gr.pointLabels" :value-format="gr.valueFormat" :series-names="gr.seriesNames" :periods="d.grafico.periods" :selected-period="period" :aria-label="chartLabel" @period="period = $event">
               <template #filters>
                 <div class="ficha__chart-anchor ficha__chart-anchor--compare">
                   <R4Chip type="multiple" icon="ic-exchange" label="Comparar" :selected="gr.panel === 'compare' || gr.sheet === 'compare' || gr.comparing" :expanded="gr.panel === 'compare' || gr.sheet === 'compare'"

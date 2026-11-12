@@ -1,7 +1,7 @@
 // Generador de las series DE EJEMPLO del gráfico de la ficha de acción (R4ChartLine), una por periodo del selector. En producción vendrían de backend.
 // Todo es INVENTADO salvo los anclajes que salen de la ficha pública de IBERDROLA en r4.com (ES0144580Y14/MCO, 2026-11-12): precio actual 23,35 € (último punto de todas las series),
 // apertura 23,25 € (inicio del 1 día) y rentabilidad a 12 meses del 35,34 % (inicio del 1 año = 23,35 / 1,3534). El resto de inicios (5D, 1M, 6M, 2026, 2A, Todo) están inventados.
-// Las series son deterministas (misma semilla → mismo gráfico): paseo aleatorio «puente» que parte del valor inicial y acaba exactamente en el valor final.
+// El 1 día llega hasta el borde derecho (17:19h, la hora de la ficha pública; el Figma lo dibujaba a medias). Las series son deterministas (misma semilla → mismo gráfico): paseo aleatorio «puente» que parte del valor inicial y acaba exactamente en el valor final.
 // Ejes según Confluence R4ChartLine (3512008717): marcas «redondas» (1, 2, 5 × 10ⁿ), decimales justos (paso ≥ 1 → 0; 0,1–0,9 → 1; menor → 2), formato español.
 // Eje X: 1 día = horas; 5 días = días; el resto, la frecuencia de la tabla de la doc (meses abreviados en minúscula, sin punto). «Todo» se toma como 10 años (supuesto). Las etiquetas se reparten
 // a partes iguales (R4ChartLine no las coloca por fecha), así que la posición es aproximada.
@@ -16,7 +16,7 @@ const rng = (seed) => () => { // mulberry32
 
 // Configuración por periodo: número de puntos, «ajuste de dividendos» (fracción máxima que baja lo antiguo), volatilidad relativa del trazo, número de velas, dividendos (fracciones de la serie) y etiquetas del eje X.
 export const PERIODOS_CFG = {
-  '1d': { n: 48, vol: 0.0016, velas: 14, dividendos: [], x: ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'], progress: 0.607, ajuste: 0.002 },
+  '1d': { n: 48, vol: 0.0016, velas: 14, dividendos: [], x: ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'], progress: 1, ajuste: 0.002 },
   '5d': { n: 50, vol: 0.0035, velas: 20, dividendos: [], ajuste: 0.004, x: ['6 nov', '9 nov', '10 nov', '11 nov', '12 nov'] },
   '1m': { n: 22, vol: 0.008, velas: 22, dividendos: [], ajuste: 0.01, x: ['12 oct', '19 oct', '26 oct', '2 nov', '9 nov'] },
   '6m': { n: 60, vol: 0.012, velas: 26, dividendos: [0.45], ajuste: 0.02, x: ['jul 2026', 'sep 2026', 'nov 2026'] },
@@ -48,6 +48,28 @@ export const serieComparada = (periodo, fin, deriva, clave) => {
   const cfg = PERIODOS_CFG[periodo]
   const start = fin / Math.max(0.2, 1 + deriva * ESCALA[periodo])
   return walk(cfg, start, fin, clave + periodo, cfg.vol)
+}
+
+const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+const HOY = new Date(2026, 10, 12) // jueves 12 nov 2026 (fecha de la ficha pública de r4.com usada como ancla)
+const fechaTxt = (d) => `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`
+const horaTxt = (min) => `${Math.floor(min / 60)}:${String(Math.round(min % 60)).padStart(2, '0')}h`
+const INICIO_FECHA = { '1m': new Date(2026, 9, 12), '6m': new Date(2026, 4, 12), ytd: new Date(2026, 0, 1), '1y': new Date(2025, 10, 12), '2y': new Date(2024, 10, 12), all: new Date(2016, 10, 12) }
+// Fecha y hora de cada punto (para el popover del hover). 1 día: de 9:00 a 17:19 (hora de la ficha pública); 5 días: 5 sesiones de 9:00 a 17:30 (la última hasta 17:19); el resto son cierres diarios (sin hora)
+const etiquetasPuntos = (id, n) => {
+  if (id === '1d') return Array.from({ length: n }, (_, i) => ({ date: fechaTxt(HOY), time: horaTxt(540 + (i / (n - 1)) * (1039 - 540)) }))
+  if (id === '5d') {
+    const dias = [new Date(2026, 10, 6), new Date(2026, 10, 9), new Date(2026, 10, 10), new Date(2026, 10, 11), HOY]
+    const por = n / 5
+    return Array.from({ length: n }, (_, i) => { const d = Math.min(4, Math.floor(i / por)); const k = (i - d * por) / (por - 1); return { date: fechaTxt(dias[d]), time: horaTxt(540 + k * ((d === 4 ? 1039 : 1050) - 540)) } })
+  }
+  const ini = INICIO_FECHA[id]
+  return Array.from({ length: n }, (_, i) => {
+    const d = new Date(+ini + (i / (n - 1)) * (+HOY - +ini))
+    d.setHours(12)
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() - 1) // sin fines de semana
+    return { date: fechaTxt(i === n - 1 ? HOY : d) }
+  })
 }
 
 const fmtTick = (v, dec) => `${v.toFixed(dec).replace('.', ',')}€`
@@ -96,5 +118,5 @@ export const crearSeriePrincipal = (precio, clave) => Object.fromEntries(Object.
   // Dominio = todo lo que puede llegar a dibujarse (puntos, velas, indicadores y el «ajuste de dividendos»), para que activar un indicador no reescale el eje
   const all = [...points, ...points.map((v) => v * (1 - cfg.ajuste)), ...velas.flatMap((c) => [c.h, c.l]), ...overlays.mm50.points, ...overlays.mm200.points, ...overlays.bollinger.upper, ...overlays.bollinger.lower]
   const { domain, labels } = ticks(Math.min(...all), Math.max(...all))
-  return [id, { points, domain, yLabels: labels, xLabels: cfg.x, progress: cfg.progress ?? 1, ajuste: cfg.ajuste, candles: velas, overlays }]
+  return [id, { points, domain, yLabels: labels, xLabels: cfg.x, progress: cfg.progress ?? 1, ajuste: cfg.ajuste, labels: etiquetasPuntos(id, n), candles: velas, overlays }]
 }))

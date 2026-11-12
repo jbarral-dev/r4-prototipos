@@ -110,5 +110,10 @@ export function useGraficoControles(datos, ctrl, period) {
   onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
   onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); clearTimeout(timer) })
 
-  return { xLabels: computed(() => serie.value.xLabels), progress: computed(() => serie.value.progress), candles: computed(() => serie.value.candles), visualization, panel, sheet, query, compared, selected, draft, loading, comparing, full, dirty, chart, overlays, results, open, close, setIndicators, saveDraft, compare, uncompare, toggleVisualization }
+  const fmtEur = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const fmtPct = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2, signDisplay: 'always' })
+  // Popover del hover del gráfico: precio en € (modo normal) o variación % de cada serie (modo comparar)
+  const valueFormat = (v) => (comparing.value ? `${fmtPct.format(v)} %` : `${fmtEur.format(v)} €`)
+  const seriesNames = computed(() => ({ main: ctrl.ticker, ...Object.fromEntries(compared.value.map((c) => [c.ticker, c.ticker])) }))
+  return { pointLabels: computed(() => serie.value.labels), valueFormat, seriesNames, xLabels: computed(() => serie.value.xLabels), progress: computed(() => serie.value.progress), candles: computed(() => serie.value.candles), visualization, panel, sheet, query, compared, selected, draft, loading, comparing, full, dirty, chart, overlays, results, open, close, setIndicators, saveDraft, compare, uncompare, toggleVisualization }
 }

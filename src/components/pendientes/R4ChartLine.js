@@ -18,18 +18,20 @@
 // - Desktop y mobile usan el R4SegmentedControls de Figma: large (48) en desktop, medium (40) en mobile (se gobierna con --r4-segmented-height).
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
+// Hover/toque estilo Coinbase (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
 // Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1,4 s;
 // sin animación con prefers-reduced-motion).
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
-import { defineComponent, computed, ref, watch, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4SegmentedControls from './R4SegmentedControls.js'
 import R4Spinner from './R4Spinner.js'
+import R4Popover from './R4Popover.js'
 
 let uid = 0
 
 export default defineComponent({
   name: 'R4ChartLine',
-  components: { R4SegmentedControls, R4Spinner },
+  components: { R4SegmentedControls, R4Spinner, R4Popover },
   props: {
     timeline: { type: String, default: 'today', validator: (v) => ['today', 'periods'].includes(v) },
     points: { type: Array, required: true },
@@ -46,6 +48,10 @@ export default defineComponent({
     overlays: { type: Array, default: () => [] },
     loading: { type: Boolean, default: false },
     loadingLabel: { type: String, default: 'Cargando datos del gráfico' },
+    // Hover (estilo Coinbase; extras del prototipo): fecha y hora de cada punto, formato del valor y nombre de cada serie para el popover.
+    pointLabels: { type: Array, default: () => [] }, // { date, time? }[] alineado con `points`
+    valueFormat: { type: Function, default: (v) => String(v) },
+    seriesNames: { type: Object, default: () => ({}) }, // id de serie → nombre (se muestra cuando hay más de una serie)
   },
   emits: ['period'],
   setup(props, { slots }) {
@@ -129,8 +135,52 @@ export default defineComponent({
     const heads = computed(() => geometry.value.map((g) => ({ id: g.id, color: g.color, y: yAt(g, headX.value) })))
     const lineTop = computed(() => Math.min(...heads.value.map((h) => h.y)))
     const revealStyle = computed(() => (reveal.value >= 1 ? undefined : { clipPath: `inset(0 ${(100 - headX.value).toFixed(2)}% 0 0)` }))
+    // Hover / toque (Coinbase): línea vertical en el punto más cercano al puntero, la parte derecha de la serie se atenúa y un R4Popover (valor, fecha y hora) queda SIEMPRE arriba del gráfico,
+    // sobre la línea. En mobile aparece al pulsar el gráfico y sigue al dedo mientras se arrastra (touch-action: pan-y deja el scroll vertical); al soltar se oculta. También con teclado
+    // (flechas, Inicio y Fin con el gráfico enfocado). Solo en visualización de líneas.
+    const plotEl = ref(null)
+    const tipEl = ref(null)
+    const hoverIndex = ref(null)
+    const tipLeft = ref(0)
+    const canHover = computed(() => props.visualization === 'line' && props.pointLabels.length === props.points.length && props.points.length > 1 && !props.loading)
+    const hover = computed(() => {
+      const i = hoverIndex.value
+      if (i === null || !canHover.value || i >= props.points.length) return null
+      const label = props.pointLabels[i]
+      const rows = geometry.value.map((g, k) => ({ id: g.id, color: g.color, y: g.ys[i], value: props.valueFormat(series.value[k].points[i], g.id), name: props.seriesNames[g.id] }))
+      return { i, x: geometry.value[0].xs[i], label, rows }
+    })
+    const place = () => {
+      const plot = plotEl.value
+      if (!plot || !hover.value) return
+      const w = tipEl.value ? tipEl.value.offsetWidth : 0
+      const px = (hover.value.x / 100) * plot.clientWidth
+      tipLeft.value = Math.max(0, Math.min(px - w / 2, plot.clientWidth - w))
+    }
+    const setFromEvent = (e) => {
+      const plot = plotEl.value
+      if (!plot || !canHover.value) return
+      const r = plot.getBoundingClientRect()
+      const f = (e.clientX - r.left) / r.width / (props.progress || 1)
+      hoverIndex.value = Math.round(Math.min(1, Math.max(0, f)) * (props.points.length - 1))
+      nextTick(place)
+    }
+    const onDown = (e) => { if (e.pointerType === 'touch') { try { e.currentTarget.setPointerCapture(e.pointerId) } catch (err) { /* sin captura */ } setFromEvent(e) } }
+    const onMove = (e) => { if (e.pointerType !== 'touch' || e.pressure > 0 || e.buttons) setFromEvent(e) }
+    const onEnd = () => { hoverIndex.value = null }
+    const onKeydown = (e) => {
+      const n = props.points.length
+      const k = { ArrowLeft: -1, ArrowRight: 1, Home: -Infinity, End: Infinity }[e.key]
+      if (k === undefined || !canHover.value) return
+      e.preventDefault()
+      const cur = hoverIndex.value === null ? n - 1 : hoverIndex.value
+      hoverIndex.value = k === -Infinity ? 0 : k === Infinity ? n - 1 : Math.min(n - 1, Math.max(0, cur + k))
+      nextTick(place)
+    }
+    const liveText = computed(() => (hover.value ? `${hover.value.rows.map((r) => (r.name ? r.name + ' ' : '') + r.value).join(', ')}, ${hover.value.label.date}${hover.value.label.time ? ', ' + hover.value.label.time : ''}` : ''))
+    watch(() => [props.points, props.visualization, props.loading], () => { hoverIndex.value = null })
     const hasToolbar = computed(() => !!(slots.filters || slots.visualization))
-    return { gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
+    return { plotEl, tipEl, hover, tipLeft, onDown, onMove, onEnd, onKeydown, liveText, gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
   },
   template: `
     <div class="r4-chartline">
@@ -141,10 +191,10 @@ export default defineComponent({
         </div>
         <slot name="comparing" />
       </div>
-      <div class="r4-chartline__chart" role="img" :aria-label="ariaLabel">
+      <div class="r4-chartline__chart" role="img" :aria-label="ariaLabel" :tabindex="pointLabels.length ? 0 : undefined" @keydown="onKeydown" @blur="onEnd">
         <div class="r4-chartline__y" aria-hidden="true"><span v-for="(l, i) in yLabels" :key="i">{{ l }}</span></div>
         <div class="r4-chartline__plot-col">
-          <div class="r4-chartline__plot" aria-hidden="true">
+          <div ref="plotEl" class="r4-chartline__plot" :class="{ 'is-hovering': hover }" aria-hidden="true" @pointerdown="onDown" @pointermove="onMove" @pointerup="onEnd" @pointercancel="onEnd" @pointerleave="onEnd">
             <div class="r4-chartline__reveal" :style="revealStyle">
               <svg class="r4-chartline__svg" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
                 <defs>
@@ -175,11 +225,26 @@ export default defineComponent({
                 </span>
               </template>
             </div>
+            <div v-if="hover" class="r4-chartline__dim" :style="{ left: hover.x + '%' }"></div>
+            <div v-if="hover" class="r4-chartline__hover" :style="{ left: hover.x + '%' }">
+              <span v-for="r in hover.rows" :key="r.id" class="r4-chartline__indicator-dot" :class="'r4-chartline__s--' + r.color" :style="{ '--r4-dot-y': r.y }"></span>
+            </div>
             <div v-if="visualization === 'line'" class="r4-chartline__indicator" :style="{ left: headX + '%', '--r4-y': lineTop }">
               <span v-for="h in heads" :key="h.id" class="r4-chartline__indicator-dot" :class="'r4-chartline__s--' + h.color" :style="{ '--r4-dot-y': h.y }"></span>
             </div>
             <div v-if="loading" class="r4-chartline__loading"><R4Spinner size="medium" :aria-label="loadingLabel" /></div>
           </div>
+          <div v-if="hover" ref="tipEl" class="r4-chartline__tip" :style="{ left: tipLeft + 'px' }">
+            <R4Popover width="narrow" density="none">
+              <div class="r4-chartline__tip-body">
+                <p v-if="hover.rows.length === 1" class="r4-chartline__tip-value">{{ hover.rows[0].value }}</p>
+                <template v-else><p v-for="r in hover.rows" :key="r.id" class="r4-chartline__tip-row"><span class="r4-chartline__tip-dot" :class="'r4-chartline__s--' + r.color"></span><span class="r4-chartline__tip-name">{{ r.name }}</span><span class="r4-chartline__tip-value">{{ r.value }}</span></p></template>
+                <p class="r4-chartline__tip-meta">{{ hover.label.date }}</p>
+                <p v-if="hover.label.time" class="r4-chartline__tip-meta">{{ hover.label.time }}</p>
+              </div>
+            </R4Popover>
+          </div>
+          <p class="r4-chartline__live" aria-live="polite">{{ liveText }}</p>
           <div class="r4-chartline__x" aria-hidden="true"><span v-for="(l, i) in xLabels" :key="i">{{ l }}</span></div>
         </div>
       </div>
