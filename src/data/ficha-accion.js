@@ -92,17 +92,15 @@ export const accion = {
     verTodos: { opciones: 'Ver todas las opciones' },
   },
 
-  recomendacion: {
-    gaugeAngle: 0,
-    tag: 'Mantener',
-    rows: [
-      { concept: 'Precio objetivo', value: '20,10 €' },
-      { concept: 'Precio actual', value: '29,27 €' },
-      { concept: 'Variación vs. precio actual', value: '-43,2%' },
-      { concept: 'Fecha del análisis', value: '15 junio 2026' },
-    ],
-    cta: 'Ver análisis',
-  },
+  // «Datos de cotización» (sustituye al bloque «Recomendación Renta 4», Jon 2026-11-12): conceptos y formato tomados del bloque homónimo de la ficha pública de r4.com (APPLE INC, US0378331005/MFR);
+  // los VALORES son de ejemplo (de esa ficha), no de IBERDROLA.
+  cotizacion: [
+    { concept: 'Apertura', value: '320,5 €' },
+    { concept: 'Rango diario', value: '320,1 - 324,05 €' },
+    { concept: 'Volumen', value: '21.015' },
+    { concept: 'Rango 52 semanas', value: '208,45 - 319,65 €' },
+    { concept: 'Rentabilidad 12 meses', value: '35,82%' },
+  ],
 
   otrosMercados: [{ logo: 'flag-germany', name: 'XETRA', meta: ['Vol.:', '10.975'], price: '20,47 €', variation: '+0,79%', tone: 'auto' }],
 }

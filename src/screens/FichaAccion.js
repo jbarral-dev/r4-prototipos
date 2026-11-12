@@ -3,13 +3,13 @@
 //   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
 //   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
 // Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets ya documentados en Confluence R4Wrapper v1.2).
-//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Recomendación].
+//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Datos de cotización].
 //   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile y tablet (≤ 1023; mobile Figma 2816:102389, tablet extrapolado por decisión de Jon, 2026-11-11) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
 //   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
 //   el padding-top del primer Wrapper (token) porque `main > :first-child` lo seguiría siendo el oculto.
 //   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
 //   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
-//   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + recomendación]); como el DOM es único se mantiene el reparto de desktop y el
+//   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + datos de cotización]); como el DOM es único se mantiene el reparto de desktop y el
 //   espaciado vertical es solo el de los R4Wrapper (paddings y gap de la density compact), sin márgenes verticales en la pantalla.
 // Controles del gráfico (Figma «Acciones Gráfico», desktop 2813:74279 y mobile 2816:98718; estado y reglas en _graficoEstado.js): R4Chip «Comparar» y «Configurar» (type=multiple, con badge) + selector de tipo
 //   Líneas | Velas (R4SegmentedControls; en mobile, R4Button de icono). Comparar: R4Popover (≥ 1024) o R4Sheet bottom con buscador y resultados; al elegir un valor se añade su serie (eje en %), se deshabilitan
@@ -44,7 +44,6 @@ import R4NavigationItems from '../components/pendientes/R4NavigationItems.js'
 import R4ButtonDock from '../components/pendientes/R4ButtonDock.js'
 import _ProductActionsMenu from '../components/pendientes/_ProductActionsMenu.js'
 import _SearchResultItem from '../components/pendientes/_SearchResultItem.js'
-import _ChartGauge from '../components/pendientes/_ChartGauge.js'
 import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
@@ -62,7 +61,7 @@ export default defineComponent({
   directives: { dragScroll },
   components: {
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
-    R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem, ChartGauge: _ChartGauge,
+    R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
   },
   setup(props) {
@@ -242,11 +241,8 @@ export default defineComponent({
           </template>
         </R4Section>
 
-        <R4Section class="ficha__reco" appearance="boxed" background-color="white" title="Recomendación Renta 4">
-          <div class="ficha__gauge"><ChartGauge :angle="d.recomendacion.gaugeAngle" :aria-label="'Recomendación: ' + d.recomendacion.tag" /></div>
-          <R4Tag class="ficha__reco-tag" color="neutralDark" size="medium" :text="d.recomendacion.tag" />
-          <R4ListDetail size="medium" :items="d.recomendacion.rows" />
-          <R4Button class="ficha__reco-cta" type="text" size="medium" width="full-width" icon="ic-file-alt" :text="d.recomendacion.cta" />
+        <R4Section class="ficha__cotizacion" appearance="boxed" background-color="white" title="Datos de cotización">
+          <R4ListDetail size="medium" :items="d.cotizacion" />
         </R4Section>
       </R4Wrapper>
 

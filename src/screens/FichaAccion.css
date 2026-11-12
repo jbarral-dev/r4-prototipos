@@ -1,7 +1,7 @@
 /*
  * Ficha de acción — ajustes por contenedor (`r4page`). Todo el responsive lo resuelve el CSS.
  * La colocación en la rejilla la hace la prop `layout` de R4Wrapper (12 · 12 · 8-4 · 8-4): desktop (≥ 1024, 12 columnas) título 12 · tabs 12 · gráfico 8 + resumen 4 · productos
- * relacionados 8 + recomendación 4 (Figma); tablet (8 columnas, sin diseño) y mobile (4): todo a ancho completo, apilado.
+ * relacionados 8 + datos de cotización 4 (antes Recomendación Renta 4); tablet (8 columnas, sin diseño) y mobile (4): todo a ancho completo, apilado.
  */
 .ficha__placeholder { margin: 0; color: var(--text-muted); }
 
@@ -35,7 +35,7 @@
 /* R4ListDetail: desktop/tablet size=medium; mobile size=small (Figma): se reasignan las variables de tamaño */
 @container r4page (max-width: 599px) {
   .ficha__resumen .r4-listdetail,
-  .ficha__reco .r4-listdetail {
+  .ficha__cotizacion .r4-listdetail {
     --r4-ld-font-size: var(--size-body-s);
     --r4-ld-line-height: var(--line-height-body-s);
     --r4-ld-divider-pad: var(--spacing-1);
@@ -43,7 +43,7 @@
     --r4-ld-logo: var(--spacing-4);
   }
   .ficha__resumen .r4-listdetail__info,
-  .ficha__reco .r4-listdetail__info { width: var(--spacing-5); height: var(--spacing-5); }
+  .ficha__cotizacion .r4-listdetail__info { width: var(--spacing-5); height: var(--spacing-5); }
 }
 
 /* Derivados: chips (gap 12, scroll horizontal sin barra) y lista de resultados */
@@ -60,12 +60,8 @@
   .r4-link.ficha__ver-todos-mobile { display: inline-flex; }
 }
 
-/* Recomendación: gauge con padding horizontal 48, tag centrada */
-.ficha__gauge { display: flex; justify-content: center; width: 100%; padding-inline: var(--spacing-12); }
-.ficha__gauge .r4-chartgauge { max-width: calc(var(--spacing-16) * 4 + var(--spacing-6)); } /* 280 (Figma desktop); en mobile el ancho disponible (238) manda */
-.ficha__reco-tag { align-self: center; }
-.ficha__reco-cta { width: 100%; }
-.ficha__reco .r4-section__slot { align-items: stretch; }
+/* Datos de cotización: R4ListDetail a todo el ancho del slot */
+.ficha__cotizacion .r4-section__slot { align-items: stretch; }
 
 /*
  * «En otros mercados»: R4Popover wide anclado a la acción de «Mercado» del Resumen (Figma desktop, 2481:37183) en ≥ 1024 px; por debajo, bottom sheet (Figma mobile).
