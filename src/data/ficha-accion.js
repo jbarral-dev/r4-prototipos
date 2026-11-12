@@ -1,4 +1,4 @@
-// DATOS DE EJEMPLO (prototipo) de la ficha de acción. En producción vendrían de backend. Los valores salen de los textos del Figma
+// DATOS DE EJEMPLO (prototipo) de la ficha de acción. Precio, variación, hora, precio objetivo y Datos de cotización: de la ficha pública de r4.com (ES0144580Y14/MCO, 2026-11-12). En producción vendrían de backend. Los valores salen de los textos del Figma
 // ("Proyectos - Fichas de Productos", frames cl-ficha-accion--dk y ficha-accion--mb); lo que no estaba en el diseño se ha inventado y se marca con «(inventado)».
 // Los logos se resuelven respecto a este módulo (no al documento): cada prototipo vive en su propia carpeta
 const logo = (f) => new URL('../assets/logos/' + f, import.meta.url).href
@@ -7,10 +7,10 @@ export const accion = {
   producto: {
     productName: 'IBERDROLA',
     logoURL: logo('iso-ibe.svg'),
-    price: 20.49,
+    price: 23.35,
     currency: 'EUR',
-    variation: 0.74,
-    updated: '11:39h',
+    variation: 0.65,
+    updated: '17:19h',
     market: { name: 'BME', flag: 'flag-spain' },
     priceTarget: { label: 'Precio objetivo R4', value: '20,10 €', recommendation: 'Mantener' },
     breadcrumbs: [
@@ -74,7 +74,7 @@ export const accion = {
       { id: 'warrants', label: 'Warrants (48)' },
     ],
     items: {
-      cfds: [{ name: 'CFD de IBERDROLA', meta: ['Garantía:', '20%'], price: '20,49 €', variation: '-2,56%', tone: 'auto' }],
+      cfds: [{ name: 'CFD de IBERDROLA', meta: ['Garantía:', '20%'], price: '23,35 €', variation: '-2,56%', tone: 'auto' }],
       futuros: [ // (inventado: el Figma de la acción solo muestra CFDs y opciones)
         { name: 'Futuro Iberdrola Dic-26', meta: ['Vence', '18/12/26'], price: '20,52 €', variation: '+0,6 %', tone: 'muted', action: true },
         { name: 'Futuro Iberdrola Mar-27', meta: ['Vence', '19/03/27'], price: '20,61 €', variation: '+0,5 %', tone: 'muted', action: true },
@@ -92,17 +92,17 @@ export const accion = {
     verTodos: { opciones: 'Ver todas las opciones' },
   },
 
-  // «Datos de cotización» (sustituye al bloque «Recomendación Renta 4», Jon 2026-11-12): conceptos y formato tomados del bloque homónimo de la ficha pública de r4.com (APPLE INC, US0378331005/MFR);
-  // los VALORES son de ejemplo (de esa ficha), no de IBERDROLA.
+  // «Datos de cotización» (sustituye al bloque «Recomendación Renta 4», Jon 2026-11-12): valores del bloque homónimo de la ficha pública de IBERDROLA en r4.com (ES0144580Y14/MCO), leída el 2026-11-12.
   cotizacion: [
-    { concept: 'Apertura', value: '320,5 €' },
-    { concept: 'Rango diario', value: '320,1 - 324,05 €' },
-    { concept: 'Volumen', value: '21.015' },
-    { concept: 'Rango 52 semanas', value: '208,45 - 319,65 €' },
-    { concept: 'Rentabilidad 12 meses', value: '35,82%' },
+    { concept: 'Apertura', value: '23,25 €' },
+    { concept: 'Rango diario', value: '23,14 - 23,41 €' },
+    { concept: 'Volumen', value: '1.889.898' },
+    { concept: 'Rango 52 semanas', value: '16,96 - 23,22 €' },
+    { concept: 'Rentabilidad 12 meses', value: '35,34%' },
   ],
 
-  otrosMercados: [{ logo: 'flag-germany', name: 'XETRA', meta: ['Vol.:', '10.975'], price: '20,47 €', variation: '+0,79%', tone: 'auto' }],
+  // (precio de XETRA inventado, coherente con el de BME)
+  otrosMercados: [{ logo: 'flag-germany', name: 'XETRA', meta: ['Vol.:', '10.975'], price: '23,33 €', variation: '+0,79%', tone: 'auto' }],
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
