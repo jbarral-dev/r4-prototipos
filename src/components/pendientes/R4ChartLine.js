@@ -19,7 +19,7 @@
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
 // Hover/toque estilo Coinbase (texto con R4Text small) (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
-// Al cargar y al cambiar de visualización o de series la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 0,7 s;
+// Al cargar y al cambiar de visualización o de series la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1 s;
 // sin animación con prefers-reduced-motion).
 // Al cambiar de periodo la serie hace un morph (0,45 s, ease-out) de la anterior a la nueva, como en Coinbase.
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
@@ -117,7 +117,7 @@ export default defineComponent({
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { reveal.value = 1; return }
       reveal.value = 0
       const start = performance.now()
-      const duration = 700
+      const duration = 1000
       const tick = (now) => {
         const t = Math.min(1, (now - start) / duration)
         reveal.value = 1 - Math.pow(1 - t, 3) // ease-out
