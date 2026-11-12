@@ -19,7 +19,7 @@
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
 // Hover/toque estilo Coinbase (texto con R4Text small) (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
-// Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1,4 s;
+// Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 0,7 s;
 // sin animación con prefers-reduced-motion).
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
 import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
@@ -113,7 +113,7 @@ export default defineComponent({
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { reveal.value = 1; return }
       reveal.value = 0
       const start = performance.now()
-      const duration = 1400
+      const duration = 700
       const tick = (now) => {
         const t = Math.min(1, (now - start) / duration)
         reveal.value = 1 - Math.pow(1 - t, 3) // ease-out
@@ -122,7 +122,13 @@ export default defineComponent({
       raf = requestAnimationFrame(tick)
     }
     onMounted(play)
-    watch(() => [props.visualization, props.compareSeries.length, props.points], play) // también al cambiar de periodo (otra serie)
+    // Al cambiar de PERIODO no se anima el trazo: como en Coinbase (comprobado en su DOM: el gráfico anterior se mantiene y el nuevo lo sustituye de golpe, sin interpolar ni fundir), la serie
+    // nueva aparece entera. El resto de cambios (visualización, series comparadas, indicadores que cambian la serie) sí repite la animación de izquierda a derecha.
+    let lastPeriod = props.selectedPeriod
+    watch(() => [props.visualization, props.compareSeries.length, props.points], () => {
+      if (props.selectedPeriod !== lastPeriod) { lastPeriod = props.selectedPeriod; cancelAnimationFrame(raf); reveal.value = 1; return }
+      play()
+    })
     onBeforeUnmount(() => cancelAnimationFrame(raf))
 
     const headX = computed(() => reveal.value * main.value.last.x)
@@ -143,6 +149,7 @@ export default defineComponent({
     const tipEl = ref(null)
     const hoverIndex = ref(null)
     const tipLeft = ref(0)
+    const tipTop = ref(0)
     const canHover = computed(() => props.visualization === 'line' && props.pointLabels.length === props.points.length && props.points.length > 1 && !props.loading)
     const hover = computed(() => {
       const i = hoverIndex.value
@@ -157,6 +164,7 @@ export default defineComponent({
       const w = tipEl.value ? tipEl.value.offsetWidth : 0
       const px = (hover.value.x / 100) * plot.clientWidth
       tipLeft.value = Math.max(0, Math.min(px - w / 2, plot.clientWidth - w))
+      tipTop.value = (Math.min(...hover.value.rows.map((r) => r.y)) / 100) * plot.clientHeight // y de la bolita más alta; el popover va encima, a 12 px de ella
     }
     const setFromEvent = (e) => {
       const plot = plotEl.value
@@ -181,7 +189,7 @@ export default defineComponent({
     const liveText = computed(() => (hover.value ? `${hover.value.rows.map((r) => (r.name ? r.name + ' ' : '') + r.value).join(', ')}, ${hover.value.label.date}${hover.value.label.time ? ', ' + hover.value.label.time : ''}` : ''))
     watch(() => [props.points, props.visualization, props.loading], () => { hoverIndex.value = null })
     const hasToolbar = computed(() => !!(slots.filters || slots.visualization))
-    return { plotEl, tipEl, hover, tipLeft, onDown, onMove, onEnd, onKeydown, liveText, gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
+    return { plotEl, tipEl, hover, tipLeft, tipTop, onDown, onMove, onEnd, onKeydown, liveText, gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
   },
   template: `
     <div class="r4-chartline">
@@ -234,7 +242,7 @@ export default defineComponent({
             </div>
             <div v-if="loading" class="r4-chartline__loading"><R4Spinner size="medium" :aria-label="loadingLabel" /></div>
           </div>
-          <div v-if="hover" ref="tipEl" class="r4-chartline__tip" :style="{ left: tipLeft + 'px' }">
+          <div v-if="hover" ref="tipEl" class="r4-chartline__tip" :style="{ left: tipLeft + 'px', top: tipTop + 'px' }">
             <R4Popover width="narrow" density="none">
               <div class="r4-chartline__tip-body">
                 <R4Text v-if="hover.rows.length === 1" size="small" font-style="strong" :text="hover.rows[0].value" />
