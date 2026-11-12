@@ -18,7 +18,7 @@
 // - Desktop y mobile usan el R4SegmentedControls de Figma: large (48) en desktop, medium (40) en mobile (se gobierna con --r4-segmented-height).
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
-// Hover/toque estilo Coinbase (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
+// Hover/toque estilo Coinbase (texto con R4Text small) (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
 // Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1,4 s;
 // sin animación con prefers-reduced-motion).
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
@@ -26,12 +26,13 @@ import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnm
 import R4SegmentedControls from './R4SegmentedControls.js'
 import R4Spinner from './R4Spinner.js'
 import R4Popover from './R4Popover.js'
+import R4Text from './R4Text.js'
 
 let uid = 0
 
 export default defineComponent({
   name: 'R4ChartLine',
-  components: { R4SegmentedControls, R4Spinner, R4Popover },
+  components: { R4SegmentedControls, R4Spinner, R4Popover, R4Text },
   props: {
     timeline: { type: String, default: 'today', validator: (v) => ['today', 'periods'].includes(v) },
     points: { type: Array, required: true },
@@ -194,7 +195,7 @@ export default defineComponent({
       <div class="r4-chartline__chart" role="img" :aria-label="ariaLabel" :tabindex="pointLabels.length ? 0 : undefined" @keydown="onKeydown" @blur="onEnd">
         <div class="r4-chartline__y" aria-hidden="true"><span v-for="(l, i) in yLabels" :key="i">{{ l }}</span></div>
         <div class="r4-chartline__plot-col">
-          <div ref="plotEl" class="r4-chartline__plot" :class="{ 'is-hovering': hover }" aria-hidden="true" @pointerdown="onDown" @pointermove="onMove" @pointerup="onEnd" @pointercancel="onEnd" @pointerleave="onEnd">
+          <div ref="plotEl" class="r4-chartline__plot" :class="{ 'is-hovering': hover }" :style="hover ? { '--r4-hx': hover.x + '%' } : undefined" aria-hidden="true" @pointerdown="onDown" @pointermove="onMove" @pointerup="onEnd" @pointercancel="onEnd" @pointerleave="onEnd">
             <div class="r4-chartline__reveal" :style="revealStyle">
               <svg class="r4-chartline__svg" viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
                 <defs>
@@ -225,7 +226,6 @@ export default defineComponent({
                 </span>
               </template>
             </div>
-            <div v-if="hover" class="r4-chartline__dim" :style="{ left: hover.x + '%' }"></div>
             <div v-if="hover" class="r4-chartline__hover" :style="{ left: hover.x + '%' }">
               <span v-for="r in hover.rows" :key="r.id" class="r4-chartline__indicator-dot" :class="'r4-chartline__s--' + r.color" :style="{ '--r4-dot-y': r.y }"></span>
             </div>
@@ -237,10 +237,9 @@ export default defineComponent({
           <div v-if="hover" ref="tipEl" class="r4-chartline__tip" :style="{ left: tipLeft + 'px' }">
             <R4Popover width="narrow" density="none">
               <div class="r4-chartline__tip-body">
-                <p v-if="hover.rows.length === 1" class="r4-chartline__tip-value">{{ hover.rows[0].value }}</p>
-                <template v-else><p v-for="r in hover.rows" :key="r.id" class="r4-chartline__tip-row"><span class="r4-chartline__tip-dot" :class="'r4-chartline__s--' + r.color"></span><span class="r4-chartline__tip-name">{{ r.name }}</span><span class="r4-chartline__tip-value">{{ r.value }}</span></p></template>
-                <p class="r4-chartline__tip-meta">{{ hover.label.date }}</p>
-                <p v-if="hover.label.time" class="r4-chartline__tip-meta">{{ hover.label.time }}</p>
+                <R4Text v-if="hover.rows.length === 1" size="small" font-style="strong" :text="hover.rows[0].value" />
+                <template v-else><p v-for="r in hover.rows" :key="r.id" class="r4-chartline__tip-row"><span class="r4-chartline__tip-dot" :class="'r4-chartline__s--' + r.color"></span><R4Text size="small" :text="r.name" /><R4Text size="small" font-style="strong" :text="r.value" /></p></template>
+                <R4Text size="small" :text="hover.label.time ? hover.label.date + ' · ' + hover.label.time : hover.label.date" />
               </div>
             </R4Popover>
           </div>

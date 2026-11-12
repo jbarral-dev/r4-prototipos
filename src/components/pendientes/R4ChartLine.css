@@ -143,22 +143,24 @@
 .r4-chartline__loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 
 /*
- * Hover / toque (estilo Coinbase, pedido por Jon): línea vertical de 1 px (chart/baseline) en el punto, punto sobre cada serie, la parte DERECHA de la serie atenuada (capa de la superficie
- * al 70 % encima: línea y relleno pierden opacidad) y un R4Popover (narrow, density none) SIEMPRE por encima del gráfico, centrado sobre la línea y sin salirse del área de trazado.
- * El popover no captura el puntero. En táctil, touch-action: pan-y deja el scroll vertical y el arrastre horizontal mueve el punto.
+ * Hover / toque (estilo Coinbase, pedido por Jon): línea vertical de 1 px (chart/baseline) en el punto, punto sobre cada serie, la parte DERECHA de la serie atenuada con una máscara
+ * de opacidad (35 %; sin depender del color de fondo: en la ficha el fondo es surface/page, no blanco) y un R4Popover (narrow, density none) SIEMPRE por encima del gráfico, centrado
+ * sobre la línea y sin salirse del área de trazado. Su contenido son R4Text small centrados (valor en strong; fecha y hora en la misma línea). El popover no captura el puntero.
+ * En táctil, touch-action: pan-y deja el scroll vertical y el arrastre horizontal mueve el punto.
  */
 .r4-chartline__plot { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
 .r4-chartline__plot.is-hovering .r4-chartline__indicator { visibility: hidden; }
-.r4-chartline__dim { position: absolute; top: 0; right: 0; bottom: 0; background: color-mix(in srgb, var(--surface-default) 70%, transparent); pointer-events: none; }
+.r4-chartline__plot.is-hovering .r4-chartline__reveal {
+  -webkit-mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.35) var(--r4-hx));
+  mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.35) var(--r4-hx));
+}
 .r4-chartline__hover { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; }
 .r4-chartline__hover::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: var(--r4-line-width); background: var(--chart-baseline); }
 .r4-chartline__tip { position: absolute; bottom: calc(100% + var(--spacing-2)); z-index: 3; width: max-content; pointer-events: none; }
-.r4-chartline__tip-body { display: flex; flex-direction: column; gap: var(--spacing-05); min-width: calc(var(--spacing-12) * 2); }
+.r4-chartline__tip-body { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-05); text-align: center; white-space: nowrap; }
 .r4-chartline__tip-body p { margin: 0; }
-.r4-chartline__tip-value { color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
-.r4-chartline__tip-meta { color: var(--text-subdued); font-family: var(--font-family-body); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
 .r4-chartline__tip-row { display: flex; align-items: center; gap: var(--spacing-2); }
-.r4-chartline__tip-name { flex: 1 1 auto; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-chartline__tip-row .r4-text:first-of-type { flex: 1 1 auto; text-align: left; }
 .r4-chartline__tip-dot { flex: none; width: var(--spacing-2); height: var(--spacing-2); border-radius: var(--radius-full); background: var(--r4-series, var(--chart-series-1-solid)); }
 .r4-chartline__chart:focus-visible { outline: none; box-shadow: var(--effect-card-focus-outline); }
 /* Texto para lectores de pantalla con el punto activo (utilidad técnica, sin tamaño visual) */

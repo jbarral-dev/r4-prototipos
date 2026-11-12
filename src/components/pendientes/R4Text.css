@@ -1,0 +1,14 @@
+/* R4Text — tokens de la tabla «Tamaños / variant / fontStyle» de Confluence (2802843707). Ocupa el ancho de su contenido y va en línea con lo que lo rodea. */
+.r4-text { display: inline; margin: 0; color: var(--text-default); font-family: var(--font-family-body); font-weight: var(--font-weight-regular); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.r4-text--small { font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-text--large { font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
+.r4-text--extraLarge { font-size: var(--size-body-xl); line-height: var(--line-height-body-xl); }
+.r4-text--paragraph { color: var(--text-subdued); }
+.r4-text--disabled { color: var(--text-disabled); }
+.r4-text--success { color: var(--feedback-success-text); }
+.r4-text--warning { color: var(--feedback-warning-text); }
+.r4-text--error { color: var(--feedback-error-text); }
+.r4-text--mark { background: var(--secondary-light); }
+.r4-text--italic { font-style: italic; }
+.r4-text--strikethrough { text-decoration: line-through; }
+.r4-text--strong, .r4-text--extraStrong { font-weight: var(--font-weight-bold); }
