@@ -18,7 +18,7 @@
 // - Desktop y mobile usan el R4SegmentedControls de Figma: large (48) en desktop, medium (40) en mobile (se gobierna con --r4-segmented-height).
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
-// Al cargar y al cambiar de visualización o de series, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1,4 s;
+// Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 1,4 s;
 // sin animación con prefers-reduced-motion).
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
 import { defineComponent, computed, ref, watch, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
@@ -115,7 +115,7 @@ export default defineComponent({
       raf = requestAnimationFrame(tick)
     }
     onMounted(play)
-    watch(() => [props.visualization, props.compareSeries.length], play)
+    watch(() => [props.visualization, props.compareSeries.length, props.points], play) // también al cambiar de periodo (otra serie)
     onBeforeUnmount(() => cancelAnimationFrame(raf))
 
     const headX = computed(() => reveal.value * main.value.last.x)

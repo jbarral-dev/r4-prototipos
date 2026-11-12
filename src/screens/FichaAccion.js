@@ -128,14 +128,15 @@ export default defineComponent({
 
     // Controles del gráfico (Comparar · Configurar · tipo de gráfico): estado y reglas en _graficoEstado.js
     const gc = graficoControles
-    const gr = reactive(useGraficoControles(d.grafico, gc))
+    const gr = reactive(useGraficoControles(d.grafico, gc, period))
     const vizItems = computed(() => [
       { label: 'Líneas', value: 'line', icon: 'ic-chart-line', disabled: gr.comparing },
       { label: 'Velas', value: 'candle', icon: 'ic-chart-candlestick', disabled: gr.comparing },
     ])
+    const periodoTexto = computed(() => `en el periodo «${d.grafico.periods.find((p) => p.value === period.value)?.label}»`)
     const chartLabel = computed(() => (gr.comparing
-      ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} en el día de hoy`
-      : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} en el día de hoy`))
+      ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
+      : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
     return { resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
@@ -163,8 +164,8 @@ export default defineComponent({
       <R4Wrapper id="ficha-panel" density="compact" :layout="tab === 0 ? '8-4' : '12'" class="ficha__w3" role="tabpanel" :aria-labelledby="'ficha-tab-' + tab">
         <template v-if="tab === 0">
           <div class="ficha__chart">
-            <R4ChartLine timeline="today" :points="gr.chart.points" :domain="gr.chart.domain" :progress="d.grafico.progress" :y-labels="gr.chart.yLabels" :x-labels="d.grafico.xLabels"
-                         :visualization="gr.visualization" :candles="gc.candles" :compare-series="gr.chart.compareSeries" :overlays="gr.overlays" :loading="gr.loading"
+            <R4ChartLine timeline="today" :points="gr.chart.points" :domain="gr.chart.domain" :progress="gr.progress" :y-labels="gr.chart.yLabels" :x-labels="gr.xLabels"
+                         :visualization="gr.visualization" :candles="gr.candles" :compare-series="gr.chart.compareSeries" :overlays="gr.overlays" :loading="gr.loading"
                          :periods="d.grafico.periods" :selected-period="period" :aria-label="chartLabel" @period="period = $event">
               <template #filters>
                 <div class="ficha__chart-anchor ficha__chart-anchor--compare">

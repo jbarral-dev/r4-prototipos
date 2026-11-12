@@ -27,7 +27,7 @@ const ticks = (lo, hi) => {
 }
 const pct = (arr) => arr.map((v) => (v / arr[0] - 1) * 100)
 
-export function useGraficoControles(datos, ctrl) {
+export function useGraficoControles(datos, ctrl, period) {
   const visualization = ref('line')
   const panel = ref(null) // popover abierto (desktop): 'compare' | 'config' | null
   const sheet = ref(null) // sheet abierto (mobile / tablet): 'compare' | 'config' | null
@@ -43,21 +43,22 @@ export function useGraficoControles(datos, ctrl) {
   const full = computed(() => 1 + compared.value.length >= MAX_SERIES)
   const dirty = computed(() => draft.value.length !== selected.value.length || draft.value.some((v) => !selected.value.includes(v)))
 
-  const adjusted = (pts) => pts.map((v, i) => v * (0.94 + (0.06 * i) / (pts.length - 1))) // «Ajuste de dividendos» (ejemplo): los precios antiguos se ajustan a la baja
-  const basePoints = computed(() => (drawn.value.includes('ajuste') ? adjusted(datos.points) : datos.points))
+  const serie = computed(() => datos.series[period.value] || datos.series['1d']) // serie del periodo elegido en el selector
+  const adjusted = (pts, a) => pts.map((v, i) => v * (1 - a + (a * i) / (pts.length - 1))) // «Ajuste de dividendos» (ejemplo): los precios antiguos se ajustan a la baja
+  const basePoints = computed(() => (drawn.value.includes('ajuste') ? adjusted(serie.value.points, serie.value.ajuste) : serie.value.points))
 
   const chart = computed(() => {
-    if (!compared.value.length) return { points: basePoints.value, domain: datos.domain, yLabels: datos.yLabels, compareSeries: [] }
-    const main = pct(datos.points)
-    const others = compared.value.map((c) => ({ id: c.ticker, points: pct(c.points), color: c.color }))
+    if (!compared.value.length) return { points: basePoints.value, domain: serie.value.domain, yLabels: serie.value.yLabels, compareSeries: [] }
+    const main = pct(serie.value.points)
+    const others = compared.value.map((c) => ({ id: c.ticker, points: pct(ctrl.pointsFor(c, period.value)), color: c.color }))
     const { domain, labels } = ticks(Math.min(...main, ...others.flatMap((o) => o.points)), Math.max(...main, ...others.flatMap((o) => o.points)))
     return { points: main, domain, yLabels: labels, compareSeries: others }
   })
   const overlays = computed(() => {
     if (comparing.value) return []
-    return drawn.value.filter((id) => ctrl.overlays[id]).map((id) => {
-      const o = ctrl.overlays[id]
-      return { id, ...o, ...(o.type === 'band' ? { span: [0, datos.progress] } : {}) }
+    return drawn.value.filter((id) => serie.value.overlays[id]).map((id) => {
+      const o = serie.value.overlays[id]
+      return { id, ...o, ...(o.type === 'band' ? { span: [0, serie.value.progress] } : {}) }
     })
   })
   const results = computed(() => {
@@ -109,5 +110,5 @@ export function useGraficoControles(datos, ctrl) {
   onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
   onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); clearTimeout(timer) })
 
-  return { visualization, panel, sheet, query, compared, selected, draft, loading, comparing, full, dirty, chart, overlays, results, open, close, setIndicators, saveDraft, compare, uncompare, toggleVisualization }
+  return { xLabels: computed(() => serie.value.xLabels), progress: computed(() => serie.value.progress), candles: computed(() => serie.value.candles), visualization, panel, sheet, query, compared, selected, draft, loading, comparing, full, dirty, chart, overlays, results, open, close, setIndicators, saveDraft, compare, uncompare, toggleVisualization }
 }
