@@ -160,3 +160,22 @@ export const graficoControles = {
     dividendos: { type: 'markers', at: [2, 5] },
   },
 }
+
+// Variante CAIFE (Figma "Proyectos - Fichas de Productos", sección «Acción - CAIFE (Desktop)» 3369:9753): la acción es elegible para la Cuenta de Ahorro e Inversión Financia Europa.
+// Implica: tag «Europa» (R4Tag blue, con borde e icono ic-europe--solid) junto al mercado en el título, y una fila más al final del Resumen («Elegible Cuenta Europa» con botón de
+// información + tag «Europa»). El botón de información abre un R4Popover (3369:10004). El texto del enlace «Más información» y su destino no están en el diseño (href de ejemplo).
+const tagEuropa = { text: 'Europa', color: 'blue', bordered: true, icon: 'ic-europe--solid' }
+export const accionCaife = {
+  ...accion,
+  producto: { ...accion.producto, tags: [tagEuropa] },
+  resumen: [...accion.resumen, { concept: 'Elegible Cuenta Europa', value: 'Europa', tag: tagEuropa, info: { label: 'Más información sobre la Cuenta Europa (CAIFE)' } }],
+  caife: {
+    concept: 'Elegible Cuenta Europa',
+    title: 'Elegible Cuenta Europa',
+    intro: 'Este producto cumple los requisitos para incluirse la ',
+    introStrong: 'Cuenta de Ahorro e Inversión Financia Europa (CAIFE)',
+    description: 'Se trata de una cuenta para invertir a largo plazo en activos europeos.',
+    linkText: 'Más información',
+    linkHref: '#', // (inventado)
+  },
+}

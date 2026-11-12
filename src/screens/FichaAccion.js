@@ -51,21 +51,23 @@ import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
 
 const IcArrowRight = iconComponent('ic-arrow-right')
+const IcExternal = iconComponent('ic-external-link')
 
 export default defineComponent({
   name: 'FichaAccion',
   // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
   emits: ['search'],
-  props: { searchIcon: { type: String, default: undefined } },
+  // Extra: `data` (por defecto la ficha de acción estándar; el prototipo «Ficha de acción (CAIFE)» pasa accionCaife).
+  props: { searchIcon: { type: String, default: undefined }, data: { type: Object, default: () => accion } },
   directives: { dragScroll },
   components: {
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem, ChartGauge: _ChartGauge,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
   },
-  setup() {
-    document.title = `${accion.producto.productName} · Acciones · Renta 4`
-    const d = accion
+  setup(props) {
+    const d = props.data
+    document.title = `${d.producto.productName} · Acciones · Renta 4`
     const tab = ref(0)
     const period = ref('1d')
     const categoria = ref('cfds')
@@ -79,7 +81,24 @@ export default defineComponent({
     const actionsSheetOpen = ref(false)
     const closePopover = () => { popover.value = null }
     const mercadoOpen = computed(() => !!popover.value || sheetOpen.value)
-    const resumen = computed(() => d.resumen.map((r) => (r.action ? { ...r, action: { ...r.action, haspopup: true, pressed: mercadoOpen.value } } : r)))
+    // Popover CAIFE (solo si los datos traen `caife`): lo abre el botón de información de la fila «Elegible Cuenta Europa»; se coloca bajo el botón, sin salirse del Resumen
+    const caifePopover = ref(null) // { top, left } relativo al Resumen
+    const closeCaife = () => { caifePopover.value = null }
+    const resumen = computed(() => d.resumen.map((r) => {
+      if (r.action) return { ...r, action: { ...r.action, haspopup: true, pressed: mercadoOpen.value } }
+      if (r.info && d.caife && r.concept === d.caife.concept) return { ...r, info: { ...r.info, haspopup: true, pressed: !!caifePopover.value } }
+      return r
+    }))
+    const onResumenInfo = (it, e) => {
+      if (!d.caife || it.concept !== d.caife.concept) return
+      if (caifePopover.value) { closeCaife(); return }
+      const btn = e && e.currentTarget
+      const box = btn && btn.closest(".ficha__resumen")
+      if (!box) return
+      const b = btn.getBoundingClientRect(); const s = box.getBoundingClientRect()
+      const width = 320 // R4Popover wide: se limita para que no sobresalga por la derecha del Resumen
+      caifePopover.value = { top: b.bottom - s.top + 8, left: Math.max(0, Math.min(b.left - s.left, s.width - width)) }
+    }
     const onResumenAction = async (it, e) => {
       if (it.concept !== 'Mercado') return
       if (mercadoOpen.value) { popover.value = null; sheetOpen.value = false; return } // segundo clic: cierra
@@ -93,8 +112,9 @@ export default defineComponent({
       if (sheet && getComputedStyle(sheet).display === 'none') sheetOpen.value = false
       else popover.value = null
     }
-    const onDocClick = (e) => { if (popover.value && !e.target.closest('.ficha__market-popover, .ficha__resumen .r4-listdetail__action')) closePopover() }
-    const onKey = (e) => { if (e.key === 'Escape') closePopover() }
+    const onDocClick = (e) => { if (popover.value && !e.target.closest('.ficha__market-popover, .ficha__resumen .r4-listdetail__action')) closePopover()
+      if (caifePopover.value && !e.target.closest('.ficha__caife-popover, .ficha__resumen .r4-listdetail__info')) closeCaife() }
+    const onKey = (e) => { if (e.key === 'Escape') { closePopover(); closeCaife() } }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
     const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
@@ -110,7 +130,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} en el día de hoy`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} en el día de hoy`))
 
-    return { resumen, popover, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { resumen, popover, caifePopover, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -175,11 +195,23 @@ export default defineComponent({
           <R4Stack gap="lg">
             <RiskBox class="ficha__riskbox-inline" v-bind="d.riesgo" />
             <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
-              <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" />
+              <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" @info="onResumenInfo" />
               <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">
                 <R4Popover width="wide">
                   <p class="ficha__market-title">En otros mercados</p>
                   <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+                </R4Popover>
+              </div>
+              <div v-if="caifePopover && d.caife" class="ficha__caife-popover" role="dialog" :aria-label="d.caife.title" :style="{ top: caifePopover.top + 'px', left: caifePopover.left + 'px' }">
+                <R4Popover width="wide">
+                  <div class="ficha__caife">
+                    <p class="ficha__caife-title">{{ d.caife.title }}</p>
+                    <div class="ficha__caife-text">
+                      <p>{{ d.caife.intro }}<strong>{{ d.caife.introStrong }}</strong>.</p>
+                      <p>{{ d.caife.description }}</p>
+                    </div>
+                    <R4Link type="standalone" size="medium" :href="d.caife.linkHref" :icon-right="IcExternal">{{ d.caife.linkText }}</R4Link>
+                  </div>
                 </R4Popover>
               </div>
             </R4Section>
