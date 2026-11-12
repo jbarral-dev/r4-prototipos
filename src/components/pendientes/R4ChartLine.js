@@ -19,8 +19,9 @@
 // Reconstruido: estado Interaction=default con el indicador en el último punto de cada serie, líneas y velas. NO reconstruido: Interaction=hover (tooltip con valores y línea de seguimiento),
 // la serie de "Entradas/Salidas" ni la leyenda (de la variante de patrimonio de la doc), Timeline=periods con etiquetas de meses, los estados singlePoint y error.
 // Hover/toque estilo Coinbase (texto con R4Text small) (props pointLabels, valueFormat, seriesNames): ver el comentario del bloque Hover en setup.
-// Al cargar y al cambiar de visualización, de series o de periodo, la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 0,7 s;
+// Al cargar y al cambiar de visualización o de series la serie se dibuja de izquierda a derecha y el punto indicador recorre la línea hasta el último dato (JS con requestAnimationFrame, 0,7 s;
 // sin animación con prefers-reduced-motion).
+// Al cambiar de periodo la serie hace un morph (0,45 s, ease-out) de la anterior a la nueva, como en Coinbase.
 // El gráfico es informativo: role="img" con aria-label; los datos exactos deberían ofrecerse también como texto (pendiente de accesibilidad en la doc).
 import { defineComponent, computed, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4SegmentedControls from './R4SegmentedControls.js'
@@ -57,8 +58,11 @@ export default defineComponent({
   emits: ['period'],
   setup(props, { slots }) {
     const gradientId = `r4-chartline-area-${++uid}`
-    const series = computed(() => [{ id: 'main', points: props.points, color: 1 }, ...props.compareSeries.map((s, i) => ({ ...s, color: s.color || i + 2 }))])
+    const tween = ref(null) // valores intermedios del morph al cambiar de periodo: { main, compare, domain, labels }
+    const series = computed(() => [{ id: 'main', points: tween.value ? tween.value.main : props.points, color: 1 }, ...props.compareSeries.map((s, i) => ({ ...s, points: tween.value && tween.value.compare[s.id] ? tween.value.compare[s.id] : s.points, color: s.color || i + 2 }))])
+    const yView = computed(() => (tween.value ? tween.value.labels : props.yLabels))
     const range = computed(() => {
+      if (tween.value && tween.value.domain) return tween.value.domain
       if (props.domain) return props.domain
       const all = series.value.flatMap((s) => s.points)
       return [Math.min(...all), Math.max(...all)]
@@ -122,11 +126,49 @@ export default defineComponent({
       raf = requestAnimationFrame(tick)
     }
     onMounted(play)
-    // Al cambiar de PERIODO no se anima el trazo: como en Coinbase (comprobado en su DOM: el gráfico anterior se mantiene y el nuevo lo sustituye de golpe, sin interpolar ni fundir), la serie
-    // nueva aparece entera. El resto de cambios (visualización, series comparadas, indicadores que cambian la serie) sí repite la animación de izquierda a derecha.
+    // Al cambiar de PERIODO la serie se transforma (morph) de la anterior a la nueva en 0,45 s con ease-out, como en Coinbase (grabación de Jon, 2026-11-12: la línea se desplaza de forma
+    // continua hasta la nueva y los importes del eje cambian a mitad). Ambas series se remuestrean al mismo número de puntos y se interpolan valor a valor, junto con el dominio del eje Y.
+    // El resto de cambios (visualización, series comparadas, indicadores que cambian la serie) repite la animación de izquierda a derecha. Con prefers-reduced-motion no hay morph.
     let lastPeriod = props.selectedPeriod
+    let last = { main: props.points, domain: props.domain, labels: props.yLabels, compare: props.compareSeries }
+    const resample = (arr, n) => Array.from({ length: n }, (_, i) => {
+      const x = (i / (n - 1)) * (arr.length - 1)
+      const k = Math.floor(x)
+      return arr[k] + (arr[Math.min(k + 1, arr.length - 1)] - arr[k]) * (x - k)
+    })
+    const lerpArr = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
+    const morph = (from, to) => {
+      cancelAnimationFrame(raf)
+      reveal.value = 1
+      const n = Math.max(from.main.length, to.main.length)
+      const a = resample(from.main, n)
+      const b = resample(to.main, n)
+      const cmp = to.compare.filter((s) => from.compare.some((o) => o.id === s.id)).map((s) => ({ id: s.id, a: resample(from.compare.find((o) => o.id === s.id).points, n), b: resample(s.points, n) }))
+      const start = performance.now()
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / 450)
+        const e = 1 - Math.pow(1 - t, 3)
+        if (t >= 1) { tween.value = null; return }
+        tween.value = {
+          main: lerpArr(a, b, e),
+          compare: Object.fromEntries(cmp.map((c) => [c.id, lerpArr(c.a, c.b, e)])),
+          domain: from.domain && to.domain ? lerpArr(from.domain, to.domain, e) : undefined,
+          labels: e < 0.5 ? from.labels : to.labels,
+        }
+        raf = requestAnimationFrame(tick)
+      }
+      tick(start)
+    }
     watch(() => [props.visualization, props.compareSeries.length, props.points], () => {
-      if (props.selectedPeriod !== lastPeriod) { lastPeriod = props.selectedPeriod; cancelAnimationFrame(raf); reveal.value = 1; return }
+      const now = { main: props.points, domain: props.domain, labels: props.yLabels, compare: props.compareSeries }
+      const from = last
+      last = now
+      if (props.selectedPeriod !== lastPeriod) {
+        lastPeriod = props.selectedPeriod
+        if (props.visualization === 'line' && from.main.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) morph(from, now)
+        else { cancelAnimationFrame(raf); reveal.value = 1 }
+        return
+      }
       play()
     })
     onBeforeUnmount(() => cancelAnimationFrame(raf))
@@ -189,7 +231,7 @@ export default defineComponent({
     const liveText = computed(() => (hover.value ? `${hover.value.rows.map((r) => (r.name ? r.name + ' ' : '') + r.value).join(', ')}, ${hover.value.label.date}${hover.value.label.time ? ', ' + hover.value.label.time : ''}` : ''))
     watch(() => [props.points, props.visualization, props.loading], () => { hoverIndex.value = null })
     const hasToolbar = computed(() => !!(slots.filters || slots.visualization))
-    return { plotEl, tipEl, hover, tipLeft, tipTop, onDown, onMove, onEnd, onKeydown, liveText, gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
+    return { yView, plotEl, tipEl, hover, tipLeft, tipTop, onDown, onMove, onEnd, onKeydown, liveText, gradientId, geometry, showArea, candleBoxes, ovGeometry, headX, heads, lineTop, revealStyle, hasToolbar }
   },
   template: `
     <div class="r4-chartline">
@@ -201,7 +243,7 @@ export default defineComponent({
         <slot name="comparing" />
       </div>
       <div class="r4-chartline__chart" role="img" :aria-label="ariaLabel" :tabindex="pointLabels.length ? 0 : undefined" @keydown="onKeydown" @blur="onEnd">
-        <div class="r4-chartline__y" aria-hidden="true"><span v-for="(l, i) in yLabels" :key="i">{{ l }}</span></div>
+        <div class="r4-chartline__y" aria-hidden="true"><span v-for="(l, i) in yView" :key="i">{{ l }}</span></div>
         <div class="r4-chartline__plot-col">
           <div ref="plotEl" class="r4-chartline__plot" :class="{ 'is-hovering': hover }" :style="hover ? { '--r4-hx': hover.x + '%' } : undefined" aria-hidden="true" @pointerdown="onDown" @pointermove="onMove" @pointerup="onEnd" @pointercancel="onEnd" @pointerleave="onEnd">
             <div class="r4-chartline__reveal" :style="revealStyle">
