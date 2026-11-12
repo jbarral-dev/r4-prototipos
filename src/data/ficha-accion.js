@@ -167,7 +167,7 @@ export const graficoControles = {
 const tagEuropa = { text: 'Europa', color: 'blue', bordered: true, icon: 'ic-europe--solid' }
 export const accionCaife = {
   ...accion,
-  producto: { ...accion.producto, tags: [tagEuropa] },
+  producto: { ...accion.producto, showTagCaife: true },
   resumen: [...accion.resumen, { concept: 'Elegible Cuenta Europa', value: 'Europa', tag: tagEuropa, info: { label: 'Más información sobre la Cuenta Europa (CAIFE)' } }],
   caife: {
     concept: 'Elegible Cuenta Europa',

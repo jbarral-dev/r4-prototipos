@@ -129,4 +129,6 @@
 | Página | id | Estado | Última modificación |
 |---|---|---|---|
 | Búsqueda y selección de elementos | 3950968833 | current | 2026-09-22 |
+| Progressive disclosure (superposición: R4Popover en desktop / R4Sheet bottom en mobile; expansión en línea) | 4016603138 | current | 2026-10-15 |
+| Ayuda (patrón relacionado, enlazado desde Progressive disclosure) | 3999858692 | current | por leer |
 

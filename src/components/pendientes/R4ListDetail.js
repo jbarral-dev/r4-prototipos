@@ -6,7 +6,7 @@
 // Reconstruido (leído en Figma): size small y medium, orientation horizontal, valor tipo texto (con icono/bandera opcional), concepto con botón de información
 // (tooltip: R4Tooltip NO está reconstruido, el botón solo emite `info`) y una acción de icono por fila. NO reconstruido: orientation vertical/tabular, _Point,
 // valor account / link / switch / tag, segunda acción, size large y extraLarge (se declaran en la API pero usan los valores de medium).
-// Extra: valor de tipo tag (it.tag = { text, color, size?, bordered?, icon? } → R4Tag en lugar del texto; ficha CAIFE) e info.pressed / info.haspopup (el botón de información mantiene el estado pressed y aria-expanded mientras el popover está abierto).
+// Valor de tipo tag (`_ListItemDetailValue type=tag` de la doc; forma aquí it.tag = { text, color, size?, bordered?, icon? } → R4Tag en lugar del texto). Extra: info.pressed / info.haspopup (el botón de información mantiene el estado pressed y aria-expanded mientras el popover está abierto).
 // Extra: action.iconPressed cambia el icono mientras está pressed (p. ej. angle-down → angle-up en un combo).
 // Extra: action.pressed mantiene el botón en estado pressed (y aria-expanded si action.haspopup) mientras el popover/sheet que abre está visible.
 // Altura de fila: small 36 + 8 (separador) · medium 40 + 16.

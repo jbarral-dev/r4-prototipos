@@ -4,7 +4,7 @@
 // por el ancho del contenedor `r4page`; lo opcional se deduce de los datos).
 // API = tabla "API componente" (propuesta, «validar con IT»): productName (obligatorio), ticker, isin, index, price (number), currency ('EUR'), riskLevel, logoURL, breadcrumbs
 // ({ label, href }[]), derivativeOptions, ctaText ('Contratar'), secondaryActions ({ label, onClick }[]).
-// Extras del prototipo (datos que la tabla no recoge pero Figma muestra; avisados): tags ({ text, color, bordered?, icon? }[]: R4Tag tras el mercado, p. ej. «Europa» de CAIFE), variation (número, % con signo), updated ('11:39h'), market ({ name, flag }),
+// Extras del prototipo (datos que la tabla no recoge pero Figma muestra; avisados): showTagCaife (boolean, propiedad de Figma: R4Tag «Europa» blue bordered con ic-europe--solid tras el mercado; no está en Confluence), variation (número, % con signo), updated ('11:39h'), market ({ name, flag }),
 // priceTarget ({ label, value, recommendation }), favourite (boolean) y eventos `favourite` / `cta` / `visible-change` (el producto entra/sale del viewport:
 // lo usa la Template para mostrar FixedProductTitle en mobile).
 // NO reconstruido: riskLevel (R4RiskBox/_RiskIndicator), ticker/isin/index/gestora/Morningstar (metadatos de otras fichas), combo de derivados (R4Chip multiple),
@@ -35,7 +35,7 @@ export default defineComponent({
     variation: { type: Number, default: undefined },
     updated: { type: String, default: undefined },
     market: { type: Object, default: undefined }, // { name, flag }
-    tags: { type: Array, default: () => [] }, // R4Tag de metadatos: { text, color, bordered, icon }
+    showTagCaife: { type: Boolean, default: false }, // tag «Europa» (elegible Cuenta Europa, CAIFE); Figma también trae showTagSeleccion50 (no reconstruido)
     priceTarget: { type: Object, default: undefined }, // { label, value, recommendation }
     favourite: { type: Boolean, default: false },
   },
@@ -80,9 +80,9 @@ export default defineComponent({
                 <Icon :name="isFav ? 'ic-star-24--solid' : 'ic-star-24'" />
               </button>
             </div>
-            <div v-if="market || tags.length" class="r4-pagetitleproduct__metadata">
+            <div v-if="market || showTagCaife" class="r4-pagetitleproduct__metadata">
               <span v-if="market" class="r4-pagetitleproduct__market"><Icon v-if="market.flag" :name="market.flag" /><span>{{ market.name }}</span></span>
-              <R4Tag v-for="t in tags" :key="t.text" size="small" v-bind="t" />
+              <R4Tag v-if="showTagCaife" size="small" color="blue" bordered icon="ic-europe--solid" text="Europa" />
             </div>
           </div>
         </div>

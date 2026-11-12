@@ -112,3 +112,9 @@
 .ficha__caife-text { display: flex; flex-direction: column; gap: var(--spacing-3); color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
 .ficha__caife-text p { margin: 0; }
 .ficha__caife-text strong { font-weight: var(--font-weight-semibold); }
+/* Superposición del CAIFE según dispositivo (Confluence Patrones › Progressive disclosure): R4Popover en ≥ 1024 px, R4Sheet bottom por debajo */
+.ficha__caife-popover { display: none; }
+@container r4page (min-width: 1024px) {
+  .ficha__caife-popover { display: block; }
+  .ficha__sheet--caife { display: none; }
+}

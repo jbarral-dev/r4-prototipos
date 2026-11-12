@@ -82,22 +82,30 @@ export default defineComponent({
     const closePopover = () => { popover.value = null }
     const mercadoOpen = computed(() => !!popover.value || sheetOpen.value)
     // Popover CAIFE (solo si los datos traen `caife`): lo abre el botón de información de la fila «Elegible Cuenta Europa»; se coloca bajo el botón, sin salirse del Resumen
-    const caifePopover = ref(null) // { top, left } relativo al Resumen
-    const closeCaife = () => { caifePopover.value = null }
+    const caifePopover = ref(null) // { top, left } relativo al Resumen (desktop ≥ 1024: R4Popover)
+    const caifeSheet = ref(false) // < 1024: R4Sheet bottom (patrón Progressive disclosure › Superposición › «Icono de info (ayuda breve)»: R4Popover en desktop, R4Sheet bottom en mobile)
+    const caifeOpen = computed(() => !!caifePopover.value || caifeSheet.value)
+    const closeCaife = () => { caifePopover.value = null; caifeSheet.value = false }
     const resumen = computed(() => d.resumen.map((r) => {
       if (r.action) return { ...r, action: { ...r.action, haspopup: true, pressed: mercadoOpen.value } }
-      if (r.info && d.caife && r.concept === d.caife.concept) return { ...r, info: { ...r.info, haspopup: true, pressed: !!caifePopover.value } }
+      if (r.info && d.caife && r.concept === d.caife.concept) return { ...r, info: { ...r.info, haspopup: true, pressed: caifeOpen.value } }
       return r
     }))
-    const onResumenInfo = (it, e) => {
+    const onResumenInfo = async (it, e) => {
       if (!d.caife || it.concept !== d.caife.concept) return
-      if (caifePopover.value) { closeCaife(); return }
+      if (caifeOpen.value) { closeCaife(); return }
       const btn = e && e.currentTarget
       const box = btn && btn.closest(".ficha__resumen")
       if (!box) return
       const b = btn.getBoundingClientRect(); const s = box.getBoundingClientRect()
       const width = 320 // R4Popover wide: se limita para que no sobresalga por la derecha del Resumen
       caifePopover.value = { top: b.bottom - s.top + 8, left: Math.max(0, Math.min(b.left - s.left, s.width - width)) }
+      caifeSheet.value = true
+      await nextTick()
+      // El CSS decide cuál se ve (popover en ≥ 1024, bottom sheet por debajo): se descarta el que quede oculto
+      const sheet = document.querySelector(".ficha__sheet--caife")
+      if (sheet && getComputedStyle(sheet).display === "none") caifeSheet.value = false
+      else caifePopover.value = null
     }
     const onResumenAction = async (it, e) => {
       if (it.concept !== 'Mercado') return
@@ -130,7 +138,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} en el día de hoy`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} en el día de hoy`))
 
-    return { resumen, popover, caifePopover, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -253,6 +261,15 @@ export default defineComponent({
         <slot name="overlay" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+        </R4Sheet>
+        <R4Sheet v-if="d.caife" class="ficha__sheet ficha__sheet--caife" position="bottom" :title="d.caife.title" :open="caifeSheet" @close="caifeSheet = false">
+          <div class="ficha__caife">
+            <div class="ficha__caife-text">
+              <p>{{ d.caife.intro }}<strong>{{ d.caife.introStrong }}</strong>.</p>
+              <p>{{ d.caife.description }}</p>
+            </div>
+            <R4Link type="standalone" size="medium" :href="d.caife.linkHref" :icon-right="IcExternal">{{ d.caife.linkText }}</R4Link>
+          </div>
         </R4Sheet>
         <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" full-height title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
           <ChartComparePanel v-model="gr.query" placeholder="Buscar por valor, símbolo o ISIN" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
