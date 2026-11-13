@@ -65,7 +65,9 @@
 }
 .r4-listdetail__value-icon { flex: none; width: var(--r4-ld-logo); height: var(--r4-ld-logo); }
 
-.r4-listdetail__actions { display: flex; align-items: center; align-self: stretch; }
+/* Capa de las acciones: mide como la línea de texto (24 en medium, 20 en small), SIN overflow:hidden. El R4Button conserva su tamaño (32) y, centrado, sobresale por arriba y por abajo
+   sin aumentar la altura de la fila (Jon, 2026-11-13; Figma Primitivos 12792:2758 envuelve cada botón en una capa con alto fill). */
+.r4-listdetail__actions { display: flex; flex: none; align-items: center; align-self: center; height: var(--r4-ld-line-height); }
 
 /* Botón de información del concepto (24 px en medium, 20 en small) y acción de fila (32 px, el icono queda a la altura de la fila) */
 .r4-listdetail .r4-listdetail__info { width: var(--spacing-6); height: var(--spacing-6); padding: 0; color: var(--accent-link); }

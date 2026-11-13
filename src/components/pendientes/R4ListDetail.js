@@ -9,6 +9,7 @@
 // Valor de tipo tag (`_ListItemDetailValue type=tag` de la doc; forma aquí it.tag = { text, color, size?, bordered?, icon? } → R4Tag en lugar del texto). Extra: info.pressed / info.haspopup (el botón de información mantiene el estado pressed y aria-expanded mientras el popover está abierto).
 // Extra: action.iconPressed cambia el icono mientras está pressed (p. ej. angle-down → angle-up en un combo).
 // Extra: action.pressed mantiene el botón en estado pressed (y aria-expanded si action.haspopup) mientras el popover/sheet que abre está visible.
+// Las acciones van en una capa (.r4-listdetail__actions) del alto de la línea de texto, sin overflow oculto: el botón (32) no aumenta la altura de la fila.
 // Altura de fila: small 36 + 8 (separador) · medium 40 + 16.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
