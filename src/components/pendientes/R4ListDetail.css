@@ -29,6 +29,21 @@
   --r4-ld-logo: var(--spacing-4);
 }
 
+/*
+ * large y extraLarge (leídos de Figma 12792:31047 y 12792:81439, 2026-11-13): large = texto body/l (18/26), padding vertical de la fila 12 (contenido 50); extraLarge = body/xl (20/28), padding 16 (contenido 60).
+ * El separador sigue siendo de 16 (línea centrada). Lo que NO se ha leído (logo/bandera del valor, gap del valor) se mantiene como en medium.
+ */
+.r4-listdetail--large {
+  --r4-ld-font-size: var(--size-body-l);
+  --r4-ld-line-height: var(--line-height-body-l);
+  --r4-ld-pad-y: var(--spacing-3);
+}
+.r4-listdetail--extraLarge {
+  --r4-ld-font-size: var(--size-body-xl);
+  --r4-ld-line-height: var(--line-height-body-xl);
+  --r4-ld-pad-y: var(--spacing-4);
+}
+
 .r4-listdetail__row { display: flex; flex-direction: column; margin: 0; }
 
 .r4-listdetail__content {
