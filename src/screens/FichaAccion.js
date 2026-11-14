@@ -48,7 +48,7 @@ import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
-import Facilitador, { leerDeUrl } from '../components/prototipo/Facilitador.js'
+import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
 const FACILITADOR = [{ id: 'usuario', label: 'Tipo de usuario', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }]
@@ -71,7 +71,7 @@ export default defineComponent({
   },
   setup(props) {
     const d = props.data
-    const caso = ref(leerDeUrl(FACILITADOR)) // estado del Facilitador (use cases)
+    const caso = ref(valoresPorDefecto(FACILITADOR)) // estado del Facilitador (use cases)
     document.title = `${d.producto.productName} · Acciones · Renta 4`
     const tab = ref(0)
     const period = ref('1d')
