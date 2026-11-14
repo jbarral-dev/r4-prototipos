@@ -8,3 +8,12 @@
 .facilitador__option input { margin: 0; accent-color: var(--accent-default); }
 /* En mobile (<600) el R4ButtonDock ocupa el borde inferior: el panel queda por encima de él */
 @media (max-width: 599px) { .facilitador { bottom: calc(var(--spacing-16) + var(--spacing-6)); } }
+
+/* Interruptor (role=switch): pista de 36 × 20 con pomo; activado = accent/default. Herramienta del prototipo: no es el R4InputSwitch del DS. */
+.facilitador__switch { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding-block: var(--spacing-1); cursor: pointer; }
+.facilitador__switch-input { appearance: none; position: relative; flex: none; width: calc(var(--spacing-8) + var(--spacing-1)); height: var(--spacing-5); margin: 0; border-radius: var(--radius-full); background: var(--border-default); cursor: pointer; transition: background 0.15s ease; }
+.facilitador__switch-input::after { content: ''; position: absolute; top: var(--spacing-05); left: var(--spacing-05); width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); background: var(--surface-default); transition: transform 0.15s ease; }
+.facilitador__switch-input:checked { background: var(--accent-default); }
+.facilitador__switch-input:checked::after { transform: translateX(var(--spacing-4)); }
+.facilitador__switch-input:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+@media (prefers-reduced-motion: reduce) { .facilitador__switch-input, .facilitador__switch-input::after { transition: none; } }

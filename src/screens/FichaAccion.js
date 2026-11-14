@@ -51,7 +51,10 @@ import dragScroll from '../directives/dragScroll.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
-const FACILITADOR = [{ id: 'usuario', label: 'Tipo de usuario', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }, { id: 'relacionados', label: 'Productos relacionados', options: [{ value: 'conPrecio', label: 'Con precio', default: true }, { value: 'sinPrecio', label: 'Sin precio' }] }]
+const FACILITADOR = [
+  { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
+  { label: 'Productos relacionados', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios', default: true }] },
+]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
 const IcExternal = iconComponent('ic-external-link')
@@ -79,9 +82,9 @@ export default defineComponent({
     const sheetOpen = ref(false)
     const titleVisible = ref(true)
 
-    const tipoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.tipo)
-    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, type: tipoCategoria.value }))) // sin botón de compra: la fila lleva a la ficha del producto
-    const conPrecio = computed(() => caso.value.relacionados === 'conPrecio')
+    const mercadoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.mercado)
+    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, market: mercadoCategoria.value?.name, marketFlag: mercadoCategoria.value?.flag }))) // sin botón de compra: la fila lleva a la ficha del producto
+    const conPrecio = computed(() => caso.value.precios)
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
     const popover = ref(null) // { top, right } del popover «En otros mercados» (desktop), relativo al Resumen
@@ -262,7 +265,7 @@ export default defineComponent({
 
       <template #overlay>
         <slot name="overlay" />
-        <Facilitador v-if="facilitator" v-model:values="caso" :variables="FACILITADOR" />
+        <Facilitador v-if="facilitator" v-model:values="caso" :groups="FACILITADOR" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
         </R4Sheet>

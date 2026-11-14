@@ -1,7 +1,7 @@
 // PENDIENTE-IT: no oficial. Sustituir cuando exista en la librería Vue.
 // Componente NUEVO (propuesta de Jon, 2026-11-14; sin Figma, Confluence ni catálogo): lista de productos. Contenedor `R4ProductList` + hijo `productItem` (_ProductItem.js). Look & feel del resultado de búsqueda
-// (R4SearchResults / searchResultItem). Dos versiones por prop, para probar las dos posturas de «Productos relacionados»: con precio y variación (`showPrice`) o sin precio, con la etiqueta del tipo (`showType`).
-// Props (propuesta): items ({ name, meta?, type?, price?, variation?, tone?, logo?, href? }[]), showPrice (por defecto true), showType (por defecto, solo sin precio), ariaLabel. Evento: select (item, evento).
+// (R4SearchResults / searchResultItem). Dos versiones por prop, para probar las dos posturas de «Productos relacionados»: con precio y variación (`showPrice`) o sin precio, con el mercado (`showMarket`).
+// Props (propuesta): items ({ name, meta?, market?, marketFlag?, price?, variation?, tone?, logo?, href? }[]), showPrice (por defecto true), showMarket (por defecto, solo sin precio), ariaLabel. Evento: select (item, evento).
 // Semántica: <ul> con <li> por producto; cada fila lleva a la ficha del producto (no a contratar).
 import { defineComponent } from '../../../vendor/vue.esm-browser.prod.js'
 import _ProductItem from './_ProductItem.js'
@@ -12,13 +12,13 @@ export default defineComponent({
   props: {
     items: { type: Array, required: true },
     showPrice: { type: Boolean, default: true },
-    showType: { type: Boolean, default: undefined },
+    showMarket: { type: Boolean, default: undefined },
     ariaLabel: { type: String, default: undefined },
   },
   emits: ['select'],
   template: `
     <ul class="r4-productlist" :aria-label="ariaLabel">
-      <ProductItem v-for="(it, i) in items" :key="i" v-bind="it" :show-price="showPrice" :show-type="showType" :show-divider="true" @select="$emit('select', it, $event)" />
+      <ProductItem v-for="(it, i) in items" :key="i" v-bind="it" :show-price="showPrice" :show-market="showMarket" :show-divider="true" @select="$emit('select', it, $event)" />
     </ul>
   `,
 })

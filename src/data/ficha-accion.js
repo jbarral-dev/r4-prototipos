@@ -64,10 +64,10 @@ export const accion = {
 
   derivados: {
     categorias: [
-      { id: 'cfds', label: 'CFDs (1)', tipo: 'CFD' },
-      { id: 'futuros', label: 'Futuros (10)', tipo: 'Futuro' },
-      { id: 'opciones', label: 'Opciones (48)', tipo: 'Opción' },
-      { id: 'warrants', label: 'Warrants (48)', tipo: 'Warrant' },
+      { id: 'cfds', label: 'CFDs (1)', mercado: { name: 'OTC' } },
+      { id: 'futuros', label: 'Futuros (10)', mercado: { name: 'MEFF', flag: 'flag-spain' } },
+      { id: 'opciones', label: 'Opciones (48)', mercado: { name: 'MEFF', flag: 'flag-spain' } },
+      { id: 'warrants', label: 'Warrants (48)', mercado: { name: 'BME', flag: 'flag-spain' } },
     ],
     items: {
       cfds: [{ name: 'CFD de IBERDROLA', meta: ['Garantía:', '20%'], price: '23,35 €', variation: '-2,56%', tone: 'auto' }],

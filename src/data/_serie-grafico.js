@@ -106,17 +106,21 @@ export const crearSeriePrincipal = (precio, clave) => Object.fromEntries(Object.
   const first = points[0]
   const velas = candlesOf(points, cfg.velas, cfg.vol, clave + id)
   const r = rng(seedOf(clave + id + 'ov'))
-  const bw = cfg.vol * last * 3
+  const lo = Math.min(...points)
+  const span = (Math.max(...points) - lo) || last * 0.002
+  const bw = span * 0.18
   const samples = Array.from({ length: 7 }, (_, k) => points[Math.round((k * (n - 1)) / 6)])
-  const overlays = {
-    mm50: { type: 'line', tone: 'average-1', points: [+(first + (last - first) * 0.15).toFixed(3), +(last * 0.985).toFixed(3)] },
-    mm200: { type: 'line', tone: 'average-2', points: [+(first * 0.97).toFixed(3), +(last * 0.95).toFixed(3)] },
-    bollinger: { type: 'band', tone: 'average-3', upper: samples.map((v) => +(v + bw).toFixed(3)), lower: samples.map((v) => +(v - bw).toFixed(3)) },
+  const overlaysRaw = {
+    mm50: { type: 'line', tone: 'average-1', points: [first + (last - first) * 0.15 - 0.05 * span, last - 0.12 * span] },
+    mm200: { type: 'line', tone: 'average-2', points: [first - 0.15 * span, last - 0.35 * span] },
+    bollinger: { type: 'band', tone: 'average-3', upper: samples.map((v) => v + bw), lower: samples.map((v) => v - bw) },
     volumen: { type: 'bars', values: Array.from({ length: 14 }, () => +(0.3 + r() * 0.65).toFixed(2)) },
     dividendos: { type: 'markers', at: cfg.dividendos.map((f) => Math.round(f * (n - 1))) },
   }
-  // Dominio = todo lo que puede llegar a dibujarse (puntos, velas, indicadores y el «ajuste de dividendos»), para que activar un indicador no reescale el eje
-  const all = [...points, ...points.map((v) => v * (1 - cfg.ajuste)), ...velas.flatMap((c) => [c.h, c.l]), ...overlays.mm50.points, ...overlays.mm200.points, ...overlays.bollinger.upper, ...overlays.bollinger.lower]
+  // Dominio del eje = los datos (puntos, velas y el «ajuste de dividendos»); NO los indicadores: si no, un indicador lejano aplasta velas y línea. Los indicadores se recortan al dominio.
+  const all = [...points, ...points.map((v) => v * (1 - cfg.ajuste)), ...velas.flatMap((c) => [c.h, c.l])]
   const { domain, labels } = ticks(Math.min(...all), Math.max(...all))
+  const cl = (v) => +Math.min(domain[1], Math.max(domain[0], v)).toFixed(3)
+  const overlays = { ...overlaysRaw, mm50: { ...overlaysRaw.mm50, points: overlaysRaw.mm50.points.map(cl) }, mm200: { ...overlaysRaw.mm200, points: overlaysRaw.mm200.points.map(cl) }, bollinger: { ...overlaysRaw.bollinger, upper: overlaysRaw.bollinger.upper.map(cl), lower: overlaysRaw.bollinger.lower.map(cl) } }
   return [id, { points, domain, yLabels: labels, xLabels: cfg.x, progress: cfg.progress ?? 1, ajuste: cfg.ajuste, labels: etiquetasPuntos(id, n), candles: velas, overlays }]
 }))
