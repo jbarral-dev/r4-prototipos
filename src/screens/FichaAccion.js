@@ -83,7 +83,7 @@ export default defineComponent({
     const titleVisible = ref(true)
 
     const mercadoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.mercado)
-    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, market: mercadoCategoria.value?.name, marketFlag: mercadoCategoria.value?.flag }))) // sin botón de compra: la fila lleva a la ficha del producto
+    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, market: mercadoCategoria.value?.name, marketFlag: mercadoCategoria.value?.flag, logoSrc: d.producto.logoURL }))) // sin botón de compra: la fila lleva a la ficha del producto
     const conPrecio = computed(() => caso.value.precios)
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))

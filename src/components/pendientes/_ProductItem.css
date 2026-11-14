@@ -4,6 +4,7 @@
  * Hover: fondo surface/subtle; divisor inferior border/subtle, salvo en la última fila. Logo opcional de 32 (p. ej. bandera en «En otros mercados»). Un solo elemento interactivo: el nombre se estira sobre la fila.
  */
 .r4-productitem {
+  container-type: inline-size;
   position: relative;
   display: flex;
   align-items: center;
@@ -19,6 +20,9 @@
 @container r4page (max-width: 599px) { .r4-productitem { padding-block: var(--spacing-2); } }
 
 .r4-productitem__logo { flex: none; width: var(--spacing-8); height: var(--spacing-8); border-radius: var(--radius-full); }
+/* Logotipo de la empresa (logoSrc): 32 en filas estrechas y 28 a partir de 480, como en searchResultItem */
+.r4-productitem__logo--img { width: var(--spacing-8); height: var(--spacing-8); border-radius: 0; object-fit: cover; }
+@container (min-width: 480px) { .r4-productitem__logo--img { width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); } }
 .r4-productitem__content { display: flex; flex: 1 1 0; align-items: center; gap: var(--spacing-4); min-width: 0; }
 .r4-productitem__left { display: flex; flex: 1 1 0; flex-direction: column; justify-content: center; min-width: 0; }
 

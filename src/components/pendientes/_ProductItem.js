@@ -5,7 +5,7 @@
 // la fila lleva a la ficha del producto, no a contratar (decisión de la prueba de Jon, 2026-11-14).
 // Componente NUEVO de la prueba de «Productos relacionados» (no está en Figma, ni en Confluence ni en el catálogo): la parte de precio y variación se toma del diseño anterior de la fila de la ficha (precio body/m Bold text/subdued,
 // variación body/xs SemiBold en chart/positive|negative|text/muted).
-// Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, tone (auto | muted), logo (nombre de icono, p. ej. una bandera en «En otros mercados»), href, showPrice, showMarket, showDivider.
+// Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, tone (auto | muted), logo (nombre de icono, p. ej. una bandera en «En otros mercados») y logoSrc (URL del logotipo de la empresa: refuerza que son productos de ese emisor; mismo logo en todas las filas), href, showPrice, showMarket, showDivider.
 // Evento: select.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -22,6 +22,7 @@ export default defineComponent({
     variation: { type: String, default: undefined },
     tone: { type: String, default: 'auto', validator: (v) => ['auto', 'muted'].includes(v) },
     logo: { type: String, default: undefined },
+    logoSrc: { type: String, default: undefined }, // URL del logotipo (p. ej. el de la empresa del producto); mismo tratamiento que en searchResultItem
     href: { type: String, default: '#' },
     showPrice: { type: Boolean, default: true },
     showMarket: { type: Boolean, default: undefined }, // por defecto, solo en la versión sin precio
@@ -39,7 +40,8 @@ export default defineComponent({
   },
   template: `
     <li class="r4-productitem" :class="{ 'has-divider': showDivider }">
-      <Icon v-if="logo" class="r4-productitem__logo" :name="logo" />
+      <img v-if="logoSrc" class="r4-productitem__logo r4-productitem__logo--img" :src="logoSrc" alt="" />
+      <Icon v-else-if="logo" class="r4-productitem__logo" :name="logo" />
       <div class="r4-productitem__content">
         <div class="r4-productitem__left">
           <a class="r4-productitem__name" :href="href" @click="$emit('select', $event)">{{ name }}</a>
