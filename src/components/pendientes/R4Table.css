@@ -1,0 +1,33 @@
+/*
+ * R4Table — medidas observadas en el Storybook de IT (R4Table 1.0.3) y tokens semánticos del sistema: padding de celda 8 / 12 / 16 (small / medium / large); cabecera sobre surface/default con texto bold y borde inferior de 1 px
+ * border/inverse (negro); filas con borde inferior de 1 px border/subtle y fondo surface/subtle al pasar el ratón (Confluence); paginador centrado, botones circulares de 40, gap 4 y padding 8/16; la página actual con fondo gris.
+ */
+.r4-table { --r4-table-pad: var(--spacing-3); width: 100%; font-family: var(--font-family-body); }
+.r4-table--small { --r4-table-pad: var(--spacing-2); }
+.r4-table--large { --r4-table-pad: var(--spacing-4); }
+
+/* Contenedor con scroll horizontal (mobile): la columna `frozen` queda fija a la izquierda */
+.r4-table__scroll { overflow-x: auto; }
+.r4-table__scroll:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-table__table { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+.r4-table__th, .r4-table__td { padding: var(--r4-table-pad); background: var(--surface-default); text-align: left; vertical-align: middle; }
+.r4-table__th { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); white-space: nowrap; box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-inverse); }
+.r4-table__td { box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle); }
+.r4-table__cell--right { text-align: right; }
+.r4-table__td .r4-text { white-space: nowrap; }
+
+.r4-table__row:hover .r4-table__td { background: var(--surface-subtle); }
+.r4-table--hide-last-border .r4-table__row:last-child .r4-table__td { box-shadow: none; }
+
+.r4-table__frozen { position: sticky; left: 0; z-index: 1; }
+
+/* Paginador */
+.r4-table__paginator { display: flex; align-items: center; justify-content: center; gap: var(--spacing-1); padding: var(--spacing-2) var(--spacing-4); }
+.r4-table__page { display: flex; align-items: center; justify-content: center; width: var(--component-button-size-large); height: var(--component-button-size-large); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-subdued); font: inherit; font-size: var(--size-body-m); line-height: var(--line-height-body-m); cursor: pointer; }
+.r4-table__page:hover:not(:disabled):not(.is-current) { background: var(--surface-subtle); }
+.r4-table__page.is-current { background: var(--surface-subtle); color: var(--text-default); font-weight: var(--font-weight-semibold); }
+.r4-table__page:disabled { color: var(--text-disabled); cursor: default; }
+.r4-table__page:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-table__page .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+.r4-table__page--next .r4-icon { transform: rotate(180deg); }

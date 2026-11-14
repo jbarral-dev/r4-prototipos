@@ -36,6 +36,7 @@ import _ChartComparativeChip from '../components/pendientes/_ChartComparativeChi
 import _ChartConfigPanel from '../components/pendientes/_ChartConfigPanel.js'
 import _ChartComparePanel from '../components/pendientes/_ChartComparePanel.js'
 import R4Title from '../components/pendientes/R4Title.js'
+import R4Table from '../components/pendientes/R4Table.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Link from '../components/pendientes/R4Link.js'
@@ -55,7 +56,7 @@ import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilita
 const FACILITADOR = [
   { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
   { label: 'Productos relacionados', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios', default: true }] },
-  { label: 'Tab productos', controls: [{ id: 'tabProductos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }] }] },
+  { label: 'Tab productos', controls: [{ id: 'tabProductos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }, { value: 'tabla', label: 'Tabla' }] }] },
 ]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
@@ -70,7 +71,7 @@ export default defineComponent({
   directives: { dragScroll },
   components: {
     Facilitador,
-    R4Title,
+    R4Title, R4Table,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
@@ -100,7 +101,19 @@ export default defineComponent({
     const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
     const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
     const tabTexto = `Productos de ${nombreEmpresa}`
-    const elegirTipoTab = (id) => { tabTipo.value = id; tabVisibles.value = PASO }
+    // Versión «Tabla» de la tab (R4Table, 10 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Precio, Variación y Acciones
+    const TABLA_FILAS = 10
+    const tablaColumnas = [
+      { field: 'name', header: 'Nombre', frozen: true },
+      { field: 'tipo', header: 'Tipo' },
+      { field: 'condiciones', header: 'Condiciones' },
+      { field: 'price', header: 'Precio', align: 'right' },
+      { field: 'variation', header: 'Variación', align: 'right' },
+      { field: 'accion', header: 'Acciones', align: 'right' },
+    ]
+    const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
+    const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')
+    const elegirTipoTab =(id) => { tabTipo.value = id; tabVisibles.value = PASO }
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
     const popover = ref(null) // { top, right } del popover «En otros mercados» (desktop), relativo al Resumen
@@ -165,7 +178,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -258,10 +271,24 @@ export default defineComponent({
             <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
           </R4Stack>
           <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
-            <R4ProductList class="ficha__results" :items="tabItems" aria-label="Productos relacionados" />
+            <R4ProductList class="ficha__results" :items="tabItems" show-action aria-label="Productos relacionados" />
             <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
           </R4Section>
           <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabResumen }}</p>
+        </R4Stack>
+        <R4Stack v-else-if="tab === 1 && caso.tabProductos === 'tabla'" gap="lg">
+          <R4Title :h="2" size="medium">{{ tabTexto }}</R4Title>
+          <R4Stack v-drag-scroll class="ficha__chips" direction="horizontal" gap="sm" :wrap="false" role="group" aria-label="Tipo de producto">
+            <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
+          </R4Stack>
+          <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
+            <R4Table :data="tablaFilas" :columns="tablaColumnas" data-key="id" paginator :rows="TABLA_FILAS" aria-label="Productos relacionados">
+              <template #body-name="{ data }"><span class="ficha__tabla-nombre"><img class="ficha__tabla-logo" :src="d.producto.logoURL" alt="" /><a class="ficha__tabla-link" href="#">{{ data.name }}</a></span></template>
+              <template #body-tipo="{ data }"><R4Tag color="blue" size="small" :text="data.tipo" /></template>
+              <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ data.variation }}</span></template>
+              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" text="Contratar" :aria-label="'Contratar ' + data.name" /></template>
+            </R4Table>
+          </R4Section>
         </R4Stack>
         <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
       </R4Wrapper>

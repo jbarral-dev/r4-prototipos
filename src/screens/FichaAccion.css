@@ -125,3 +125,13 @@
 .ficha__chips > * { flex: none; }
 .ficha__tabproductos .r4-section__slot { align-items: stretch; }
 .ficha__sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Tab «Productos relacionados» · versión Tabla (R4Table): nombre con el logotipo y enlace a la ficha del producto, variación verde o roja por el signo (tokens del gráfico) */
+.ficha__tabla-nombre { display: inline-flex; align-items: center; gap: var(--spacing-3); white-space: nowrap; }
+.ficha__tabla-logo { flex: none; width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); object-fit: cover; }
+.ficha__tabla-link { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.ficha__tabla-link:hover { text-decoration: underline; }
+.ficha__tabla-link:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
+.ficha__tabla-var { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
+.ficha__tabla-var.is-positive { color: var(--chart-positive); }
+.ficha__tabla-var.is-negative { color: var(--chart-negative); }
