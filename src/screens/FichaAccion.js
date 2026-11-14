@@ -104,12 +104,12 @@ export default defineComponent({
     // Versión «Tabla» de la tab (R4Table, 20 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Precio, Variación y Acciones
     const TABLA_FILAS = 20
     const tablaColumnas = [
-      { field: 'name', header: 'Nombre', frozen: true },
-      { field: 'tipo', header: 'Tipo' },
-      { field: 'condiciones', header: 'Condiciones' },
-      { field: 'price', header: 'Precio', align: 'right' },
-      { field: 'variation', header: 'Variación', align: 'right' },
-      { field: 'accion', header: '', srHeader: 'Acciones', align: 'right' },
+      { field: 'name', header: 'Nombre', frozen: true, width: '34%' },
+      { field: 'tipo', header: 'Tipo', width: '12%' },
+      { field: 'condiciones', header: 'Condiciones', width: '22%' },
+      { field: 'price', header: 'Precio', align: 'right', width: '12%' },
+      { field: 'variation', header: 'Variación', align: 'right', width: '12%' },
+      { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '8%' },
     ]
     const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
     const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')

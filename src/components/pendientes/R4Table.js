@@ -6,6 +6,7 @@
 // de la celda (enlaces, tags, botones…); sin slot, se pinta el valor como texto (R4Text). Columna `frozen`: queda fija a la izquierda al hacer scroll horizontal (así se resuelve mobile, como pide la doc: «en Mobile frozen column»).
 // Medidas (Storybook): padding de celda 8 / 12 / 16 según size; cabecera con borde inferior negro de 1 px y texto bold; filas con borde inferior de 1 px (border/subtle) y fondo surface/subtle al pasar el ratón (Confluence);
 // paginador centrado con botones circulares de 40 y gap 4, la página actual con fondo gris (Storybook: 0 8/16 de padding).
+// Extra: `width` por columna (porcentaje): fija el ancho de las columnas (table-layout: fixed) para que no cambie con el contenido al filtrar o paginar; con anchos fijos la tabla tiene un ancho mínimo y en mobile hace scroll horizontal.
 // Extra: `srHeader` (texto oculto visualmente para una columna sin título visible, p. ej. una columna de botones: mantiene el nombre accesible de la columna).
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
 // Extras del prototipo: ariaLabel y el paginador propio (`<nav>` con botones; el del Storybook es el de PrimeVue). El icono «siguiente» es el chevron izquierdo girado (no hay chevron derecho registrado).
@@ -44,7 +45,8 @@ export default defineComponent({
   template: `
     <div class="r4-table" :class="['r4-table--' + size, { 'r4-table--hide-last-border': hideLastRowBorder }]">
       <div class="r4-table__scroll" role="region" tabindex="0" :aria-label="ariaLabel">
-        <table class="r4-table__table">
+        <table class="r4-table__table" :class="{ 'r4-table__table--fixed': columns.some((c) => c.width) }">
+          <colgroup v-if="columns.some((c) => c.width)"><col v-for="c in columns" :key="c.field" :style="{ width: c.width }" /></colgroup>
           <thead v-if="showHeader">
             <tr>
               <th v-for="c in columns" :key="c.field" scope="col" class="r4-table__th" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">{{ c.header }}<span v-if="!c.header && c.srHeader" class="r4-table__sr">{{ c.srHeader }}</span></th>
