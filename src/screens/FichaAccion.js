@@ -80,12 +80,26 @@ export default defineComponent({
     const d = props.data
     const caso = ref(valoresPorDefecto(FACILITADOR)) // estado del Facilitador (use cases)
     document.title = `${d.producto.productName} · Acciones · Renta 4`
-    // Pestaña activa en la URL: ?tab=productos-relacionados (el resumen es el valor por defecto y no ensucia la URL). Con ?tab-productos=… y sin ?tab, se abre la pestaña de productos relacionados.
+    // Pestaña activa en la URL, en el hash: #productos-relacionados (el resumen es la de por defecto y no lleva hash). Con ?tab-productos=… y sin hash, se abre la pestaña de productos relacionados.
     const slug = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     const tabSlugs = d.tabs.map((t) => slug(t.label))
-    const qInicial = new URLSearchParams(location.search)
-    const tab = ref(Math.max(0, tabSlugs.indexOf(qInicial.get('tab'))) || (!qInicial.has('tab') && qInicial.has('tab-productos') ? tabSlugs.indexOf('productos-relacionados') : 0))
-    const cambiarTab = (i) => { tab.value = i; escribirParam('tab', tabSlugs[i], tabSlugs[0]) }
+    const hashSlug = () => decodeURIComponent(location.hash.replace(/^#/, ''))
+    const tabDesdeUrl = () => {
+      const q = new URLSearchParams(location.search)
+      const s = hashSlug() || q.get('tab') // `?tab=` solo se acepta por compatibilidad con enlaces anteriores
+      const i = tabSlugs.indexOf(s)
+      if (i >= 0) return i
+      return !s && q.has('tab-productos') ? tabSlugs.indexOf('productos-relacionados') : 0
+    }
+    const tab = ref(tabDesdeUrl())
+    // La pestaña va en el hash (#productos-relacionados); el resumen, que es la de por defecto, no lleva hash
+    const cambiarTab = (i) => {
+      tab.value = i
+      const q = new URLSearchParams(location.search)
+      q.delete('tab')
+      history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + (i === 0 ? '' : '#' + tabSlugs[i]))
+    }
+    const onHashChange = () => { const i = tabSlugs.indexOf(hashSlug()); tab.value = i >= 0 ? i : 0 }
     const period = ref('1d')
     const categoria = ref('cfds')
     const sheetOpen = ref(false)
@@ -168,8 +182,8 @@ export default defineComponent({
     const onDocClick = (e) => { if (popover.value && !e.target.closest('.ficha__market-popover, .ficha__resumen .r4-listdetail__action')) closePopover()
       if (caifePopover.value && !e.target.closest('.ficha__caife-popover, .ficha__resumen .r4-listdetail__info')) closeCaife() }
     const onKey = (e) => { if (e.key === 'Escape') { closePopover(); closeCaife() } }
-    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
+    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey); window.addEventListener('hashchange', onHashChange) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); window.removeEventListener('hashchange', onHashChange) })
     const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
 
     // Controles del gráfico (Comparar · Configurar · tipo de gráfico): estado y reglas en _graficoEstado.js
