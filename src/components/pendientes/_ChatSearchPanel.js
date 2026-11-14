@@ -9,10 +9,11 @@ import R4Button from './R4Button.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import _SearchResultItem from './_SearchResultItem.js'
+import R4SearchResults from './R4SearchResults.js'
 
 export default defineComponent({
   name: '_ChatSearchPanel',
-  components: { R4Button, R4InputTextarea, R4NavigationItems, SearchResultItem: _SearchResultItem },
+  components: { R4Button, R4InputTextarea, R4NavigationItems, R4SearchResults, SearchResultItem: _SearchResultItem },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const body = ref(null)
@@ -77,10 +78,10 @@ export default defineComponent({
             <template v-else>
               <span class="usearch-msg__who">Asistente</span>
               <p class="csearch-turn__intro">{{ m.items.length === 1 ? 'Esto es lo que he encontrado' : 'Esto es lo que he encontrado (' + m.items.length + ')' }} para «{{ m.term }}»:</p>
-              <ul v-if="valores(m).length" class="usearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in valores(m)" :key="'v' + i" v-bind="itemProps(r, m)" @select="pick(r.name, $event)" /></ul>
+              <R4SearchResults v-if="valores(m).length" class="usearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in valores(m)" :key="'v' + i" v-bind="itemProps(r, m)" @select="pick(r.name, $event)" /></R4SearchResults>
               <template v-if="ayuda(m).length">
                 <p class="csearch-turn__group">Centro de ayuda</p>
-                <ul class="usearch-panel__results" aria-label="Centro de ayuda"><SearchResultItem v-for="(r, i) in ayuda(m)" :key="'a' + i" v-bind="itemProps(r, m)" @select="pick(r.name, $event)" /></ul>
+                <R4SearchResults class="usearch-panel__results" aria-label="Centro de ayuda"><SearchResultItem v-for="(r, i) in ayuda(m)" :key="'a' + i" v-bind="itemProps(r, m)" @select="pick(r.name, $event)" /></R4SearchResults>
               </template>
             </template>
           </li>

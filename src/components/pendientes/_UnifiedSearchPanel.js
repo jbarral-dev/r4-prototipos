@@ -12,13 +12,14 @@ import R4Button from './R4Button.js'
 import R4Notification from './R4Notification.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
+import R4SearchResults from './R4SearchResults.js'
 import Icon from '../../icons/_Icon.js'
 
 let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -95,10 +96,10 @@ export default defineComponent({
         <template v-else-if="api.mode === 'search'">
           <template v-if="api.results.length">
             <section v-if="valores.length" class="usearch-panel__section" aria-label="Resultados">
-              <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in valores" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
+              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in valores" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
             <section v-if="ayuda.length" class="usearch-panel__section" aria-label="Centro de ayuda">
-              <ul class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></ul>
+              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
             <div class="usearch-panel__exit">
               <span>¿No encuentras lo que buscas?</span>

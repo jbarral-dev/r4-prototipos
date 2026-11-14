@@ -9,10 +9,11 @@ import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.
 import Icon from '../../icons/_Icon.js'
 import R4InputSearch from './R4InputSearch.js'
 import _SearchResultItem from './_SearchResultItem.js'
+import R4SearchResults from './R4SearchResults.js'
 
 export default defineComponent({
   name: '_ChartComparePanel',
-  components: { Icon, R4InputSearch, SearchResultItem: _SearchResultItem },
+  components: { Icon, R4InputSearch, R4SearchResults, SearchResultItem: _SearchResultItem },
   props: {
     modelValue: { type: String, default: '' },
     results: { type: Array, default: () => [] },
@@ -31,10 +32,10 @@ export default defineComponent({
   template: `
     <div class="r4-comparepanel">
       <R4InputSearch :model-value="modelValue" :placeholder="placeholder" aria-label="Buscar valor para comparar" @update:model-value="$emit('update:modelValue', $event)" @close="$emit('close')" />
-      <ul v-if="state === 'results'" class="r4-comparepanel__results" aria-label="Resultados de la búsqueda">
+      <R4SearchResults v-if="state === 'results'" class="r4-comparepanel__results" aria-label="Resultados de la búsqueda">
         <SearchResultItem v-for="(r, i) in results" :key="r.ticker" :name="r.name" :logo-src="r.logoSrc" :logo-text="r.logoText" :metadata2="r.isin" :market="r.market" :market-flag="r.marketFlag"
                           :type="r.type" :highlight="modelValue" :show-divider="i < results.length - 1" @select="pick(r, $event)" />
-      </ul>
+      </R4SearchResults>
       <div v-else class="r4-comparepanel__empty" aria-live="polite">
         <Icon v-if="state === 'empty'" class="r4-comparepanel__empty-icon" name="ic-search" />
         <div class="r4-comparepanel__empty-texts">

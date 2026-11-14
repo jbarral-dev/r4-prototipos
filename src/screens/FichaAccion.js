@@ -43,7 +43,7 @@ import R4Popover from '../components/pendientes/R4Popover.js'
 import R4NavigationItems from '../components/pendientes/R4NavigationItems.js'
 import R4ButtonDock from '../components/pendientes/R4ButtonDock.js'
 import _ProductActionsMenu from '../components/pendientes/_ProductActionsMenu.js'
-import _SearchResultItem from '../components/pendientes/_SearchResultItem.js'
+import R4ProductList from '../components/pendientes/R4ProductList.js'
 import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
@@ -51,7 +51,7 @@ import dragScroll from '../directives/dragScroll.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
-const FACILITADOR = [{ id: 'usuario', label: 'Tipo de usuario', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }]
+const FACILITADOR = [{ id: 'usuario', label: 'Tipo de usuario', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }, { id: 'relacionados', label: 'Productos relacionados', options: [{ value: 'conPrecio', label: 'Con precio', default: true }, { value: 'sinPrecio', label: 'Sin precio' }] }]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
 const IcExternal = iconComponent('ic-external-link')
@@ -66,7 +66,7 @@ export default defineComponent({
   components: {
     Facilitador,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
-    R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem,
+    R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
   },
   setup(props) {
@@ -79,7 +79,9 @@ export default defineComponent({
     const sheetOpen = ref(false)
     const titleVisible = ref(true)
 
-    const derivados = computed(() => d.derivados.items[categoria.value].map((it) => ({ ...it, action: it.action ? { icon: 'ic-shopping-cart', label: `Comprar ${it.name}` } : undefined })))
+    const tipoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.tipo)
+    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, type: tipoCategoria.value }))) // sin botón de compra: la fila lleva a la ficha del producto
+    const conPrecio = computed(() => caso.value.relacionados === 'conPrecio')
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
     const popover = ref(null) // { top, right } del popover «En otros mercados» (desktop), relativo al Resumen
@@ -144,7 +146,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -213,7 +215,7 @@ export default defineComponent({
               <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">
                 <R4Popover width="wide">
                   <p class="ficha__market-title">En otros mercados</p>
-                  <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+                  <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
                 </R4Popover>
               </div>
               <div v-if="caifePopover && d.caife" class="ficha__caife-popover" role="dialog" :aria-label="d.caife.title" :style="{ top: caifePopover.top + 'px', left: caifePopover.left + 'px' }">
@@ -239,9 +241,7 @@ export default defineComponent({
           <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de derivado">
             <R4Chip v-for="c in d.derivados.categorias" :key="c.id" size="small" :label="c.label" :selected="categoria === c.id" @click="categoria = c.id" />
           </div>
-          <ul class="ficha__results">
-            <SearchResultItem v-for="(it, i) in derivados" :key="categoria + i" :name="it.name" :meta="it.meta" :price="it.price" :variation="it.variation" :tone="it.tone" :action="it.action" />
-          </ul>
+          <R4ProductList class="ficha__results" :items="derivados" :show-price="conPrecio" aria-label="Productos relacionados" />
           <template v-if="verTodos">
             <R4Button class="ficha__ver-todos-desktop" type="text" size="medium" icon="ic-external-link" :text="verTodos" />
             <R4Link class="ficha__ver-todos-mobile" type="standalone" size="medium" href="#" :icon-right="IcArrowRight">{{ verTodos }}</R4Link>
@@ -264,7 +264,7 @@ export default defineComponent({
         <slot name="overlay" />
         <Facilitador v-if="facilitator" v-model:values="caso" :variables="FACILITADOR" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
-          <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
+          <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
         </R4Sheet>
         <R4Sheet v-if="d.caife" class="ficha__sheet ficha__sheet--caife" position="bottom" :title="d.caife.title" :open="caifeSheet" @close="caifeSheet = false">
           <div class="ficha__caife">
