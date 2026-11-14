@@ -25,9 +25,9 @@ export const crearCatalogo = (spot, nombre = 'Iberdrola') => {
   const r = rng(2026)
   const variacion = () => fmt1.format((r() - 0.5) * 16) + ' %'
   const out = []
-  out.push({ tipo: 'CFD', name: `CFD de ${nombre.toUpperCase()}`, meta: ['Garantía:', '20%'], price: eur(spot), variation: '-2,56%', tone: 'auto' })
-  FUTUROS.forEach(([etiqueta, fecha], i) => out.push({ tipo: 'Futuro', name: `Futuro ${nombre} ${etiqueta}`, meta: ['Vence', fecha], price: eur(spot * (1 + 0.006 * (i + 1))), variation: variacion(), tone: 'muted' }))
-  ;[true, false].forEach((call) => VENCIMIENTOS_OPCIONES.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Opción', name: `${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(prima(spot, k, v.meses, call)), variation: variacion(), tone: 'muted' }))))
-  ;[true, false].forEach((call) => VENCIMIENTOS_WARRANTS.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Warrant', name: `Warrant ${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(Math.max(prima(spot, k, v.meses, call) / 10, 0.01)), variation: variacion(), tone: 'muted' }))))
+  out.push({ tipo: 'CFD', name: `CFD de ${nombre.toUpperCase()}`, meta: ['Garantía:', '20%'], price: eur(spot), variation: '-2,56%' })
+  FUTUROS.forEach(([etiqueta, fecha], i) => out.push({ tipo: 'Futuro', name: `Futuro ${nombre} ${etiqueta}`, meta: ['Vence', fecha], price: eur(spot * (1 + 0.006 * (i + 1))), variation: variacion() }))
+  ;[true, false].forEach((call) => VENCIMIENTOS_OPCIONES.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Opción', name: `${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(prima(spot, k, v.meses, call)), variation: variacion() }))))
+  ;[true, false].forEach((call) => VENCIMIENTOS_WARRANTS.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Warrant', name: `Warrant ${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(Math.max(prima(spot, k, v.meses, call) / 10, 0.01)), variation: variacion() }))))
   return out
 }

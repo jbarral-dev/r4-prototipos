@@ -98,6 +98,8 @@ export default defineComponent({
     const tabLista = computed(() => (tabTipo.value === 'todos' ? catalogo : catalogo.filter((p) => p.tipo === tabTipo.value)))
     const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, logoSrc: d.producto.logoURL })))
     const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
+    const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
+    const tabTitulo = `Productos relacionados con ${nombreEmpresa}`
     const elegirTipoTab = (id) => { tabTipo.value = id; tabVisibles.value = PASO }
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
@@ -163,7 +165,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { tabTitulo, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -251,7 +253,7 @@ export default defineComponent({
           </R4Stack>
         </template>
         <R4Stack v-else-if="tab === 1 && caso.tabProductos === 'listado'" gap="lg">
-          <R4Text size="large" font-style="strong" aria-live="polite" :text="tabResumen" />
+          <R4Text size="large" font-style="strong" :text="tabTitulo" />
           <R4Stack v-drag-scroll class="ficha__chips" direction="horizontal" gap="sm" :wrap="false" role="group" aria-label="Tipo de producto">
             <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
           </R4Stack>
@@ -259,6 +261,7 @@ export default defineComponent({
             <R4ProductList class="ficha__results" :items="tabItems" aria-label="Productos relacionados" />
             <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
           </R4Section>
+          <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabResumen }}</p>
         </R4Stack>
         <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
       </R4Wrapper>

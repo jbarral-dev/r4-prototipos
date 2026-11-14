@@ -4,8 +4,8 @@
 // body/s text/muted; hover = fondo surface/subtle y divisor inferior border/subtle (el último no lo lleva). La fila entera es clicable con UN solo elemento interactivo (el nombre se estira con ::after) y NO hay botón de compra:
 // la fila lleva a la ficha del producto, no a contratar (decisión de la prueba de Jon, 2026-11-14).
 // Componente NUEVO de la prueba de «Productos relacionados» (no está en Figma, ni en Confluence ni en el catálogo): la parte de precio y variación se toma del diseño anterior de la fila de la ficha (precio body/m Bold text/subdued,
-// variación body/xs SemiBold en chart/positive|negative|text/muted).
-// Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, tone (auto | muted), logo (nombre de icono, p. ej. una bandera en «En otros mercados») y logoSrc (URL del logotipo de la empresa: refuerza que son productos de ese emisor; mismo logo en todas las filas), href, showPrice, showMarket, showDivider.
+// variación body/s SemiBold en chart/positive o chart/negative según el signo).
+// Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, logo (nombre de icono, p. ej. una bandera en «En otros mercados») y logoSrc (URL del logotipo de la empresa: refuerza que son productos de ese emisor; mismo logo en todas las filas), href, showPrice, showMarket, showDivider.
 // Evento: select.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -20,7 +20,6 @@ export default defineComponent({
     marketFlag: { type: String, default: undefined }, // nombre de icono de bandera
     price: { type: String, default: undefined },
     variation: { type: String, default: undefined },
-    tone: { type: String, default: 'auto', validator: (v) => ['auto', 'muted'].includes(v) },
     logo: { type: String, default: undefined },
     logoSrc: { type: String, default: undefined }, // URL del logotipo (p. ej. el de la empresa del producto); mismo tratamiento que en searchResultItem
     href: { type: String, default: '#' },
@@ -31,8 +30,9 @@ export default defineComponent({
   emits: ['select'],
   setup(props) {
     const variationClass = computed(() => {
-      if (props.tone === 'muted' || !props.variation) return 'is-muted'
-      return props.variation.trim().startsWith('-') || props.variation.trim().startsWith('−') ? 'is-negative' : 'is-positive'
+      // El color lo da siempre el signo (chart/positive o chart/negative), en todas las listas; no hay tono atenuado
+      const v = (props.variation || '').trim()
+      return v.startsWith('-') || v.startsWith('−') ? 'is-negative' : 'is-positive'
     })
     const marketVisible = computed(() => (props.showMarket === undefined ? !props.showPrice : props.showMarket) && !!props.market)
     const priceVisible = computed(() => props.showPrice && !!props.price)

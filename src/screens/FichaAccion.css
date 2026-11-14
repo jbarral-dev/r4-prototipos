@@ -47,7 +47,9 @@
 }
 
 /* Derivados: chips (gap 12, scroll horizontal sin barra) y lista de resultados */
-.ficha__filters { display: flex; gap: var(--spacing-3); width: 100%; padding-right: var(--spacing-3); overflow-x: auto; scrollbar-width: none; }
+.ficha__filters { display: flex; gap: var(--spacing-3); width: calc(100% + var(--spacing-2)); padding-right: var(--spacing-3); overflow-x: auto; scrollbar-width: none; }
+/* Las filas de chips con scroll (overflow-x: auto) recortaban el sombreado del hover (0 0 8) y el foco (6) por arriba, abajo y a la izquierda: se reserva ese margen con padding y se compensa con margen negativo para no mover el diseño */
+.ficha__filters, .ficha__chips { padding-block: var(--spacing-2); margin-block: calc(var(--spacing-2) * -1); padding-inline-start: var(--spacing-2); margin-inline-start: calc(var(--spacing-2) * -1); }
 .ficha__filters::-webkit-scrollbar { display: none; }
 
 .ficha__results { display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; list-style: none; }
@@ -118,7 +120,8 @@
 /* Tab «Productos relacionados» (listado): chips de tipo, lista completa con precio y «Mostrar más productos» (R4Button secondary) centrado respecto al listado */
 .ficha__mostrar-mas { align-self: center; }
 /* Fila de chips de la tab (R4Stack horizontal, gap sm): en mobile hace scroll horizontal sin barra, como los chips de la sección del Resumen */
-.ficha__chips { overflow-x: auto; scrollbar-width: none; padding-right: var(--spacing-3); }
+.ficha__chips { overflow-x: auto; scrollbar-width: none; padding-right: var(--spacing-3); max-width: calc(100% + var(--spacing-2)); }
 .ficha__chips::-webkit-scrollbar { display: none; }
 .ficha__chips > * { flex: none; }
 .ficha__tabproductos .r4-section__slot { align-items: stretch; }
+.ficha__sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

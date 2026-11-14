@@ -1,6 +1,6 @@
 /*
  * productItem (hijo de R4ProductList) — look & feel y hover del searchResultItem con mercado: fila de padding 12/4 (8/4 en mobile), gap 12; contenido con gap 16: columna izquierda (nombre body/m SemiBold text/default y línea
- * secundaria body/s text/muted con wrap) y columna derecha alineada a la derecha: precio body/m Bold text/subdued con variación body/xs SemiBold (versión con precio) o el mercado, bandera + nombre en body/s text/muted (versión sin precio).
+ * secundaria body/s text/muted con wrap) y columna derecha alineada a la derecha: precio body/m Bold text/subdued con variación body/s SemiBold (versión con precio) o el mercado, bandera + nombre en body/s text/muted (versión sin precio).
  * Hover: fondo surface/subtle; divisor inferior border/subtle, salvo en la última fila. Logo opcional de 32 (p. ej. bandera en «En otros mercados»). Un solo elemento interactivo: el nombre se estira sobre la fila.
  */
 .r4-productitem {
@@ -35,10 +35,9 @@
 
 .r4-productitem__right { display: flex; flex: none; flex-direction: column; align-items: flex-end; justify-content: center; text-align: right; white-space: nowrap; }
 .r4-productitem__price { color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
-.r4-productitem__variation { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); }
+.r4-productitem__variation { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
 .r4-productitem__variation.is-positive { color: var(--chart-positive); }
 .r4-productitem__variation.is-negative { color: var(--chart-negative); }
-.r4-productitem__variation.is-muted { color: var(--text-muted); }
 
 .r4-productitem__market { display: flex; flex: none; align-items: center; gap: var(--spacing-1); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); white-space: nowrap; }
 .r4-productitem__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
