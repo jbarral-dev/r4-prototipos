@@ -1,0 +1,10 @@
+/* Facilitador (herramienta del prototipo, fuera del Design System): panel flotante abajo a la izquierda, plegado por defecto. Mismo aspecto que el .facil del buscador unificado. */
+.facilitador { position: fixed; left: var(--spacing-3); bottom: var(--spacing-3); z-index: 300; width: calc(var(--spacing-16) * 4); max-width: calc(100% - var(--spacing-6)); border: var(--r4-line-width) solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-s); line-height: var(--line-height-body-s); pointer-events: auto; }
+.facilitador > summary { padding: var(--spacing-2) var(--spacing-3); cursor: pointer; font-weight: var(--font-weight-semibold); }
+.facilitador__body { display: flex; flex-direction: column; gap: var(--spacing-2); max-height: 60vh; padding: 0 var(--spacing-3) var(--spacing-3); overflow-y: auto; }
+.facilitador__group { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: var(--spacing-2) var(--spacing-3); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); }
+.facilitador__group legend { padding: 0 var(--spacing-1); font-weight: var(--font-weight-semibold); }
+.facilitador__option { display: flex; align-items: center; gap: var(--spacing-2); padding-block: var(--spacing-1); cursor: pointer; }
+.facilitador__option input { margin: 0; accent-color: var(--accent-default); }
+/* En mobile (<600) el R4ButtonDock ocupa el borde inferior: el panel queda por encima de él */
+@media (max-width: 599px) { .facilitador { bottom: calc(var(--spacing-16) + var(--spacing-6)); } }

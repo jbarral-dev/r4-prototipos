@@ -149,3 +149,12 @@
 @container r4page (min-width: 600px) {
   .menu--burger-mobile .menu__compact-button--burger { display: none; }
 }
+
+/*
+ * Cliente=Sin logar y Cliente=Potencial (desktop; leídos de dos capturas del Figma, no del nodo): la franja de 36 lleva dos enlaces en MAYÚSCULAS con padding horizontal 16 (alto de la franja):
+ * uno de texto (accent/default) y uno relleno (fondo accent/default, texto on-accent). Potencial: el logotipo completo sustituye al isotipo y no hay «Contratar» ni submenú (112 de alto).
+ */
+.menu__access { display: flex; align-items: center; align-self: stretch; padding-inline: var(--spacing-4); color: var(--accent-default); font-size: var(--size-body-l); line-height: var(--line-height-body-l); font-weight: var(--font-weight-bold); letter-spacing: 0; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+.menu__access--filled { background: var(--accent-default); color: var(--accent-text-on-accent); }
+.menu__logotype-link { color: var(--text-on-inverse); }
+.menu--client-potencial .menu__logotype { display: block; height: var(--spacing-8); width: auto; }

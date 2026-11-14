@@ -3,6 +3,9 @@
 // versión más nueva de las fichas, que está lejos de implementarse). No hay doc de API en Confluence. Mezcla generaciones de tokens: se usan los nuevos (ver Menu.css).
 // Eje Device (Desktop XL | Desktop | Tablet | Mobile) resuelto por el CSS (container query `r4page`), no por prop.
 // Reconstruido: type=process (Cliente=Logado: Menu + R4ProgressBar; sin tocar en esta revisión) y type=default (Cliente=Logado):
+//   · Cliente (prop `client`, ejes de Figma «Cliente=…»): logado (por defecto) · sinLogar · potencial. Sin logar: franja con «Crear nueva cuenta» (texto) y «Acceso clientes» (botón relleno), barra con isotipo, ítems de producto, lupa y «Contratar», y submenú.
+//     Potencial: franja con «Hazte cliente» (botón relleno) y «Acceso clientes», barra con el logotipo completo, ítems corporativos y lupa (sin «Contratar» ni submenú: 112 de alto). Sin logar y Potencial se han reconstruido
+//     desde dos capturas del Figma que pasó Jon (solo desktop; el conector no respondía): tablet y mobile usan la misma barra compacta que Logado (en Figma miden igual: 76 y 56). Los textos de la franja son de la imagen (mayúsculas, bold).
 //   · Desktop (≥ 1024): franja de usuario (favoritos · perfil · cerrar sesión) + barra principal (isotipo · ítems · buscar · «Contratar») + submenú (enlaces de la sección).
 //   · Tablet (600–1023): barra compacta de 76 (isotipo · buscar · hamburguesa roja 48). Mobile (≤ 599): barra de 56 (isotipo · buscar 56 · hamburguesa 56 a sangre).
 // NO reconstruido: Type Blocked, Cliente=Sin logar y Potencial, el menú desplegable (megamenú de desktop y panel del hamburguesa: no se ha leído) ni los submenús de cada ítem; estados pressed y disabled
@@ -18,6 +21,13 @@ import R4Button from './R4Button.js'
 import _MenuBranding from './_MenuBranding.js'
 import Icon from '../../icons/_Icon.js'
 
+// Ítems de la barra principal por cliente (Figma, Menu del archivo Templates: «Cliente=…»). En la ficha de producto la sección actual es «Bolsas y derivados» (en Sin logar el Figma deja «Carteras» como ejemplo).
+const NAV_ITEMS = {
+  logado: [{ label: 'Tu cuenta' }, { label: 'Carteras gestionadas' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados', current: true }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }],
+  sinLogar: [{ label: 'Carteras' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados', current: true }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }],
+  potencial: [{ label: 'Productos' }, { label: 'Carteras gestionadas' }, { label: 'Empresas' }, { label: 'Ventajas R4' }, { label: 'Formación' }, { label: '40 Aniversario' }],
+}
+
 export default defineComponent({
   name: 'Menu',
   components: { R4ProgressBar, R4BrandTypes, R4Button, MenuBranding: _MenuBranding, Icon },
@@ -29,7 +39,8 @@ export default defineComponent({
     totalSteps: { type: Number, default: 3 },
     showClose: { type: Boolean, default: true },
     // type=default
-    navItems: { type: Array, default: () => [{ label: 'Tu cuenta' }, { label: 'Carteras gestionadas' }, { label: 'Fondos y planes' }, { label: 'Bolsas y derivados', current: true }, { label: 'Renta fija' }, { label: 'Soluciones Easy' }, { label: 'Análisis e ideas' }] }, // { label, href?, current? }
+    client: { type: String, default: 'logado', validator: (v) => ['logado', 'sinLogar', 'potencial'].includes(v) }, // Cliente de Figma: Logado | Sin logar | Potencial (ver cabecera)
+    navItems: { type: Array, default: undefined }, // { label, href?, current? }; por defecto, los de cada `client` (NAV_ITEMS)
     subNavItems: { type: Array, default: () => [
       { label: 'Bolsas', href: 'https://www.r4.com/portal?TX=goto&FWD=MAIN11&PORTLET=BLS002&PAG=1', current: true },
       { label: 'ETFs', href: 'https://www.r4.com/productos-inversion/etfs' },
@@ -48,8 +59,9 @@ export default defineComponent({
     searchIcon: { type: String, default: undefined }, // extra del prototipo del buscador unificado: icono propio para los botones de búsqueda (por defecto, los de Figma)
   },
   emits: ['back', 'close', 'menu', 'search'],
+  computed: { items() { return this.navItems || NAV_ITEMS[this.client] } },
   template: `
-    <header class="menu" :class="['menu--' + type, { 'menu--burger-mobile': burgerOnlyMobile }]">
+    <header class="menu" :class="['menu--' + type, type === 'default' ? 'menu--client-' + client : '', { 'menu--burger-mobile': burgerOnlyMobile }]">
       <template v-if="type === 'process'">
         <div class="menu__bar">
           <div class="menu__bar-content">
@@ -70,33 +82,45 @@ export default defineComponent({
         <div class="menu__desktop">
           <div class="menu__user">
             <div class="menu__user-content">
-              <R4Button type="text" size="large" icon="star" aria-label="Favoritos" />
+              <template v-if="client === 'logado'">
+                <R4Button type="text" size="large" icon="star" aria-label="Favoritos" />
               <span class="menu__divider" aria-hidden="true"></span>
               <a class="menu__profile" href="#">
                 <span class="menu__profile-main"><Icon name="ic-user-circle" /><span class="menu__profile-name">Hola, {{ userName }}</span></span>
                 <Icon name="chevron-down" />
               </a>
               <a class="menu__logout" href="#" aria-label="Cerrar sesión"><Icon name="ic-power-off" /></a>
+              </template>
+              <template v-else-if="client === 'sinLogar'">
+                <a class="menu__access" href="#">Crear nueva cuenta</a>
+                <a class="menu__access menu__access--filled" href="#">Acceso clientes</a>
+              </template>
+              <template v-else>
+                <a class="menu__access menu__access--filled" href="#">Hazte cliente</a>
+                <a class="menu__access" href="#">Acceso clientes</a>
+              </template>
             </div>
           </div>
+
           <div class="menu__main">
             <div class="menu__main-content">
               <div class="menu__left">
-                <a class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
+                <a v-if="client === 'potencial'" class="menu__isotype-link menu__logotype-link" href="#" aria-label="Renta 4 Banco, inicio"><MenuBranding class="menu__logotype" /></a>
+                <a v-else class="menu__isotype-link" href="#" aria-label="Renta 4 Banco, inicio"><R4BrandTypes class="menu__isotype" content="Isotype" theme="Dark" variant="White" /></a>
                 <nav class="menu__nav-wrap" aria-label="Principal">
                   <ul class="menu__nav">
-                    <li v-for="(it, i) in navItems" :key="i"><a class="menu__nav-item" :class="{ 'menu__nav-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>
+                    <li v-for="(it, i) in items" :key="i"><a class="menu__nav-item" :class="{ 'menu__nav-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>
                   </ul>
                 </nav>
               </div>
               <div class="menu__right">
                 <slot name="search"><button type="button" class="menu__search" aria-label="Buscar" @click="$emit('search')"><Icon :class="{ 'menu__search-ai': searchIcon }" :name="searchIcon || 'ic-search-24'" /></button></slot>
-                <R4Button class="menu__cta" type="primary" size="large" icon="ic-plus-square" :text="ctaText" />
-                <R4Button class="menu__cta menu__cta--icon" type="primary" size="large" icon="ic-plus-square" :aria-label="ctaText" />
+                <R4Button v-if="client !== 'potencial'" class="menu__cta" type="primary" size="large" icon="ic-plus-square" :text="ctaText" />
+                <R4Button v-if="client !== 'potencial'" class="menu__cta menu__cta--icon" type="primary" size="large" icon="ic-plus-square" :aria-label="ctaText" />
               </div>
             </div>
           </div>
-          <div class="menu__sub">
+          <div v-if="client !== 'potencial'" class="menu__sub">
             <nav class="menu__sub-content" aria-label="Secundaria">
               <ul class="menu__sub-list">
                 <li v-for="(it, i) in subNavItems" :key="i"><a class="menu__sub-item" :class="{ 'menu__sub-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>

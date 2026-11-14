@@ -48,6 +48,10 @@ import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
+import Facilitador, { leerDeUrl } from '../components/prototipo/Facilitador.js'
+
+// Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Header» = cabecera según el tipo de cliente (Figma, Menu del archivo Templates).
+const FACILITADOR = [{ id: 'header', label: 'Header', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
 const IcExternal = iconComponent('ic-external-link')
@@ -57,15 +61,17 @@ export default defineComponent({
   // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
   emits: ['search'],
   // Extra: `data` (por defecto la ficha de acción estándar; el prototipo «Ficha de acción (CAIFE)» pasa accionCaife).
-  props: { searchIcon: { type: String, default: undefined }, data: { type: Object, default: () => accion } },
+  props: { searchIcon: { type: String, default: undefined }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
   directives: { dragScroll },
   components: {
+    Facilitador,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, SearchResultItem: _SearchResultItem,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
   },
   setup(props) {
     const d = props.data
+    const caso = ref(leerDeUrl(FACILITADOR)) // estado del Facilitador (use cases)
     document.title = `${d.producto.productName} · Acciones · Renta 4`
     const tab = ref(0)
     const period = ref('1d')
@@ -138,12 +144,12 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
       <template #header>
-        <Menu type="default" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
+        <Menu type="default" :client="caso.header" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
@@ -256,6 +262,7 @@ export default defineComponent({
 
       <template #overlay>
         <slot name="overlay" />
+        <Facilitador v-if="facilitator" v-model:values="caso" :variables="FACILITADOR" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <ul class="ficha__results"><SearchResultItem v-for="m in d.otrosMercados" :key="m.name" v-bind="m" /></ul>
         </R4Sheet>

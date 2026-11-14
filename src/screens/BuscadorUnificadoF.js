@@ -55,7 +55,7 @@ export default defineComponent({
     return { api, sheetPanel, mobilePanel, trigger, placeholder, cerrarYDevolverFoco, mostrarFacilitador, casos }
   },
   template: `
-    <FichaAccion search-icon="ic-search-ai" @search="api.abrir()">
+    <FichaAccion search-icon="ic-search-ai" :facilitator="false" @search="api.abrir()">
       <template #search>
         <div class="usearch">
           <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /></button>
