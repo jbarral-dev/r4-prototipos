@@ -101,14 +101,14 @@ export default defineComponent({
     const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
     const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
     const tabTexto = `Productos de ${nombreEmpresa}`
-    // Versión «Tabla» de la tab (R4Table, 20 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Precio, Variación y Acciones
+    // Versión «Tabla» de la tab (R4Table, 20 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Variación, Precio y Acciones (el precio junto al botón)
     const TABLA_FILAS = 20
     const tablaColumnas = [
       { field: 'name', header: 'Nombre', frozen: true, width: '34%' },
       { field: 'tipo', header: 'Tipo', width: '12%' },
       { field: 'condiciones', header: 'Condiciones', width: '22%' },
-      { field: 'price', header: 'Precio', align: 'right', width: '12%' },
       { field: 'variation', header: 'Variación', align: 'right', width: '12%' },
+      { field: 'price', header: 'Precio', align: 'right', width: '12%' },
       { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '8%' },
     ]
     const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
