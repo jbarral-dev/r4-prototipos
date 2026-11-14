@@ -132,6 +132,6 @@
 .ficha__tabla-link { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; }
 .ficha__tabla-link:hover { text-decoration: underline; }
 .ficha__tabla-link:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
-.ficha__tabla-var { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
+.ficha__tabla-var { font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); }
 .ficha__tabla-var.is-positive { color: var(--chart-positive); }
 .ficha__tabla-var.is-negative { color: var(--chart-negative); }

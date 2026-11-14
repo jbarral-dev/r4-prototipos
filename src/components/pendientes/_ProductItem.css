@@ -44,10 +44,6 @@
 .r4-productitem__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
 @container r4page (max-width: 599px) { .r4-productitem__market { color: var(--text-subdued); } }
 
-/* Botón «Contratar» (showAction): por encima del enlace estirado para que pulsarlo no navegue. Texto + icono en desktop/tablet; solo icono en mobile */
+/* Botón «Contratar» (showAction): R4Button secondary SOLO con icono en todos los anchos (Jon, 2026-11-14); nombre accesible «Contratar {name}». Por encima del enlace estirado para que pulsarlo no navegue */
 .r4-productitem .r4-productitem__action.r4-button { position: relative; z-index: 1; flex: none; }
-.r4-productitem .r4-productitem__action--icon.r4-button { display: none; }
-@container r4page (max-width: 599px) {
-  .r4-productitem .r4-productitem__action--text.r4-button { display: none; }
-  .r4-productitem .r4-productitem__action--icon.r4-button { display: inline-flex; }
-}
+

@@ -23,7 +23,7 @@ const prima = (spot, strike, meses, call) => {
 
 export const crearCatalogo = (spot, nombre = 'Iberdrola') => {
   const r = rng(2026)
-  const variacion = () => fmt1.format((r() - 0.5) * 16) + ' %'
+  const variacion = () => fmt1.format((r() - 0.5) * 16) + '%'
   const out = []
   out.push({ tipo: 'CFD', name: `CFD de ${nombre.toUpperCase()}`, meta: ['Garantía:', '20%'], price: eur(spot), variation: '-2,56%' })
   FUTUROS.forEach(([etiqueta, fecha], i) => out.push({ tipo: 'Futuro', name: `Futuro ${nombre} ${etiqueta}`, meta: ['Vence', fecha], price: eur(spot * (1 + 0.006 * (i + 1))), variation: variacion() }))

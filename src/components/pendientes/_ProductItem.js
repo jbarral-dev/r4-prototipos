@@ -3,7 +3,7 @@
 // Look & feel y hover = los del resultado de búsqueda con mercado (searchResultItem · rich, Figma «Fichas de Productos» 1117:20355): fila de padding 12/4 (8/4 en mobile), gap 12, nombre body/m SemiBold, línea secundaria
 // body/s text/muted; hover = fondo surface/subtle y divisor inferior border/subtle (el último no lo lleva). La fila entera es clicable con UN solo elemento interactivo (el nombre se estira con ::after). Por defecto NO hay botón de compra
 // (la fila lleva a la ficha, decisión de la prueba de Jon, 2026-11-14). EXCEPCIÓN explícita añadida por Jon el 2026-11-14: `showAction` reabre el botón de compra del diseño anterior de la fila (_SearchResultItem, ya eliminado) como
-// botón «Contratar» (R4Button secondary medium, icono ic-shopping-cart; en mobile solo icono), a la derecha del precio/mercado y por encima del enlace estirado (z-index:1, no navega). Con showAction=false se mantiene el comportamiento actual.
+// botón «Contratar» (R4Button secondary medium, solo icono ic-shopping-cart en todos los anchos), a la derecha del precio/mercado y por encima del enlace estirado (z-index:1, no navega). Con showAction=false se mantiene el comportamiento actual.
 // Componente NUEVO de la prueba de «Productos relacionados» (no está en Figma, ni en Confluence ni en el catálogo): la parte de precio y variación se toma del diseño anterior de la fila de la ficha (precio body/m Bold text/subdued,
 // variación body/s SemiBold en chart/positive o chart/negative según el signo).
 // Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, logo (nombre de icono, p. ej. una bandera en «En otros mercados») y logoSrc (URL del logotipo de la empresa: refuerza que son productos de ese emisor; mismo logo en todas las filas), href, showPrice, showMarket, showDivider, showAction (por defecto false).
@@ -56,10 +56,7 @@ export default defineComponent({
           <span v-if="variation" class="r4-productitem__variation" :class="variationClass">{{ variation }}</span>
         </div>
         <div v-else-if="marketVisible" class="r4-productitem__market"><Icon v-if="marketFlag" :name="marketFlag" /><span>{{ market }}</span></div>
-        <template v-if="showAction">
-          <R4Button class="r4-productitem__action r4-productitem__action--text" type="secondary" size="medium" icon="ic-shopping-cart" text="Contratar" :aria-label="'Contratar ' + name" @click="onAction" />
-          <R4Button class="r4-productitem__action r4-productitem__action--icon" type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + name" @click="onAction" />
-        </template>
+        <R4Button v-if="showAction" class="r4-productitem__action" type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + name" @click="onAction" />
       </div>
     </li>
   `,

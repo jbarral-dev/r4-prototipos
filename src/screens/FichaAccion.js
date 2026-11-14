@@ -109,7 +109,7 @@ export default defineComponent({
       { field: 'condiciones', header: 'Condiciones' },
       { field: 'price', header: 'Precio', align: 'right' },
       { field: 'variation', header: 'Variación', align: 'right' },
-      { field: 'accion', header: 'Acciones', align: 'right' },
+      { field: 'accion', header: '', srHeader: 'Acciones', align: 'right' },
     ]
     const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
     const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')
@@ -286,7 +286,7 @@ export default defineComponent({
               <template #body-name="{ data }"><span class="ficha__tabla-nombre"><img class="ficha__tabla-logo" :src="d.producto.logoURL" alt="" /><a class="ficha__tabla-link" href="#">{{ data.name }}</a></span></template>
               <template #body-tipo="{ data }"><R4Tag color="blue" size="small" :text="data.tipo" /></template>
               <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ data.variation }}</span></template>
-              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" text="Contratar" :aria-label="'Contratar ' + data.name" /></template>
+              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + data.name" /></template>
             </R4Table>
           </R4Section>
         </R4Stack>
