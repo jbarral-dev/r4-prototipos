@@ -317,6 +317,7 @@ Detalle en el documento de ejes agnósticos importado al final.
 Detalle en el documento de interactividad importado al final.
 
 - **Un solo elemento interactivo por componente.** Nunca superficie clicable y R4Link a la vez. Nunca `<a>` dentro de `<a>` (axe: `nested-interactive`).
+  **Excepción deliberada (Jon, 2026-11-14): listado de productos (R4ProductList / `productItem`)**, como el de Coinbase Explore: la fila lleva a la ficha del producto y un botón «Contratar» solo icono lleva al proceso de contratación (dos destinos distintos; sin anidar, el botón va por encima del enlace estirado). Solo para este caso.
 - Cinco combinaciones válidas (`interactivity`): `cardStatic`, `plainStatic`, `cardClickable`, `cardLink`, `plainLink`. `plainClickable` no existe.
 - `cardClickable`: el `<a>` envuelve el **título** y se estira con `::after`; la card es un `<div>`. Nunca envuelvas la card entera en un `<a>`.
 - CTA visible + card clicable: `cardClickable` + chevron decorativo `aria-hidden="true"`.

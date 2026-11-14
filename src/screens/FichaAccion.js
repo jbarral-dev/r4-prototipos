@@ -101,8 +101,8 @@ export default defineComponent({
     const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
     const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
     const tabTexto = `Productos de ${nombreEmpresa}`
-    // Versión «Tabla» de la tab (R4Table, 10 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Precio, Variación y Acciones
-    const TABLA_FILAS = 10
+    // Versión «Tabla» de la tab (R4Table, 20 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Precio, Variación y Acciones
+    const TABLA_FILAS = 20
     const tablaColumnas = [
       { field: 'name', header: 'Nombre', frozen: true },
       { field: 'tipo', header: 'Tipo' },
