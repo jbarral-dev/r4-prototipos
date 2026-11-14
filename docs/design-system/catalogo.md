@@ -89,12 +89,12 @@ El estado sale de las columnas del CSV: **Vue** (Hecho / WIP / No) y **AEM** (S�
 | R4SegmentedControls | Compuesto | Hecho | VUE | R4SegmentedControls | ✔ | P `11838:59196` | |
 | R4Sheet | Compuesto | Hecho | VUE | R4Sheet | ✔ | P `14424:530` | |
 | R4Splash | Específico | Hecho | VUE | R4Splash · desact. | ✔ | E `56:4892` | Documentación desactualizada. Es un R4Modal con imagen: habría que fusionarlos |
-| R4Steps | Compuesto | Hecho | VUE | R4Steps | ✔ | P `20981:200` | ⚠️ Changelog SM-24485: versión `medium` más compacta (indicador 40→32 px, gap 16→12, padding-top de textos 8→4) y nueva prop `showTitle` |
+| R4Steps | Compuesto | Hecho | VUE | R4Steps | ✔ | P `20981:200` | ⚠️ Changelog SM-24485: versión `API (Confluence 2798944260, releído 2026-11-14, v1.1.0): `h` (1-5, obligatorio), `size` (small|medium|large|extraLarge|extraLarge2; por defecto medium), `textAlign` (left|center), `loading`; el texto va en el slot. (La versión anterior de esta fila decía `level`/`align`/`tag`.) Sin `type`: Subtitle y Pretitle son estilos tipográficos` más compacta (indicador 40→32 px, gap 16→12, padding-top de textos 8→4) y nueva prop `showTitle` |
 | R4Table | Compuesto | Hecho | VUE+AEM | R4Table | ✔ | P `12959:4762` | La database aún marca "Falta documentación", pero hay página (con dos APIs: ver `lectura-confluence.md`) |
 | R4Tabs | Compuesto | Hecho | VUE | R4Tabs | ✔ | P `13591:3199` | ⚠️ Eje `layout` (`scrollable`/`fixed`); `Show Item1…8` sustituidos por **slot** (cambio rompedor). Ver `r4tabs-layout-y-slot.md` |
 | R4Tag | Simple | Hecho | VUE | R4Tag | ✔ | P `412:13524` | |
 | R4Text | Simple | Hecho | VUE | R4Text | ✔ | P `4089:77298` | |
-| R4Title | Simple | Hecho | VUE | R4Title | ✔ | P `6191:40114` | API (Confluence 2798944260, leído 2026-10-05): `text`, `level` (1-6, obligatorio), `size` (extraLarge2\|extraLarge\|large\|medium\|small), `align` (left\|center), `tag`. Sin `type`: Subtitle y Pretitle son estilos tipográficos |
+| R4Title | Simple | Hecho | VUE | R4Title | ✔ | P `6191:40114` | API (Confluence 2798944260, releído 2026-11-14, v1.1.0): `h` (1-5, obligatorio), `size` (small|medium|large|extraLarge|extraLarge2; por defecto medium), `textAlign` (left|center), `loading`; el texto va en el slot. (La versión anterior de esta fila decía `level`/`align`/`tag`.) Sin `type`: Subtitle y Pretitle son estilos tipográficos\|extraLarge\|large\|medium\|small), `align` (left\|center), `tag`. Sin `type`: Subtitle y Pretitle son estilos tipográficos |
 
 ## 2. Solo AEM — no hay Vue (10)
 
