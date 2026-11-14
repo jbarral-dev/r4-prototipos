@@ -50,13 +50,13 @@ import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
-import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
+import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
 const FACILITADOR = [
   { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
   { label: 'Productos relacionados', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios', default: true }] },
-  { label: 'Tab productos', controls: [{ id: 'tabProductos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }, { value: 'tabla', label: 'Tabla' }] }] },
+  { label: 'Tab productos', controls: [{ id: 'tabProductos', param: 'tab-productos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }, { value: 'tabla', label: 'Tabla' }] }] },
 ]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
@@ -80,7 +80,12 @@ export default defineComponent({
     const d = props.data
     const caso = ref(valoresPorDefecto(FACILITADOR)) // estado del Facilitador (use cases)
     document.title = `${d.producto.productName} · Acciones · Renta 4`
-    const tab = ref(0)
+    // Pestaña activa en la URL: ?tab=productos-relacionados (el resumen es el valor por defecto y no ensucia la URL). Con ?tab-productos=… y sin ?tab, se abre la pestaña de productos relacionados.
+    const slug = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    const tabSlugs = d.tabs.map((t) => slug(t.label))
+    const qInicial = new URLSearchParams(location.search)
+    const tab = ref(Math.max(0, tabSlugs.indexOf(qInicial.get('tab'))) || (!qInicial.has('tab') && qInicial.has('tab-productos') ? tabSlugs.indexOf('productos-relacionados') : 0))
+    const cambiarTab = (i) => { tab.value = i; escribirParam('tab', tabSlugs[i], tabSlugs[0]) }
     const period = ref('1d')
     const categoria = ref('cfds')
     const sheetOpen = ref(false)
@@ -112,6 +117,7 @@ export default defineComponent({
       { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '8%' },
     ]
     const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
+    const variacionTabla = (v) => String(v).replace(/\s*%\s*$/, ' %') // en la tabla siempre hay un espacio entre la cifra y el %
     const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')
     const elegirTipoTab =(id) => { tabTipo.value = id; tabVisibles.value = PASO }
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
@@ -178,7 +184,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -198,7 +204,7 @@ export default defineComponent({
       </R4Wrapper>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w2">
-        <R4Tabs :tabs="tabIds" :active-tab="tab" type="title" layout="scrollable" aria-label="Secciones del producto" @change="tab = $event" />
+        <R4Tabs :tabs="tabIds" :active-tab="tab" type="title" layout="scrollable" aria-label="Secciones del producto" @change="cambiarTab($event)" />
       </R4Wrapper>
 
       <R4Wrapper id="ficha-panel" density="compact" :layout="tab === 0 ? '8-4' : '12'" class="ficha__w3" role="tabpanel" :aria-labelledby="'ficha-tab-' + tab">
@@ -285,7 +291,7 @@ export default defineComponent({
             <R4Table :data="tablaFilas" :columns="tablaColumnas" data-key="id" paginator :rows="TABLA_FILAS" aria-label="Productos relacionados">
               <template #body-name="{ data }"><span class="ficha__tabla-nombre"><img class="ficha__tabla-logo" :src="d.producto.logoURL" alt="" /><a class="ficha__tabla-link" href="#">{{ data.name }}</a></span></template>
               <template #body-tipo="{ data }"><R4Tag color="blue" size="small" :text="data.tipo" /></template>
-              <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ data.variation }}</span></template>
+              <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ variacionTabla(data.variation) }}</span></template>
               <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + data.name" /></template>
             </R4Table>
           </R4Section>
