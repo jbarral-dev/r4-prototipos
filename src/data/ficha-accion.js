@@ -33,6 +33,7 @@ export const accion = {
 
   tabs: [
     { label: 'Resumen' },
+    { label: 'Productos relacionados' },
     { label: 'Análisis R4' },
     { label: 'Valoración' },
     { label: 'Dividendos' },
@@ -64,7 +65,7 @@ export const accion = {
 
   derivados: {
     categorias: [
-      { id: 'cfds', label: 'CFDs (1)', mercado: { name: 'OTC' } },
+      { id: 'cfds', label: 'CFDs (1)', mercado: { name: 'BME', flag: 'flag-spain' } },
       { id: 'futuros', label: 'Futuros (10)', mercado: { name: 'MEFF', flag: 'flag-spain' } },
       { id: 'opciones', label: 'Opciones (48)', mercado: { name: 'MEFF', flag: 'flag-spain' } },
       { id: 'warrants', label: 'Warrants (48)', mercado: { name: 'BME', flag: 'flag-spain' } },
