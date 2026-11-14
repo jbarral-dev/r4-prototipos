@@ -248,7 +248,7 @@ export default defineComponent({
             </R4Section>
           </R4Stack>
         </template>
-        <R4Section v-else-if="tab === 1 && caso.tabProductos === 'listado'" class="ficha__tabproductos" appearance="boxed" background-color="white" title="Productos relacionados">
+        <R4Section v-else-if="tab === 1 && caso.tabProductos === 'listado'" class="ficha__tabproductos" appearance="boxed" background-color="white">
           <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de producto">
             <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
           </div>
