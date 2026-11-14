@@ -114,3 +114,8 @@
   .ficha__caife-popover { display: block; }
   .ficha__sheet--caife { display: none; }
 }
+
+/* Tab «Productos relacionados» (listado): chips de tipo, lista completa con precio y «Mostrar más productos» (R4Button secondary) centrado respecto al listado */
+.ficha__mostrar-mas { align-self: center; }
+.ficha__sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.ficha__tabproductos .r4-section__slot { align-items: stretch; }

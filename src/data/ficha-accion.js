@@ -3,6 +3,7 @@
 // Los logos se resuelven respecto a este módulo (no al documento): cada prototipo vive en su propia carpeta
 const logo = (f) => new URL('../assets/logos/' + f, import.meta.url).href
 import { crearSeriePrincipal, serieComparada } from './_serie-grafico.js'
+import { crearCatalogo } from './_catalogo-derivados.js'
 
 export const accion = {
   producto: {
@@ -64,6 +65,7 @@ export const accion = {
   ],
 
   derivados: {
+    catalogo: crearCatalogo(23.35), // todos los productos relacionados (tab «Productos relacionados»): 1 CFD + 10 futuros + 48 opciones + 48 warrants; ejemplo inventado
     categorias: [
       { id: 'cfds', label: 'CFDs (1)', mercado: { name: 'BME', flag: 'flag-spain' } },
       { id: 'futuros', label: 'Futuros (10)', mercado: { name: 'MEFF', flag: 'flag-spain' } },

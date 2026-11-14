@@ -54,6 +54,7 @@ import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilita
 const FACILITADOR = [
   { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
   { label: 'Productos relacionados', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios', default: true }] },
+  { label: 'Tab productos', controls: [{ id: 'tabProductos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }] }] },
 ]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
@@ -85,6 +86,17 @@ export default defineComponent({
     const mercadoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.mercado)
     const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, market: mercadoCategoria.value?.name, marketFlag: mercadoCategoria.value?.flag, logoSrc: d.producto.logoURL }))) // sin botón de compra: la fila lleva a la ficha del producto
     const conPrecio = computed(() => caso.value.precios)
+    // Tab «Productos relacionados» (versión listado): chips con «Todos» + los tipos y el catálogo completo con precio; se muestran de 20 en 20
+    const PASO = 20
+    const tabTipo = ref('todos')
+    const tabVisibles = ref(PASO)
+    const catalogo = d.derivados.catalogo || []
+    const TIPOS = [['CFD', 'CFDs'], ['Futuro', 'Futuros'], ['Opción', 'Opciones'], ['Warrant', 'Warrants']]
+    const chipsTab = computed(() => [{ id: 'todos', label: `Todos (${catalogo.length})` }, ...TIPOS.map(([t, plural]) => ({ id: t, label: `${plural} (${catalogo.filter((p) => p.tipo === t).length})` }))])
+    const tabLista = computed(() => (tabTipo.value === 'todos' ? catalogo : catalogo.filter((p) => p.tipo === tabTipo.value)))
+    const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, logoSrc: d.producto.logoURL })))
+    const tabEstado = computed(() => `Mostrando ${Math.min(tabVisibles.value, tabLista.value.length)} de ${tabLista.value.length} productos`)
+    const elegirTipoTab = (id) => { tabTipo.value = id; tabVisibles.value = PASO }
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
     const popover = ref(null) // { top, right } del popover «En otros mercados» (desktop), relativo al Resumen
@@ -149,7 +161,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabEstado, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -236,6 +248,14 @@ export default defineComponent({
             </R4Section>
           </R4Stack>
         </template>
+        <R4Section v-else-if="tab === 1 && caso.tabProductos === 'listado'" class="ficha__tabproductos" appearance="boxed" background-color="white" title="Productos relacionados">
+          <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de producto">
+            <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
+          </div>
+          <R4ProductList class="ficha__results" :items="tabItems" aria-label="Productos relacionados" />
+          <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
+          <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabEstado }}</p>
+        </R4Section>
         <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
       </R4Wrapper>
 
