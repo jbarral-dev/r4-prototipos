@@ -55,7 +55,7 @@ import Facilitador, { valoresPorDefecto, escribirParam } from '../components/pro
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
 const FACILITADOR = [
   { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
-  { label: 'Productos relacionados', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios', default: true }] },
+  { label: 'Tab Resumen', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios en productos relacionados', default: true }] },
   { label: 'Tab productos', controls: [{ id: 'tabProductos', param: 'tab-productos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }, { value: 'tabla', label: 'Tabla' }] }] },
 ]
 
@@ -86,7 +86,7 @@ export default defineComponent({
     const hashSlug = () => decodeURIComponent(location.hash.replace(/^#/, ''))
     const tabDesdeUrl = () => {
       const q = new URLSearchParams(location.search)
-      const s = hashSlug() || q.get('tab') // `?tab=` solo se acepta por compatibilidad con enlaces anteriores
+      const s = hashSlug()
       const i = tabSlugs.indexOf(s)
       if (i >= 0) return i
       return !s && q.has('tab-productos') ? tabSlugs.indexOf('productos-relacionados') : 0
@@ -96,7 +96,6 @@ export default defineComponent({
     const cambiarTab = (i) => {
       tab.value = i
       const q = new URLSearchParams(location.search)
-      q.delete('tab')
       history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + (i === 0 ? '' : '#' + tabSlugs[i]))
     }
     const onHashChange = () => { const i = tabSlugs.indexOf(hashSlug()); tab.value = i >= 0 ? i : 0 }
