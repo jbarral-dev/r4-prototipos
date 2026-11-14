@@ -35,6 +35,7 @@ import R4SegmentedControls from '../components/pendientes/R4SegmentedControls.js
 import _ChartComparativeChip from '../components/pendientes/_ChartComparativeChip.js'
 import _ChartConfigPanel from '../components/pendientes/_ChartConfigPanel.js'
 import _ChartComparePanel from '../components/pendientes/_ChartComparePanel.js'
+import R4Text from '../components/pendientes/R4Text.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Link from '../components/pendientes/R4Link.js'
@@ -69,6 +70,7 @@ export default defineComponent({
   directives: { dragScroll },
   components: {
     Facilitador,
+    R4Text,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
     R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
@@ -95,7 +97,7 @@ export default defineComponent({
     const chipsTab = computed(() => [{ id: 'todos', label: `Todos (${catalogo.length})` }, ...TIPOS.map(([t, plural]) => ({ id: t, label: `${plural} (${catalogo.filter((p) => p.tipo === t).length})` }))])
     const tabLista = computed(() => (tabTipo.value === 'todos' ? catalogo : catalogo.filter((p) => p.tipo === tabTipo.value)))
     const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, logoSrc: d.producto.logoURL })))
-    const tabEstado = computed(() => `Mostrando ${Math.min(tabVisibles.value, tabLista.value.length)} de ${tabLista.value.length} productos`)
+    const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
     const elegirTipoTab = (id) => { tabTipo.value = id; tabVisibles.value = PASO }
     const verTodos = computed(() => d.derivados.verTodos[categoria.value])
     const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
@@ -161,7 +163,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabEstado, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -248,14 +250,16 @@ export default defineComponent({
             </R4Section>
           </R4Stack>
         </template>
-        <R4Section v-else-if="tab === 1 && caso.tabProductos === 'listado'" class="ficha__tabproductos" appearance="boxed" background-color="white">
-          <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de producto">
+        <R4Stack v-else-if="tab === 1 && caso.tabProductos === 'listado'" gap="lg">
+          <R4Text size="large" font-style="strong" aria-live="polite" :text="tabResumen" />
+          <R4Stack v-drag-scroll class="ficha__chips" direction="horizontal" gap="sm" :wrap="false" role="group" aria-label="Tipo de producto">
             <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
-          </div>
-          <R4ProductList class="ficha__results" :items="tabItems" aria-label="Productos relacionados" />
-          <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
-          <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabEstado }}</p>
-        </R4Section>
+          </R4Stack>
+          <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
+            <R4ProductList class="ficha__results" :items="tabItems" aria-label="Productos relacionados" />
+            <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
+          </R4Section>
+        </R4Stack>
         <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
       </R4Wrapper>
 

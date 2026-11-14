@@ -117,5 +117,8 @@
 
 /* Tab «Productos relacionados» (listado): chips de tipo, lista completa con precio y «Mostrar más productos» (R4Button secondary) centrado respecto al listado */
 .ficha__mostrar-mas { align-self: center; }
-.ficha__sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Fila de chips de la tab (R4Stack horizontal, gap sm): en mobile hace scroll horizontal sin barra, como los chips de la sección del Resumen */
+.ficha__chips { overflow-x: auto; scrollbar-width: none; padding-right: var(--spacing-3); }
+.ficha__chips::-webkit-scrollbar { display: none; }
+.ficha__chips > * { flex: none; }
 .ficha__tabproductos .r4-section__slot { align-items: stretch; }
