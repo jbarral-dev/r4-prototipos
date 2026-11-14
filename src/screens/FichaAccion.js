@@ -50,8 +50,8 @@ import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
 import Facilitador, { leerDeUrl } from '../components/prototipo/Facilitador.js'
 
-// Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Header» = cabecera según el tipo de cliente (Figma, Menu del archivo Templates).
-const FACILITADOR = [{ id: 'header', label: 'Header', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }]
+// Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
+const FACILITADOR = [{ id: 'usuario', label: 'Tipo de usuario', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }]
 
 const IcArrowRight = iconComponent('ic-arrow-right')
 const IcExternal = iconComponent('ic-external-link')
@@ -149,7 +149,7 @@ export default defineComponent({
   template: `
     <TemplateDetail header-sticky="main">
       <template #header>
-        <Menu type="default" :client="caso.header" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
+        <Menu type="default" :client="caso.usuario" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
