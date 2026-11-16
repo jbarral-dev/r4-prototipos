@@ -115,7 +115,9 @@ export default defineComponent({
     const TIPOS = [['CFD', 'CFDs'], ['Futuro', 'Futuros'], ['Opción', 'Opciones'], ['Warrant', 'Warrants']]
     const chipsTab = computed(() => [{ id: 'todos', label: `Todos (${catalogo.length})` }, ...TIPOS.map(([t, plural]) => ({ id: t, label: `${plural} (${catalogo.filter((p) => p.tipo === t).length})` }))])
     const tabLista = computed(() => (tabTipo.value === 'todos' ? catalogo : catalogo.filter((p) => p.tipo === tabTipo.value)))
-    const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, logoSrc: d.producto.logoURL })))
+    const CAT_DE_TIPO = { CFD: 'cfds', Futuro: 'futuros', Opción: 'opciones', Warrant: 'warrants' }
+    const mercadoDe = (tipo) => d.derivados.categorias.find((c) => c.id === CAT_DE_TIPO[tipo])?.mercado
+    const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, market: mercadoDe(p.tipo)?.name, marketFlag: mercadoDe(p.tipo)?.flag, logoSrc: d.producto.logoURL })))
     const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
     const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
     const tabTexto = `Productos de ${nombreEmpresa}`

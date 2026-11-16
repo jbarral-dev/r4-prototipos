@@ -40,9 +40,11 @@ export default defineComponent({
       return v.startsWith('-') || v.startsWith('−') ? 'is-negative' : 'is-positive'
     })
     const marketVisible = computed(() => (props.showMarket === undefined ? !props.showPrice : props.showMarket) && !!props.market)
+    // Metadatos de la derecha (size large), los del R4PageTitleProduct de derivados (Figma 1176:5857): «Garantía: 20%» · bandera + mercado. showMarket=false oculta el mercado
+    const infoMarket = computed(() => props.showMarket !== false && !!props.market)
     const priceVisible = computed(() => props.showPrice && !!props.price)
     const onAction = (e) => emit('action', { name: props.name, href: props.href, event: e })
-    return { variationClass, marketVisible, priceVisible, onAction }
+    return { variationClass, marketVisible, infoMarket, priceVisible, onAction }
   },
   template: `
     <li class="r4-productitem" :class="{ 'has-divider': showDivider }">
@@ -53,7 +55,10 @@ export default defineComponent({
           <a class="r4-productitem__name" :href="href" @click="$emit('select', $event)">{{ name }}</a>
           <span v-if="meta.length" class="r4-productitem__meta"><span v-for="(m, i) in meta" :key="i">{{ m }}</span></span>
         </div>
-        <span v-if="meta.length" class="r4-productitem__info" :class="{ 'has-next': priceVisible || marketVisible }" aria-hidden="true"><span v-for="(m, i) in meta" :key="i">{{ m }}</span></span>
+        <span v-if="meta.length || infoMarket" class="r4-productitem__info" aria-hidden="true">
+          <span v-if="meta.length">{{ meta.join(' ') }}</span>
+          <span v-if="infoMarket" class="r4-productitem__infomarket"><Icon v-if="marketFlag" :name="marketFlag" /><span>{{ market }}</span></span>
+        </span>
         <div v-if="priceVisible" class="r4-productitem__right">
           <span class="r4-productitem__price">{{ price }}</span>
           <span v-if="variation" class="r4-productitem__variation" :class="variationClass">{{ variation }}</span>
