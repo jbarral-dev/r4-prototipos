@@ -61,7 +61,7 @@ export default defineComponent({
     return { titleId, root, closeBtn, loading, onKeydown }
   },
   template: `
-    <Transition name="r4-ventana" :duration="200">
+    
       <div v-if="open" class="r4-ventana" @click.self="$emit('close')">
         <div ref="root" class="r4-ventana__dialog" role="dialog" aria-modal="true" :aria-labelledby="titleId" :aria-busy="loading ? 'true' : 'false'" @keydown="onKeydown">
           <h2 :id="titleId" class="r4-ventana__title">{{ title }}</h2>
@@ -72,6 +72,6 @@ export default defineComponent({
           </div>
         </div>
       </div>
-    </Transition>
+
   `,
 })

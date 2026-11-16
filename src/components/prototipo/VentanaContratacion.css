@@ -16,6 +16,7 @@
 @container r4page (max-width: 599px) { .r4-ventana { padding: var(--spacing-3); } }
 @media (max-width: 599px) { .r4-ventana { padding: var(--spacing-3); } }
 
-.r4-ventana-enter-active, .r4-ventana-leave-active { transition: opacity 0.2s ease; }
-.r4-ventana-enter-from, .r4-ventana-leave-to { opacity: 0; }
-@media (prefers-reduced-motion: reduce) { .r4-ventana-enter-active, .r4-ventana-leave-active { transition: none; } }
+/* Aparece con un fundido (animación CSS, sin depender de <Transition>); al cerrar se retira al instante */
+.r4-ventana { animation: r4-ventana-in 0.2s ease; }
+@keyframes r4-ventana-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .r4-ventana { animation: none; } }
