@@ -12,6 +12,8 @@ const rng = (seed) => () => { // mulberry32
 
 const VENCIMIENTOS_OPCIONES = [{ f: '16/12/26', meses: 1 }, { f: '19/03/27', meses: 4 }, { f: '18/06/27', meses: 7 }, { f: '17/09/27', meses: 10 }]
 const VENCIMIENTOS_WARRANTS = [{ f: '20/11/26', meses: 0.3 }, { f: '19/02/27', meses: 3 }, { f: '21/05/27', meses: 6 }, { f: '20/08/27', meses: 9 }]
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+const mesAnio = (f) => { const [, m, a] = f.split('/'); return MESES[+m - 1] + ' 20' + a } // '19/03/27' -> 'Mar 2027'
 const STRIKES = [20, 21, 22, 23, 24, 25]
 const FUTUROS = [['Dic-26', '18/12/26'], ['Mar-27', '19/03/27'], ['Jun-27', '18/06/27'], ['Sep-27', '17/09/27'], ['Dic-27', '17/12/27'], ['Mar-28', '17/03/28'], ['Jun-28', '16/06/28'], ['Sep-28', '15/09/28'], ['Dic-28', '15/12/28'], ['Mar-29', '16/03/29']]
 
@@ -25,9 +27,9 @@ export const crearCatalogo = (spot, nombre = 'Iberdrola') => {
   const r = rng(2026)
   const variacion = () => fmt1.format((r() - 0.5) * 16) + '%'
   const out = []
-  out.push({ tipo: 'CFD', name: `CFD de ${nombre.toUpperCase()}`, meta: ['Garantía:', '20%'], price: eur(spot), variation: '-2,56%' })
-  FUTUROS.forEach(([etiqueta, fecha], i) => out.push({ tipo: 'Futuro', name: `Futuro ${nombre} ${etiqueta}`, meta: ['Vence', fecha], price: eur(spot * (1 + 0.006 * (i + 1))), variation: variacion() }))
-  ;[true, false].forEach((call) => VENCIMIENTOS_OPCIONES.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Opción', name: `${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(prima(spot, k, v.meses, call)), variation: variacion() }))))
-  ;[true, false].forEach((call) => VENCIMIENTOS_WARRANTS.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Warrant', name: `Warrant ${nombre} ${call ? 'Call' : 'Put'} ${k} €`, meta: ['Vence', v.f], price: eur(Math.max(prima(spot, k, v.meses, call) / 10, 0.01)), variation: variacion() }))))
+  out.push({ tipo: 'CFD', name: `CFD ${nombre.toUpperCase()}`, meta: ['Garantía: 20%'], price: eur(spot), variation: '-2,56%' })
+  FUTUROS.forEach(([etiqueta, fecha], i) => out.push({ tipo: 'Futuro', name: `Futuro ${nombre.toUpperCase()}`, meta: ['Entregas', mesAnio(fecha)], price: eur(spot * (1 + 0.006 * (i + 1))), variation: variacion() }))
+  ;[true, false].forEach((call) => VENCIMIENTOS_OPCIONES.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Opción', name: `${call ? 'Call' : 'Put'} ${nombre.toUpperCase()}`, meta: [`${k}€`, mesAnio(v.f)], price: eur(prima(spot, k, v.meses, call)), variation: variacion() }))))
+  ;[true, false].forEach((call) => VENCIMIENTOS_WARRANTS.forEach((v) => STRIKES.forEach((k) => out.push({ tipo: 'Warrant', name: `Warrant ${call ? 'Call' : 'Put'} ${nombre.toUpperCase()}`, meta: [`${k}€`, mesAnio(v.f)], price: eur(Math.max(prima(spot, k, v.meses, call) / 10, 0.01)), variation: variacion() }))))
   return out
 }

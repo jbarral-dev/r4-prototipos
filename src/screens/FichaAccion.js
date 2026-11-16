@@ -131,7 +131,7 @@ export default defineComponent({
       { field: 'price', header: 'Precio', align: 'right', width: '12%' },
       { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '8%' },
     ]
-    const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' ') })))
+    const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' · ') })))
     const variacionTabla = (v) => String(v).replace(/\s*%\s*$/, ' %') // en la tabla siempre hay un espacio entre la cifra y el %
     const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')
     const elegirTipoTab =(id) => { tabTipo.value = id; tabVisibles.value = PASO }
@@ -185,6 +185,7 @@ export default defineComponent({
     const onKey = (e) => { if (e.key === 'Escape') { closePopover(); closeCaife() } }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey); window.addEventListener('hashchange', onHashChange) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); window.removeEventListener('hashchange', onHashChange) })
+    const onTitleAction = (a) => { if (a.label === 'Comparar') setTimeout(() => gr.open('compare')) } // «Comparar» del menú de elipsis abre el mismo comparador que el chip del gráfico
     const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
 
     // Controles del gráfico (Comparar · Configurar · tipo de gráfico): estado y reglas en _graficoEstado.js
@@ -199,7 +200,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { onTitleAction, variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -215,7 +216,7 @@ export default defineComponent({
       </R4Wrapper>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w1">
-        <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" />
+        <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" @action="onTitleAction" />
       </R4Wrapper>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w2">

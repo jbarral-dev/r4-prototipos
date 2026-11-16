@@ -55,13 +55,13 @@ export default defineComponent({
           <a class="r4-productitem__name" :href="href" @click="$emit('select', $event)">{{ name }}</a>
           <span v-if="meta.length" class="r4-productitem__meta"><span v-for="(m, i) in meta" :key="i">{{ m }}</span></span>
         </div>
-        <span v-if="meta.length || infoMarket" class="r4-productitem__info" aria-hidden="true">
-          <span v-if="meta.length">{{ meta.join(' ') }}</span>
+        <span v-if="meta.length || infoMarket" class="r4-productitem__info" :class="{ 'has-next': priceVisible }" aria-hidden="true">
+          <span v-for="(m, i) in meta" :key="i">{{ m }}</span>
           <span v-if="infoMarket" class="r4-productitem__infomarket"><Icon v-if="marketFlag" :name="marketFlag" /><span>{{ market }}</span></span>
         </span>
         <div v-if="priceVisible" class="r4-productitem__right">
-          <span class="r4-productitem__price">{{ price }}</span>
           <span v-if="variation" class="r4-productitem__variation" :class="variationClass">{{ variation }}</span>
+          <span class="r4-productitem__price">{{ price }}</span>
         </div>
         <div v-else-if="marketVisible" class="r4-productitem__market"><Icon v-if="marketFlag" :name="marketFlag" /><span>{{ market }}</span></div>
         <R4Button v-if="showAction" class="r4-productitem__action" type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + name" @click="onAction" />

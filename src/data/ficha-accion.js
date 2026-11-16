@@ -23,7 +23,7 @@ export const accion = {
     ],
     ctaText: 'Contratar',
     // En la doc de R4PageTitleProduct la única acción restante de Acciones es «Configurar tiempo real»
-    secondaryActions: [{ label: 'Configurar tiempo real', icon: 'ic-clock', showLink: false }],
+    secondaryActions: [{ label: 'Comparar', icon: 'ic-balance-scale', showLink: false }, { label: 'Configurar tiempo real', icon: 'ic-clock', showLink: false }],
   },
 
   // Caja de riesgo (_RiskBox): «6 / 6» en el Figma de la ficha de acción (el mismo 6/6 de la fila «Riesgo» del Resumen)
@@ -73,19 +73,19 @@ export const accion = {
       { id: 'warrants', label: 'Warrants (48)', mercado: { name: 'BME', flag: 'flag-spain' } },
     ],
     items: {
-      cfds: [{ name: 'CFD de IBERDROLA', meta: ['Garantía:', '20%'], price: '23,35 €', variation: '-2,56%' }],
+      cfds: [{ name: 'CFD IBERDROLA', meta: ['Garantía: 20%'], price: '23,35 €', variation: '-2,56%' }],
       futuros: [ // (inventado: el Figma de la acción solo muestra CFDs y opciones)
-        { name: 'Futuro Iberdrola Dic-26', meta: ['Vence', '18/12/26'], price: '20,52 €', variation: '+0,6%', action: true },
-        { name: 'Futuro Iberdrola Mar-27', meta: ['Vence', '19/03/27'], price: '20,61 €', variation: '+0,5%', action: true },
+        { name: 'Futuro IBERDROLA', meta: ['Entregas', 'Dic 2026'], price: '20,52 €', variation: '+0,6%', action: true },
+        { name: 'Futuro IBERDROLA', meta: ['Entregas', 'Mar 2027'], price: '20,61 €', variation: '+0,5%', action: true },
       ],
       opciones: [
-        { name: 'Iberdrola Call 80 €', meta: ['Vence', '16/10/26'], price: '4,10 €', variation: '+2,5%', action: true },
-        { name: 'Iberdrola Call 80 €', meta: ['Vence', '16/10/26'], price: '1,60 €', variation: '-3,1%', action: true },
-        { name: 'Iberdrola Call 80 €', meta: ['Vence', '16/10/26'], price: '0,45 €', variation: '-8,0%', action: true },
-        { name: 'Iberdrola Call 80 €', meta: ['Vence', '16/10/26'], price: '1,20 €', variation: '-4,0%', action: true },
+        { name: 'Call IBERDROLA', meta: ['21€', 'Mar 2028'], price: '4,10 €', variation: '+2,5%', action: true },
+        { name: 'Call IBERDROLA', meta: ['22€', 'Mar 2028'], price: '1,60 €', variation: '-3,1%', action: true },
+        { name: 'Call IBERDROLA', meta: ['23€', 'Mar 2028'], price: '0,45 €', variation: '-8,0%', action: true },
+        { name: 'Call IBERDROLA', meta: ['24€', 'Mar 2028'], price: '1,20 €', variation: '-4,0%', action: true },
       ],
       warrants: [ // (inventado)
-        { name: 'Warrant Iberdrola Put 18 €', meta: ['Vence', '20/11/26'], price: '0,32 €', variation: '+1,2%', action: true },
+        { name: 'Warrant Put IBERDROLA', meta: ['18€', 'Nov 2026'], price: '0,32 €', variation: '+1,2%', action: true },
       ],
     },
     verTodos: { opciones: 'Ver todas las opciones' },
@@ -101,7 +101,7 @@ export const accion = {
   ],
 
   // (precio de XETRA inventado, coherente con el de BME)
-  otrosMercados: [{ logo: 'flag-germany', name: 'XETRA', meta: ['Vol.:', '10.975'], price: '23,33 €', variation: '+0,79%' }],
+  otrosMercados: [{ logo: 'flag-germany', name: 'XETRA', meta: ['Vol.: 10.975'], price: '23,33 €', variation: '+0,79%' }],
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------

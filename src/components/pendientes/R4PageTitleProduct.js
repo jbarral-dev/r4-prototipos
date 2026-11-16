@@ -39,7 +39,7 @@ export default defineComponent({
     priceTarget: { type: Object, default: undefined }, // { label, value, recommendation }
     favourite: { type: Boolean, default: false },
   },
-  emits: ['favourite', 'cta', 'visible-change'],
+  emits: ['favourite', 'cta', 'visible-change', 'action'],
   setup(props, { emit }) {
     const root = ref(null)
     const isFav = ref(props.favourite)
@@ -104,7 +104,7 @@ export default defineComponent({
             </div>
           </div>
           <div class="r4-pagetitleproduct__actions">
-            <ProductActionsMenu v-if="secondaryActions.length" :actions="secondaryActions" placement="down" />
+            <ProductActionsMenu v-if="secondaryActions.length" :actions="secondaryActions" placement="down" @action="$emit('action', $event)" />
             <R4Button type="primary" icon="ic-shopping-cart" :text="ctaText" @click="$emit('cta')" />
           </div>
         </div>
