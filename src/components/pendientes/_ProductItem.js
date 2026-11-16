@@ -9,6 +9,8 @@
 // Componente NUEVO de la prueba de «Productos relacionados» (no está en Figma, ni en Confluence ni en el catálogo): la parte de precio y variación se toma del diseño anterior de la fila de la ficha (precio body/m Bold text/subdued,
 // variación body/s SemiBold en chart/positive o chart/negative según el signo).
 // Props: name (obligatorio), meta (string[]), market y marketFlag (mercado: nombre y bandera, como el searchResultItem), price, variation, logo (nombre de icono, p. ej. una bandera en «En otros mercados») y logoSrc (URL del logotipo de la empresa: refuerza que son productos de ese emisor; mismo logo en todas las filas), href, showPrice, showMarket, showDivider, showAction (por defecto false).
+// showAction (Jon, 2026-11-16, Figma searchResultItem interaction=hover, size=large 2039:11260): en large (fila ≥ 480) el botón es una capa `actions` superpuesta a la derecha de la fila, visible solo en hover/foco, con fondo
+// surface/subtle, padding 12/4 y un R4Button primary medium CON texto «Contratar» y sin icono; en small (< 480) se mantiene el R4Button secondary solo icono, siempre visible. Hay dos botones en el DOM y el CSS deja solo uno (display:none).
 // Eventos: select; action ({ name, href, event }: el evento DOM va dentro del objeto) al pulsar «Contratar».
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -64,7 +66,10 @@ export default defineComponent({
           <span class="r4-productitem__price">{{ price }}</span>
         </div>
         <div v-else-if="marketVisible" class="r4-productitem__market"><Icon v-if="marketFlag" :name="marketFlag" /><span>{{ market }}</span></div>
-        <R4Button v-if="showAction" class="r4-productitem__action" type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + name" @click="onAction" />
+        <div v-if="showAction" class="r4-productitem__actions">
+          <R4Button class="r4-productitem__action r4-productitem__action--text" type="primary" size="medium" text="Contratar" :aria-label="'Contratar ' + name" @click="onAction" />
+          <R4Button class="r4-productitem__action r4-productitem__action--icon" type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + name" @click="onAction" />
+        </div>
       </div>
     </li>
   `,

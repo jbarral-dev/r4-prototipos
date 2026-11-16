@@ -61,23 +61,37 @@
 .r4-productitem__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
 @container r4page (max-width: 599px) { .r4-productitem__market { color: var(--text-subdued); } }
 
-/* Botón «Contratar» (showAction): R4Button secondary SOLO con icono en todos los anchos (Jon, 2026-11-14); nombre accesible «Contratar {name}». Por encima del enlace estirado para que pulsarlo no navegue */
-.r4-productitem .r4-productitem__action.r4-button { position: relative; z-index: 1; flex: none; }
+/* Botón «Contratar» (showAction; Jon, 2026-11-14 y 2026-11-16). Nombre accesible «Contratar {name}». Por encima del enlace estirado (z-index:1) para que pulsarlo no navegue.
+   Hay dos botones y el CSS deja uno solo (el otro es display:none, fuera del árbol de accesibilidad):
+   · size = small (fila < 480): R4Button secondary SOLO icono, siempre visible, al final del contenido.
+   · size = large (fila ≥ 480; Figma searchResultItem interaction=hover, size=large 2039:11260): capa `actions` superpuesta a la derecha de la fila, con fondo surface/subtle (tapa lo que haya debajo,
+     p. ej. los metadatos), padding 12 a la izquierda y 4 a la derecha, gap 8, y un R4Button primary medium con texto «Contratar» y sin icono. Solo se ve en el hover de la fila; el foco de teclado también la muestra.
+     Se oculta con opacity (no display) para que el botón siga siendo enfocable. En pantallas sin hover (táctiles) queda siempre visible. No empuja el contenido: es absoluta y deja libre el divisor inferior. */
+.r4-productitem__actions { position: relative; z-index: 1; display: flex; flex: none; align-items: center; }
+.r4-productitem .r4-productitem__action.r4-button { flex: none; }
+.r4-productitem .r4-productitem__action--text { display: none; }
 
-/* size = large (fila ≥ 480; Jon, 2026-11-16): «Contratar» solo se ve en el hover de la fila, como el estado interaction=hover de searchResultItem (1117:20355).
-   Sigue ocupando su sitio (opacity, no display) para que la fila no se mueva al pasar el ratón; el foco de teclado dentro de la fila también lo muestra.
-   En pantallas sin hover (táctiles) no hay forma de «pasar por encima»: ahí se deja siempre visible. En small (< 480) también es siempre visible. */
 @container (min-width: 480px) {
-  .r4-productitem .r4-productitem__action.r4-button { opacity: 0; pointer-events: none; }
-  .r4-productitem:hover .r4-productitem__action.r4-button,
-  .r4-productitem:focus-within .r4-productitem__action.r4-button { opacity: 1; pointer-events: auto; }
+  .r4-productitem .r4-productitem__action--icon { display: none; }
+  .r4-productitem .r4-productitem__action--text { display: flex; }
+  .r4-productitem__actions {
+    position: absolute; inset-block: 0 var(--r4-line-width); inset-inline-end: 0;
+    justify-content: flex-end; gap: var(--spacing-2);
+    padding-inline: var(--spacing-3) var(--spacing-1);
+    background: var(--surface-subtle);
+    opacity: 0; pointer-events: none;
+  }
+  .r4-productitem:hover .r4-productitem__actions,
+  .r4-productitem:focus-within .r4-productitem__actions { opacity: 1; pointer-events: auto; }
+  /* El texto del botón es body/s Bold (14/20) en Figma; el R4Button medium reconstruido usa body/m (16/24): discrepancia, se ajusta aquí solo para esta capa */
+  .r4-productitem__action--text { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-bold); }
+  .r4-productitem__action--text .r4-button__text { line-height: var(--line-height-body-s); }
 }
 @media (hover: none) {
-  .r4-productitem .r4-productitem__action.r4-button { opacity: 1; pointer-events: auto; }
+  .r4-productitem__actions { opacity: 1; pointer-events: auto; }
 }
 
 /* size = small (fila < 480; Jon, 2026-11-16): el valor (precio) encima de la variación, ambos alineados a la derecha. El orden del DOM se mantiene (variación, precio); lo invierte column-reverse */
 @container (max-width: 479px) {
   .r4-productitem__right { flex-direction: column-reverse; align-items: flex-end; gap: 0; }
 }
-
