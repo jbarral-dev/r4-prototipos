@@ -1,0 +1,21 @@
+/*
+ * VentanaContratacion (herramienta del prototipo): velo = --r4-scrim (negro al 50 %, como el overlay de R4Modal) y ventana a casi toda la pantalla (margen spacing/6; spacing/3 en mobile) con superficie
+ * surface/default, radio radius/sm y sombra de popover. Título solo accesible (la captura ya lleva el suyo); aspa arriba a la derecha sobre la captura. El cuerpo hace scroll si la captura no cabe.
+ */
+.r4-ventana { position: fixed; inset: 0; z-index: 400; display: flex; align-items: stretch; justify-content: stretch; padding: var(--spacing-6); background: var(--r4-scrim); }
+.r4-ventana__dialog { position: relative; display: flex; flex: 1 1 auto; min-width: 0; flex-direction: column; overflow: hidden; border-radius: var(--radius-sm); background: var(--surface-default); box-shadow: 0 var(--spacing-1) var(--spacing-4) color-mix(in srgb, var(--color-neutral-black) 12%, transparent); }
+.r4-ventana__title { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.r4-ventana__close { position: absolute; top: var(--spacing-2); right: var(--spacing-2); z-index: 1; display: flex; align-items: center; justify-content: center; width: var(--component-button-size-large); height: var(--component-button-size-large); padding: 0; border: 0; border-radius: var(--radius-full); background: var(--surface-default); color: var(--text-default); cursor: pointer; box-shadow: 0 0 0 1px var(--border-subtle); }
+.r4-ventana__close:hover { background: var(--surface-subtle); }
+.r4-ventana__close:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-ventana__close .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+.r4-ventana__body { flex: 1 1 auto; min-height: 0; overflow: auto; }
+.r4-ventana__body:focus-visible { outline: 0; box-shadow: inset var(--effect-card-focus-outline); }
+.r4-ventana__loading { display: flex; align-items: center; justify-content: center; height: 100%; }
+.r4-ventana__img { display: block; width: 100%; height: auto; }
+@container r4page (max-width: 599px) { .r4-ventana { padding: var(--spacing-3); } }
+@media (max-width: 599px) { .r4-ventana { padding: var(--spacing-3); } }
+
+.r4-ventana-enter-active, .r4-ventana-leave-active { transition: opacity 0.2s ease; }
+.r4-ventana-enter-from, .r4-ventana-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .r4-ventana-enter-active, .r4-ventana-leave-active { transition: none; } }

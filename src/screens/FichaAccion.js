@@ -50,6 +50,7 @@ import { iconComponent } from '../icons/_Icon.js'
 import { accion, graficoControles } from '../data/ficha-accion.js'
 import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
+import VentanaContratacion from '../components/prototipo/VentanaContratacion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
@@ -70,7 +71,7 @@ export default defineComponent({
   props: { searchIcon: { type: String, default: undefined }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
   directives: { dragScroll },
   components: {
-    Facilitador,
+    Facilitador, VentanaContratacion,
     R4Title, R4Table,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
@@ -185,6 +186,8 @@ export default defineComponent({
     const onKey = (e) => { if (e.key === 'Escape') { closePopover(); closeCaife() } }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey); window.addEventListener('hashchange', onHashChange) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); window.removeEventListener('hashchange', onHashChange) })
+    const contratacionOpen = ref(false) // ventana de contratación (prototipo): spinner de 1 s y captura de la web actual
+    const contratar = () => { contratacionOpen.value = true }
     const onTitleAction = (a) => { if (a.label === 'Comparar') setTimeout(() => gr.open('compare')) } // «Comparar» del menú de elipsis abre el mismo comparador que el chip del gráfico
     const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
 
@@ -200,7 +203,7 @@ export default defineComponent({
       ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
       : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
 
-    return { onTitleAction, variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+    return { contratacionOpen, contratar, onTitleAction, variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
   },
   template: `
     <TemplateDetail header-sticky="main">
@@ -208,7 +211,7 @@ export default defineComponent({
         <Menu type="default" :client="caso.usuario" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
-        <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" />
+        <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" @cta="contratar" />
       </template>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w0">
@@ -216,7 +219,7 @@ export default defineComponent({
       </R4Wrapper>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w1">
-        <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" @action="onTitleAction" />
+        <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" @action="onTitleAction" @cta="contratar" />
       </R4Wrapper>
 
       <R4Wrapper density="compact" layout="12" class="ficha__w2">
@@ -293,7 +296,7 @@ export default defineComponent({
             <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
           </R4Stack>
           <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
-            <R4ProductList class="ficha__results" :items="tabItems" show-action aria-label="Productos relacionados" />
+            <R4ProductList class="ficha__results" :items="tabItems" show-action aria-label="Productos relacionados" @action="contratar" />
             <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
           </R4Section>
           <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabResumen }}</p>
@@ -308,7 +311,7 @@ export default defineComponent({
               <template #body-name="{ data }"><span class="ficha__tabla-nombre"><img class="ficha__tabla-logo" :src="d.producto.logoURL" alt="" /><a class="ficha__tabla-link" href="#">{{ data.name }}</a></span></template>
               <template #body-tipo="{ data }"><R4Tag color="blue" size="small" :text="data.tipo" /></template>
               <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ variacionTabla(data.variation) }}</span></template>
-              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + data.name" /></template>
+              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + data.name" @click="contratar" /></template>
             </R4Table>
           </R4Section>
         </R4Stack>
@@ -335,12 +338,13 @@ export default defineComponent({
       <template #dock>
         <R4ButtonDock>
           <ProductActionsMenu :actions="d.producto.secondaryActions" as-sheet @open="actionsSheetOpen = true" />
-          <R4Button type="primary" :text="d.producto.ctaText" />
+          <R4Button type="primary" :text="d.producto.ctaText" @click="contratar" />
         </R4ButtonDock>
       </template>
 
       <template #overlay>
         <slot name="overlay" />
+        <VentanaContratacion :open="contratacionOpen" @close="contratacionOpen = false" />
         <Facilitador v-if="facilitator" v-model:values="caso" :groups="FACILITADOR" />
         <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
           <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
