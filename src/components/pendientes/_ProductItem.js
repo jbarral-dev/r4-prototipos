@@ -53,6 +53,7 @@ export default defineComponent({
           <a class="r4-productitem__name" :href="href" @click="$emit('select', $event)">{{ name }}</a>
           <span v-if="meta.length" class="r4-productitem__meta"><span v-for="(m, i) in meta" :key="i">{{ m }}</span></span>
         </div>
+        <span v-if="meta.length" class="r4-productitem__info" :class="{ 'has-next': priceVisible || marketVisible }" aria-hidden="true"><span v-for="(m, i) in meta" :key="i">{{ m }}</span></span>
         <div v-if="priceVisible" class="r4-productitem__right">
           <span class="r4-productitem__price">{{ price }}</span>
           <span v-if="variation" class="r4-productitem__variation" :class="variationClass">{{ variation }}</span>

@@ -34,6 +34,18 @@
 
 .r4-productitem__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
 
+/* size = large (fila ≥ 480, como searchResultItem 1117:20355): los metadatos van a la derecha del nombre (body/s text/muted, «·» entre ellos, gap 8), no debajo; en small quedan bajo el nombre.
+   La copia de la derecha es aria-hidden (el lector de pantalla lee la de debajo del nombre, oculta visualmente en large) */
+.r4-productitem__info { display: none; flex: none; align-items: center; gap: var(--spacing-2); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); white-space: nowrap; }
+.r4-productitem__info { gap: var(--spacing-1); } /* los meta de producto son fragmentos de una misma frase («Vence» «18/12/26»): sin «·» entre ellos */
+.r4-productitem__info.has-next > span:last-child::after { content: none; }
+@container (min-width: 480px) {
+  .r4-productitem__info { display: flex; }
+  .r4-productitem__meta { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .r4-productitem__left { overflow: hidden; }
+  .r4-productitem__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
 .r4-productitem__right { display: flex; flex: none; flex-direction: column; align-items: flex-end; justify-content: center; text-align: right; white-space: nowrap; }
 .r4-productitem__price { color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
 .r4-productitem__variation { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
