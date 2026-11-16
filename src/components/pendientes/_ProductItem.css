@@ -3,6 +3,7 @@
  * secundaria body/s text/muted con wrap) y columna derecha alineada a la derecha: precio body/m Bold text/subdued con variación body/s SemiBold (versión con precio) o el mercado, bandera + nombre en body/s text/muted (versión sin precio).
  * Hover: fondo surface/subtle; divisor inferior border/subtle, salvo en la última fila. Logo opcional de 32 (p. ej. bandera en «En otros mercados»). Un solo elemento interactivo: el nombre se estira sobre la fila.
  * Botón «Contratar» opcional (showAction, Jon 2026-11-14): R4Button secondary medium al final del contenido, por encima del enlace estirado (z-index:1); en mobile (≤ 599) solo icono.
+ * Jon, 2026-11-16: en large (≥ 480) el botón solo se muestra en hover/foco de la fila; en small (< 480) el precio va encima de la variación, alineados a la derecha.
  */
 .r4-productitem {
   container-type: inline-size;
@@ -62,4 +63,21 @@
 
 /* Botón «Contratar» (showAction): R4Button secondary SOLO con icono en todos los anchos (Jon, 2026-11-14); nombre accesible «Contratar {name}». Por encima del enlace estirado para que pulsarlo no navegue */
 .r4-productitem .r4-productitem__action.r4-button { position: relative; z-index: 1; flex: none; }
+
+/* size = large (fila ≥ 480; Jon, 2026-11-16): «Contratar» solo se ve en el hover de la fila, como el estado interaction=hover de searchResultItem (1117:20355).
+   Sigue ocupando su sitio (opacity, no display) para que la fila no se mueva al pasar el ratón; el foco de teclado dentro de la fila también lo muestra.
+   En pantallas sin hover (táctiles) no hay forma de «pasar por encima»: ahí se deja siempre visible. En small (< 480) también es siempre visible. */
+@container (min-width: 480px) {
+  .r4-productitem .r4-productitem__action.r4-button { opacity: 0; pointer-events: none; }
+  .r4-productitem:hover .r4-productitem__action.r4-button,
+  .r4-productitem:focus-within .r4-productitem__action.r4-button { opacity: 1; pointer-events: auto; }
+}
+@media (hover: none) {
+  .r4-productitem .r4-productitem__action.r4-button { opacity: 1; pointer-events: auto; }
+}
+
+/* size = small (fila < 480; Jon, 2026-11-16): el valor (precio) encima de la variación, ambos alineados a la derecha. El orden del DOM se mantiene (variación, precio); lo invierte column-reverse */
+@container (max-width: 479px) {
+  .r4-productitem__right { flex-direction: column-reverse; align-items: flex-end; gap: 0; }
+}
 
