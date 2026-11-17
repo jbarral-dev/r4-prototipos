@@ -5,7 +5,7 @@
 // Hace visible y corregible el modo: selector Resultados | Conversación (siempre que haya modo) + frase que explica por qué se activó + región aria-live que lo anuncia.
 // Patrón «Búsqueda y selección de elementos» (Confluence 3950968833): sin coincidencias → estado vacío que dice qué se buscó y ofrece salida (aquí, preguntar al asistente).
 import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
-import R4Tabs from './R4Tabs.js'
+import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
@@ -19,17 +19,11 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4BrandTypes, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'usearch-body-' + uid
-    const modeTabs = [
-      { label: 'Buscador', id: 'usearch-tab-search-' + uid, panelId: bodyId },
-      { label: 'Chat', id: 'usearch-tab-chat-' + uid, panelId: bodyId },
-    ]
-    const activeTab = computed(() => (props.api.mode === 'chat' ? 1 : 0))
-    const onTab = (i) => props.api.setMode(i === 1 ? 'chat' : 'search')
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
     const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.searchTerm))
@@ -66,17 +60,13 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
-      <div v-if="api.mode && !preguntaPendiente" class="usearch-panel__modebar">
-        <R4Tabs layout="fixed" :tabs="modeTabs" :active-tab="activeTab" aria-label="Modo de la consulta" @change="onTab" />
-      </div>
-
-      <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode && !preguntaPendiente ? 'tabpanel' : undefined" :aria-labelledby="api.mode && !preguntaPendiente ? modeTabs[activeTab].id : undefined">
+      <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
         <template v-if="vacio">
           <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
@@ -101,10 +91,6 @@ export default defineComponent({
             <section v-if="ayuda.length" class="usearch-panel__section" aria-label="Centro de ayuda">
               <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
-            <div class="usearch-panel__exit">
-              <span>¿No encuentras lo que buscas?</span>
-              <R4Button type="text" size="medium" icon="ic-comment-alt-dots" text="Pregúntaselo al asistente" @click="api.setMode('chat')" />
-            </div>
           </template>
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
@@ -128,15 +114,18 @@ export default defineComponent({
             </div>
           </div>
           <ol v-if="api.thread.length" class="usearch-panel__thread" aria-label="Conversación">
-            <li v-for="(m, i) in api.thread" :key="i" class="usearch-msg" :class="'usearch-msg--' + m.role">
-              <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
-              <p class="usearch-msg__text">{{ m.text }}</p>
-              <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+            <li v-for="(m, i) in api.thread" :key="i" class="usearch-row" :class="'usearch-row--' + m.role">
+              <R4BrandTypes v-if="m.role !== 'user'" class="usearch-row__logo" variant="Red" aria-hidden="true" />
+              <div class="usearch-msg" :class="'usearch-msg--' + m.role">
+                <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
+                <p class="usearch-msg__text">{{ m.text }}</p>
+                <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+              </div>
             </li>
-            <li v-if="api.pending" class="usearch-msg usearch-msg--assistant usearch-msg--pending" aria-live="polite"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></li>
+            <li v-if="api.pending" class="usearch-row usearch-row--assistant" aria-live="polite"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></li>
           </ol>
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
-            <li class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></li>
+            <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
       </div>

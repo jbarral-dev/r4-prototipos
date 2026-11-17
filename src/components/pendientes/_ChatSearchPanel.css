@@ -18,8 +18,6 @@
 
 .csearch-thread { display: flex; flex-direction: column; gap: var(--spacing-3); margin: 0; padding: 0; list-style: none; }
 .csearch-turn { display: flex; flex-direction: column; }
-.csearch-turn--user .usearch-msg { align-self: flex-end; }
-.csearch-turn--assistant .usearch-msg { align-self: flex-start; }
 
 /* Respuesta con resultados: ocupa todo el ancho, sin burbuja (la fila de resultado ya es una superficie interactiva) */
 .csearch-turn--results { gap: var(--spacing-2); }

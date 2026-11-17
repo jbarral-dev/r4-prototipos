@@ -5,6 +5,7 @@
 // al enviar el primer mensaje, conversación con el prompt fijo abajo. Las respuestas del asistente son texto o una lista de resultados (mismo _SearchResultItem que el buscador).
 // Accesibilidad: región aria-live que anuncia cada respuesta; la conversación es una lista con nombre; la caja del prompt tiene aria-label y el botón de enviar también.
 import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
+import R4BrandTypes from './R4BrandTypes.js'
 import R4Button from './R4Button.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import R4NavigationItems from './R4NavigationItems.js'
@@ -13,7 +14,7 @@ import R4SearchResults from './R4SearchResults.js'
 
 export default defineComponent({
   name: '_ChatSearchPanel',
-  components: { R4Button, R4InputTextarea, R4NavigationItems, R4SearchResults, SearchResultItem: _SearchResultItem },
+  components: { R4BrandTypes, R4Button,R4InputTextarea, R4NavigationItems, R4SearchResults, SearchResultItem: _SearchResultItem },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const body = ref(null)
@@ -69,10 +70,13 @@ export default defineComponent({
         <ol class="csearch-thread" aria-label="Conversación">
           <li v-for="m in api.thread" :key="m.id" class="csearch-turn" :class="['csearch-turn--' + m.role, m.kind === 'results' ? 'csearch-turn--results' : '']">
             <template v-if="m.kind !== 'results'">
-              <div class="usearch-msg" :class="'usearch-msg--' + m.role">
-                <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
-                <p class="usearch-msg__text">{{ m.text }}</p>
-                <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+              <div class="usearch-row" :class="'usearch-row--' + m.role">
+                <R4BrandTypes v-if="m.role !== 'user'" class="usearch-row__logo" variant="Red" aria-hidden="true" />
+                <div class="usearch-msg" :class="'usearch-msg--' + m.role">
+                  <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
+                  <p class="usearch-msg__text">{{ m.text }}</p>
+                  <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+                </div>
               </div>
             </template>
             <template v-else>
@@ -86,7 +90,7 @@ export default defineComponent({
             </template>
           </li>
           <li v-if="api.pending" class="csearch-turn csearch-turn--assistant" aria-hidden="true">
-            <div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div>
+            <div class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></div>
           </li>
         </ol>
       </div>

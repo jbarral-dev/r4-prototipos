@@ -65,3 +65,10 @@ html.usearch-lock { overflow: hidden; }
 /* Campo + cierre (el cierre aparece solo con el campo disabled, es decir, con la conversación pintada). El campo mantiene SIEMPRE su alto: no se comprime aunque el contenido crezca. */
 .usearch__fieldrow { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
 .usearch__fieldrow .r4-inputsearch { flex: 1 1 0; min-width: 0; }
+/* Conversación: sin caja de búsqueda; solo el cierre, a la derecha (mismas medidas que el cierre de la cabecera del R4Sheet: 40) */
+.usearch__chatbar { display: flex; flex: none; justify-content: flex-end; }
+.usearch-mobile__bar.usearch__chatbar { padding: var(--spacing-2); }
+.usearch__chatclose { display: flex; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-default); cursor: pointer; }
+.usearch__chatclose:hover { background: var(--surface-subtle); }
+.usearch__chatclose .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.usearch__chatclose:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
