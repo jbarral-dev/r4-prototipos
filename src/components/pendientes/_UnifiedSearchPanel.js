@@ -63,6 +63,8 @@ export default defineComponent({
       promptEl.value?.focus()
     }
     watch(() => props.api.chatView, (v) => { if (v) enfocarPrompt() })
+    // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
+    const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
     const nuevoChat = () => { props.api.nuevoChat(); enfocarPrompt() }
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
@@ -81,7 +83,7 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, asistenteItems, onAsistente, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, asistenteItems, onAsistente, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat, preguntarLoEscrito }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
@@ -164,7 +166,7 @@ export default defineComponent({
       <!-- Barra inferior del autocompletado (Figma 11:8773): fija abajo en la capa, a todo el ancho y por encima del contenido -->
       <div v-if="mostrarFiltros" class="usearch-panel__bar">
         <R4Text size="small" class="usearch-panel__bar-text" text="¿No encuentras lo que buscas?" />
-        <R4Button type="secondary" size="large" width="full-width" icon="ic-comments-alt" text="Pregunta al asistente" @click="api.setMode('chat')" />
+        <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="preguntarLoEscrito" />
       </div>
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->

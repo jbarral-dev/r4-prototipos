@@ -54,8 +54,15 @@ export function crearEstado() {
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
-  const abrir = () => { if (!open.value) { open.value = true; anotar('abre panel') } }
-  const cerrar = () => { if (open.value) { open.value = false; limpiar(); anotar('cierra panel') } }
+  // Conversación en marcha (se mantiene al cerrar el panel): pinta el badge en la lupa de la cabecera y, al abrir, el panel reanuda ese chat. La activa el Facilitador o el propio usuario al cerrar con un chat empezado.
+  const convActiva = ref(null)
+  const hayConversacion = computed(() => !!convActiva.value)
+  const abrir = () => { if (!open.value) { open.value = true; anotar('abre panel'); if (convActiva.value) abrirConversacion(convActiva.value) } }
+  const cerrar = () => {
+    if (!open.value) return
+    if (chatView.value && thread.value.length) convActiva.value = convActual || { titulo: thread.value[0].text, thread: thread.value }
+    open.value = false; limpiar(); anotar('cierra panel')
+  }
 
   const enviar = () => {
     const text = query.value.trim()
@@ -84,10 +91,10 @@ export function crearEstado() {
 
   const nuevaConversacion = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
   // Acciones al final de la conversación: «Nuevo chat» (conversación vacía con el saludo y el prompt) · «Nueva búsqueda» (vuelve al campo vacío con las búsquedas y preguntas)
-  const nuevoChat = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; query.value = ''; prompt.value = ''; locked.value = 'chat'; anotar('nuevo chat') }
+  const nuevoChat = () => { convActiva.value = null; gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; query.value = ''; prompt.value = ''; locked.value = 'chat'; anotar('nuevo chat') }
   // «Pregunta al asistente» del estado inicial: lleva directo al chat (conversación vacía con el saludo y el prompt)
   const irAlChat = () => { locked.value = 'chat'; anotar('abre el chat', 'desde «Pregunta al asistente»') }
-  const nuevaBusqueda = () => { limpiar(); anotar('nueva búsqueda') }
+  const nuevaBusqueda = () => { convActiva.value = null; limpiar(); anotar('nueva búsqueda') }
   const usarTexto = (text, origen) => { query.value = text; abrir(); anotar('elige ' + origen, text) }
   const registrarBusqueda = (term) => { const k = norm(term); historial.busquedas = [term, ...historial.busquedas.filter((b) => norm(b) !== k)].slice(0, 4) }
   // Chip de «Búsquedas frecuentes» / «Últimas búsquedas»: mete el término en la caja y pinta el listado de resultados de esa consulta (el panel sigue abierto)
@@ -106,6 +113,8 @@ export function crearEstado() {
   // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas
   const conversacionEjemplo = (q) => ({ titulo: q, thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
   const partida = ref('nuevo') // use case cargado (el del Facilitador): «Reiniciar sesión» vuelve a él
+  // Facilitador «¿Conversación activa?»: sí = hay un chat de ejemplo en marcha; no = ninguno
+  const setConversacionActiva = (on) => { convActiva.value = on ? conversacionEjemplo('¿Cómo funcionan los planes de pensiones?') : null; anotar('conversación activa', on ? 'sí' : 'no') }
   const cargarEstado = (tipo) => {
     partida.value = tipo
     limpiar()
@@ -116,6 +125,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

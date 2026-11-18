@@ -7,10 +7,11 @@
 // Datos de ejemplo: src/data/buscador-unificado.js (casos de enrutado fijados, resultados y respuestas guionizadas). Panel del facilitador: abajo a la izquierda (se oculta con ?f=0).
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
-import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
+import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
+import R4Badge from '../components/pendientes/R4Badge.js'
 import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
@@ -18,7 +19,7 @@ import { crearEstado } from './_buscadorEstado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, Facilitador, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=historial`; el valor por defecto no ensucia la URL)
@@ -27,10 +28,14 @@ export default defineComponent({
         { value: 'nuevo', label: 'Entra por primera vez al chatbot', default: true },
         { value: 'historial', label: 'Ya ha entrado (tiene búsquedas y preguntas previas)' },
       ] }] },
+      { label: '¿Conversación activa?', controls: [{ id: 'conversacion', type: 'switch', label: 'Sí (badge en la lupa; al abrir, se reanuda el chat)', default: false }] },
     ]
     const caso = ref(valoresPorDefecto(FACILITADOR))
     api.cargarEstado(caso.value.usuario)
-    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value) }
+    if (caso.value.conversacion) api.setConversacionActiva(true)
+    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value); else if (id === 'conversacion') api.setConversacionActiva(value) }
+    // Si el usuario deja una conversación a medias (cierra el panel) o empieza otra, el interruptor del Facilitador sigue al estado real
+    watch(() => api.hayConversacion, (v) => { if (caso.value.conversacion !== v) { caso.value = { ...caso.value, conversacion: v }; escribirParam('conversacion', v ? 1 : 0, 0) } })
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige con ?c=popover (por defecto, Sheet side).
     const contenedor = ref(new URLSearchParams(location.search).get('c') === 'popover' ? 'popover' : 'sheet')
     const desktopField = ref(null)
@@ -67,10 +72,10 @@ export default defineComponent({
     return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
-    <FichaAccion search-icon="ic-search-ai" :facilitator="false" @search="api.abrir()">
+    <FichaAccion search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
       <template #search>
         <div class="usearch">
-          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /></button>
+          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="negative" /></button>
         </div>
       </template>
 
