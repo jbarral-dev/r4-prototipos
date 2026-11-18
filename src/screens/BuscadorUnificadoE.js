@@ -53,6 +53,7 @@ export default defineComponent({
       }
     }
     watch(() => api.open, (o) => { if (o) focusVisible() })
+    watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: vuelve el campo y recibe el foco
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
     const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facil, .facilitador'))) api.cerrar() }

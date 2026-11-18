@@ -21,7 +21,7 @@
 
 
 /* Desktop con R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que el panel haga scroll por dentro y el prompt quede abajo */
-.usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-3); margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4)); } /* +16 de aire entre la cabecera del Sheet y el campo */
+.usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-8); margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4)); } /* +16 de aire entre la cabecera del Sheet y el campo */
 .usearch-sheet__body .usearch-panel { flex: 1 1 0; }@container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet, .usearch-sheet .r4-sheet__scrim { display: none; } }
 
 /* Capa a pantalla completa: YA NO la usa el Enfoque buscador (en tablet y mobile va R4Sheet bottom); la conserva el Enfoque chat. Antes: (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
@@ -38,7 +38,9 @@
 html.usearch-lock { overflow: hidden; }
 
 /* Tablet y mobile (Enfoque buscador): R4Sheet bottom de alto completo (--r4-sheet-bottom-maxheight). El cuerpo ocupa el alto útil (alto - padding superior 80 - inferior 32) para que el panel haga scroll por dentro y el prompt quede abajo */
-.usearch-sheetbottom__body { display: flex; flex-direction: column; gap: var(--spacing-3); height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-8)); }
+.usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
+@supports (height: 1dvh) { .usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90dvh; } }
+.usearch-sheetbottom__body { display: flex; flex-direction: column; gap: var(--spacing-8); height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-8)); }
 .usearch-sheetbottom__body .usearch-panel { flex: 1 1 0; }
 @container r4page (min-width: 1024px) { .usearch-sheetbottom .r4-sheet, .usearch-sheetbottom .r4-sheet__scrim { display: none; } }
 

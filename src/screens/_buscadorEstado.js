@@ -81,6 +81,9 @@ export function crearEstado() {
   }
 
   const nuevaConversacion = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
+  // Acciones al final de la conversación: «Nuevo chat» (conversación vacía con el saludo y el prompt) · «Nueva búsqueda» (vuelve al campo vacío con las búsquedas y preguntas)
+  const nuevoChat = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; query.value = ''; prompt.value = ''; locked.value = 'chat'; anotar('nuevo chat') }
+  const nuevaBusqueda = () => { limpiar(); anotar('nueva búsqueda') }
   const usarTexto = (text, origen) => { query.value = text; abrir(); anotar('elige ' + origen, text) }
   const registrarBusqueda = (term) => { const k = norm(term); historial.busquedas = [term, ...historial.busquedas.filter((b) => norm(b) !== k)].slice(0, 4) }
   // Chip de «Búsquedas»: lleva a la ficha del primer resultado de esa búsqueda
@@ -109,6 +112,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
