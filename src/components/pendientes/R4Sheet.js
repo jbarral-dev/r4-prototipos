@@ -8,7 +8,7 @@
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
 // primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
 // Scroll (decisión de Jon): mientras haya un sheet visible abierto la página no hace scroll (clase r4-scroll-lock en <html>, contador compartido entre sheets).
-// Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-sheet-scrim, negro al 30 %, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
+// Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, negro al 30 %, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
 // (`.r4-sheet-layer`, display: contents) que recibe la class/style de la pantalla. Figma no define el velo: opacidad provisional (ver pending.css).
 // bottom/side los decide el CSS del contenedor en la ficha (la doc: bottom para móvil/tablet, side para escritorio): la pantalla monta una de cada y el CSS oculta la que no toca.
 import { defineComponent, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
