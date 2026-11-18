@@ -10,7 +10,7 @@
 
 .usearch-panel__body { display: flex; flex-direction: column; gap: var(--spacing-5); min-height: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; }
 .usearch-panel__start { display: flex; flex-direction: column; gap: var(--spacing-8); } /* estado inicial: bloques Búsquedas y Preguntas separados 32 */
-.usearch-panel__chat-actions { display: flex; flex-wrap: wrap; gap: var(--spacing-4); } /* «Nuevo chat» y «Nueva búsqueda»: 16 entre ellos */
+.usearch-panel__chat-actions { display: flex; justify-content: center; gap: var(--spacing-4); } /* «Nuevo chat» y «Nueva búsqueda»: 16 entre ellos */
 .usearch-panel__section { display: flex; flex-direction: column; gap: var(--spacing-2); }
 .usearch-panel__heading { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
 .usearch-panel__count { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
@@ -51,3 +51,7 @@
 .usearch-panel--chat { flex: 1 1 auto; }
 .usearch-panel--chat .usearch-panel__body { flex: 1 1 auto; min-height: calc(var(--spacing-16) * 4); }
 .usearch-panel__composer { flex: none; padding: var(--spacing-3) var(--spacing-1) var(--spacing-1); }
+
+/* Chat del Enfoque buscador (acotado a .usearch-panel: el Enfoque chat comparte las burbujas y no cambia) */
+.usearch-panel .usearch-msg--user { border-bottom-right-radius: 0; } /* la esquina inferior derecha de la burbuja del usuario, recta */
+.usearch-panel .usearch-row { gap: var(--spacing-2); } /* logotipo → burbuja: 8 */

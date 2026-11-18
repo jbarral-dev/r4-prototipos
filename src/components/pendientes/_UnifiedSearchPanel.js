@@ -129,8 +129,8 @@ export default defineComponent({
             <li v-if="api.pending" class="usearch-row usearch-row--assistant" aria-live="polite"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></li>
           </ol>
  <div v-if="mostrarAcciones" class="usearch-panel__chat-actions">
-            <R4Button type="secondary" size="medium" icon="ic-plus" text="Nuevo chat" @click="nuevoChat" />
-            <R4Button type="secondary" size="medium" icon="ic-search" text="Nueva búsqueda" @click="api.nuevaBusqueda()" />
+            <R4Button type="secondary" size="medium" width="full-width" icon="ic-plus" text="Nuevo chat" @click="nuevoChat" />
+            <R4Button type="secondary" size="medium" width="full-width" icon="ic-search" text="Nueva búsqueda" @click="api.nuevaBusqueda()" />
           </div>
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
             <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>

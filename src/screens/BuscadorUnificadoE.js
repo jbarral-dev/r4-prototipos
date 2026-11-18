@@ -15,7 +15,6 @@ import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
 import { crearEstado } from './_buscadorEstado.js'
-import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
@@ -32,14 +31,12 @@ export default defineComponent({
     const caso = ref(valoresPorDefecto(FACILITADOR))
     api.cargarEstado(caso.value.usuario)
     const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value) }
-    // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige en el facilitador o con ?c=sheet.
+    // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige con ?c=popover (por defecto, Sheet side).
     const contenedor = ref(new URLSearchParams(location.search).get('c') === 'popover' ? 'popover' : 'sheet')
     const desktopField = ref(null)
     const sheetField = ref(null)
     const trigger = ref(null)
     const mobileField = ref(null)
-    const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
-    const casos = Object.entries(casosFijos)
     const placeholder = 'Busca o pregunta'
     onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
 
@@ -56,7 +53,7 @@ export default defineComponent({
     watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: vuelve el campo y recibe el foco
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facil, .facilitador'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facilitador'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -67,7 +64,7 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
-    return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
+    return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion search-icon="ic-search-ai" :facilitator="false" @search="api.abrir()">
@@ -128,25 +125,6 @@ export default defineComponent({
 
         <Facilitador v-model:values="caso" :groups="FACILITADOR" @change="onCaso" />
 
-        <details v-if="mostrarFacilitador" class="facil">
-          <summary>Opciones y registro</summary>
-          <div class="facil__body">
-            <fieldset class="facil__group"><legend>Contenedor (desktop)</legend>
-              <label><input type="radio" value="popover" v-model="contenedor" /> R4Popover bajo el campo</label>
-              <label><input type="radio" value="sheet" v-model="contenedor" /> R4Sheet lateral (side)</label>
-            </fieldset>
-            <fieldset class="facil__group"><legend>Panel</legend>
-              <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Búsquedas y preguntas del estado inicial</label>
-            </fieldset>
-            <fieldset class="facil__group"><legend>Casos de enrutado fijados</legend>
-              <ul class="facil__cases"><li v-for="[k, c] in casos" :key="k"><button type="button" @click="api.usarTexto(k, 'caso del facilitador')"><b>{{ k }}</b> → {{ c.mode === 'chat' ? 'conversación' : 'resultados' }}<em v-if="c.fallo"> · fallo a propósito</em></button></li></ul>
-            </fieldset>
-            <fieldset class="facil__group"><legend>Registro ({{ api.log.length }})</legend>
-              <ol class="facil__log"><li v-for="(l, i) in api.log" :key="i"><span>{{ l.t }}s</span> <b>{{ l.evento }}</b> {{ l.detalle }}</li></ol>
-            </fieldset>
-            <button type="button" class="facil__reset" @click="api.reiniciar()">Reiniciar sesión</button>
-          </div>
-        </details>
       </template>
     </FichaAccion>
   `,
