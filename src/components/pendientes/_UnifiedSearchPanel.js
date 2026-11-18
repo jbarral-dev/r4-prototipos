@@ -39,12 +39,12 @@ export default defineComponent({
     // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
     const composer = ref(null)
     const promptEl = ref(null) // R4InputTextarea (crece con el texto; el botón de enviar queda abajo a la derecha)
-    // En la capa de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
+    // En el R4Sheet bottom de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
     watch(() => props.api.chatView, async (v) => {
       if (!v) return
       await nextTick()
-      const capa = promptEl.value?.$el?.closest('.usearch-mobile')
-      if (capa) { if (getComputedStyle(capa).display !== 'none') document.activeElement?.blur(); return }
+      const capa = promptEl.value?.$el?.closest('.usearch-sheetbottom')
+      if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
       promptEl.value?.focus()
     })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }

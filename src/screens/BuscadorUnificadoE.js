@@ -46,36 +46,25 @@ export default defineComponent({
     // Foco en el campo que se ve (el CSS oculta el otro por container query)
     const focusVisible = async () => {
       await nextTick()
-      if (contenedor.value === 'sheet') await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
+      await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
       for (const f of [mobileField.value, desktopField.value, sheetField.value]) {
         const el = f && f.$el
-        if (el && el.offsetParent !== null && getComputedStyle(el.closest('.usearch-mobile') || el).display !== 'none') { f.focus(); return }
+        if (el && el.getClientRects().length) { f.focus(); return }
       }
     }
     watch(() => api.open, (o) => { if (o) focusVisible() })
-    // Al abrir la capa de mobile se bloquea el scroll de la página de debajo
-    // (solo con la capa visible: en desktop quitar la barra de scroll desplazaba la página al abrir el popover)
-    watch(() => api.open, async (o) => {
-      await nextTick()
-      const capa = document.querySelector('.usearch-mobile')
-      document.documentElement.classList.toggle('usearch-lock', !!(o && capa && getComputedStyle(capa).display !== 'none'))
-    })
-
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .r4-sheet, .menu__compact-button, .facil, .facilitador'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facil, .facilitador'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
     const onFocusOut = (e) => { // Tab fuera del campo y del popover (desktop): cierra
       const host = e.currentTarget
-      if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile, .usearch')) api.cerrar()
+      if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.r4-sheet, .usearch')) api.cerrar()
     }
-    // Teclado nativo: la capa de mobile sigue al viewport visual (si no, queda por detrás del teclado y el final del contenido no se alcanza con scroll)
-    const vv = window.visualViewport
-    const ajustarVV = () => { const s = document.documentElement.style; s.setProperty('--usearch-vvh', vv.height + 'px'); s.setProperty('--usearch-vvt', vv.offsetTop + 'px') }
-    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
-    onBeforeUnmount(() => { if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
+    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
     return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
@@ -120,17 +109,19 @@ export default defineComponent({
           </R4Sheet>
         </div>
 
-        <Transition name="usearch-layer">
-          <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
-            <div v-if="!api.chatView" class="usearch-mobile__bar usearch__fieldrow">
-              <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
-                             @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-              </R4InputSearch>
+        <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
+        <div class="usearch-sheetbottom">
+          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheetbottom__body">
+              <div v-if="!api.chatView" class="usearch__fieldrow">
+                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                               @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+                </R4InputSearch>
+              </div>
+              <UnifiedSearchPanel :api="api" />
             </div>
-            <div v-else class="usearch-mobile__bar usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
-            <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
-          </div>
-        </Transition>
+          </R4Sheet>
+        </div>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
 
