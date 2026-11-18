@@ -12,6 +12,8 @@
   --component-avatar-size-small: var(--spacing-6);
   --component-avatar-size-extrasmall: var(--spacing-4);
   --component-badge-radius: var(--radius-full);
+  --component-badge-highlight-bg: var(--brand-secondary-default);
+  --component-badge-highlight-border: var(--border-inverse);
   --component-badge-negative-bg: var(--surface-page);
   --component-badge-negative-border: var(--border-inverse);
   --component-badge-positive-bg: var(--surface-inverse);

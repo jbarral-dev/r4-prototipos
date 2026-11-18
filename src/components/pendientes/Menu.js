@@ -116,7 +116,7 @@ export default defineComponent({
                 </nav>
               </div>
               <div class="menu__right">
-                <slot name="search"><button type="button" class="menu__search" :aria-label="searchBadge ? 'Buscar (conversación activa)' : 'Buscar'" @click="$emit('search')"><Icon :class="{ 'menu__search-ai': searchIcon }" :name="searchIcon || 'ic-search-24'" /><R4Badge v-if="searchBadge" class="menu__badge" tone="negative" /></button></slot>
+                <slot name="search"><button type="button" class="menu__search" :aria-label="searchBadge ? 'Buscar (conversación activa)' : 'Buscar'" @click="$emit('search')"><Icon :class="{ 'menu__search-ai': searchIcon }" :name="searchIcon || 'ic-search-24'" /><R4Badge v-if="searchBadge" class="menu__badge" tone="highlight" decorative /></button></slot>
                 <R4Button v-if="client !== 'potencial'" class="menu__cta" type="primary" size="large" icon="ic-plus-square" :text="ctaText" />
                 <R4Button v-if="client !== 'potencial'" class="menu__cta menu__cta--icon" type="primary" size="large" icon="ic-plus-square" :aria-label="ctaText" />
               </div>
@@ -137,7 +137,7 @@ export default defineComponent({
             <button type="button" class="menu__compact-button menu__compact-button--search" :aria-label="searchBadge ? 'Buscar (conversación activa)' : 'Buscar'" @click="$emit('search')">
               <Icon v-if="searchIcon" class="menu__icon-custom" :name="searchIcon" />
               <template v-else><Icon class="menu__icon-tablet" name="ic-search-24" /><Icon class="menu__icon-mobile" name="search" /></template>
-              <R4Badge v-if="searchBadge" class="menu__badge" tone="negative" />
+              <R4Badge v-if="searchBadge" class="menu__badge" tone="highlight" decorative />
             </button>
             <button type="button" class="menu__compact-button menu__compact-button--burger" :aria-label="menuOpen ? 'Cerrar menú' : 'Abrir menú'" :aria-expanded="menuOpen ? 'true' : 'false'" :aria-controls="menuControls" @click="$emit('menu')"><Icon :name="menuOpen ? 'ic-times-thin' : 'ic-bars'" /></button>
           </div>
