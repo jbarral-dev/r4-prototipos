@@ -30,7 +30,7 @@ export default defineComponent({
     const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
     const casos = Object.entries(casosFijos)
     const placeholder = 'Busca o pregunta'
-    onMounted(() => { document.title = 'Enfoque chat · Prototipo R4' })
+    onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
 
     // Foco en el campo que se ve (el CSS oculta el otro por container query)
     const focusVisible = async () => {
