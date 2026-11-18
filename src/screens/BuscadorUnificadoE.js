@@ -7,6 +7,7 @@
 // Datos de ejemplo: src/data/buscador-unificado.js (casos de enrutado fijados, resultados y respuestas guionizadas). Panel del facilitador: abajo a la izquierda (se oculta con ?f=0).
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
+import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
@@ -18,9 +19,19 @@ import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
+    // Use cases del prototipo (panel Facilitador, URL `?usuario=historial`; el valor por defecto no ensucia la URL)
+    const FACILITADOR = [
+      { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [
+        { value: 'nuevo', label: 'Entra por primera vez al chatbot', default: true },
+        { value: 'historial', label: 'Ya ha entrado (tiene búsquedas y preguntas previas)' },
+      ] }] },
+    ]
+    const caso = ref(valoresPorDefecto(FACILITADOR))
+    api.cargarEstado(caso.value.usuario)
+    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value) }
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige en el facilitador o con ?c=sheet.
     const contenedor = ref(new URLSearchParams(location.search).get('c') === 'popover' ? 'popover' : 'sheet')
     const desktopField = ref(null)
@@ -52,7 +63,7 @@ export default defineComponent({
 
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .r4-sheet, .menu__compact-button, .facil'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .usearch-mobile, .r4-sheet, .menu__compact-button, .facil, .facilitador'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -66,7 +77,7 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
     onBeforeUnmount(() => { if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
-    return { api, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
+    return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
   template: `
     <FichaAccion search-icon="ic-search-ai" :facilitator="false" @search="api.abrir()">
@@ -123,20 +134,17 @@ export default defineComponent({
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
 
+        <Facilitador v-model:values="caso" :groups="FACILITADOR" @change="onCaso" />
+
         <details v-if="mostrarFacilitador" class="facil">
-          <summary>Facilitador</summary>
+          <summary>Opciones y registro</summary>
           <div class="facil__body">
             <fieldset class="facil__group"><legend>Contenedor (desktop)</legend>
               <label><input type="radio" value="popover" v-model="contenedor" /> R4Popover bajo el campo</label>
               <label><input type="radio" value="sheet" v-model="contenedor" /> R4Sheet lateral (side)</label>
             </fieldset>
             <fieldset class="facil__group"><legend>Panel</legend>
-              <label><input type="checkbox" v-model="api.opciones.caption" /> Frase explicativa del campo vacío</label>
-              <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Recientes y preguntas de ejemplo</label>
-            </fieldset>
-            <fieldset class="facil__group"><legend>Estado de partida</legend>
-              <button type="button" class="facil__reset" @click="api.cargarEstado('nuevo')">Usuario que aún no ha interactuado</button>
-              <button type="button" class="facil__reset" @click="api.cargarEstado('historial')">Usuario que ya ha buscado y preguntado</button>
+              <label><input type="checkbox" v-model="api.opciones.ejemplos" /> Búsquedas y preguntas del estado inicial</label>
             </fieldset>
             <fieldset class="facil__group"><legend>Casos de enrutado fijados</legend>
               <ul class="facil__cases"><li v-for="[k, c] in casos" :key="k"><button type="button" @click="api.usarTexto(k, 'caso del facilitador')"><b>{{ k }}</b> → {{ c.mode === 'chat' ? 'conversación' : 'resultados' }}<em v-if="c.fallo"> · fallo a propósito</em></button></li></ul>

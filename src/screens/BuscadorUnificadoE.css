@@ -48,7 +48,7 @@ html.usearch-lock { overflow: hidden; }
 .buscador__toast { position: absolute; left: 50%; bottom: var(--spacing-8); transform: translateX(-50%); max-width: calc(100% - var(--spacing-8)); padding: var(--spacing-3) var(--spacing-5); border-radius: var(--radius-sm); background: var(--surface-inverse); color: var(--text-on-inverse); font-size: var(--size-body-s); line-height: var(--line-height-body-s); pointer-events: none; }
 
 /* Panel del facilitador (herramienta de la sesión, no forma parte del diseño) */
-.facil { position: absolute; left: var(--spacing-3); bottom: var(--spacing-3); z-index: 5; width: calc(var(--spacing-16) * 5); max-width: calc(100% - var(--spacing-6)); border: var(--r4-line-width) solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); pointer-events: auto; }
+.facil { position: absolute; left: var(--spacing-3); bottom: calc(var(--spacing-3) + var(--spacing-10)); z-index: 5; width: calc(var(--spacing-16) * 5); max-width: calc(100% - var(--spacing-6)); border: var(--r4-line-width) solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); pointer-events: auto; }
 .facil > summary { padding: var(--spacing-2) var(--spacing-3); cursor: pointer; font-weight: var(--font-weight-semibold); }
 .facil__body { display: flex; flex-direction: column; gap: var(--spacing-2); max-height: 60vh; padding: 0 var(--spacing-3) var(--spacing-3); overflow-y: auto; }
 .facil__group { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: var(--spacing-2); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); }
@@ -72,3 +72,6 @@ html.usearch-lock { overflow: hidden; }
 .usearch__chatclose:hover { background: var(--surface-subtle); }
 .usearch__chatclose .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
 .usearch__chatclose:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+/* El Facilitador estándar (use cases) ocupa abajo a la izquierda; el panel de opciones y registro va justo encima. En mobile el Facilitador sube (reserva el hueco del dock) y este con él */
+@container (max-width: 599px) { .facil { bottom: calc(var(--spacing-16) + var(--spacing-6) + var(--spacing-10)); } }

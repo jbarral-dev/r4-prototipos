@@ -24,7 +24,7 @@ export function crearEstado() {
   const historial = reactive({ busquedas: [], conversaciones: [] })
   let convActual = null // conversación del historial que se está pintando (los mensajes nuevos se añaden a ella)
   let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
-  const opciones = reactive({ ejemplos: true, caption: true })
+  const opciones = reactive({ ejemplos: true })
 
   const ruta = computed(() => enrutar(query.value))
   const mode = computed(() => locked.value || (thread.value.length ? 'chat' : ruta.value.mode)) // null = campo vacío sin conversación
@@ -95,16 +95,17 @@ export function crearEstado() {
     if (link.toast === '__resultados__') setMode('search')
     else { avisar(`Prototipo: ${link.toast}`); cerrar() }
   }
-  const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado('nuevo') }
+  const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado(partida.value) }
   // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas
   const conversacionEjemplo = (q) => ({ titulo: q, thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
+  const partida = ref('nuevo') // use case cargado (el del Facilitador): «Reiniciar sesión» vuelve a él
   const cargarEstado = (tipo) => {
+    partida.value = tipo
     limpiar()
     historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
     historial.conversaciones = tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
     anotar('estado de partida', tipo)
   }
-  if (new URLSearchParams(location.search).get('u') === 'historial') cargarEstado('historial')
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,

@@ -9,7 +9,6 @@ import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
-import R4Notification from './R4Notification.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
@@ -19,7 +18,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4BrandTypes, R4Chip, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -56,29 +55,31 @@ export default defineComponent({
       ? props.api.historial.conversaciones.map((c) => ({ texto: c.titulo, conv: c, icon: 'ic-history' }))
       : props.api.ejemplosPregunta.slice(0, 3).map((t) => ({ texto: t, icon: 'ic-comments-alt' }))))
     // Filas de «Preguntas»: R4NavigationItems (sin icono en caja ni flecha); `conv` / `texto` viajan en el ítem para saber qué abrir
+    // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
+    const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
+    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
     const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <div ref="body" class="usearch-panel__body" :id="bodyId">
-        <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
+        <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <template v-if="vacio">
-          <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
-            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas</h3>
+            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="usearch-panel__chips">
               <R4Chip v-for="b in busquedas" :key="b.texto" size="small" :label="b.texto" :icon="b.icon" @click="api.abrirBusqueda(b.texto)" />
             </div>
           </section>
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
-            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">Preguntas</h3>
-            <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="'Preguntas'" @select="onPregunta" />
+            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">{{ tituloPreguntas }}</h3>
+            <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
           </section>
         </template>
 
