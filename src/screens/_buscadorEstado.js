@@ -90,8 +90,8 @@ export function crearEstado() {
   const nuevaBusqueda = () => { limpiar(); anotar('nueva búsqueda') }
   const usarTexto = (text, origen) => { query.value = text; abrir(); anotar('elige ' + origen, text) }
   const registrarBusqueda = (term) => { const k = norm(term); historial.busquedas = [term, ...historial.busquedas.filter((b) => norm(b) !== k)].slice(0, 4) }
-  // Chip de «Búsquedas»: lleva a la ficha del primer resultado de esa búsqueda
-  const abrirBusqueda = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); const r = buscar(term)[0]; abrirResultado(r ? r.name : term) }
+  // Chip de «Búsquedas frecuentes» / «Últimas búsquedas»: mete el término en la caja y pinta el listado de resultados de esa consulta (el panel sigue abierto)
+  const buscarTermino = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); query.value = term }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
   const abrirConversacion = (conv) => { gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
@@ -116,6 +116,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
