@@ -82,7 +82,7 @@ export default defineComponent({
     return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat }
   },
   template: `
-    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
+    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
@@ -155,6 +155,12 @@ export default defineComponent({
             <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
+      </div>
+
+      <!-- Barra inferior del autocompletado (Figma 11:8773): fija abajo en la capa, a todo el ancho y por encima del contenido -->
+      <div v-if="mostrarFiltros" class="usearch-panel__bar">
+        <R4Text size="small" class="usearch-panel__bar-text" text="¿No encuentras lo que buscas?" />
+        <R4Button type="secondary" size="large" width="full-width" icon="ic-comments-alt" text="Pregunta al asistente" @click="api.setMode('chat')" />
       </div>
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->

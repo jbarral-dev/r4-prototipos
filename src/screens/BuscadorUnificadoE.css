@@ -38,7 +38,7 @@
 html.usearch-lock { overflow: hidden; }
 
 /* Tablet y mobile (Enfoque buscador): R4Sheet bottom de alto completo (--r4-sheet-bottom-maxheight). El cuerpo ocupa el alto útil (alto - padding superior 80 - inferior 32) para que el panel haga scroll por dentro y el prompt quede abajo */
-.usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
+.usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; --usearch-host-pad: var(--spacing-8); } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
 @supports (height: 1dvh) { .usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90dvh; } }
 .usearch-sheetbottom__body { display: flex; flex-direction: column; gap: var(--spacing-8); height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-8)); }
 .usearch-sheetbottom__body .usearch-panel { flex: 1 1 0; }
@@ -85,3 +85,7 @@ html.usearch-lock { overflow: hidden; }
 
 /* Filtros por tipo del autocompletado: a 24 de la caja de búsqueda (Figma), no a los 32 del resto de bloques */
 .usearch-sheet__body .usearch-panel__filters, .usearch-sheetbottom__body .usearch-panel__filters { margin-top: calc(var(--spacing-6) - var(--spacing-8)); }
+
+/* Padding inferior de cada contenedor (para reservar el hueco de la barra inferior del autocompletado): Sheet side 48 · popover 12 (bottom sheet: 32, arriba) */
+.usearch-sheet { --usearch-host-pad: var(--spacing-12); }
+.usearch-desk__pop { --usearch-host-pad: var(--spacing-3); }
