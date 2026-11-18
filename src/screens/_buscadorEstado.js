@@ -25,11 +25,13 @@ export function crearEstado() {
   let convActual = null // conversación del historial que se está pintando (los mensajes nuevos se añaden a ella)
   let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
   const opciones = reactive({ ejemplos: true })
+  const filtro = ref('todos') // chip de tipo activo en el autocompletado (Todos · Acciones · CFDs · Futuros · Fondos · Centro de ayuda)
 
   const ruta = computed(() => enrutar(query.value))
   const mode = computed(() => locked.value || (thread.value.length ? 'chat' : ruta.value.mode)) // null = campo vacío sin conversación
   const searchTerm = computed(() => query.value.trim() || lastSent.value)
   const results = computed(() => buscar(searchTerm.value))
+  const autocompletar = computed(() => searchTerm.value.trim().length >= 2) // el autocompletado (resultados + filtros) aparece con al menos 2 caracteres
   // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
   const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
   const auto = computed(() => !locked.value && !thread.value.length && !!ruta.value.mode)
@@ -48,7 +50,7 @@ export function crearEstado() {
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { gen++; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -111,7 +113,7 @@ export function crearEstado() {
   }
 
   return reactive({
-    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
+    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
     abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

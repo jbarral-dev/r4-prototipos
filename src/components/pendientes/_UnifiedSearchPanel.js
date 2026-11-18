@@ -9,6 +9,7 @@ import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
+import R4Text from './R4Text.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
@@ -18,16 +19,29 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4BrandTypes, R4Chip, R4Text, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'usearch-body-' + uid
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
-    const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.searchTerm))
-    const valores = computed(() => props.api.results.filter((r) => r.kind !== 'ayuda'))
-    const ayuda = computed(() => props.api.results.filter((r) => r.kind === 'ayuda'))
+    const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.autocompletar))
+    // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes)
+    const GRUPOS = [
+      { id: 'acciones', label: 'Acciones', test: (r) => r.type === 'Acción' },
+      { id: 'cfds', label: 'CFDs', test: (r) => r.type === 'CFD' },
+      { id: 'futuros', label: 'Futuros', test: (r) => r.type === 'Futuro' },
+      { id: 'fondos', label: 'Fondos', test: (r) => r.type === 'Fondo' || r.type === 'Plan de pensiones' },
+      { id: 'ayuda', label: 'Centro de ayuda', test: (r) => r.kind === 'ayuda' },
+    ]
+    const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
+    const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
+    const gruposVisibles = computed(() => grupos.value.filter((g) => filtroActivo.value === 'todos' || g.id === filtroActivo.value))
+    const mostrarFiltros = computed(() => !vacio.value && props.api.mode === 'search' && props.api.results.length > 0)
+    // Centro de ayuda: R4NavigationItems medium, solo la pregunta con ic-file y la flecha visible (sin descripción ni etiqueta)
+    const ayudaItems = (g) => g.items.map((r) => ({ title: r.name, icon: 'ic-file', linkHref: '#', showLink: true }))
+    const onAyuda = (it, e) => { e.preventDefault(); props.api.abrirResultado(it.title) }
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
@@ -64,12 +78,18 @@ export default defineComponent({
     const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
-    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat }
+    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
+
+      <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
+      <div v-if="mostrarFiltros" class="usearch-panel__filters" role="group" aria-label="Filtrar resultados por tipo">
+        <R4Chip size="small" label="Todos" :selected="filtroActivo === 'todos'" @click="api.filtro = 'todos'" />
+        <R4Chip v-for="g in grupos" :key="g.id" size="small" :label="g.label" :selected="filtroActivo === g.id" @click="api.filtro = g.id" />
+      </div>
 
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
@@ -88,14 +108,13 @@ export default defineComponent({
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
-          <template v-if="api.results.length">
-            <section v-if="valores.length" class="usearch-panel__section" aria-label="Resultados">
-              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in valores" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
+          <div v-if="api.results.length" class="usearch-panel__groups">
+            <section v-for="g in gruposVisibles" :key="g.id" class="usearch-panel__group" :aria-labelledby="'usearch-g-' + g.id + '-' + uid">
+              <R4Text :id="'usearch-g-' + g.id + '-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" :text="g.label + ' (' + g.items.length + ')'" />
+              <R4NavigationItems v-if="g.id === 'ayuda'" size="medium" :items="ayudaItems(g)" :icon-is-boxed="false" :aria-label="g.label" @select="onAyuda" />
+              <R4SearchResults v-else class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
-            <section v-if="ayuda.length" class="usearch-panel__section" aria-label="Centro de ayuda">
-              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
-            </section>
-          </template>
+          </div>
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
             <div class="usearch-panel__empty-texts">

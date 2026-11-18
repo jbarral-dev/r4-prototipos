@@ -10,7 +10,7 @@
 
 .usearch-panel__body { display: flex; flex-direction: column; gap: var(--spacing-5); min-height: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; }
 .usearch-panel__start { display: flex; flex-direction: column; gap: var(--spacing-8); } /* estado inicial: bloques Búsquedas y Preguntas separados 32 */
-.usearch-panel__chat-actions { display: flex; justify-content: center; gap: var(--spacing-4); } /* «Nuevo chat» y «Nueva búsqueda»: 16 entre ellos */
+.usearch-panel__chat-actions { display: flex; justify-content: center; gap: var(--spacing-4); margin-top: calc(var(--spacing-10) - var(--spacing-5)); } /* 40 desde la conversación (el cuerpo ya separa 20) */ /* «Nuevo chat» y «Nueva búsqueda»: 16 entre ellos */
 .usearch-panel__section { display: flex; flex-direction: column; gap: var(--spacing-2); }
 .usearch-panel__heading { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
 .usearch-panel__count { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
@@ -52,6 +52,15 @@
 .usearch-panel--chat .usearch-panel__body { flex: 1 1 auto; min-height: calc(var(--spacing-16) * 4); }
 .usearch-panel__composer { flex: none; padding: var(--spacing-3) var(--spacing-1) var(--spacing-1); }
 
-/* Chat del Enfoque buscador (acotado a .usearch-panel: el Enfoque chat comparte las burbujas y no cambia) */
-.usearch-panel .usearch-msg--user { border-bottom-right-radius: 0; } /* la esquina inferior derecha de la burbuja del usuario, recta */
-.usearch-panel .usearch-row { gap: var(--spacing-2); } /* logotipo → burbuja: 8 */
+/* Burbujas del chat (compartidas por los dos enfoques) */
+.usearch-msg--user { border-bottom-right-radius: 0; } /* la esquina inferior derecha de la burbuja del usuario, recta (las burbujas son las mismas en el Enfoque buscador y en el Enfoque chat) */
+.usearch-row { gap: var(--spacing-2); } /* logotipo → burbuja: 8 */
+
+/* Autocompletado agrupado por tipo (Figma «Proyectos - Chatbot», buscador-autocomplete--mb 11:8764): título de grupo (R4Text medium, muted) a 4 del listado; 20 entre grupos (24 desde desktop). */
+.usearch-panel__filters { flex: none; display: flex; gap: var(--spacing-2); padding-bottom: var(--spacing-6); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+.usearch-panel__filters::-webkit-scrollbar { display: none; }
+.usearch-panel__filters .r4-chip { flex: none; }
+.usearch-panel__groups { display: flex; flex-direction: column; gap: var(--spacing-5); }
+@container r4page (min-width: 1024px) { .usearch-panel__groups { gap: var(--spacing-6); } }
+.usearch-panel__group { display: flex; flex-direction: column; gap: var(--spacing-1); }
+.usearch-panel .usearch-panel__group-title { margin: 0; color: var(--text-muted); }

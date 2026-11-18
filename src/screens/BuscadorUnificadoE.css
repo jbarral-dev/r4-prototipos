@@ -82,3 +82,6 @@ html.usearch-lock { overflow: hidden; }
 
 /* El Facilitador estándar (use cases) ocupa abajo a la izquierda; el panel de opciones y registro va justo encima. En mobile el Facilitador sube (reserva el hueco del dock) y este con él */
 @container (max-width: 599px) { .facil { bottom: calc(var(--spacing-16) + var(--spacing-6) + var(--spacing-10)); } }
+
+/* Filtros por tipo del autocompletado: a 24 de la caja de búsqueda (Figma), no a los 32 del resto de bloques */
+.usearch-sheet__body .usearch-panel__filters, .usearch-sheetbottom__body .usearch-panel__filters { margin-top: calc(var(--spacing-6) - var(--spacing-8)); }
