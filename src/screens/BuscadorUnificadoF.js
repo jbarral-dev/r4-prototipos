@@ -22,7 +22,7 @@ export default defineComponent({
     const mostrarFacilitador = new URLSearchParams(location.search).get('f') !== '0'
     const casos = Object.entries(casosFijos)
     const placeholder = 'Busca o pregunta'
-    onMounted(() => { document.title = 'Buscador unificado · Variante F · Prototipo' })
+    onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
 
     // Foco en la caja del prompt que se ve (el CSS oculta la otra por container query). R4Sheet enfoca su botón de cierre al abrir: el prompt va después.
     const focusVisible = async () => {
