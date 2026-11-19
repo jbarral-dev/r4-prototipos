@@ -54,8 +54,8 @@ export default defineComponent({
         if (el && el.getClientRects().length) { f.focus(); return }
       }
     }
-    watch(() => api.open, (o) => { if (o) focusVisible() })
-    watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: vuelve el campo y recibe el foco
+    // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
+    watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: el usuario ya ha decidido buscar, así que el campo vuelve y recibe el foco
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
     const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facilitador'))) api.cerrar() }

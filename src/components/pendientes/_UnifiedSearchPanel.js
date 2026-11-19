@@ -62,7 +62,7 @@ export default defineComponent({
       if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
       promptEl.value?.focus()
     }
-    watch(() => props.api.chatView, (v) => { if (v) enfocarPrompt() })
+    watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
     // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
     const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
     const nuevoChat = () => { props.api.nuevoChat(); enfocarPrompt() }

@@ -57,7 +57,8 @@ export function crearEstado() {
   // Conversación en marcha (se mantiene al cerrar el panel): pinta el badge en la lupa de la cabecera y, al abrir, el panel reanuda ese chat. La activa el Facilitador o el propio usuario al cerrar con un chat empezado.
   const convActiva = ref(null)
   const hayConversacion = computed(() => !!convActiva.value)
-  const abrir = () => { if (!open.value) { open.value = true; anotar('abre panel'); if (convActiva.value) abrirConversacion(convActiva.value) } }
+  const abriendo = ref(false) // true un instante tras abrir: el panel no enfoca el prompt al reanudar un chat (la caja no recibe foco al abrir)
+  const abrir = () => { if (!open.value) { open.value = true; abriendo.value = true; setTimeout(() => { abriendo.value = false }, 600); anotar('abre panel'); if (convActiva.value) abrirConversacion(convActiva.value) } }
   const cerrar = () => {
     if (!open.value) return
     if (chatView.value && thread.value.length) convActiva.value = convActual || { titulo: thread.value[0].text, thread: thread.value }
@@ -125,6 +126,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, nuevoChat, nuevaBusqueda, irAlChat, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
