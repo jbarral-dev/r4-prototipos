@@ -9,10 +9,11 @@
 // secondary solo leída con content text e icon.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
+import R4Spinner from './R4Spinner.js'
 
 export default defineComponent({
   name: 'R4Button',
-  components: { Icon },
+  components: { Icon, R4Spinner },
   props: {
     type: { type: String, default: 'primary', validator: (v) => ['primary', 'secondary', 'text'].includes(v) },
     size: { type: String, default: 'large', validator: (v) => ['large', 'medium'].includes(v) },
@@ -21,19 +22,21 @@ export default defineComponent({
     pressed: { type: Boolean, default: false }, // extra: fuerza el estado pressed (botones que abren un popover/sheet y lo mantienen mientras está abierto)
     icon: { type: String, default: undefined }, // nombre del icono (componente de Figma). Obligatorio si no hay text
     text: { type: String, default: undefined }, // obligatorio si no hay icon
+    loading: { type: Boolean, default: false }, // extra (R4TableV2; NO está en Figma ni en Confluence: propuesta): el contenido se desvanece y un R4Spinner small centrado hace fadeIn/fadeOut (800 ms)
   },
   emits: ['click'],
   setup(props) {
     const content = computed(() => (props.icon && props.text ? 'iconAndText' : props.icon ? 'icon' : 'text'))
-    const classes = computed(() => ['r4-button', `r4-button--${props.type}`, `r4-button--${props.size}`, `r4-button--content-${content.value}`, { 'r4-button--full-width': props.width === 'full-width', 'r4-button--pressed': props.pressed }])
+    const classes = computed(() => ['r4-button', `r4-button--${props.type}`, `r4-button--${props.size}`, `r4-button--content-${content.value}`, { 'r4-button--full-width': props.width === 'full-width', 'r4-button--pressed': props.pressed, 'r4-button--loading': props.loading }])
     return { content, classes }
   },
   template: `
-    <button :class="classes" type="button" :disabled="disabled" @click="$emit('click', $event)">
+    <button :class="classes" type="button" :disabled="disabled" :aria-busy="loading ? 'true' : undefined" @click="$emit('click', $event)">
       <span class="r4-button__content">
         <Icon v-if="icon" :name="icon" />
         <span v-if="text" class="r4-button__text">{{ text }}</span>
       </span>
+      <span v-if="loading" class="r4-button__loader" aria-hidden="true"><R4Spinner size="small" /></span>
     </button>
   `,
 })

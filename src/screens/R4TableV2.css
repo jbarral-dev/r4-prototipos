@@ -7,3 +7,6 @@
 .r4tv2__placeholder { margin: 0; color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
 /* La fila de la tabla mide 48 como en Figma (el botón de compra, de 32, no la estira: padding vertical 8) */
 .r4-table__td:has(.r4-button) { padding-block: var(--spacing-2); }
+/* Nombres largos: se recortan con puntos suspensivos en vez de cortarse en seco */
+.r4tv2__nombre { max-width: 100%; }
+.r4tv2__link { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

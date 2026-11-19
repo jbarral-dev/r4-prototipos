@@ -37,6 +37,8 @@ export default defineComponent({
     open: { type: Boolean, default: false },
     primaryActionLabel: { type: String, default: undefined }, // con label hay bloque de acciones (showActions)
     secondaryActionLabel: { type: String, default: undefined },
+    primaryActionLoading: { type: Boolean, default: false }, // extra (R4TableV2): spinner en el botón primario (ver R4Button `loading`)
+    secondaryActionIcon: { type: String, default: undefined }, // extra (R4TableV2): icono del botón secundario (type=text)
     fullHeight: { type: Boolean, default: false }, // extra: el bottom sheet ocupa siempre su alto máximo (contenido de altura variable, p. ej. un buscador con resultados)
   },
   emits: ['close', 'primary', 'secondary'],
@@ -90,8 +92,8 @@ export default defineComponent({
         </div>
         <div class="r4-sheet__content"><div class="r4-sheet__slot"><slot /></div></div>
         <div v-if="primaryActionLabel || secondaryActionLabel" class="r4-sheet__actions">
-          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" @click="$emit('primary', $event)" />
-          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" @click="$emit('secondary', $event)" />
+          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" :loading="primaryActionLoading" @click="$emit('primary', $event)" />
+          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" :icon="secondaryActionIcon" @click="$emit('secondary', $event)" />
         </div>
       </div>
     </Transition>

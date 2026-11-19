@@ -116,3 +116,14 @@
 
 /* type=text con texto: subrayado en todos los estados (Figma) */
 .r4-button--text:not(.r4-button--content-icon) .r4-button__text { text-decoration: underline; }
+
+/* Extra (propuesta): loading. El contenido se desvanece y un R4Spinner small (blanco en el primario) aparece y desaparece en 800 ms (fadeIn → fadeOut). El botón conserva su tamaño. */
+.r4-button { position: relative; }
+.r4-button__content { transition: opacity 200ms; }
+.r4-button--loading .r4-button__content { opacity: 0; }
+.r4-button__loader { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; animation: r4-button-loader 800ms ease-in-out both; }
+.r4-button__loader .r4-spinner { opacity: 1; animation: none; }
+.r4-button--primary .r4-spinner__arc { stroke: var(--text-on-inverse); }
+.r4-button--primary .r4-spinner__track { stroke: color-mix(in srgb, var(--text-on-inverse) 30%, transparent); }
+@keyframes r4-button-loader { 0% { opacity: 0; } 25%, 75% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .r4-button__loader { animation: none; } }

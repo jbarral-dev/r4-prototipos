@@ -11,6 +11,7 @@ import R4PageTitleSection from '../components/pendientes/R4PageTitleSection.js'
 import R4TableV2 from '../components/pendientes/R4TableV2.js'
 import R4Text from '../components/pendientes/R4Text.js'
 import R4Button from '../components/pendientes/R4Button.js'
+import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
 import { filas, vistas } from '../data/r4table-v2.js'
 
 const navItems = ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === 0 })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú
@@ -24,21 +25,22 @@ const tono = (v) => (v > 0 ? 'success' : v < 0 ? 'error' : 'normal')
 
 export default defineComponent({
   name: 'R4TableV2Prototipo',
-  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button },
+  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, ProductDefaultLogo },
   setup() {
     document.title = 'R4Table (v2) · Prototipo R4'
-    return { navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
+    const breadcrumb = { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] } // 🏠 › Invertir › Acciones (la página actual, sin enlace)
+    return { breadcrumb, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `
     <TemplateDetail>
       <template #header><Menu type="default" client="logado" :nav-items="navItems" :sub-nav-items="[]" /></template>
 
-      <R4Wrapper density="compact" layout="12"><R4PageTitleSection title="Acciones" /></R4Wrapper>
+      <R4Wrapper density="compact" layout="12"><R4PageTitleSection title="Acciones" :breadcrumb="breadcrumb" /></R4Wrapper>
 
       <R4Wrapper density="compact" layout="12">
         <R4TableV2 :views="vistas" :data="filas" data-key="id" aria-label="Acciones del Mercado continuo" footnote="Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.">
           <template #body-name="{ data }">
-            <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><span v-else class="r4tv2__logo" aria-hidden="true"></span><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
+            <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
           <template #body-symbol="{ value }"><R4Text :text="value" /></template>
           <template #body-last="{ value }"><R4Text :text="fmt(value)" /></template>
