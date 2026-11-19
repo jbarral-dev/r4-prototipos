@@ -6,6 +6,8 @@
 // type=multiple (chip desplegable): chevron ic-angle-down / ic-angle-up según `expanded` (extra: = el panel que abre está desplegado) y badge de contador (solo con `selected` y `badge`).
 //   Como abre un panel, usa aria-expanded en lugar de aria-pressed (la propia doc lo señala como pendiente: «aria-pressed donde debería ser aria-expanded»); aria-haspopup / aria-controls
 //   los pasa quien lo usa (atributos).
+// Extras (R4TableV2; NO están en Figma ni en Confluence: PROPUESTA pendiente de diseño): `dismissable` (chip eliminable: icono `close` a la derecha; pulsar el chip emite `dismiss`; un solo elemento interactivo, sin aria-pressed) y `hideChevron`
+// (type=multiple sin chevron: así está la chip «Todos los filtros» en el Figma de las tablas, con icono + texto + badge).
 // Reconstruido: type simple y multiple, size small y medium, icono opcional (a la izquierda; 16 en medium y 14 en small, gap 8 y 4, color icon/subdued), chevron y badge.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -24,28 +26,32 @@ export default defineComponent({
     badge: { type: [String, Number], default: undefined }, // contador del badge (solo multiple + selected)
     badgeAriaLabel: { type: String, default: undefined },
     disabled: { type: Boolean, default: false },
+    dismissable: { type: Boolean, default: false },
+    hideChevron: { type: Boolean, default: false },
   },
-  emits: ['click'],
-  setup(props) {
+  emits: ['click', 'dismiss'],
+  setup(props, { emit }) {
     const multiple = computed(() => props.type === 'multiple')
     const showBadge = computed(() => multiple.value && props.selected && props.badge !== undefined && props.badge !== null && props.badge !== '')
-    return { multiple, showBadge }
+    const onClick = (e) => { emit('click', e); if (props.dismissable) emit('dismiss', e) }
+    return { multiple, showBadge, onClick }
   },
   template: `
-    <button type="button" class="r4-chip" :class="['r4-chip--' + size, { 'r4-chip--multiple': multiple, 'is-selected': selected }]"
-            :aria-pressed="multiple ? undefined : (selected ? 'true' : 'false')" :aria-expanded="multiple ? (expanded ? 'true' : 'false') : undefined"
-            :aria-disabled="disabled ? 'true' : undefined" :tabindex="disabled ? -1 : undefined" @click="!disabled && $emit('click', $event)">
+    <button type="button" class="r4-chip" :class="['r4-chip--' + size, { 'r4-chip--multiple': multiple, 'r4-chip--dismissable': dismissable, 'r4-chip--no-chevron': multiple && hideChevron, 'is-selected': selected }]"
+            :aria-label="dismissable ? 'Quitar filtro ' + label : undefined" :aria-pressed="multiple || dismissable ? undefined : (selected ? 'true' : 'false')" :aria-expanded="multiple ? (expanded ? 'true' : 'false') : undefined"
+            :aria-disabled="disabled ? 'true' : undefined" :tabindex="disabled ? -1 : undefined" @click="!disabled && onClick($event)">
       <template v-if="multiple">
         <span class="r4-chip__left">
           <Icon v-if="icon" class="r4-chip__icon" :name="icon" />
           <span class="r4-chip__label">{{ label }}</span>
           <R4Badge v-if="showBadge" :label="badge" :outline="false" :aria-label="badgeAriaLabel" />
         </span>
-        <Icon class="r4-chip__chevron" :name="expanded ? 'ic-angle-up' : 'ic-angle-down'" />
+        <Icon v-if="!hideChevron" class="r4-chip__chevron" :name="expanded ? 'ic-angle-up' : 'ic-angle-down'" />
       </template>
       <template v-else>
         <Icon v-if="icon" class="r4-chip__icon" :name="icon" />
         <span class="r4-chip__label">{{ label }}</span>
+        <Icon v-if="dismissable" class="r4-chip__dismiss" name="close" />
       </template>
     </button>
   `,

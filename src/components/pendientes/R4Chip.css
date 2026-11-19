@@ -67,3 +67,9 @@
 .r4-chip__chevron { flex: none; width: var(--r4-chip-chevron); height: var(--r4-chip-chevron); color: var(--icon-default); }
 .r4-chip[aria-disabled='true'] .r4-chip__chevron { color: var(--icon-disabled); }
 .r4-chip--multiple.is-selected .r4-chip__left .r4-badge { margin-left: calc(var(--spacing-1) - var(--r4-chip-gap)); } /* Label: texto + badge a gap marginXXS (4) */
+
+/* Extra (propuesta, no está en Figma): chip eliminable. Mismo aspecto que un chip simple + icono `close` a la derecha (icon/default), con el padding derecho del chip multiple */
+.r4-chip--dismissable { gap: var(--r4-chip-gap); padding: 0 var(--r4-chip-pad-end) 0 var(--r4-chip-pad); }
+.r4-chip__dismiss { flex: none; width: var(--r4-chip-icon); height: var(--r4-chip-icon); color: var(--icon-default); }
+/* type=multiple sin chevron (Figma de las tablas: «Todos los filtros» = icono + texto + badge): el padding derecho del grupo izquierdo ya separa del borde */
+.r4-chip--no-chevron { padding: 0 var(--r4-chip-pad); }

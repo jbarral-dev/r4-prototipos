@@ -1,0 +1,9 @@
+/* Pantalla «R4Table (v2)»: solo lo propio de las celdas de ejemplo (los componentes traen su CSS). Valores de Figma «Proyectos - Tablas»: logo de 24, gap 8 con el nombre, nombre en SemiBold con color accent/link. */
+.r4tv2__nombre { display: flex; align-items: center; gap: var(--spacing-2); white-space: nowrap; }
+.r4tv2__logo { flex: none; width: var(--spacing-6); height: var(--spacing-6); object-fit: cover; }
+.r4tv2__link { color: var(--accent-link); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.r4tv2__link:hover { color: var(--accent-link-hover); text-decoration: underline; }
+.r4tv2__link:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
+.r4tv2__placeholder { margin: 0; color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+/* La fila de la tabla mide 48 como en Figma (el botón de compra, de 32, no la estira: padding vertical 8) */
+.r4-table__td:has(.r4-button) { padding-block: var(--spacing-2); }

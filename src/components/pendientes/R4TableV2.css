@@ -1,0 +1,48 @@
+/*
+ * R4TableV2 — «Filters and View» (Figma Proyectos - Tablas, 668:28193): fila de 40 con los filtros a la izquierda (chip «Todos los filtros» + divisoria border/subtle de 1 px con gap 16 + chips destacados a gap 8) y el
+ * R4SegmentedControls de vistas a la derecha; 24 de separación con la R4Section de la tabla (y 64 = 40 + 24 en Figma). Popover a 8 px del chip (indicado por Jon). Resto de medidas: las de cada componente.
+ */
+.r4-table-v2 { position: relative; display: flex; flex-direction: column; gap: var(--spacing-6); width: 100%; font-family: var(--font-family-body); }
+
+.r4-table-v2__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); }
+.r4-table-v2__filters { display: flex; flex: 1 1 auto; align-items: center; gap: var(--spacing-4); min-width: 0; }
+.r4-table-v2__all { flex: none; padding-right: var(--spacing-4); box-shadow: inset calc(var(--r4-line-width) * -1) 0 0 var(--border-subtle); }
+.r4-table-v2__highlighted { display: flex; align-items: center; gap: var(--spacing-2); }
+.r4-table-v2__anchor { position: relative; display: inline-flex; flex: none; }
+.r4-table-v2__popover { position: absolute; z-index: 200; top: calc(100% + var(--spacing-2)); left: 0; }
+.r4-table-v2__views { flex: none; width: auto; }
+
+/* Capa de filtros (popover y sheets) */
+.r4-table-v2__panel { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.r4-table-v2__options { max-height: calc(var(--spacing-16) * 5); margin-inline: calc(var(--spacing-1) * -1); padding-inline: var(--spacing-1); overflow-y: auto; }
+.r4-table-v2__panel-actions { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.r4-table-v2__applied { display: flex; flex-wrap: wrap; gap: var(--spacing-2); outline: 0; }
+
+/* Recarga: la capa pierde opacidad y el R4Spinner se superpone (toda la capa al cambiar de vista; solo la tabla al aplicar filtros) */
+.r4-table-v2__bar, .r4-table-v2__table { transition: opacity 150ms; }
+.r4-table-v2__bar.is-loading, .r4-table-v2__table.is-loading { opacity: var(--r4-table-loading-opacity); }
+.r4-table-v2__spinner { position: absolute; z-index: 5; right: 0; bottom: 0; left: 0; display: flex; justify-content: center; align-items: flex-start; padding-top: calc(var(--spacing-16) * 3); pointer-events: none; }
+.r4-table-v2__spinner.is-all { top: 0; }
+.r4-table-v2__spinner.is-table { top: calc(var(--component-chip-size-medium) + var(--spacing-6)); }
+
+.r4-table-v2 .r4-table__cell--right { font-variant-numeric: lining-nums tabular-nums; }
+.r4-table-v2__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Superposición según ancho (patrón Progressive disclosure): popover y sheet side en ≥ 1024 px; sheets bottom por debajo */
+@container r4page (min-width: 1024px) {
+  .r4-table-v2__sheet--bottom, .r4-table-v2__sheet--category { display: none; }
+}
+@container r4page (max-width: 1023px) {
+  .r4-table-v2__sheet--side { display: none; }
+  .r4-table-v2__popover { display: none; }
+  .r4-table-v2__bar { flex-direction: column; align-items: stretch; }
+  .r4-table-v2__filters { overflow-x: auto; scrollbar-width: none; padding-block: var(--spacing-1); }
+  .r4-table-v2__filters::-webkit-scrollbar { display: none; }
+  .r4-table-v2__views { align-self: flex-start; }
+}
+
+/* En el sheet lateral las acciones («Ver N resultados» / «Quitar filtros») quedan pegadas abajo: el contenido ocupa el alto libre */
+.r4-table-v2__sheet--side .r4-sheet__content { flex: 1 1 auto; }
+
+/* Tabla ancha (hasta 11 columnas): por debajo de su ancho mínimo hace scroll horizontal con la primera columna fija (frozen, como pide la doc de R4Table para mobile) */
+.r4-table-v2 .r4-table__table--fixed { min-width: calc(var(--spacing-16) * 18); }

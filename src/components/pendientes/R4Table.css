@@ -34,3 +34,13 @@
 .r4-table__sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .r4-table__table--fixed { table-layout: fixed; min-width: calc(var(--spacing-16) * 12); }
 .r4-table__table--fixed .r4-table__td, .r4-table__table--fixed .r4-table__th { overflow: hidden; text-overflow: ellipsis; }
+
+/* Orden de columna (R4Table v2). Medidas de la cabecera leídas en Figma (R4TableRowHeader--wide, Proyectos - Tablas): padding 16 vertical / 12 horizontal, gap 8, «Order Button» de 20 con icono de 12 (radio xs). */
+.r4-table--has-sort .r4-table__th { padding-block: var(--spacing-4); }
+.r4-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-2); margin: 0; padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; color: inherit; font: inherit; cursor: pointer; }
+.r4-table__sort--right { flex-direction: row-reverse; }
+.r4-table__sort:hover .r4-table__sort-icon { background: var(--surface-subtle); }
+.r4-table__sort:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-table__sort-icon { flex: none; box-sizing: content-box; width: var(--spacing-3); height: var(--spacing-3); padding: var(--spacing-1); border-radius: var(--radius-xs); color: var(--icon-default); }
+.r4-table__sort-icon.is-desc { transform: rotate(180deg); }
+.r4-table__empty { padding-block: var(--spacing-8); text-align: center; color: var(--text-subdued); }

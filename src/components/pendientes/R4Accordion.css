@@ -1,0 +1,28 @@
+/*
+ * R4Accordion — tokens de la tabla de Confluence (R4Accordion v1.1.0): medium → cabecera y separación spacing/4 (16), contenedor del icono spacing/12 (48), título body/xl semibold, contenido body/m;
+ * small → spacing/2 (8), contenedor spacing/10 (40), título body/m semibold, contenido body/s. Línea divisoria border/subtle de 1 px (el último panel no la lleva). Título text/default, contenido text/subdued.
+ * hover: fondo surface/subtle y radio button/radius en el contenedor del icono · foco de teclado: CardFocusOutline en el panel, contenido abierto (y, en small, la cabecera) en surface/subtle · disabled: text/disabled.
+ */
+.r4-accordion { --r4-acc-pad: var(--spacing-4); --r4-acc-icon-box: var(--spacing-12); --r4-acc-title-size: var(--size-body-xl); --r4-acc-title-line: var(--line-height-body-xl); --r4-acc-content-size: var(--size-body-m); --r4-acc-content-line: var(--line-height-body-m);
+  display: flex; flex-direction: column; width: 100%; font-family: var(--font-family-body); }
+.r4-accordion--small { --r4-acc-pad: var(--spacing-2); --r4-acc-icon-box: var(--spacing-10); --r4-acc-title-size: var(--size-body-m); --r4-acc-title-line: var(--line-height-body-m); --r4-acc-content-size: var(--size-body-s); --r4-acc-content-line: var(--line-height-body-s); }
+
+.r4-accordion__panel { border-radius: 0; }
+.r4-accordion--divider .r4-accordion__panel:not(:last-child) { border-bottom: var(--r4-line-width) solid var(--border-subtle); }
+.r4-accordion__panel:has(.r4-accordion__header:focus-visible) { box-shadow: var(--effect-card-focus-outline); }
+.r4-accordion__panel:has(.r4-accordion__header:focus-visible) .r4-accordion__content { background: var(--surface-subtle); }
+.r4-accordion--small .r4-accordion__panel:has(.r4-accordion__header:focus-visible) .r4-accordion__header { background: var(--surface-subtle); }
+
+.r4-accordion__header { display: flex; align-items: center; justify-content: space-between; gap: var(--r4-acc-pad); width: 100%; margin: 0; padding: 0; border: 0; background: transparent; color: var(--text-default); text-align: left; cursor: pointer; font: inherit; }
+.r4-accordion__header:focus-visible { outline: 0; }
+.r4-accordion__title { flex: 1 1 auto; min-width: 0; padding-block: var(--r4-acc-pad); font-size: var(--r4-acc-title-size); line-height: var(--r4-acc-title-line); font-weight: var(--font-weight-semibold); }
+.r4-accordion__icon { flex: none; display: flex; align-items: center; justify-content: center; width: var(--r4-acc-icon-box); height: var(--r4-acc-icon-box); border-radius: var(--component-button-radius); color: var(--icon-default); }
+.r4-accordion__icon .r4-icon { width: var(--spacing-5); height: var(--spacing-5); transition: transform 200ms; }
+.r4-accordion__panel.is-open .r4-accordion__icon .r4-icon { transform: rotate(180deg); }
+.r4-accordion__panel:hover .r4-accordion__icon { background: var(--surface-subtle); }
+
+.r4-accordion__content { padding: 0 0 var(--r4-acc-pad); color: var(--text-subdued); font-size: var(--r4-acc-content-size); line-height: var(--r4-acc-content-line); }
+
+.r4-accordion--disabled .r4-accordion__header { cursor: not-allowed; color: var(--text-disabled); }
+.r4-accordion--disabled .r4-accordion__icon { color: var(--icon-disabled); }
+.r4-accordion--disabled .r4-accordion__panel:hover .r4-accordion__icon { background: transparent; }
