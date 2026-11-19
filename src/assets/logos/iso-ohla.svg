@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-ohla">
+<g clip-path="url(#clip0_0_206)">
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="#00318D"/>
+<path id="Vector_2" opacity="0.7" d="M29.3333 63.5556V20.9244C29.3333 20.9244 32.4622 18.48 36.8133 16.6711C41.2133 14.6667 46.4444 14.6667 46.4444 14.6667V31.6311C46.4444 52.2622 29.3333 63.5556 29.3333 63.5556Z" fill="white"/>
+<path id="Vector_3" opacity="0.6" d="M58.6667 68.4444L56.7111 34.2222L51.1867 29.3333C51.1867 29.3333 50.6978 39.5511 47.8133 49.6711C44.9778 59.7422 39.1111 68.4444 39.1111 68.4444H58.6667Z" fill="#009894"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_206">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

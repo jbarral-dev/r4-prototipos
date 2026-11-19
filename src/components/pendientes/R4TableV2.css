@@ -46,3 +46,8 @@
 
 /* Tabla ancha (hasta 11 columnas): por debajo de su ancho mínimo hace scroll horizontal con la primera columna fija (frozen, como pide la doc de R4Table para mobile) */
 .r4-table-v2 .r4-table__table--fixed { min-width: calc(var(--spacing-16) * 18); }
+
+/* Control de vistas: cada segmento ocupa lo que su texto más aire a los lados (con el reparto a partes iguales de R4SegmentedControls, «Vista adicional» se quedaba sin espacio) */
+.r4-table-v2__views .r4-segmented__slot { flex: 0 0 auto; }
+.r4-table-v2__views .r4-segmented__item { flex: 0 0 auto; padding-inline: var(--spacing-4); }
+.r4-table-v2__footnote { display: block; padding: 0 var(--spacing-3); margin-top: 0; padding-bottom: var(--spacing-2); }

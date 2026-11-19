@@ -1,0 +1,16 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-hbx">
+<g clip-path="url(#clip0_0_320)">
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="#011C37"/>
+<path id="Vector_2" d="M36.6178 63.5556H22L35.3956 44.7333H43.2667V53.5333L36.6178 63.5556Z" fill="#E3E2E8"/>
+<path id="Vector_3" d="M51.3822 63.5556H66L52.6044 44.7333H44.7333V53.5333L51.3333 63.5556H51.3822Z" fill="#0295DB"/>
+<path id="Vector_4" d="M36.6178 24.4444H22L35.3956 43.2667H43.2667V34.4667L36.6178 24.4444Z" fill="#7ABDC3"/>
+<path id="Vector_5" d="M51.3822 24.4444H66L52.6044 43.2667H44.7333V34.4667L51.3333 24.4444H51.3822Z" fill="#EF017D"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_320">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>
