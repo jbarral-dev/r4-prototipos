@@ -28,12 +28,19 @@ export default defineComponent({
         { value: 'nuevo', label: 'Entra por primera vez al chatbot', default: true },
         { value: 'historial', label: 'Ya ha entrado (tiene búsquedas y preguntas previas)' },
       ] }] },
+      { label: 'Conversación', controls: [{ id: 'respuesta', type: 'radio', options: [
+        { value: 'ninguna', label: 'Ninguna (flujo normal)', default: true },
+        { value: 'enlace', label: 'Un enlace' },
+        { value: 'varios', label: 'Varios enlaces' },
+        { value: 'resultados', label: 'Resultados' },
+      ] }] },
       { label: '¿Conversación activa?', controls: [{ id: 'conversacion', type: 'switch', label: 'Sí (badge en la lupa; al abrir, se reanuda el chat)', default: false }] },
     ]
     const caso = ref(valoresPorDefecto(FACILITADOR))
     api.cargarEstado(caso.value.usuario)
     if (caso.value.conversacion) api.setConversacionActiva(true)
-    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value); else if (id === 'conversacion') api.setConversacionActiva(value) }
+    if (caso.value.respuesta !== 'ninguna') onMounted(() => nextTick(() => api.cargarRespuesta(caso.value.respuesta)))
+    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value); else if (id === 'conversacion') api.setConversacionActiva(value); else if (id === 'respuesta') api.cargarRespuesta(value) }
     // Si el usuario deja una conversación a medias (cierra el panel) o empieza otra, el interruptor del Facilitador sigue al estado real
     watch(() => api.hayConversacion, (v) => { if (caso.value.conversacion !== v) { caso.value = { ...caso.value, conversacion: v }; escribirParam('conversacion', v ? 1 : 0, 0) } })
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige con ?c=popover (por defecto, Sheet side).

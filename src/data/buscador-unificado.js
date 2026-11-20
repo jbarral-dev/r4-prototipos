@@ -113,3 +113,16 @@ export function responder(texto) {
   const t = norm(texto)
   return respuestas.find((r) => r.match(t)) || respuestaPorDefecto
 }
+
+// ── Respuestas de demostración (panel Facilitador · bloque «Conversación») ──
+// Un enlace · varios enlaces (lista con viñetas) · resultados (searchResultItem sin agrupar). Mismo guion en todas las condiciones.
+export const preguntasDemo = {
+  enlace: '¿Qué necesito para abrir una cuenta?',
+  varios: '¿Cómo funcionan los planes de pensiones?',
+  resultados: '¿Qué productos de Telefónica puedo contratar?',
+}
+export function respuestaDemo(tipo) {
+  if (tipo === 'varios') return responder(preguntasDemo.varios)
+  if (tipo === 'resultados') return { text: 'Estos son los productos de Telefónica que puedes contratar desde Renta 4:', resultados: catalogo.filter((r) => r.name === 'Telefónica') }
+  return responder(preguntasDemo.enlace)
+}

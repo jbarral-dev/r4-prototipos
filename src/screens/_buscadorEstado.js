@@ -7,7 +7,7 @@
 //    De Conversación a Resultados, el campo recupera la última pregunta enviada para buscarla.
 //  · Se registra cada acción en `log` (y en window.__buscadorLog) para el facilitador.
 import { reactive, ref, computed, watch } from '../../vendor/vue.esm-browser.prod.js'
-import { enrutar, buscar, responder, norm, populares, ejemplosPregunta } from '../data/buscador-unificado.js'
+import { enrutar, buscar, responder, respuestaDemo, preguntasDemo, norm, populares, ejemplosPregunta } from '../data/buscador-unificado.js'
 
 export function crearEstado() {
   const t0 = Date.now()
@@ -115,6 +115,13 @@ export function crearEstado() {
   const partida = ref('nuevo') // use case cargado (el del Facilitador): «Reiniciar sesión» vuelve a él
   // Facilitador «¿Conversación activa?»: sí = hay un chat de ejemplo en marcha; no = ninguno
   const setConversacionActiva = (on) => { convActiva.value = on ? conversacionEjemplo('¿Cómo funcionan los planes de pensiones?') : null; anotar('conversación activa', on ? 'sí' : 'no') }
+  // Facilitador «Conversación»: abre el panel con una conversación de ejemplo (pregunta + respuesta del tipo elegido: enlace · varios · resultados)
+  const cargarRespuesta = (tipo) => {
+    if (!preguntasDemo[tipo]) return
+    limpiar(); open.value = true
+    abrirConversacion({ titulo: preguntasDemo[tipo], thread: [{ role: 'user', text: preguntasDemo[tipo] }, { role: 'assistant', ...respuestaDemo(tipo) }] })
+    anotar('respuesta de ejemplo', tipo)
+  }
   const cargarEstado = (tipo) => {
     partida.value = tipo
     limpiar()
@@ -125,6 +132,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, cargarRespuesta, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
