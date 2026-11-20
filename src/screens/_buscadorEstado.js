@@ -70,7 +70,7 @@ export function crearEstado() {
   const enviar = () => {
     const text = query.value.trim()
     if (!text || pending.value) return
-    if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(50) }
+    if (!convActual) { convActual = { titulo: text, fecha: formatoFecha(new Date()), thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(50) }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
     query.value = text // el campo conserva siempre la cadena (también al cambiar de pestaña); en mobile mantiene así la X para cerrar la capa
@@ -113,7 +113,10 @@ export function crearEstado() {
   }
   const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado(partida.value) }
   // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas
-  const conversacionEjemplo = (q) => ({ titulo: q, thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
+  // Fecha y hora de cada conversación (DATOS DE EJEMPLO): las del histórico retroceden desde el 18/11/2026 10:42; la que se crea en la sesión lleva la hora actual
+  const formatoFecha = (d) => `${d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} · ${d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} h`
+  const fechaEjemplo = (i) => formatoFecha(new Date(new Date(2026, 10, 18, 10, 42).getTime() - i * (27 * 60 + 13) * 60000))
+  const conversacionEjemplo = (q, i = 0) => ({ titulo: q, fecha: fechaEjemplo(i), thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
   const partida = ref('nuevo') // use case cargado (el del Facilitador): «Reiniciar sesión» vuelve a él
   // Facilitador «¿Conversación activa?»: sí = hay un chat de ejemplo en marcha; no = ninguno
   const setConversacionActiva = (on) => { convActiva.value = on ? conversacionEjemplo('¿Cómo funcionan los planes de pensiones?') : null; anotar('conversación activa', on ? 'sí' : 'no') }
@@ -130,7 +133,7 @@ export function crearEstado() {
     partida.value = tipo
     limpiar()
     historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
-    historial.conversaciones = historicoOn.value ? preguntasHistorico.map(conversacionEjemplo) : tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
+    historial.conversaciones = historicoOn.value ? preguntasHistorico.map((q, i) => conversacionEjemplo(q, i)) : tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?', 0), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?', 1)] : []
     anotar('estado de partida', tipo)
   }
 

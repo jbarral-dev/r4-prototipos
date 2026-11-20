@@ -83,7 +83,7 @@ export default defineComponent({
         <div v-if="api.open" class="usearch-scrim" aria-hidden="true"></div>
         <div v-if="api.open && contenedor === 'popover'" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
-            <div v-if="!api.chatView" class="usearch__fieldrow">
+            <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
               <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
@@ -101,7 +101,7 @@ export default defineComponent({
         <div v-if="contenedor === 'sheet'" class="usearch-sheet">
           <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheet__body">
-              <div v-if="!api.chatView" class="usearch__fieldrow">
+              <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
@@ -115,7 +115,7 @@ export default defineComponent({
         <div class="usearch-sheetbottom">
           <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheetbottom__body">
-              <div v-if="!api.chatView" class="usearch__fieldrow">
+              <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>

@@ -81,7 +81,7 @@ export default defineComponent({
     const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
     const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
     // Listado completo de conversaciones (R4NavigationItems; al pulsar una se carga el chat con ella)
-    const historialItems = computed(() => props.api.historial.conversaciones.map((c) => ({ title: c.titulo, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
+    const historialItems = computed(() => props.api.historial.conversaciones.map((c) => ({ title: c.titulo, description: c.fecha, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
     const enListado = computed(() => props.api.vista === 'historial' && vacio.value)
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
@@ -104,7 +104,7 @@ export default defineComponent({
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="usearch-panel__group">
-          <R4Text :id="'usearch-todas-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" text="Todas las preguntas" />
+          <R4Text :id="'usearch-todas-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title usearch-panel__group-title--default" text="Todas las preguntas" />
           <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onPregunta" />
         </div>
         <div v-else-if="vacio" class="usearch-panel__start">
