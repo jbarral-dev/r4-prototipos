@@ -11,7 +11,7 @@ import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
 import R4Link from './R4Link.js'
 import R4Text from './R4Text.js'
-import R4InputTextarea from './R4InputTextarea.js'
+import R4Prompt from './R4Prompt.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
 import Icon from '../../icons/_Icon.js'
@@ -20,7 +20,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, R4Prompt, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -53,7 +53,7 @@ export default defineComponent({
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
     const composer = ref(null)
-    const promptEl = ref(null) // R4InputTextarea (crece con el texto; el botón de enviar queda abajo a la derecha)
+    const promptEl = ref(null) // R4Prompt (crece con el texto; el botón de enviar queda dentro, abajo a la derecha)
     // En el R4Sheet bottom de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
     const enfocarPrompt = async () => {
       await nextTick()
@@ -64,7 +64,7 @@ export default defineComponent({
     watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
     // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
     // Volver: al inicio (la conversación queda activa) y el foco no se pierde: pasa al botón de cierre del R4Sheet, sin abrir el teclado
-    const volver = async () => { props.api.volver(); await nextTick(); body.value?.closest('.r4-sheet')?.querySelector('.r4-sheet__close')?.focus() }
+    const volver = async () => { if (props.api.chatView) props.api.volver(); else props.api.vista = 'inicio'; await nextTick(); body.value?.closest('.r4-sheet')?.querySelector('.r4-sheet__close')?.focus() }
     const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
@@ -77,11 +77,16 @@ export default defineComponent({
     // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
     const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
     const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
-    const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
+    // «Últimas preguntas»: las 5 más recientes y, si hay más, «Ver todas» (abre el listado completo)
+    const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
+    const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
+    // Listado completo de conversaciones (R4NavigationItems; al pulsar una se carga el chat con ella)
+    const historialItems = computed(() => props.api.historial.conversaciones.map((c) => ({ title: c.titulo, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
+    const enListado = computed(() => props.api.vista === 'historial' && vacio.value)
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
@@ -94,11 +99,15 @@ export default defineComponent({
       </div>
 
       <!-- Volver a la pantalla inicial: fijo arriba de la conversación (donde en el estado inicial está la caja). La conversación se conserva como activa -->
-      <div v-if="api.chatView" class="usearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
+      <div v-if="api.chatView || enListado" class="usearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
 
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
-        <div v-if="vacio" class="usearch-panel__start">
+        <div v-if="enListado" class="usearch-panel__group">
+          <R4Text :id="'usearch-todas-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" text="Todas las preguntas" />
+          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onPregunta" />
+        </div>
+        <div v-else-if="vacio" class="usearch-panel__start">
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="usearch-panel__chips">
@@ -108,6 +117,7 @@ export default defineComponent({
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
             <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">{{ tituloPreguntas }}</h3>
             <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
+            <R4Link v-if="hayMas" size="medium" href="#" @click.prevent="api.verHistorial()">Ver todas</R4Link>
           </section>
         </div>
 
@@ -168,10 +178,8 @@ export default defineComponent({
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->
       <div v-if="api.chatView" ref="composer" class="usearch-panel__composer">
-        <R4InputTextarea ref="promptEl" class="usearch-panel__prompt" :model-value="api.prompt" auto-grow :max-rows="6" font-size="medium" :resizable="false" submit-on-enter
-                         placeholder="Escribe tu pregunta" aria-label="Tu pregunta al asistente" @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()">
-          <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar pregunta" :disabled="!api.prompt.trim() || api.pending" @click="api.enviarPrompt()" />
-        </R4InputTextarea>
+        <R4Prompt ref="promptEl" class="usearch-panel__prompt" :model-value="api.prompt" aria-label="Tu pregunta al asistente" send-label="Enviar pregunta" :send-disabled="api.pending"
+                  @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()" />
       </div>
     </div>
   `,

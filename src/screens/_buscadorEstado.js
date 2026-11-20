@@ -7,7 +7,7 @@
 //    De Conversación a Resultados, el campo recupera la última pregunta enviada para buscarla.
 //  · Se registra cada acción en `log` (y en window.__buscadorLog) para el facilitador.
 import { reactive, ref, computed, watch } from '../../vendor/vue.esm-browser.prod.js'
-import { enrutar, buscar, responder, respuestaDemo, preguntasDemo, norm, populares, ejemplosPregunta } from '../data/buscador-unificado.js'
+import { enrutar, buscar, responder, respuestaDemo, preguntasDemo, preguntasHistorico, norm, populares, ejemplosPregunta } from '../data/buscador-unificado.js'
 
 export function crearEstado() {
   const t0 = Date.now()
@@ -25,6 +25,8 @@ export function crearEstado() {
   let convActual = null // conversación del historial que se está pintando (los mensajes nuevos se añaden a ella)
   let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
   const opciones = reactive({ ejemplos: true })
+  const vista = ref('inicio') // 'inicio' (estado inicial) | 'historial' (listado completo de conversaciones: «Ver todas»)
+  const historicoOn = ref(false) // Facilitador «Tiene histórico de conversaciones»: 12 conversaciones en lugar de las 2 de ejemplo
   const filtro = ref('todos') // chip de tipo activo en el autocompletado (Todos · Acciones · CFDs · Futuros · Fondos · Centro de ayuda)
 
   const ruta = computed(() => enrutar(query.value))
@@ -50,7 +52,7 @@ export function crearEstado() {
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { vista.value = 'inicio'; gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -68,7 +70,7 @@ export function crearEstado() {
   const enviar = () => {
     const text = query.value.trim()
     if (!text || pending.value) return
-    if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(3) }
+    if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(50) }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
     query.value = text // el campo conserva siempre la cadena (también al cambiar de pestaña); en mobile mantiene así la X para cerrar la capa
@@ -100,7 +102,7 @@ export function crearEstado() {
   // Chip de «Búsquedas frecuentes» / «Últimas búsquedas»: mete el término en la caja y pinta el listado de resultados de esa consulta (el panel sigue abierto)
   const buscarTermino = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); query.value = term }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
-  const abrirConversacion = (conv) => { gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const abrirConversacion = (conv) => { vista.value = 'inicio'; gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
@@ -122,16 +124,18 @@ export function crearEstado() {
     abrirConversacion({ titulo: preguntasDemo[tipo], thread: [{ role: 'user', text: preguntasDemo[tipo] }, { role: 'assistant', ...respuestaDemo(tipo) }] })
     anotar('respuesta de ejemplo', tipo)
   }
+  const setHistorico = (on) => { historicoOn.value = on; cargarEstado(partida.value) }
+  const verHistorial = () => { vista.value = 'historial'; anotar('ver todas las conversaciones') }
   const cargarEstado = (tipo) => {
     partida.value = tipo
     limpiar()
     historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
-    historial.conversaciones = tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
+    historial.conversaciones = historicoOn.value ? preguntasHistorico.map(conversacionEjemplo) : tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
     anotar('estado de partida', tipo)
   }
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, cargarRespuesta, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, cargarRespuesta, vista, setHistorico, verHistorial, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

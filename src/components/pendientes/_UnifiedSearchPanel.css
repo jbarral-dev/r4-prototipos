@@ -44,7 +44,7 @@
 .usearch-msg--pending .usearch-msg__text { color: var(--text-subdued); }
 .usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); opacity: 0.8; }
 .usearch-msg__text { margin: 0; overflow-wrap: anywhere; }
-.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-4); padding-top: var(--spacing-1); }
+.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-4); }
 
 /* Conversación pintada: el área de mensajes ocupa el alto disponible y el prompt queda fijo debajo */
 .usearch-panel--chat { flex: 1 1 auto; }
@@ -72,8 +72,10 @@
 .usearch-panel--bar .usearch-panel__body { padding-bottom: calc(var(--usearch-bar-h) - var(--usearch-host-pad, 0px)); }
 
 /* Chat del Enfoque buscador: enlaces R4Link en la burbuja del asistente (fila o lista con viñetas) y «Volver» fijo arriba */
-.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: var(--spacing-1) 0 0 var(--spacing-5); list-style: disc; }
+.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
 .usearch-panel__back { flex: none; display: flex; justify-content: flex-start; margin-left: calc(var(--spacing-3) * -1); padding-bottom: var(--spacing-4); } /* el texto del botón queda alineado con el contenido (el R4Button text lleva 12 de padding) */
 
 /* Resultados (searchResultItem) dentro de la burbuja del asistente: sin agrupar, uno bajo otro */
-.usearch-msg__results { margin-top: var(--spacing-2); }
+.usearch-msg__results { margin-top: 0; }
+/* Dentro de la burbuja del asistente: 20 px en total entre el texto y el bloque de enlaces / enlace único / resultados (el gap de la burbuja ya pone 4) */
+.usearch-msg__text + .usearch-msg__list, .usearch-msg__text + .usearch-msg__links, .usearch-msg__text + .usearch-msg__results { margin-top: calc(var(--spacing-5) - var(--spacing-1)); }

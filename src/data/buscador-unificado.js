@@ -126,3 +126,19 @@ export function respuestaDemo(tipo) {
   if (tipo === 'resultados') return { text: 'Estos son los productos de Telefónica que puedes contratar desde Renta 4:', resultados: catalogo.filter((r) => r.name === 'Telefónica') }
   return responder(preguntasDemo.enlace)
 }
+
+// ── Histórico de conversaciones de ejemplo (Facilitador «Tiene histórico de conversaciones»): 12 para ver el scroll del listado ──
+export const preguntasHistorico = [
+  '¿Cómo funcionan los planes de pensiones?',
+  '¿Puedo invertir en Fidelity de renta variable europea?',
+  '¿Qué necesito para abrir una cuenta?',
+  'No me llega el código al móvil',
+  '¿Qué comisiones tiene la custodia de valores?',
+  '¿Cómo traspaso un plan de pensiones a Renta 4?',
+  '¿Puedo contratar ETFs desde la app?',
+  '¿Qué diferencia hay entre un fondo y un plan de pensiones?',
+  '¿Cómo cambio mi perfil de inversor?',
+  '¿Qué es un futuro sobre una acción?',
+  '¿Cuándo se cobran los dividendos de Telefónica?',
+  '¿Puedo invertir en fondos de capital riesgo?',
+]
