@@ -89,3 +89,6 @@ html.usearch-lock { overflow: hidden; }
 /* Padding inferior de cada contenedor (para reservar el hueco de la barra inferior del autocompletado): Sheet side 48 · popover 12 (bottom sheet: 32, arriba) */
 .usearch-sheet { --usearch-host-pad: var(--spacing-12); }
 .usearch-desk__pop { --usearch-host-pad: var(--spacing-3); }
+
+/* El placeholder largo («Busca un producto o pregunta al asistente») no cabe en mobile: se corta con puntos suspensivos */
+.usearch__fieldrow .r4-inputsearch__input { text-overflow: ellipsis; }

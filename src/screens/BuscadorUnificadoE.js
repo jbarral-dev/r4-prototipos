@@ -100,7 +100,7 @@ export default defineComponent({
           <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheet__body">
               <div v-if="!api.chatView" class="usearch__fieldrow">
-                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
@@ -114,7 +114,7 @@ export default defineComponent({
           <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheetbottom__body">
               <div v-if="!api.chatView" class="usearch__fieldrow">
-                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
