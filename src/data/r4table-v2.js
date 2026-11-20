@@ -163,7 +163,7 @@ const num_ = (field, header, width) => ({ field, header, sortable: true, align: 
 const accion = { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '5%' }
 export const vistas = [
   { value: 'basica', label: 'Vista básica',
-    columns: [{ ...nombre, width: '15%' }, { field: 'symbol', header: 'Símbolo', sortable: true, width: '10%' }, num_('last', 'Último', '10%'), num_('dif', 'Dif.', '8%'), num_('difPct', 'Dif.%', '9%'), num_('volC', 'VolC', '8%'), num_('compra', 'Compra', '10%'), num_('venta', 'Venta', '9%'), num_('volV', 'VolV', '7%'), num_('volumen', 'Volumen', '10%'), { ...accion, width: '4%' }],
+    columns: [{ ...nombre, width: '15%' }, { field: 'symbol', header: 'Símbolo', sortable: true, width: '10%' }, num_('last', 'Último', '10%'), num_('dif', 'Dif.', '8%'), num_('difPct', 'Dif.%', '9%'), num_('volC', 'VolC', '8%'), num_('compra', 'Compra', '9%'), num_('venta', 'Venta', '9%'), num_('volV', 'VolV', '7%'), num_('volumen', 'Volumen', '10%'), { ...accion, width: '6%' }],
     filters: [fMercados, fIndices, fVariacion],
     initial: { indices: ['Ibex 35'] }, defaultSort: { field: 'name', order: 'asc' } },
   { value: 'adicional', label: 'Vista adicional',
