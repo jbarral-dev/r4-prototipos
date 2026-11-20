@@ -38,7 +38,7 @@
 html.usearch-lock { overflow: hidden; }
 
 /* Tablet y mobile (Enfoque buscador): R4Sheet bottom de alto completo (--r4-sheet-bottom-maxheight). El cuerpo ocupa el alto útil (alto - padding superior 80 - inferior 32) para que el panel haga scroll por dentro y el prompt quede abajo */
-.usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; --usearch-host-pad: var(--spacing-8); } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
+.usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
 @supports (height: 1dvh) { .usearch-sheetbottom { --r4-sheet-bottom-maxheight: 90dvh; } }
 .usearch-sheetbottom__body { display: flex; flex-direction: column; gap: var(--spacing-8); height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-8)); }
 .usearch-sheetbottom__body .usearch-panel { flex: 1 1 0; }
@@ -86,9 +86,13 @@ html.usearch-lock { overflow: hidden; }
 /* Filtros por tipo del autocompletado: a 24 de la caja de búsqueda (Figma), no a los 32 del resto de bloques */
 .usearch-sheet__body .usearch-panel__filters, .usearch-sheetbottom__body .usearch-panel__filters { margin-top: calc(var(--spacing-6) - var(--spacing-8)); }
 
-/* Padding inferior de cada contenedor (para reservar el hueco de la barra inferior del autocompletado): Sheet side 48 · popover 12 (bottom sheet: 32, arriba) */
-.usearch-sheet { --usearch-host-pad: var(--spacing-12); }
-.usearch-desk__pop { --usearch-host-pad: var(--spacing-3); }
 
 /* El placeholder largo («Busca un producto o pregunta al asistente») no cabe en mobile: se corta con puntos suspensivos */
 .usearch__fieldrow .r4-inputsearch__input { text-overflow: ellipsis; }
+
+/* Con el bloque Actions del R4Sheet (acceso al chat desde el buscador) el cuerpo cede su alto: alto del bloque = 16 + texto small + 8 + botón large + 16, y el padding inferior del contenido pasa de 48 (side) / 32 (bottom) a 16 */
+.usearch-sheet__body, .usearch-sheetbottom__body { --usearch-actions-h: calc(var(--spacing-4) * 2 + var(--line-height-body-s) + var(--spacing-2) + var(--component-button-size-large)); }
+.usearch-sheet__body--actions { height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4) + var(--spacing-8) - var(--usearch-actions-h)); }
+.usearch-sheetbottom__body--actions { height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-4) - var(--usearch-actions-h)); }
+/* En el R4Popover el bloque va a sangre (el popover tiene 12 de padding) */
+.usearch__pop .usearch-actions { margin: 0 calc(var(--spacing-3) * -1) calc(var(--spacing-3) * -1); }

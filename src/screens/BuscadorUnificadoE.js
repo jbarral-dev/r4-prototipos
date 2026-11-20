@@ -11,6 +11,7 @@ import Facilitador, { valoresPorDefecto, escribirParam } from '../components/pro
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
+import _AssistantAccess from '../components/pendientes/_AssistantAccess.js'
 import R4Badge from '../components/pendientes/R4Badge.js'
 import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
@@ -19,7 +20,7 @@ import { crearEstado } from './_buscadorEstado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=historial`; el valor por defecto no ensucia la URL)
@@ -91,7 +92,7 @@ export default defineComponent({
             <div v-else class="usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
             <div class="usearch-desk__pop">
               <R4Popover width="wider" density="none">
-                <div class="usearch__pop"><UnifiedSearchPanel :api="api" /></div>
+                <div class="usearch__pop"><UnifiedSearchPanel :api="api" /><div v-if="api.barra" class="usearch-actions"><AssistantAccess @ask="api.preguntarLoEscrito()" /></div></div>
               </R4Popover>
             </div>
           </div>
@@ -99,8 +100,8 @@ export default defineComponent({
 
         <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
         <div v-if="contenedor === 'sheet'" class="usearch-sheet">
-          <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
-            <div class="usearch-sheet__body">
+          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="api.barra" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheet__body" :class="{ 'usearch-sheet__body--actions': api.barra }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
@@ -108,13 +109,14 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" />
             </div>
+            <template #actions><AssistantAccess @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
         <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
         <div class="usearch-sheetbottom">
-          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
-            <div class="usearch-sheetbottom__body">
+          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="api.barra" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheetbottom__body" :class="{ 'usearch-sheetbottom__body--actions': api.barra }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
@@ -122,6 +124,7 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" />
             </div>
+            <template #actions><AssistantAccess @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 

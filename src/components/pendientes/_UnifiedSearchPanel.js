@@ -38,7 +38,7 @@ export default defineComponent({
     const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
     const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
     const gruposVisibles = computed(() => grupos.value.filter((g) => filtroActivo.value === 'todos' || g.id === filtroActivo.value))
-    const mostrarFiltros = computed(() => !vacio.value && props.api.mode === 'search' && props.api.results.length > 0)
+    const mostrarFiltros = computed(() => props.api.barra) // filtros por tipo: con el autocompletado y resultados (igual que el acceso al chat)
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
@@ -84,10 +84,10 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
-    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
+    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
@@ -164,12 +164,6 @@ export default defineComponent({
             <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
-      </div>
-
-      <!-- Barra inferior del autocompletado (Figma 11:8773): fija abajo en la capa, a todo el ancho y por encima del contenido -->
-      <div v-if="mostrarFiltros" class="usearch-panel__bar">
-        <R4Text size="small" class="usearch-panel__bar-text" text="¿No encuentras lo que buscas?" />
-        <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="preguntarLoEscrito" />
       </div>
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->

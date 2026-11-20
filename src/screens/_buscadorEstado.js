@@ -37,6 +37,8 @@ export function crearEstado() {
   const autocompletar = computed(() => searchTerm.value.trim().length >= 2) // el autocompletado (resultados + filtros) aparece con al menos 2 caracteres
   // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
   const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
+  // Acceso al chat desde el buscador (bloque Actions del R4Sheet): visible con el autocompletado y resultados
+  const barra = computed(() => mode.value === 'search' && autocompletar.value && results.value.length > 0)
   const auto = computed(() => !locked.value && !thread.value.length && !!ruta.value.mode)
 
   const anotar = (evento, detalle = '') => {
@@ -105,6 +107,7 @@ export function crearEstado() {
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
   const abrirConversacion = (conv, desde = 'inicio') => { vista.value = 'inicio'; desdeListado.value = desde === 'historial'; gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
+  const preguntarLoEscrito = () => { const t = query.value.trim() || lastSent.value; if (t) preguntar(t); else irAlChat() } // el botón del acceso al chat envía lo escrito en la caja
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
   const accion = (link) => {
@@ -141,6 +144,6 @@ export function crearEstado() {
 
   return reactive({
     open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
-    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, cargarRespuesta, vista, setHistorico, verHistorial, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
+    abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, preguntarLoEscrito, barra, cargarRespuesta, vista, setHistorico, verHistorial, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
