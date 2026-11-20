@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-nxt">
+<g>
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="#F8F9FD"/>
+<path id="Vector_2" d="M19.5556 19.5556L44 37.3022L68.4444 19.5556V28.1111L46.5911 44L68.4444 59.8889V68.4444L44 50.6978L19.5556 68.4444V59.8889L41.4089 44L19.5556 28.1111V19.5556Z" fill="#131722"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_213">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

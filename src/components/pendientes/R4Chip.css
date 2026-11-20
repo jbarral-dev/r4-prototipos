@@ -67,3 +67,14 @@
 .r4-chip__chevron { flex: none; width: var(--r4-chip-chevron); height: var(--r4-chip-chevron); color: var(--icon-default); }
 .r4-chip[aria-disabled='true'] .r4-chip__chevron { color: var(--icon-disabled); }
 .r4-chip--multiple.is-selected .r4-chip__left .r4-badge { margin-left: calc(var(--spacing-1) - var(--r4-chip-gap)); } /* Label: texto + badge a gap marginXXS (4) */
+
+/* type=dismissible (Figma 12719:162): siempre con el aspecto de seleccionada pero con fondo surface/subtle; padding igual a cada lado (16 · 12), gap 8 · 4 y icono ic-times-circle de 20 · 14 (icon/default). pressed: surface/muted */
+.r4-chip.r4-chip--dismissable { gap: var(--r4-chip-gap); padding: 0 var(--r4-chip-pad); background: var(--surface-subtle); box-shadow: inset 0 0 0 var(--spacing-05) var(--border-inverse); color: var(--text-default); }
+.r4-chip.r4-chip--dismissable:hover:not([aria-disabled='true']) { box-shadow: inset 0 0 0 var(--spacing-05) var(--border-inverse); }
+.r4-chip.r4-chip--dismissable:active:not([aria-disabled='true']) { background: var(--surface-muted); box-shadow: inset 0 0 0 var(--spacing-05) var(--border-inverse); }
+.r4-chip.r4-chip--dismissable:focus-visible { box-shadow: inset 0 0 0 var(--spacing-05) var(--border-inverse), var(--effect-card-focus-outline); }
+.r4-chip.r4-chip--dismissable[aria-disabled='true'] { background: var(--component-input-bg-disabled); box-shadow: inset 0 0 0 var(--spacing-05) var(--border-default); color: var(--text-disabled); }
+.r4-chip__dismiss { flex: none; width: var(--r4-chip-chevron); height: var(--r4-chip-chevron); color: var(--icon-default); }
+.r4-chip[aria-disabled='true'] .r4-chip__dismiss { color: var(--icon-disabled); }
+/* type=multiple sin chevron (Figma de las tablas: «Todos los filtros» = icono + texto + badge): el padding derecho del grupo izquierdo ya separa del borde */
+.r4-chip--no-chevron { padding: 0 var(--r4-chip-pad); }

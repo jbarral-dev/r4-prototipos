@@ -3,7 +3,8 @@
 // type (default | button | buttonWithDescription), orientation (vertical | horizontal), label, caption, captionStatus (default | error), options [{ label, value, description?, disabled? }], selectedValue, required.
 // Figma: R4InputRadio = _Input Label/Default + _Radio Button Group (de `_Radio Button`) + _Input Caption. Evento `change` (value) = analítica «R4InputRadio/Change» de la doc.
 // Reconstruido: type=button, orientation=vertical, estados de cada opción (Inactive/Active × Default/Hover/Focused/Pressed/Disabled), captionStatus default y error (aria-describedby + aria-invalid).
-// NO reconstruido (no leído): type=default (radio clásico, _RadioWithLabel/_Radio), type=buttonWithDescription, orientation=horizontal, el icono opcional de la opción (IconBlock) y `description`.
+// type=default (radio sencillo; leído en Figma 516:45906 y _Radio 13243:3775-3796): 24 px, trazo 2 px y punto central de 16; hover border/medium · seleccionado border/inverse · foco con sombra de input; texto body/l, gap 8.
+// NO reconstruido (no leído): type=buttonWithDescription, orientation=horizontal, el icono opcional de la opción (IconBlock) y `description`.
 // Accesibilidad según la doc: fieldset + legend con role=radiogroup; <input type=radio> nativo con `name` compartido (un solo stop de Tab; flechas mueven el foco Y seleccionan: roving tabindex nativo).
 // Discrepancia de Figma: _Radio Button mezcla tokens de generación antigua (Space/Padding/*, Space/Margin/*) con los nuevos; se usan sus equivalentes de la escala nueva (spacing-3 = 12, spacing-5 = 20, spacing-2 = 8, spacing-1 = 4).
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
@@ -20,14 +21,14 @@ export default defineComponent({
     label: { type: String, default: undefined },
     caption: { type: String, default: undefined },
     required: { type: Boolean, default: false },
-    type: { type: String, default: 'button', validator: (v) => v === 'button' },
+    type: { type: String, default: 'button', validator: (v) => ['button', 'default'].includes(v) },
     orientation: { type: String, default: 'vertical', validator: (v) => v === 'vertical' },
     captionStatus: { type: String, default: 'default', validator: (v) => ['default', 'error'].includes(v) },
   },
   emits: ['change'],
   setup(props, { emit }) {
     const id = `r4-input-radio-${++uid}`
-    const classes = computed(() => ['r4-input-radio', `r4-input-radio--${props.captionStatus}`])
+    const classes = computed(() => ['r4-input-radio', `r4-input-radio--${props.captionStatus}`, `r4-input-radio--type-${props.type}`])
     const onChange = (value) => { if (value !== props.selectedValue) emit('change', value) }
     return { id, classes, onChange }
   },
@@ -41,7 +42,7 @@ export default defineComponent({
         <label v-for="option in options" :key="option.value" class="r4-input-radio__option" :class="{ 'r4-input-radio__option--disabled': option.disabled }">
           <input class="r4-input-radio__input" type="radio" :name="id" :value="option.value" :checked="option.value === selectedValue" :disabled="option.disabled" @change="onChange(option.value)" />
           <span class="r4-input-radio__text">{{ option.label }}</span>
-          <Icon class="r4-input-radio__check" name="check" aria-hidden="true" />
+          <Icon v-if="type === 'button'" class="r4-input-radio__check" name="check" aria-hidden="true" />
         </label>
       </div>
       <p v-if="caption" :id="id + '-caption'" class="r4-input-radio__caption">{{ caption }}</p>

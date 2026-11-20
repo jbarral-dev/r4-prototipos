@@ -1,0 +1,25 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-a3m">
+<g>
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="#F0F3FA"/>
+<path id="Vector_2" d="M44 53.7778L57.2 62.5778L44 73.3333V53.7778Z" fill="#BA010E"/>
+<path id="Vector_3" d="M44 14.6667L57.2 25.5689L44 34.2222V14.6667ZM44 34.2222L57.2 44L44 53.7778V34.2222Z" fill="#DE5827"/>
+<path id="Vector_4" d="M57.2 44L68.4444 52.8L57.2 62.5778V44Z" fill="#DF5928"/>
+<path id="Vector_5" d="M57.2 25.52L68.4444 35.2978L57.2 44V25.52Z" fill="#CB2614"/>
+<path id="Vector_6" d="M29.3333 23.3689L24.4444 26.0578L37.4489 35.4444L44 34.2222L29.3333 23.3689Z" fill="#AE1E10"/>
+<path id="Vector_7" d="M37.3022 35.4444L24.4444 44H29.5778L44 34.2222L37.2533 35.4444H37.3022Z" fill="#ECB768"/>
+<path id="Vector_8" d="M37.4 52.6533L24.4444 44H29.4311L44 53.7778L37.4 52.6533Z" fill="#AE1E10"/>
+<path id="Vector_9" d="M37.4 52.6533L24.4444 62.2844L29.3333 64.9244L44 53.7778L37.4 52.6533Z" fill="#E9A851"/>
+<path id="Vector_10" d="M44 14.6667L29.3333 23.3689L44 34.2222V14.6667Z" fill="#F1943E"/>
+<path id="Vector_11" d="M57.2 25.52L44 34.2222L57.2 44V25.52Z" fill="#EE7C36"/>
+<path id="Vector_12" d="M57.2 44L44 53.7778L57.2 62.5778V44Z" fill="#CD2917"/>
+<path id="Vector_13" d="M44 34.2222L29.3333 44L44 53.7778V34.2222Z" fill="#EF7B33"/>
+<path id="Vector_14" d="M44 53.7778L29.3333 64.9733L44 73.3333V53.7778Z" fill="#CD2917"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_712">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

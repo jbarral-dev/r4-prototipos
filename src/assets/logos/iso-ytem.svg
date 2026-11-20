@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-ytem">
+<g>
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="#172C65"/>
+<path id="Vector_2" d="M73.3333 44L44 14.6667L14.6667 44L44 73.3333L73.3333 44ZM68.4444 44L44 19.5556L19.5556 44L44 68.4444L68.4444 44Z" fill-rule="evenodd" clip-rule="evenodd" fill="#D9D9D9"/>
+<path id="Vector_3" d="M58.6667 44L44 29.3333L29.3333 44H58.6667Z" fill-rule="evenodd" clip-rule="evenodd" fill="#64BAAF"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_172">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

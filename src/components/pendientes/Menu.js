@@ -122,7 +122,7 @@ export default defineComponent({
               </div>
             </div>
           </div>
-          <div v-if="client !== 'potencial'" class="menu__sub">
+          <div v-if="client !== 'potencial' && subNavItems.length" class="menu__sub">
             <nav class="menu__sub-content" aria-label="Secundaria">
               <ul class="menu__sub-list">
                 <li v-for="(it, i) in subNavItems" :key="i"><a class="menu__sub-item" :class="{ 'menu__sub-item--current': it.current }" :href="it.href || '#'" :aria-current="it.current ? 'page' : undefined">{{ it.label }}</a></li>

@@ -1,0 +1,17 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="iso-col">
+<g>
+<path id="Vector" d="M0 0H88V88H0V0Z" fill="url(#paint0_linear_0_490)"/>
+<path id="Vector_2" d="M57.7867 29.3333H32.4622C32.2178 29.3333 31.9733 29.4311 31.8267 29.5778L19.8978 42.7778L19.7022 42.9733C19.36 43.3156 19.6044 43.9511 20.0933 43.9511H43.12C43.6089 43.9511 44 44.2444 44 44.7333V67.9067C44 68.3956 44.5867 68.64 44.88 68.2978L58.4222 56.1733C58.5031 56.0889 58.5664 55.9893 58.6084 55.8802C58.6504 55.771 58.6702 55.6546 58.6667 55.5378V30.2133C58.6667 29.7244 58.2756 29.3333 57.7867 29.3333Z" fill="white"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_490" x1="16.3778" y1="15.2533" x2="107.067" y2="119.436" gradientUnits="userSpaceOnUse">
+<stop stop-color="#1A1E21"/>
+<stop offset="1" stop-color="#06060A"/>
+</linearGradient>
+<clipPath id="clip0_0_490">
+<path d="M0 44C0 19.6995 19.6995 0 44 0V0C68.3005 0 88 19.6995 88 44V44C88 68.3005 68.3005 88 44 88V88C19.6995 88 0 68.3005 0 44V44Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>

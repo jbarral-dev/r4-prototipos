@@ -7,6 +7,7 @@
 // Extras del prototipo (datos que la tabla no recoge pero Figma muestra; avisados): showTagCaife (boolean, propiedad de Figma: R4Tag «Europa» blue bordered con ic-europe--solid tras el mercado; no está en Confluence), variation (número, % con signo), updated ('11:39h'), market ({ name, flag }),
 // priceTarget ({ label, value, recommendation }), favourite (boolean) y eventos `favourite` / `cta` / `visible-change` (el producto entra/sale del viewport:
 // lo usa la Template para mostrar FixedProductTitle en mobile).
+// Extra (R4TableV2): con `ctaText` vacío no se pinta el botón principal ni, sin acciones secundarias, la capa de acciones (Figma del IBEX 35: acciones ocultas).
 // NO reconstruido: riskLevel (R4RiskBox/_RiskIndicator), ticker/isin/index/gestora/Morningstar (metadatos de otras fichas), combo de derivados (R4Chip multiple),
 // secondary action de la doc (p. ej. «Crear plan» en fondos).
 // Accesibilidad según la doc: breadcrumb <nav>; nombre del producto = <h1>; logo decorativo (aria-hidden); favorito con aria-pressed; la rentabilidad lleva el signo (+/-).
@@ -103,9 +104,9 @@ export default defineComponent({
               <R4Tag v-if="priceTarget.recommendation" size="small" color="neutralDark" icon="ic-tachometer-average" :text="priceTarget.recommendation" />
             </div>
           </div>
-          <div class="r4-pagetitleproduct__actions">
+          <div v-if="ctaText || secondaryActions.length" class="r4-pagetitleproduct__actions">
             <ProductActionsMenu v-if="secondaryActions.length" :actions="secondaryActions" placement="down" @action="$emit('action', $event)" />
-            <R4Button type="primary" icon="ic-shopping-cart" :text="ctaText" @click="$emit('cta')" />
+            <R4Button v-if="ctaText" type="primary" icon="ic-shopping-cart" :text="ctaText" @click="$emit('cta')" />
           </div>
         </div>
       </div>

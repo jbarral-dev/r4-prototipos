@@ -55,3 +55,6 @@
 /* Alto máximo del R4Sheet bottom: en Figma 680 px (Figma no admite unidades porcentuales); en código 80 % del alto visible (Jon). dvh descuenta la barra del navegador móvil; vh de reserva. */
 :root { --r4-sheet-bottom-maxheight: 80vh; }
 @supports (height: 1dvh) { :root { --r4-sheet-bottom-maxheight: 80dvh; } }
+
+/* R4Table v2: opacidad de la tabla mientras recarga bajo el R4Spinner. Jon lo pide («pierde opacidad») pero Figma no define el valor: provisional, a validar con diseño */
+:root { --r4-table-loading-opacity: 0.4; }
