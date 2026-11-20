@@ -25,6 +25,7 @@ export function crearEstado() {
   let convActual = null // conversación del historial que se está pintando (los mensajes nuevos se añaden a ella)
   let gen = 0 // se incrementa al reiniciar el panel: descarta la respuesta del asistente que llegue tarde
   const opciones = reactive({ ejemplos: true })
+  const desdeListado = ref(false) // el chat abierto viene del listado completo: «Volver» regresa al listado, no al inicio
   const vista = ref('inicio') // 'inicio' (estado inicial) | 'historial' (listado completo de conversaciones: «Ver todas»)
   const historicoOn = ref(false) // Facilitador «Tiene histórico de conversaciones»: 12 conversaciones en lugar de las 2 de ejemplo
   const filtro = ref('todos') // chip de tipo activo en el autocompletado (Todos · Acciones · CFDs · Futuros · Fondos · Centro de ayuda)
@@ -52,7 +53,7 @@ export function crearEstado() {
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { vista.value = 'inicio'; gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { vista.value = 'inicio'; desdeListado.value = false; gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -96,13 +97,13 @@ export function crearEstado() {
   // «Pregunta al asistente» del estado inicial: lleva directo al chat (conversación vacía con el saludo y el prompt)
   const irAlChat = () => { locked.value = 'chat'; anotar('abre el chat', 'desde «Pregunta al asistente»') }
   // Volver (desde el chat) a la pantalla inicial: la conversación en marcha se conserva como activa (badge en la lupa; se reanuda al reabrir)
-  const volver = () => { if (thread.value.length) convActiva.value = convActual || { titulo: thread.value[0].text, thread: thread.value }; limpiar(); anotar('vuelve al inicio') }
+  const volver = () => { const alListado = desdeListado.value; if (thread.value.length) convActiva.value = convActual || { titulo: thread.value[0].text, thread: thread.value }; limpiar(); if (alListado) vista.value = 'historial'; anotar(alListado ? 'vuelve al listado de conversaciones' : 'vuelve al inicio') }
   const usarTexto = (text, origen) => { query.value = text; abrir(); anotar('elige ' + origen, text) }
   const registrarBusqueda = (term) => { const k = norm(term); historial.busquedas = [term, ...historial.busquedas.filter((b) => norm(b) !== k)].slice(0, 4) }
   // Chip de «Búsquedas frecuentes» / «Últimas búsquedas»: mete el término en la caja y pinta el listado de resultados de esa consulta (el panel sigue abierto)
   const buscarTermino = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); query.value = term }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
-  const abrirConversacion = (conv) => { vista.value = 'inicio'; gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const abrirConversacion = (conv, desde = 'inicio') => { vista.value = 'inicio'; desdeListado.value = desde === 'historial'; gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }

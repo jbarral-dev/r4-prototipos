@@ -79,10 +79,12 @@ export default defineComponent({
     // Listado completo de conversaciones (R4NavigationItems; al pulsar una se carga el chat con ella)
     const historialItems = computed(() => props.api.historial.conversaciones.map((c) => ({ title: c.titulo, description: c.fecha, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
     const enListado = computed(() => props.api.vista === 'historial' && vacio.value)
+    // Desde el listado completo: el chat que se abre recuerda de dónde viene (Volver lleva de vuelta al listado)
+    const onListado = (it, e) => { e.preventDefault(); props.api.abrirConversacion(it.conv, 'historial') }
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
@@ -100,7 +102,7 @@ export default defineComponent({
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="usearch-panel__group">
-          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onPregunta" />
+          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
         </div>
         <div v-else-if="vacio" class="usearch-panel__start">
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
@@ -112,7 +114,7 @@ export default defineComponent({
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
             <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">{{ tituloPreguntas }}</h3>
             <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
-            <R4Link v-if="hayMas" size="medium" href="#" @click.prevent="api.verHistorial()">Ver todas</R4Link>
+            <R4Button v-if="hayMas" type="text" size="medium" width="full-width" text="Ver todas" @click="api.verHistorial()" />
           </section>
         </div>
 
