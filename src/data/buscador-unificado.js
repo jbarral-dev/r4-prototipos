@@ -95,6 +95,8 @@ const respuestas = [
     match: (t) => t.includes('jubilacion') || t.includes('pension') || t.includes('ahorr'),
     text: 'Tienes tres formas habituales: planes de pensiones (ventaja fiscal, dinero poco líquido), fondos de inversión (flexibles y traspasables) y planes de ahorro sistemáticos (aportaciones periódicas). ¿Quieres ver alguno en concreto?',
     links: [{ label: 'Ver planes de pensiones', toast: 'Listado de planes de pensiones' }, { label: 'Ver fondos de inversión', toast: 'Listado de fondos' }],
+    // Enfoque buscador: los enlaces van como lista de R4Link con viñetas (el Enfoque chat sigue usando `links`)
+    lista: [{ label: 'Ver planes de pensiones', toast: 'Listado de planes de pensiones' }, { label: 'Ver fondos de inversión', toast: 'Listado de fondos' }, { label: 'Ver planes de ahorro sistemático', toast: 'Listado de planes de ahorro' }],
   },
   {
     match: (t) => t.includes('capital riesgo'),

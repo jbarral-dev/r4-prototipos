@@ -9,6 +9,7 @@ import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
+import R4Link from './R4Link.js'
 import R4Text from './R4Text.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
@@ -19,7 +20,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4Text, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -48,10 +49,8 @@ export default defineComponent({
       if (a.mode === 'chat') return a.thread.length ? 'Modo conversación.' : 'Modo conversación: pulsa Intro para preguntar al asistente.'
       return `Modo resultados: ${a.results.length} resultados.`
     })
-    // Al final de la última respuesta del asistente: «Nuevo chat» y «Nueva búsqueda»
-    const mostrarAcciones = computed(() => { const t = props.api.thread; return t.length > 0 && !props.api.pending && t[t.length - 1].role === 'assistant' })
     const body = ref(null)
-    watch(() => [props.api.thread.length, props.api.pending, mostrarAcciones.value], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
+    watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
     const composer = ref(null)
     const promptEl = ref(null) // R4InputTextarea (crece con el texto; el botón de enviar queda abajo a la derecha)
@@ -64,8 +63,9 @@ export default defineComponent({
     }
     watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
     // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
+    // Volver: al inicio (la conversación queda activa) y el foco no se pierde: pasa al botón de cierre del R4Sheet, sin abrir el teclado
+    const volver = async () => { props.api.volver(); await nextTick(); body.value?.closest('.r4-sheet')?.querySelector('.r4-sheet__close')?.focus() }
     const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
-    const nuevoChat = () => { props.api.nuevoChat(); enfocarPrompt() }
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
     const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
@@ -78,12 +78,10 @@ export default defineComponent({
     const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
     const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
     const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
-    const asistenteItems = [{ title: 'Pregunta al asistente', icon: 'ic-sparkles', linkHref: '#', showLink: true }]
-    const onAsistente = (it, e) => { e.preventDefault(); props.api.irAlChat() }
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, asistenteItems, onAsistente, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat, preguntarLoEscrito }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
@@ -95,11 +93,12 @@ export default defineComponent({
         <R4Chip v-for="g in grupos" :key="g.id" size="small" :label="g.label" :selected="filtroActivo === g.id" @click="api.filtro = g.id" />
       </div>
 
+      <!-- Volver a la pantalla inicial: fijo arriba de la conversación (donde en el estado inicial está la caja). La conversación se conserva como activa -->
+      <div v-if="api.chatView" class="usearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
+
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="vacio" class="usearch-panel__start">
-          <!-- Promueve el chat (Figma 4:6627): R4NavigationItems con card, icono boxed y flecha; al pulsarlo va directo al chat -->
-          <R4NavigationItems size="medium" :items="asistenteItems" has-card-container aria-label="Asistente" @select="onAsistente" />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="usearch-panel__chips">
@@ -148,15 +147,12 @@ export default defineComponent({
               <div class="usearch-msg" :class="'usearch-msg--' + m.role">
                 <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
                 <p class="usearch-msg__text">{{ m.text }}</p>
-                <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+                <ul v-if="m.lista" class="usearch-msg__list"><li v-for="l in m.lista" :key="l.label"><R4Link size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></li></ul>
+                <div v-else-if="m.links" class="usearch-msg__links"><R4Link v-for="l in m.links" :key="l.label" size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></div>
               </div>
             </li>
             <li v-if="api.pending" class="usearch-row usearch-row--assistant" aria-live="polite"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></li>
           </ol>
- <div v-if="mostrarAcciones" class="usearch-panel__chat-actions">
-            <R4Button type="secondary" size="medium" width="full-width" icon="ic-plus" text="Nuevo chat" @click="nuevoChat" />
-            <R4Button type="secondary" size="medium" width="full-width" icon="ic-search" text="Nueva búsqueda" @click="api.nuevaBusqueda()" />
-          </div>
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
             <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>

@@ -45,17 +45,7 @@ export default defineComponent({
     const placeholder = 'Busca o pregunta'
     onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
 
-    // Foco en el campo que se ve (el CSS oculta el otro por container query)
-    const focusVisible = async () => {
-      await nextTick()
-      await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
-      for (const f of [mobileField.value, desktopField.value, sheetField.value]) {
-        const el = f && f.$el
-        if (el && el.getClientRects().length) { f.focus(); return }
-      }
-    }
     // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
-    watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: el usuario ya ha decidido buscar, así que el campo vuelve y recibe el foco
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
     const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facilitador'))) api.cerrar() }
