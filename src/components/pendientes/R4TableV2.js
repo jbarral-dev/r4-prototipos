@@ -8,6 +8,7 @@
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista recarga toda la capa (filtros + vistas + tabla) con el mismo spinner.
 // Acordeones del sheet: en mobile/tablet (sheet bottom) size small y en desktop medium; «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
+// El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
 // Decisiones inferidas: «Limpiar» (popover) vacía la selección del popover y hay que pulsar «Aplicar» para aplicar (disabled si no hay nada); categorías con AND entre sí y OR dentro; el estado aplicado es por vista; el tiempo de recarga (1 s) es el pedido.
 // Extras / NO oficial: R4Chip `dismissable`/`hideChevron`, R4Accordion `defaultOpen`, R4Table `sortable`/`defaultSort`/slot `empty` (ver cada archivo). Mobile y tablet: sin diseño; se adapta con el patrón de la doc (chips en una fila con scroll, sheets bottom).
@@ -70,6 +71,7 @@ export default defineComponent({
     const aplicados = reactive(Object.fromEntries(props.views.map((v) => [v.value, { ...(v.initial || {}) }]))) // { vista: { filtroId: [valores] } }
     const actuales = computed(() => aplicados[contentView.value])
     const loading = ref(null) // null | 'table' | 'all'
+    const orden = ref(props.views[0].defaultSort ? { ...props.views[0].defaultSort } : { field: null, order: null }) // el orden elegido se conserva al cambiar de vista
     const target = ref(null) // capa de superposición (donde se montan los sheets)
     let timer = null
 
@@ -143,7 +145,7 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      contando, abiertos, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
+      contando, abiertos, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :aria-busy="loading ? 'true' : undefined">
@@ -170,7 +172,7 @@ export default defineComponent({
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <R4Section appearance="boxed" background-color="white">
           <R4Table :key="contentView" :data="filasMostradas" :columns="view.columns" :data-key="dataKey" paginator :rows="rows" :aria-label="ariaLabel"
-                   :default-sort="view.defaultSort">
+                   :default-sort="orden" @sort-change="orden = $event">
             <template v-for="c in view.columns" #[\`body-\${c.field}\`]="slotProps">
               <slot :name="'body-' + c.field" v-bind="slotProps"><R4Text :text="c.format ? c.format(slotProps.value, slotProps.data) : (slotProps.value ?? '')" /></slot>
             </template>

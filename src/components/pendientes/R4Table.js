@@ -9,7 +9,7 @@
 // Extra: `width` por columna (porcentaje): fija el ancho de las columnas (table-layout: fixed) para que no cambie con el contenido al filtrar o paginar; con anchos fijos la tabla tiene un ancho mínimo y en mobile hace scroll horizontal.
 // Extra: `srHeader` (texto oculto visualmente para una columna sin título visible, p. ej. una columna de botones: mantiene el nombre accesible de la columna).
 // R4Table v2 (prototipo «R4Table (v2)»): `sortable` por columna (API del Vue en Confluence 3001581575): botón en la cabecera con el icono «Icon Arrow» de Figma (Proyectos - Tablas): doble flecha sin ordenar, flecha abajo = ascendente y arriba = descendente (así lo pinta Figma;
-// la Confluence dice lo contrario —asc = arriba—: discrepancia a validar); a la izquierda del texto en columnas alineadas a la derecha. Orden en cliente; clic: asc → desc → sin orden. Extras: `defaultSort` ({ field, order }) y slot `empty`
+// la Confluence dice lo contrario —asc = arriba—: discrepancia a validar); a la izquierda del texto en columnas alineadas a la derecha. Orden en cliente; clic: asc → desc → sin orden. Extras: `defaultSort` ({ field, order }), evento `sort-change` ({ field, order }; lo usa R4TableV2 para conservar el orden al cambiar de vista) y slot `empty`
 // (filas vacías: «No hay resultados»; en Storybook no se ha podido comprobar el comportamiento sin datos). aria-sort en la cabecera.
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
 // Extras del prototipo: ariaLabel y el paginador propio (`<nav>` con botones; el del Storybook es el de PrimeVue). El icono «siguiente» es el chevron izquierdo girado (no hay chevron derecho registrado).
@@ -32,7 +32,8 @@ export default defineComponent({
     ariaLabel: { type: String, default: undefined },
     defaultSort: { type: Object, default: undefined },
   },
-  setup(props) {
+  emits: ['sort-change'],
+  setup(props, { emit }) {
     const page = ref(1)
     const sort = ref(props.defaultSort ? { ...props.defaultSort } : { field: null, order: null })
     const sorted = computed(() => {
@@ -63,7 +64,7 @@ export default defineComponent({
     })
     const ir = (n) => { page.value = Math.min(pageCount.value, Math.max(1, n)) }
     watch(() => props.data, () => { page.value = 1 })
-    watch(sort, () => { page.value = 1 }) // al cambiar los datos (p. ej. otro filtro) se vuelve a la primera página
+    watch(sort, (s) => { page.value = 1; emit('sort-change', { ...s }) }) // al cambiar los datos (p. ej. otro filtro) se vuelve a la primera página
     return { page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },
   template: `
