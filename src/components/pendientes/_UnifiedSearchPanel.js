@@ -104,7 +104,6 @@ export default defineComponent({
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="usearch-panel__group">
-          <R4Text :id="'usearch-todas-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title usearch-panel__group-title--default" text="Todas las preguntas" />
           <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onPregunta" />
         </div>
         <div v-else-if="vacio" class="usearch-panel__start">

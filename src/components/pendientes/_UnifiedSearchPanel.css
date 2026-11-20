@@ -79,6 +79,3 @@
 .usearch-msg__results { margin-top: 0; }
 /* Dentro de la burbuja del asistente: 20 px en total entre el texto y el bloque de enlaces / enlace único / resultados (el gap de la burbuja ya pone 4) */
 .usearch-msg__text + .usearch-msg__list, .usearch-msg__text + .usearch-msg__links, .usearch-msg__text + .usearch-msg__results { margin-top: calc(var(--spacing-5) - var(--spacing-1)); }
-
-/* Título del listado completo de conversaciones: text/default (el de los grupos del autocompletado es muted) */
-.usearch-panel .usearch-panel__group-title--default { color: var(--text-default); }

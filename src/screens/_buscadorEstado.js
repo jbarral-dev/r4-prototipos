@@ -114,7 +114,8 @@ export function crearEstado() {
   const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado(partida.value) }
   // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas
   // Fecha y hora de cada conversación (DATOS DE EJEMPLO): las del histórico retroceden desde el 18/11/2026 10:42; la que se crea en la sesión lleva la hora actual
-  const formatoFecha = (d) => `${d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} · ${d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })} h`
+  const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+  const formatoFecha = (d) => `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()} · ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} h` // «26 Ene 2026 · 10:42 h»
   const fechaEjemplo = (i) => formatoFecha(new Date(new Date(2026, 10, 18, 10, 42).getTime() - i * (27 * 60 + 13) * 60000))
   const conversacionEjemplo = (q, i = 0) => ({ titulo: q, fecha: fechaEjemplo(i), thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
   const partida = ref('nuevo') // use case cargado (el del Facilitador): «Reiniciar sesión» vuelve a él
