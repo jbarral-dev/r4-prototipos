@@ -183,7 +183,7 @@ export default defineComponent({
 
       <Teleport v-if="target" :to="target">
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" title="Todos los filtros" :open="sheetOpen"
-                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Quitar filtros" secondary-action-icon="ic-trash-alt" @primary="aplicarSheet" @secondary="quitarFiltros" @close="cerrarSheet">
+                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Quitar filtros" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftTotal === 0" @primary="aplicarSheet" @secondary="quitarFiltros" @close="cerrarSheet">
           <R4Accordion :items="accordionItems" multiple :size="pos === 'bottom' ? 'small' : 'medium'" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
