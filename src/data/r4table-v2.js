@@ -163,11 +163,11 @@ const num_ = (field, header, width) => ({ field, header, sortable: true, align: 
 const accion = { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '5%' }
 export const vistas = [
   { value: 'basica', label: 'Vista básica',
-    columns: [{ ...nombre, width: '15%' }, { field: 'symbol', header: 'Símbolo', sortable: true, width: '10%' }, num_('last', 'Último', '10%'), num_('dif', 'Dif.', '8%'), num_('difPct', 'Dif.%', '9%'), num_('volC', 'VolC', '8%'), num_('compra', 'Compra', '9%'), num_('venta', 'Venta', '9%'), num_('volV', 'VolV', '7%'), num_('volumen', 'Volumen', '10%'), { ...accion, width: '6%' }],
+    columns: [{ ...nombre, width: '20%' }, num_('last', 'Último', '10%'), num_('dif', 'Dif.', '9%'), num_('difPct', 'Dif.%', '10%'), num_('volC', 'VolC', '9%'), num_('compra', 'Compra', '9%'), num_('venta', 'Venta', '9%'), num_('volV', 'VolV', '8%'), num_('volumen', 'Volumen', '10%'), { ...accion, width: '6%' }],
     filters: [fMercados, fIndices, fVariacion],
     initial: { indices: ['Ibex 35'] }, defaultSort: { field: 'name', order: 'asc' } },
   { value: 'adicional', label: 'Vista adicional',
-    columns: [{ ...nombre, width: '26%' }, { field: 'symbol', header: 'Símbolo', sortable: true, width: '12%' }, num_('max52', 'Máx. 52 s', '13%'), num_('min52', 'Mín. 52 s', '13%'), num_('cap', 'Cap. (M€)', '12%'), num_('per', 'PER', '8%'), num_('ytd', 'YTD', '10%'), { ...accion, width: '6%' }],
+    columns: [{ ...nombre, width: '30%' }, num_('max52', 'Máx. 52 s', '15%'), num_('min52', 'Mín. 52 s', '15%'), num_('cap', 'Cap. (M€)', '13%'), num_('per', 'PER', '9%'), num_('ytd', 'YTD', '12%'), { ...accion, width: '6%' }],
     filters: [fMercados, fIndices, fYtd, fCap],
     initial: { indices: ['Ibex 35'] } },
 ]

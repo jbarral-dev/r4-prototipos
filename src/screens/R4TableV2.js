@@ -42,7 +42,6 @@ export default defineComponent({
           <template #body-name="{ data }">
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
-          <template #body-symbol="{ value }"><R4Text :text="value" /></template>
           <template #body-last="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-dif="{ value }"><R4Text :text="signo(value, fmt(abs(value)))" :variant="tono(value)" /></template>
           <template #body-difPct="{ data }"><R4Text :text="signo(data.difPct, nf(2).format(abs(data.difPct)).replace(/^(\\d+)$/, '$1,00') + ' %')" :variant="tono(data.difPct)" /></template>
