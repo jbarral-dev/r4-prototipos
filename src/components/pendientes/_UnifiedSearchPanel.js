@@ -28,21 +28,17 @@ export default defineComponent({
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
     const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.autocompletar))
-    // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes)
+    // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes; sin Centro de ayuda: no se muestra en los resultados)
     const GRUPOS = [
       { id: 'acciones', label: 'Acciones', test: (r) => r.type === 'Acción' },
       { id: 'cfds', label: 'CFDs', test: (r) => r.type === 'CFD' },
       { id: 'futuros', label: 'Futuros', test: (r) => r.type === 'Futuro' },
       { id: 'fondos', label: 'Fondos', test: (r) => r.type === 'Fondo' || r.type === 'Plan de pensiones' },
-      { id: 'ayuda', label: 'Centro de ayuda', test: (r) => r.kind === 'ayuda' },
     ]
     const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
     const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
     const gruposVisibles = computed(() => grupos.value.filter((g) => filtroActivo.value === 'todos' || g.id === filtroActivo.value))
     const mostrarFiltros = computed(() => !vacio.value && props.api.mode === 'search' && props.api.results.length > 0)
-    // Centro de ayuda: R4NavigationItems medium, solo la pregunta con ic-file y la flecha visible (sin descripción ni etiqueta)
-    const ayudaItems = (g) => g.items.map((r) => ({ title: r.name, icon: 'ic-file', linkHref: '#', showLink: true }))
-    const onAyuda = (it, e) => { e.preventDefault(); props.api.abrirResultado(it.title) }
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
@@ -86,7 +82,7 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, preguntarLoEscrito, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
@@ -125,8 +121,7 @@ export default defineComponent({
           <div v-if="api.results.length" class="usearch-panel__groups">
             <section v-for="g in gruposVisibles" :key="g.id" class="usearch-panel__group" :aria-labelledby="'usearch-g-' + g.id + '-' + uid">
               <R4Text :id="'usearch-g-' + g.id + '-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" :text="g.label + ' (' + g.items.length + ')'" />
-              <R4NavigationItems v-if="g.id === 'ayuda'" size="medium" :items="ayudaItems(g)" :icon-is-boxed="false" :aria-label="g.label" @select="onAyuda" />
-              <R4SearchResults v-else class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
+              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
           </div>
           <div v-else class="usearch-panel__empty">

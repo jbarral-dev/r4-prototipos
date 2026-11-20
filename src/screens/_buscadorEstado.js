@@ -32,7 +32,7 @@ export function crearEstado() {
   const ruta = computed(() => enrutar(query.value))
   const mode = computed(() => locked.value || (thread.value.length ? 'chat' : ruta.value.mode)) // null = campo vacío sin conversación
   const searchTerm = computed(() => query.value.trim() || lastSent.value)
-  const results = computed(() => buscar(searchTerm.value))
+  const results = computed(() => buscar(searchTerm.value).filter((r) => r.kind !== 'ayuda')) // los enlaces al centro de ayuda no se muestran nunca en los resultados (Jon, 2026-11-20)
   const autocompletar = computed(() => searchTerm.value.trim().length >= 2) // el autocompletado (resultados + filtros) aparece con al menos 2 caracteres
   // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
   const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
