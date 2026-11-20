@@ -51,7 +51,6 @@ export default defineComponent({
           <template #body-venta="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-volV="{ value }"><R4Text :text="fmtN(value)" /></template>
           <template #body-volumen="{ value }"><R4Text :text="fmtN(value)" /></template>
-          <template #body-hora="{ value }"><R4Text :text="value" /></template>
           <template #body-max52="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-min52="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-cap="{ value }"><R4Text :text="fmtN(value)" /></template>
