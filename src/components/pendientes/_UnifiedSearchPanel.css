@@ -42,7 +42,7 @@
 .usearch-row--user { justify-content: flex-end; }
 .usearch-row__logo { flex: none; width: var(--spacing-6); height: auto; }
 .usearch-msg--pending .usearch-msg__text { color: var(--text-subdued); }
-.usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); opacity: 0.8; }
+.usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); } /* «Tú» / «Asistente»: color text/muted, sin opacidad */
 .usearch-msg__text { margin: 0; overflow-wrap: anywhere; }
 .usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-4); }
 
