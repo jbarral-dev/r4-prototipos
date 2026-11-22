@@ -54,7 +54,8 @@
 .usearch-row { gap: var(--spacing-2); } /* logotipo → burbuja: 8 */
 
 /* Autocompletado agrupado por tipo (Figma «Proyectos - Chatbot», buscador-autocomplete--mb 11:8764): título de grupo (R4Text medium, muted) a 4 del listado; 20 entre grupos (24 desde desktop). */
-.usearch-panel__filters { flex: none; display: flex; gap: var(--spacing-2); padding-bottom: var(--spacing-6); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+/* El contenedor hace scroll horizontal y recortaría la sombra de hover (0 0 8) y el anillo de foco de las chips: lleva 12 de padding por los cuatro lados, compensados con margen negativo (el bloque no cambia de tamaño ni de sitio) */
+.usearch-panel__filters { flex: none; display: flex; gap: var(--spacing-2); margin: calc(var(--spacing-3) * -1); padding: var(--spacing-3); padding-bottom: calc(var(--spacing-6) + var(--spacing-3)); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
 .usearch-panel__filters::-webkit-scrollbar { display: none; }
 .usearch-panel__filters .r4-chip { flex: none; }
 .usearch-panel__groups { display: flex; flex-direction: column; gap: var(--spacing-5); }

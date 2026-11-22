@@ -24,11 +24,16 @@ export default defineComponent({
   components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
-    // Use cases del prototipo (panel Facilitador, URL `?usuario=historial`; el valor por defecto no ensucia la URL)
+    // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
     const FACILITADOR = [
       { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [
-        { value: 'nuevo', label: 'Entra por primera vez al chatbot', default: true },
-        { value: 'historial', label: 'Ya ha entrado (tiene búsquedas y preguntas previas)' },
+        { value: 'potencial', label: 'Potencial' },
+        { value: 'sinLogar', label: 'Cliente no logado' },
+        { value: 'logado', label: 'Cliente logado', default: true },
+      ] }] }, // elige la cabecera (prop `client` del Menu)
+      { label: '¿Primera interacción con el chatbot?', controls: [{ id: 'primera', type: 'radio', options: [
+        { value: 'si', label: 'Sí', default: true },
+        { value: 'no', label: 'No, ya tiene búsquedas y preguntas previas' },
       ] }] },
       { label: 'Conversación', controls: [{ id: 'respuesta', type: 'radio', options: [
         { value: 'ninguna', label: 'Ninguna (flujo normal)', default: true },
@@ -40,11 +45,11 @@ export default defineComponent({
       { label: '¿Conversación activa?', controls: [{ id: 'conversacion', type: 'switch', label: 'Sí (badge en la lupa; al abrir, se reanuda el chat)', default: false }] },
     ]
     const caso = ref(valoresPorDefecto(FACILITADOR))
-    api.cargarEstado(caso.value.usuario)
+    api.cargarEstado(caso.value.primera === 'no' ? 'historial' : 'nuevo')
     if (caso.value.historico) api.setHistorico(true)
     if (caso.value.conversacion) api.setConversacionActiva(true)
     if (caso.value.respuesta !== 'ninguna') onMounted(() => nextTick(() => api.cargarRespuesta(caso.value.respuesta)))
-    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value); else if (id === 'conversacion') api.setConversacionActiva(value); else if (id === 'respuesta') api.cargarRespuesta(value); else if (id === 'historico') api.setHistorico(value) }
+    const onCaso = ({ id, value }) => { if (id === 'primera') api.cargarEstado(value === 'no' ? 'historial' : 'nuevo'); else if (id === 'conversacion') api.setConversacionActiva(value); else if (id === 'respuesta') api.cargarRespuesta(value); else if (id === 'historico') api.setHistorico(value) }
     // Si el usuario deja una conversación a medias (cierra el panel) o empieza otra, el interruptor del Facilitador sigue al estado real
     watch(() => api.hayConversacion, (v) => { if (caso.value.conversacion !== v) { caso.value = { ...caso.value, conversacion: v }; escribirParam('conversacion', v ? 1 : 0, 0) } })
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige con ?c=popover (por defecto, Sheet side).
@@ -73,7 +78,7 @@ export default defineComponent({
     return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
-    <FichaAccion search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
+    <FichaAccion :client="caso.usuario" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
       <template #search>
         <div class="usearch">
           <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" decorative /></button>

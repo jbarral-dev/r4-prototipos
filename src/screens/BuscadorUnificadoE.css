@@ -84,7 +84,7 @@ html.usearch-lock { overflow: hidden; }
 @container (max-width: 599px) { .facil { bottom: calc(var(--spacing-16) + var(--spacing-6) + var(--spacing-10)); } }
 
 /* Filtros por tipo del autocompletado: a 24 de la caja de búsqueda (Figma), no a los 32 del resto de bloques */
-.usearch-sheet__body .usearch-panel__filters, .usearch-sheetbottom__body .usearch-panel__filters { margin-top: calc(var(--spacing-6) - var(--spacing-8)); }
+.usearch-sheet__body .usearch-panel__filters, .usearch-sheetbottom__body .usearch-panel__filters { margin-top: calc(var(--spacing-6) - var(--spacing-8) - var(--spacing-3)); } /* -12 de la compensación del padding de las chips */
 
 
 /* El placeholder largo («Busca un producto o pregunta al asistente») no cabe en mobile: se corta con puntos suspensivos */
