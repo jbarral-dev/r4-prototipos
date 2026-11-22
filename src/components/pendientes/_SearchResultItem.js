@@ -6,18 +6,19 @@
 //    etiqueta; showType = hay type), showDivider (por defecto true) — más `highlight` (texto buscado: la coincidencia del nombre va en text/search-highlight, SemiBold).
 //    size small | large NO es prop: lo resuelve el CSS por el ancho de la propia fila (container query): large (una línea: logo 28 · nombre · ISIN · mercado · etiqueta) a partir de 480 px;
 //    small (dos líneas: nombre y «metadata1 · metadata2» a la izquierda; mercado y etiqueta a la derecha). interaction hover lo resuelve el CSS. En large Figma solo muestra metadata2.
-//    `logoSrc` (URL del iso-* del recurso «Resources - Logos») y `logoText` son EXTRAS del prototipo: el _Logo de Figma es una instancia de imagen; si no hay logo en el recurso se pinta una ficha oscura con la inicial.
+//    `logoSrc` (URL del iso-* del recurso «Resources - Logos») y `logoText` son EXTRAS del prototipo: el _Logo de Figma es una instancia de imagen; si no hay logo se pinta el pseudocomponente ProductDefaultLogo (_ProductDefaultLogo.js, Figma 10648:1455: cuadrado sobre surface/muted con la inicial), con la letra de la variante extraSmall y el mismo cuadrado que el logo (28 / 32 px) para alinear las filas.
 // Interactividad (CLAUDE.md: un solo elemento interactivo): el nombre es el <a> y se estira con ::after para que toda la fila sea clicable; la acción de mobile queda por encima.
 // NO reconstruido: showBuyButton en el diseño con mercado (el botón «Comprar» del hover en large está oculto en Figma).
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
 import R4Tag from './R4Tag.js'
+import ProductDefaultLogo from './_ProductDefaultLogo.js'
 
 const plain = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
 
 export default defineComponent({
   name: '_SearchResultItem',
-  components: { Icon, R4Tag },
+  components: { Icon, R4Tag, ProductDefaultLogo },
   props: {
     logoSrc: { type: String, default: undefined }, // URL del logo (recurso «Resources - Logos», iso-*)
     logoText: { type: String, default: undefined },
@@ -52,7 +53,7 @@ export default defineComponent({
   template: `
     <li class="r4-searchresult" :class="{ 'r4-searchresult--rich': rich, 'has-divider': rich && showDivider }">
       <img v-if="logoSrc" class="r4-searchresult__logo r4-searchresult__logo--img" :src="logoSrc" alt="" />
-      <span v-else-if="logoText" class="r4-searchresult__logo r4-searchresult__logo--tile" aria-hidden="true">{{ logoText }}</span>
+      <ProductDefaultLogo v-else-if="logoText" class="r4-searchresult__logo r4-searchresult__logo--default" size="extraSmall" :name="logoText" />
       <div class="r4-searchresult__content">
         <div class="r4-searchresult__left">
           <a class="r4-searchresult__name" :href="href" @click="$emit('select', $event)"><template v-for="(p, i) in parts" :key="i"><span v-if="p.hl" class="r4-searchresult__hl">{{ p.t }}</span><template v-else>{{ p.t }}</template></template></a>

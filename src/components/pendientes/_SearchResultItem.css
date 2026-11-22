@@ -42,7 +42,7 @@
 .r4-searchresult--rich.has-divider { box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle); }
 .r4-searchresult--rich.has-divider:last-child { box-shadow: none; }
 
-.r4-searchresult__logo--tile { display: flex; align-items: center; justify-content: center; width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); border-radius: 0; background: var(--surface-inverse); color: var(--text-on-inverse); font-size: var(--size-body-s); line-height: 1; font-weight: var(--font-weight-bold); }
+.r4-searchresult .r4-searchresult__logo--default { width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); } /* el mismo cuadrado que el logo (28; 32 en filas estrechas); la letra es la de extraSmall */
 .r4-searchresult--rich .r4-searchresult__name:hover { text-decoration: none; }
 .r4-searchresult__hl { color: var(--r4-text-search-highlight); }
 
@@ -55,7 +55,7 @@
   .r4-searchresult__id:not(:last-child)::after, .r4-searchresult__market:not(:last-child)::after { content: '·'; margin-left: var(--spacing-2); }
 }
 @container (max-width: 479px) {
-  .r4-searchresult--rich .r4-searchresult__logo--tile { width: var(--spacing-8); height: var(--spacing-8); }
+  .r4-searchresult--rich .r4-searchresult__logo--default { width: var(--spacing-8); height: var(--spacing-8); }
   .r4-searchresult__sub { display: flex; }
   .r4-searchresult__id { display: none; }
   .r4-searchresult__market { color: var(--text-subdued); }
