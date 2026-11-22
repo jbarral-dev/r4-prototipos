@@ -44,7 +44,7 @@
 .usearch-msg--pending .usearch-msg__text { color: var(--text-subdued); }
 .usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); } /* «Tú» / «Asistente»: color text/muted, sin opacidad */
 .usearch-msg__text { margin: 0; overflow-wrap: anywhere; }
-.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-1) var(--spacing-4); }
+.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-4); }
 
 /* Conversación pintada: el área de mensajes ocupa el alto disponible y el prompt queda fijo debajo */
 .usearch-panel--chat { flex: 1 1 auto; }
@@ -66,7 +66,7 @@
 
 
 /* Chat del Enfoque buscador: enlaces R4Link en la burbuja del asistente (fila o lista con viñetas) y «Volver» fijo arriba */
-.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
+.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-4); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
 .usearch-panel__back { flex: none; display: flex; justify-content: flex-start; margin-left: calc(var(--spacing-3) * -1); padding-bottom: var(--spacing-4); } /* el texto del botón queda alineado con el contenido (el R4Button text lleva 12 de padding) */
 
 /* Resultados (searchResultItem) dentro de la burbuja del asistente: sin agrupar, uno bajo otro */
