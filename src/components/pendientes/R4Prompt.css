@@ -36,3 +36,7 @@
 .r4-prompt__input::placeholder { color: var(--text-muted); opacity: 1; }
 /* Botón de enviar: dentro de la caja, abajo a la derecha, a (48 - 32) / 2 - trazo = 7 px de cada borde; radio 4 (Figma) */
 .r4-prompt .r4-prompt__send { position: absolute; right: calc((var(--r4-prompt-min-h) - var(--component-button-size-medium)) / 2 - var(--r4-line-width)); bottom: calc((var(--r4-prompt-min-h) - var(--component-button-size-medium)) / 2 - var(--r4-line-width)); border-radius: var(--radius-xs); }
+
+/* disabled (Figma 42:1516): fondo component/input/bg/disabled, trazo border/default, sin hover ni cursor de texto */
+.r4-prompt--disabled, .r4-prompt--disabled:hover { --r4-prompt-border: var(--component-input-border-default); background: var(--component-input-bg-disabled); cursor: default; }
+.r4-prompt--disabled .r4-prompt__input { cursor: default; }

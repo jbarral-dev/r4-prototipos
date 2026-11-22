@@ -19,6 +19,7 @@ export default defineComponent({
     sendLabel: { type: String, default: 'Enviar' },
     maxRows: { type: Number, default: 6 },
     sendDisabled: { type: Boolean, default: false },
+    disabled: { type: Boolean, default: false }, // EXTRA del prototipo (Figma 42:1516: caja con fondo input/bg/disabled y botón deshabilitado): primer uso del chat, hasta aceptar el aviso legal
   },
   inheritAttrs: false, // class / style al raíz
   emits: ['update:modelValue', 'submit'],
@@ -27,7 +28,7 @@ export default defineComponent({
     const vacio = computed(() => !props.modelValue.trim())
     const grow = () => { const t = el.value; if (!t) return; t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px' }
     const onInput = (e) => { emit('update:modelValue', e.target.value); grow() }
-    const enviar = (e) => { if (!vacio.value && !props.sendDisabled) emit('submit', e) }
+    const enviar = (e) => { if (!vacio.value && !props.sendDisabled && !props.disabled) emit('submit', e) }
     const onKeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); enviar(e) } }
     const focus = () => el.value?.focus()
     watch(() => props.modelValue, async () => { await nextTick(); grow() })
@@ -35,9 +36,9 @@ export default defineComponent({
     return { el, vacio, onInput, onKeydown, enviar, focus }
   },
   template: `
-    <div class="r4-prompt" :class="$attrs.class" :style="[$attrs.style, { '--r4-prompt-max-rows': maxRows }]">
-      <textarea ref="el" class="r4-prompt__input" rows="1" :value="modelValue" :placeholder="placeholder" :aria-label="ariaLabel || placeholder" @input="onInput" @keydown="onKeydown"></textarea>
-      <R4Button class="r4-prompt__send" type="primary" size="medium" icon="ic-arrow-up" :aria-label="sendLabel" :disabled="vacio || sendDisabled" @click="enviar" />
+    <div class="r4-prompt" :class="[$attrs.class, { 'r4-prompt--disabled': disabled }]" :style="[$attrs.style, { '--r4-prompt-max-rows': maxRows }]">
+      <textarea ref="el" class="r4-prompt__input" rows="1" :value="modelValue" :placeholder="placeholder" :disabled="disabled" :aria-label="ariaLabel || placeholder" @input="onInput" @keydown="onKeydown"></textarea>
+      <R4Button class="r4-prompt__send" type="primary" size="medium" icon="ic-arrow-up" :aria-label="sendLabel" :disabled="disabled || vacio || sendDisabled" @click="enviar" />
     </div>
   `,
 })

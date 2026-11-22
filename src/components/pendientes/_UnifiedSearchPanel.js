@@ -11,7 +11,7 @@ import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
 import R4Link from './R4Link.js'
 import R4Text from './R4Text.js'
-import R4Prompt from './R4Prompt.js'
+import _ChatComposer from './_ChatComposer.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
 import Icon from '../../icons/_Icon.js'
@@ -20,8 +20,8 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, R4Prompt, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
-  props: { api: { type: Object, required: true } },
+  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, ChatComposer: _ChatComposer, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  props: { api: { type: Object, required: true }, withComposer: { type: Boolean, default: true } }, // withComposer=false: el prompt va en la capa de acciones del R4Sheet (lo pinta el host)
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'usearch-body-' + uid
@@ -51,17 +51,6 @@ export default defineComponent({
     })
     const body = ref(null)
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
-    // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
-    const composer = ref(null)
-    const promptEl = ref(null) // R4Prompt (crece con el texto; el botón de enviar queda dentro, abajo a la derecha)
-    // En el R4Sheet bottom de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
-    const enfocarPrompt = async () => {
-      await nextTick()
-      const capa = promptEl.value?.$el?.closest('.usearch-sheetbottom')
-      if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
-      promptEl.value?.focus()
-    }
-    watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
     // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
     // Volver: al inicio (la conversación queda activa) y el foco no se pierde: pasa al botón de cierre del R4Sheet, sin abrir el teclado
     const volver = async () => { if (props.api.chatView) props.api.volver(); else props.api.vista = 'inicio'; await nextTick(); body.value?.closest('.r4-sheet')?.querySelector('.r4-sheet__close')?.focus() }
@@ -90,7 +79,7 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, composer, promptEl, enlacesLista, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
@@ -166,16 +155,18 @@ export default defineComponent({
             <li v-if="api.pending" class="usearch-row usearch-row--assistant" aria-live="polite"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></li>
           </ol>
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
-            <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
+            <li v-if="api.legal" class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant">
+              <span class="usearch-msg__who">Asistente</span>
+              <p class="usearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="#">nuestra información de protección de datos</R4Link>.</p>
+              <div class="usearch-msg__cta"><R4Button type="primary" size="medium" width="full-width" text="Comenzar chat" @click="api.aceptarLegal()" /></div>
+            </div></li>
+            <li v-else class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
       </div>
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->
-      <div v-if="api.chatView" ref="composer" class="usearch-panel__composer">
-        <R4Prompt ref="promptEl" class="usearch-panel__prompt" :model-value="api.prompt" aria-label="Tu pregunta al asistente" send-label="Enviar pregunta" :send-disabled="api.pending"
-                  @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()" />
-      </div>
+      <div v-if="api.chatView && withComposer" class="usearch-panel__composer"><ChatComposer :api="api" /></div>
     </div>
   `,
 })
