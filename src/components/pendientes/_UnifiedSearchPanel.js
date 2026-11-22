@@ -42,7 +42,7 @@ export default defineComponent({
     const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
     const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
     const gruposVisibles = computed(() => grupos.value.filter((g) => filtroActivo.value === 'todos' || g.id === filtroActivo.value))
-    const mostrarFiltros = computed(() => props.api.barra) // filtros por tipo: con el autocompletado y resultados (igual que el acceso al chat)
+    const mostrarFiltros = computed(() => props.api.barra && grupos.value.length > 1) // filtros por tipo: con el autocompletado y resultados de más de un tipo (si la búsqueda da un solo tipo no se muestran: documentación 3.3)
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
