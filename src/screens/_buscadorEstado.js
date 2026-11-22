@@ -118,8 +118,7 @@ export function crearEstado() {
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
   const accion = (link) => {
     anotar('acción del asistente', link.label)
-    if (link.toast === '__resultados__') setMode('search')
-    else { avisar(`Prototipo: ${link.toast}`); cerrar() }
+    avisar(`Prototipo: ${link.toast}`); cerrar() // un enlace del asistente navega directamente a su URL (aquí simulado) y cierra la capa
   }
   const reiniciar = () => { open.value = false; toast.value = ''; log.value = []; window.__buscadorLog = []; cargarEstado(partida.value) }
   // Los dos estados de partida del prototipo: usuario que aún no ha interactuado · usuario con búsquedas y conversaciones previas

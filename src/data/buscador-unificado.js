@@ -114,12 +114,17 @@ const respuestas = [
 ]
 const respuestaPorDefecto = {
   text: 'Esta es una respuesta de ejemplo del prototipo: el asistente real contestaría aquí. ¿Quieres que te muestre resultados relacionados?',
-  links: [{ label: 'Ver resultados', toast: '__resultados__' }],
+  links: [{ label: 'Ver resultados', toast: '__resultados__' }], // solo el Enfoque chat (su panel de resultados propio)
+}
+// Respuesta genérica del Enfoque buscador: un enlace lleva directo a su URL y un listado de productos va como lista de resultados (_SearchResultItem), nunca un enlace «Ver resultados» (Jon, 2026-11-22)
+const respuestaGenerica = (t) => {
+  const afines = buscar(t).filter((r) => r.kind === 'valor').slice(0, 3)
+  return { text: 'Esta es una respuesta de ejemplo del prototipo: el asistente real contestaría aquí. Estos son algunos productos que pueden interesarte:', resultados: afines.length ? afines : ['Telefónica', 'Iberdrola', 'Banco Santander'].map((n) => catalogo.find((r) => r.type === 'Acción' && r.name === n)) }
 }
 
-export function responder(texto) {
+export function responder(texto, enfoque = 'buscador') {
   const t = norm(texto)
-  return respuestas.find((r) => r.match(t)) || respuestaPorDefecto
+  return respuestas.find((r) => r.match(t)) || (enfoque === 'chat' ? respuestaPorDefecto : respuestaGenerica(texto))
 }
 
 // ── Respuestas de demostración (panel Facilitador · bloque «Conversación») ──

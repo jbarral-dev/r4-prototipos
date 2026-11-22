@@ -59,7 +59,7 @@ export function crearEstadoChat() {
     const ruta = enrutar(text)
     anotar('envía', `«${text}» → ${ruta.mode === 'search' ? 'resultados' : 'texto'}${ruta.fallo ? ' (fallo a propósito)' : ''}`)
     if (ruta.mode === 'search') contestar(turnoResultados(text), 350)
-    else contestar({ kind: 'text', ...responder(text) }, 900)
+    else contestar({ kind: 'text', ...responder(text, 'chat') }, 900)
   }
   const verResultados = (term) => { anotar('texto → resultados', term); contestar(turnoResultados(term), 350) }
 
@@ -86,7 +86,7 @@ export function crearEstadoChat() {
   const usarTexto = (text, origen) => { abrir(); anotar('elige ' + origen, text); enviar(text) }
 
   // Dos estados de partida: historial vacío (usuario que aún no ha conversado) o con conversaciones previas
-  const conversacionEjemplo = (q) => ({ id: ++seq, titulo: q, thread: [{ id: ++seq, role: 'user', kind: 'text', text: q }, { id: ++seq, role: 'assistant', kind: 'text', ...responder(q) }] })
+  const conversacionEjemplo = (q) => ({ id: ++seq, titulo: q, thread: [{ id: ++seq, role: 'user', kind: 'text', text: q }, { id: ++seq, role: 'assistant', kind: 'text', ...responder(q, 'chat') }] })
   const cargarEstado = (tipo) => {
     limpiar()
     conversaciones.value = tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('No me llega el código al móvil'), conversacionEjemplo('¿Qué necesito para abrir una cuenta?')] : []
