@@ -21,10 +21,8 @@
 
 /* Sin coincidencias (Figma «Proyectos - Contratar», 10169:5272): Empty centrado, padding vertical 32, gap 20; icono 28 en icon/default; título body/l bold; texto body/m; gap 8 entre textos */
 .usearch-panel__empty { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-5); padding: var(--spacing-8) 0; color: var(--text-default); text-align: center; }
-.usearch-panel__empty p { margin: 0; font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
 .usearch-panel__empty-icon { flex: none; width: var(--spacing-7); height: var(--spacing-7); color: var(--component-icon-plain-neutraldark); }
 .usearch-panel__empty-texts { display: flex; flex-direction: column; gap: var(--spacing-2); }
-.usearch-panel__empty-texts .usearch-panel__empty-title { font-size: var(--size-body-l); line-height: var(--line-height-body-l); font-weight: var(--font-weight-bold); }
 
 /* Conversación */
 .usearch-panel__ask { display: flex; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); border-radius: var(--radius-sm); background: var(--surface-subtle); }
@@ -44,7 +42,7 @@
 .usearch-msg--pending .usearch-msg__text { color: var(--text-subdued); }
 .usearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); } /* «Tú» / «Asistente»: color text/muted, sin opacidad */
 .usearch-msg__text { margin: 0; overflow-wrap: anywhere; }
-.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-4); }
+.usearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
 
 /* Conversación pintada: el área de mensajes ocupa el alto disponible y el prompt queda fijo debajo */
 .usearch-panel--chat { flex: 1 1 auto; }
@@ -66,7 +64,7 @@
 
 
 /* Chat del Enfoque buscador: enlaces R4Link en la burbuja del asistente (fila o lista con viñetas) y «Volver» fijo arriba */
-.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-4); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
+.usearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-2); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
 .usearch-panel__back { flex: none; display: flex; justify-content: flex-start; margin-left: calc(var(--spacing-3) * -1); padding-bottom: var(--spacing-4); } /* el texto del botón queda alineado con el contenido (el R4Button text lleva 12 de padding) */
 
 /* Resultados (searchResultItem) dentro de la burbuja del asistente: sin agrupar, uno bajo otro */

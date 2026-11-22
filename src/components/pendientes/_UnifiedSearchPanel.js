@@ -133,11 +133,10 @@ export default defineComponent({
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
             <div class="usearch-panel__empty-texts">
-              <p class="usearch-panel__empty-title">Sin coincidencias para tu búsqueda</p>
-              <p>Comprueba que «{{ api.searchTerm }}» esté bien escrito.</p>
-              <p>También puedes probar preguntando a nuestro asistente.</p>
+              <R4Text size="large" font-style="strong" text="Sin coincidencias" />
+              <R4Text size="medium" :text="'Comprueba que «' + api.searchTerm + '» esté bien escrito. También puedes probar preguntando a nuestro asistente.'" />
             </div>
-            <R4Button type="secondary" size="medium" icon="ic-comment-alt-dots" text="Preguntar al asistente" @click="api.setMode('chat')" />
+            <R4Button type="secondary" size="medium" icon="ic-ai" text="Preguntar al asistente" @click="api.setMode('chat')" />
           </div>
         </template>
 
