@@ -50,11 +50,12 @@ export const catalogo = [
   { kind: 'fondo', name: 'Fidelity World Fund', logoText: 'F', metadata1: 'Renta variable global', metadata2: 'LU0346388373', type: 'Fondo', keys: ['fidelity', 'fondo', 'fondos', 'global'] },
   { kind: 'fondo', name: 'Renta 4 Pegasus', logoSrc: logo('iso-r4.svg'), metadata1: 'Renta variable mixta', metadata2: 'ES0173319115', type: 'Fondo', keys: ['pegasus', 'fondo', 'fondos', 'renta 4'] },
   { kind: 'fondo', name: 'Plan de pensiones Renta 4 Jubilación', logoSrc: logo('iso-r4.svg'), metadata1: 'Plan de pensiones', metadata2: 'N5012', type: 'Plan de pensiones', keys: ['jubilacion', 'pensiones', 'plan de pensiones', 'ahorro'] },
-  // Tipos añadidos según la tabla de la documentación (Confluence 4095606798 §3.3): logo, código y mercado por tipo. Datos de EJEMPLO. Sin logo en «Resources - Logos» (gestoras de ETF, bonos del Estado, índices, cripto) se pinta la ficha con iniciales.
+  // Tipos añadidos según la tabla de la documentación (Confluence 4095606798 §3.3): logo, código y mercado por tipo. Datos de EJEMPLO. Logos de cripto: «Resources - Cryptocurrency Logos» (Figma 8jbsiGYTKPZ8nf8le8wKgt). Sin logo (gestoras de ETF, bonos del Estado, índices) se pinta la ficha con iniciales.
   { kind: 'valor', name: 'Santander Ibex 35 ETF', logoSrc: logo('iso-san.svg'), metadata1: 'SANIBEX', metadata2: 'ES0105046009', market: 'BME', marketFlag: 'flag-spain', type: 'ETF', keys: ['santander', 'etf', 'etfs', 'ibex'] },
   { kind: 'valor', name: 'Bono Santander 2030', logoSrc: logo('iso-san.svg'), metadata1: 'Renta fija privada', metadata2: 'XS2345678901', type: 'Renta fija', keys: ['santander', 'bono', 'bonos', 'renta fija'] },
   { kind: 'valor', name: 'Letras del Tesoro 12 meses', logoText: 'LT', metadata1: 'Renta fija pública', metadata2: 'ES0000012L78', type: 'Renta fija', keys: ['letras', 'tesoro', 'bono', 'bonos', 'renta fija'] },
-  { kind: 'valor', name: 'Bitcoin', logoText: 'B', metadata1: 'BTC', type: 'Cripto', keys: ['bitcoin', 'btc', 'cripto', 'criptomonedas'] },
+  { kind: 'valor', name: 'Bitcoin', logoSrc: logo('crypto-btc.svg'), metadata1: 'BTC', type: 'Cripto', keys: ['bitcoin', 'btc', 'cripto', 'criptomonedas'] },
+  { kind: 'valor', name: 'Ethereum', logoSrc: logo('crypto-eth.svg'), metadata1: 'ETH', type: 'Cripto', keys: ['ethereum', 'eth', 'cripto', 'criptomonedas'] },
   { kind: 'valor', name: 'Opción Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'Call 4,00 · Vto. Jun 2027', metadata2: 'ES0178430E18', market: 'MEFF', marketFlag: 'flag-spain', type: 'Opción', keys: ['telefonica', 'opcion', 'opciones'] },
   { kind: 'valor', name: 'Opción Ibex 35', logoText: 'IB', metadata1: 'Call 12.000 · Vto. Jun 2027', metadata2: 'ES0SI0000005', market: 'MEFF', marketFlag: 'flag-spain', type: 'Opción', keys: ['ibex', 'opcion', 'opciones'] },
   { kind: 'ayuda', name: '¿Cómo abrir una cuenta en Renta 4?', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['cuenta', 'abrir', 'alta', 'cliente'] },
