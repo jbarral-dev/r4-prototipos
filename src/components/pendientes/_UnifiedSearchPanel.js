@@ -33,7 +33,11 @@ export default defineComponent({
       { id: 'acciones', label: 'Acciones', test: (r) => r.type === 'Acción' },
       { id: 'cfds', label: 'CFDs', test: (r) => r.type === 'CFD' },
       { id: 'futuros', label: 'Futuros', test: (r) => r.type === 'Futuro' },
+      { id: 'opciones', label: 'Opciones', test: (r) => r.type === 'Opción' },
+      { id: 'etfs', label: 'ETFs', test: (r) => r.type === 'ETF' },
       { id: 'fondos', label: 'Fondos', test: (r) => r.type === 'Fondo' || r.type === 'Plan de pensiones' },
+      { id: 'renta-fija', label: 'Renta fija', test: (r) => r.type === 'Renta fija' },
+      { id: 'cripto', label: 'Criptomonedas', test: (r) => r.type === 'Cripto' },
     ]
     const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
     const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
