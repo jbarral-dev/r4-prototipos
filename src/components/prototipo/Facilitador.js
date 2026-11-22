@@ -1,7 +1,7 @@
 // HERRAMIENTA DEL PROTOTIPO (no es del Design System ni de Figma): panel «Facilitador» que permite reproducir los use cases del prototipo cambiando variables de contexto.
 // Mismo planteamiento que el panel del buscador unificado (BuscadorUnificadoE/F, clases .facil): un <details> flotante abajo a la izquierda, plegado por defecto. `?f=0` en la URL lo oculta.
 // Props: groups = [{ label, controls: [{ id, type: 'radio' | 'switch', param?, label?, options?, default? }] }] y values = { [id]: valor } (v-model:values).
-//   · radio: `options` = [{ value, label, default? }]; el valor es el `value` elegido (por defecto, el marcado `default` o el primero).
+//   · radio: `options` = [{ value, label, default?, disabled? }] (`disabled`: boolean o función (values) => boolean para combinaciones imposibles; la pantalla es quien corrige el valor ya elegido); el valor es el `value` elegido (por defecto, el marcado `default` o el primero).
 //   · switch: interruptor con `label` (texto del interruptor) y `default` (true/false); el valor es booleano.
 // Un grupo (fieldset con su `label` como leyenda) puede llevar varios controles, para añadir variantes del mismo bloque. Cada cambio emite `change` ({ id, value }).
 // URL (Jon, 2026-11-14, sustituye a la decisión anterior de no guardar el estado): cada control tiene un parámetro (`param`, por defecto su `id`; p. ej. `usuario=potencial`, `tab-productos=tabla`, `precios=0`). Al cargar se lee de la URL
@@ -44,7 +44,8 @@ export default defineComponent({
       const c = props.groups.flatMap((g) => g.controls).find((x) => x.id === id)
       escribirParam(paramDe(c), c.type === 'switch' ? (value ? 1 : 0) : value, c.type === 'switch' ? (defectoDe(c) ? 1 : 0) : defectoDe(c))
     }
-    return { visible, set }
+    const deshabilitada = (o) => (typeof o.disabled === 'function' ? !!o.disabled(props.values) : !!o.disabled)
+    return { visible, set, deshabilitada }
   },
   template: `
     <details v-if="visible" class="facilitador">
@@ -58,8 +59,8 @@ export default defineComponent({
               <input type="checkbox" role="switch" class="facilitador__switch-input" :checked="values[c.id]" :aria-checked="values[c.id] ? 'true' : 'false'" @change="set(c.id, $event.target.checked)" />
             </label>
             <template v-else>
-              <label v-for="o in c.options" :key="c.id + o.value" class="facilitador__option">
-              <input type="radio" :name="'facilitador-' + c.id" :value="o.value" :checked="values[c.id] === o.value" @change="set(c.id, o.value)" />
+              <label v-for="o in c.options" :key="c.id + o.value" class="facilitador__option" :class="{ 'is-disabled': deshabilitada(o) }">
+              <input type="radio" :name="'facilitador-' + c.id" :value="o.value" :checked="values[c.id] === o.value" :disabled="deshabilitada(o)" @change="set(c.id, o.value)" />
               <span>{{ o.label }}</span>
               </label>
             </template>
