@@ -18,3 +18,7 @@
 .facilitador__switch-input:checked::after { transform: translateX(var(--spacing-4)); }
 .facilitador__switch-input:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
 @media (prefers-reduced-motion: reduce) { .facilitador__switch-input, .facilitador__switch-input::after { transition: none; } }
+
+/* Opción no disponible en el contexto elegido (combinación imposible) */
+.facilitador__option.is-disabled { color: var(--text-disabled); cursor: not-allowed; }
+.facilitador__option.is-disabled input { cursor: not-allowed; }

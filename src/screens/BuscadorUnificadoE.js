@@ -11,6 +11,9 @@ import Facilitador, { valoresPorDefecto, escribirParam } from '../components/pro
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
+import _AssistantAccess from '../components/pendientes/_AssistantAccess.js'
+import _ChatComposer from '../components/pendientes/_ChatComposer.js'
+import _AppTabBar from '../components/pendientes/_AppTabBar.js'
 import R4Badge from '../components/pendientes/R4Badge.js'
 import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
@@ -19,21 +22,38 @@ import { crearEstado } from './_buscadorEstado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
-    // Use cases del prototipo (panel Facilitador, URL `?usuario=historial`; el valor por defecto no ensucia la URL)
+    // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
     const FACILITADOR = [
       { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [
-        { value: 'nuevo', label: 'Entra por primera vez al chatbot', default: true },
-        { value: 'historial', label: 'Ya ha entrado (tiene búsquedas y preguntas previas)' },
+        { value: 'potencial', label: 'Potencial' },
+        { value: 'sinLogar', label: 'Cliente no logado' },
+        { value: 'logado', label: 'Cliente logado', default: true },
+        { value: 'app', label: 'App (solo mobile)' },
+      ] }] }, // elige la cabecera (prop `client` del Menu)
+      { label: '¿Primera interacción con el chatbot?', controls: [{ id: 'primera', type: 'radio', options: [
+        { value: 'si', label: 'Sí', default: true },
+        { value: 'no', label: 'No, ya tiene búsquedas y preguntas previas', disabled: (v) => v.usuario === 'potencial' }, // un potencial no puede tener búsquedas ni preguntas previas
       ] }] },
+      { label: 'Conversación', controls: [{ id: 'respuesta', type: 'radio', options: [
+        { value: 'ninguna', label: 'Ninguna (flujo normal)', default: true },
+        { value: 'enlace', label: 'Un enlace' },
+        { value: 'varios', label: 'Varios enlaces' },
+        { value: 'resultados', label: 'Resultados' },
+      ] }] },
+      { label: 'Histórico', controls: [{ id: 'historico', type: 'switch', label: 'Tiene histórico de conversaciones', default: false }] },
       { label: '¿Conversación activa?', controls: [{ id: 'conversacion', type: 'switch', label: 'Sí (badge en la lupa; al abrir, se reanuda el chat)', default: false }] },
     ]
     const caso = ref(valoresPorDefecto(FACILITADOR))
-    api.cargarEstado(caso.value.usuario)
+    const corregirPotencial = () => { if (caso.value.usuario === 'potencial' && caso.value.primera === 'no') { caso.value = { ...caso.value, primera: 'si' }; escribirParam('primera', 'si', 'si'); return true } return false }
+    corregirPotencial()
+    api.cargarEstado(caso.value.primera === 'no' ? 'historial' : 'nuevo')
+    if (caso.value.historico) api.setHistorico(true)
     if (caso.value.conversacion) api.setConversacionActiva(true)
-    const onCaso = ({ id, value }) => { if (id === 'usuario') api.cargarEstado(value); else if (id === 'conversacion') api.setConversacionActiva(value) }
+    if (caso.value.respuesta !== 'ninguna') onMounted(() => nextTick(() => api.cargarRespuesta(caso.value.respuesta)))
+    const onCaso = ({ id, value }) => { if (id === 'usuario' && corregirPotencial()) { api.cargarEstado('nuevo'); return } if (id === 'primera') api.cargarEstado(value === 'no' ? 'historial' : 'nuevo'); else if (id === 'conversacion') api.setConversacionActiva(value); else if (id === 'respuesta') api.cargarRespuesta(value); else if (id === 'historico') api.setHistorico(value) }
     // Si el usuario deja una conversación a medias (cierra el panel) o empieza otra, el interruptor del Facilitador sigue al estado real
     watch(() => api.hayConversacion, (v) => { if (caso.value.conversacion !== v) { caso.value = { ...caso.value, conversacion: v }; escribirParam('conversacion', v ? 1 : 0, 0) } })
     // Contenedor del contenido en desktop (tablet y mobile mantienen siempre la capa a pantalla completa): R4Popover bajo el campo · R4Sheet side con el campo dentro. Se elige con ?c=popover (por defecto, Sheet side).
@@ -45,20 +65,10 @@ export default defineComponent({
     const placeholder = 'Busca o pregunta'
     onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
 
-    // Foco en el campo que se ve (el CSS oculta el otro por container query)
-    const focusVisible = async () => {
-      await nextTick()
-      await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
-      for (const f of [mobileField.value, desktopField.value, sheetField.value]) {
-        const el = f && f.$el
-        if (el && el.getClientRects().length) { f.focus(); return }
-      }
-    }
     // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
-    watch(() => api.chatView, (v, antes) => { if (!v && antes && api.open) focusVisible() }) // «Nueva búsqueda»: el usuario ya ha decidido buscar, así que el campo vuelve y recibe el foco
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facilitador'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .app-header__search, .facilitador'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -72,10 +82,10 @@ export default defineComponent({
     return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
-    <FichaAccion search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
+    <FichaAccion :client="caso.usuario" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
       <template #search>
         <div class="usearch">
-          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" decorative /></button>
+          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
         </div>
       </template>
 
@@ -84,7 +94,7 @@ export default defineComponent({
         <div v-if="api.open" class="usearch-scrim" aria-hidden="true"></div>
         <div v-if="api.open && contenedor === 'popover'" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
-            <div v-if="!api.chatView" class="usearch__fieldrow">
+            <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
               <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
@@ -92,7 +102,7 @@ export default defineComponent({
             <div v-else class="usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
             <div class="usearch-desk__pop">
               <R4Popover width="wider" density="none">
-                <div class="usearch__pop"><UnifiedSearchPanel :api="api" /></div>
+                <div class="usearch__pop"><UnifiedSearchPanel :api="api" /><div v-if="api.barra" class="usearch-actions"><AssistantAccess @ask="api.preguntarLoEscrito()" /></div></div>
               </R4Popover>
             </div>
           </div>
@@ -100,33 +110,38 @@ export default defineComponent({
 
         <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
         <div v-if="contenedor === 'sheet'" class="usearch-sheet">
-          <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
-            <div class="usearch-sheet__body">
-              <div v-if="!api.chatView" class="usearch__fieldrow">
-                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="api.barra || api.chatView" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheet__body" :class="{ 'usearch-sheet__body--actions': api.barra || api.chatView, 'usearch-sheet__body--prompt': api.chatView }">
+              <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
+                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
-              <UnifiedSearchPanel :api="api" />
+              <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
         <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
         <div class="usearch-sheetbottom">
-          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
-            <div class="usearch-sheetbottom__body">
-              <div v-if="!api.chatView" class="usearch__fieldrow">
-                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="api.barra || api.chatView" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheetbottom__body" :class="{ 'usearch-sheetbottom__body--actions': api.barra || api.chatView, 'usearch-sheetbottom__body--prompt': api.chatView }">
+              <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
+                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
-              <UnifiedSearchPanel :api="api" />
+              <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
+
+        <!-- Usuario «App» (solo mobile): TabBar fija abajo; el menú que despliega su botón central no se reproduce -->
+        <AppTabBar v-if="caso.usuario === 'app'" @select="api.avisar('Prototipo: se abriría «' + $event.label + '»')" @menu="api.avisar('Prototipo: se abriría el menú de la App')" />
 
         <Facilitador v-model:values="caso" :groups="FACILITADOR" @change="onCaso" />
 

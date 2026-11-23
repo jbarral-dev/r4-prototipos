@@ -9,8 +9,9 @@ import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
+import R4Link from './R4Link.js'
 import R4Text from './R4Text.js'
-import R4InputTextarea from './R4InputTextarea.js'
+import _ChatComposer from './_ChatComposer.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
 import Icon from '../../icons/_Icon.js'
@@ -19,53 +20,43 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4BrandTypes, R4Chip, R4Text, R4NavigationItems, R4Button, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
-  props: { api: { type: Object, required: true } },
+  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, ChatComposer: _ChatComposer, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  props: { api: { type: Object, required: true }, withComposer: { type: Boolean, default: true } }, // withComposer=false: el prompt va en la capa de acciones del R4Sheet (lo pinta el host)
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'usearch-body-' + uid
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
     const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.autocompletar))
-    // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes)
+    // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes; sin Centro de ayuda: no se muestra en los resultados)
     const GRUPOS = [
       { id: 'acciones', label: 'Acciones', test: (r) => r.type === 'Acción' },
       { id: 'cfds', label: 'CFDs', test: (r) => r.type === 'CFD' },
       { id: 'futuros', label: 'Futuros', test: (r) => r.type === 'Futuro' },
+      { id: 'opciones', label: 'Opciones', test: (r) => r.type === 'Opción' },
+      { id: 'etfs', label: 'ETFs', test: (r) => r.type === 'ETF' },
       { id: 'fondos', label: 'Fondos', test: (r) => r.type === 'Fondo' || r.type === 'Plan de pensiones' },
-      { id: 'ayuda', label: 'Centro de ayuda', test: (r) => r.kind === 'ayuda' },
+      { id: 'renta-fija', label: 'Renta fija', test: (r) => r.type === 'Renta fija' },
+      { id: 'cripto', label: 'Criptomonedas', test: (r) => r.type === 'Cripto' },
     ]
     const grupos = computed(() => GRUPOS.map((g) => ({ ...g, items: props.api.results.filter(g.test) })).filter((g) => g.items.length))
     const filtroActivo = computed(() => (grupos.value.some((g) => g.id === props.api.filtro) ? props.api.filtro : 'todos'))
     const gruposVisibles = computed(() => grupos.value.filter((g) => filtroActivo.value === 'todos' || g.id === filtroActivo.value))
-    const mostrarFiltros = computed(() => !vacio.value && props.api.mode === 'search' && props.api.results.length > 0)
-    // Centro de ayuda: R4NavigationItems medium, solo la pregunta con ic-file y la flecha visible (sin descripción ni etiqueta)
-    const ayudaItems = (g) => g.items.map((r) => ({ title: r.name, icon: 'ic-file', linkHref: '#', showLink: true }))
-    const onAyuda = (it, e) => { e.preventDefault(); props.api.abrirResultado(it.title) }
+    const mostrarFiltros = computed(() => props.api.barra && grupos.value.length > 1) // filtros por tipo: con el autocompletado y resultados de más de un tipo (si la búsqueda da un solo tipo no se muestran: documentación 3.3)
     const anuncio = computed(() => {
       const a = props.api
       if (!a.mode) return ''
       if (a.mode === 'chat') return a.thread.length ? 'Modo conversación.' : 'Modo conversación: pulsa Intro para preguntar al asistente.'
       return `Modo resultados: ${a.results.length} resultados.`
     })
-    // Al final de la última respuesta del asistente: «Nuevo chat» y «Nueva búsqueda»
-    const mostrarAcciones = computed(() => { const t = props.api.thread; return t.length > 0 && !props.api.pending && t[t.length - 1].role === 'assistant' })
     const body = ref(null)
-    watch(() => [props.api.thread.length, props.api.pending, mostrarAcciones.value], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
-    // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
-    const composer = ref(null)
-    const promptEl = ref(null) // R4InputTextarea (crece con el texto; el botón de enviar queda abajo a la derecha)
-    // En el R4Sheet bottom de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
-    const enfocarPrompt = async () => {
-      await nextTick()
-      const capa = promptEl.value?.$el?.closest('.usearch-sheetbottom')
-      if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
-      promptEl.value?.focus()
-    }
-    watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
+    watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     // Barra inferior: va al chat con la burbuja del usuario ya enviada con lo escrito en la caja
+    // Volver: al inicio (la conversación queda activa) y el foco no se pierde: pasa al botón de cierre del R4Sheet, sin abrir el teclado
+    const volver = async () => { if (props.api.chatView) props.api.volver(); else props.api.vista = 'inicio'; await nextTick(); body.value?.closest('.r4-sheet')?.querySelector('.r4-sheet__close')?.focus() }
     const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
-    const nuevoChat = () => { props.api.nuevoChat(); enfocarPrompt() }
+    // Enlaces del asistente: uno suelto (R4Link standalone) o varios en lista con viñetas; nunca varios en fila (documentación 3.4)
+    const enlacesLista = (m) => m.lista || (m.links && m.links.length > 1 ? m.links : null)
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
     const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
@@ -77,16 +68,21 @@ export default defineComponent({
     // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
     const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
     const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
-    const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
-    const asistenteItems = [{ title: 'Pregunta al asistente', icon: 'ic-sparkles', linkHref: '#', showLink: true }]
-    const onAsistente = (it, e) => { e.preventDefault(); props.api.irAlChat() }
+    // «Últimas preguntas»: las 5 más recientes y, si hay más, «Ver todas» (abre el listado completo)
+    const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
+    const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
+    // Listado completo de conversaciones (R4NavigationItems; al pulsar una se carga el chat con ella)
+    const historialItems = computed(() => props.api.historial.conversaciones.map((c) => ({ title: c.titulo, description: c.fecha, icon: 'ic-history', linkHref: '#', showLink: false, conv: c })))
+    const enListado = computed(() => props.api.vista === 'historial' && vacio.value)
+    // Desde el listado completo: el chat que se abre recuerda de dónde viene (Volver lleva de vuelta al listado)
+    const onListado = (it, e) => { e.preventDefault(); props.api.abrirConversacion(it.conv, 'historial') }
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
-    // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
-    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, ayudaItems, onAyuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta, asistenteItems, onAsistente, tituloBusquedas, tituloPreguntas, mostrarAcciones, nuevoChat, preguntarLoEscrito }
+    // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
+    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
-    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView, 'usearch-panel--bar': mostrarFiltros }" role="region" aria-label="Buscar o preguntar">
+    <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
@@ -95,11 +91,15 @@ export default defineComponent({
         <R4Chip v-for="g in grupos" :key="g.id" size="small" :label="g.label" :selected="filtroActivo === g.id" @click="api.filtro = g.id" />
       </div>
 
+      <!-- Volver a la pantalla inicial: fijo arriba de la conversación (donde en el estado inicial está la caja). La conversación se conserva como activa -->
+      <div v-if="api.chatView || enListado" class="usearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
+
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
-        <div v-if="vacio" class="usearch-panel__start">
-          <!-- Promueve el chat (Figma 4:6627): R4NavigationItems con card, icono boxed y flecha; al pulsarlo va directo al chat -->
-          <R4NavigationItems size="medium" :items="asistenteItems" has-card-container aria-label="Asistente" @select="onAsistente" />
+        <div v-if="enListado" class="usearch-panel__group">
+          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
+        </div>
+        <div v-else-if="vacio" class="usearch-panel__start">
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="usearch-panel__chips">
@@ -109,6 +109,7 @@ export default defineComponent({
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
             <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">{{ tituloPreguntas }}</h3>
             <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
+            <R4Button v-if="hayMas" type="text" size="medium" width="full-width" text="Ver todas" @click="api.verHistorial()" />
           </section>
         </div>
 
@@ -117,18 +118,16 @@ export default defineComponent({
           <div v-if="api.results.length" class="usearch-panel__groups">
             <section v-for="g in gruposVisibles" :key="g.id" class="usearch-panel__group" :aria-labelledby="'usearch-g-' + g.id + '-' + uid">
               <R4Text :id="'usearch-g-' + g.id + '-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" :text="g.label + ' (' + g.items.length + ')'" />
-              <R4NavigationItems v-if="g.id === 'ayuda'" size="medium" :items="ayudaItems(g)" :icon-is-boxed="false" :aria-label="g.label" @select="onAyuda" />
-              <R4SearchResults v-else class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
+              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
           </div>
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
             <div class="usearch-panel__empty-texts">
-              <p class="usearch-panel__empty-title">Sin coincidencias para tu búsqueda</p>
-              <p>Comprueba que «{{ api.searchTerm }}» esté bien escrito.</p>
-              <p>También puedes probar preguntando a nuestro asistente.</p>
+              <R4Text size="large" font-style="strong" text="Sin coincidencias" />
+              <R4Text size="medium" :text="'Comprueba que «' + api.searchTerm + '» esté bien escrito. También puedes probar preguntando a nuestro asistente.'" />
             </div>
-            <R4Button type="secondary" size="medium" icon="ic-comment-alt-dots" text="Preguntar al asistente" @click="api.setMode('chat')" />
+            <R4Button type="secondary" size="medium" icon="ic-ai" text="Preguntar al asistente" @click="api.setMode('chat')" />
           </div>
         </template>
 
@@ -148,34 +147,26 @@ export default defineComponent({
               <div class="usearch-msg" :class="'usearch-msg--' + m.role">
                 <span class="usearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
                 <p class="usearch-msg__text">{{ m.text }}</p>
-                <div v-if="m.links" class="usearch-msg__links"><R4Button v-for="l in m.links" :key="l.label" type="text" size="medium" :text="l.label" @click="api.accion(l)" /></div>
+ <R4SearchResults v-if="m.resultados" class="usearch-panel__results usearch-msg__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in m.resultados" :key="i" v-bind="itemProps(r)" :highlight="''" @select="pick(r.name, $event)" /></R4SearchResults>
+                <ul v-if="enlacesLista(m)" class="usearch-msg__list"><li v-for="l in enlacesLista(m)" :key="l.label"><R4Link size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></li></ul>
+                <div v-else-if="m.links" class="usearch-msg__links"><R4Link v-for="l in m.links" :key="l.label" size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></div>
               </div>
             </li>
             <li v-if="api.pending" class="usearch-row usearch-row--assistant" aria-live="polite"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant usearch-msg--pending"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">Escribiendo…</p></div></li>
           </ol>
- <div v-if="mostrarAcciones" class="usearch-panel__chat-actions">
-            <R4Button type="secondary" size="medium" width="full-width" icon="ic-plus" text="Nuevo chat" @click="nuevoChat" />
-            <R4Button type="secondary" size="medium" width="full-width" icon="ic-search" text="Nueva búsqueda" @click="api.nuevaBusqueda()" />
-          </div>
           <ol v-if="api.chatView && !api.thread.length" class="usearch-panel__thread" aria-label="Chat">
-            <li class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
+            <li v-if="api.legal" class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant">
+              <span class="usearch-msg__who">Asistente</span>
+              <p class="usearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="#">nuestra información de protección de datos</R4Link>.</p>
+              <div class="usearch-msg__cta"><R4Button type="primary" size="medium" width="full-width" text="Comenzar chat" @click="api.aceptarLegal()" /></div>
+            </div></li>
+            <li v-else class="usearch-row usearch-row--assistant"><R4BrandTypes class="usearch-row__logo" variant="Red" aria-hidden="true" /><div class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
       </div>
 
-      <!-- Barra inferior del autocompletado (Figma 11:8773): fija abajo en la capa, a todo el ancho y por encima del contenido -->
-      <div v-if="mostrarFiltros" class="usearch-panel__bar">
-        <R4Text size="small" class="usearch-panel__bar-text" text="¿No encuentras lo que buscas?" />
-        <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="preguntarLoEscrito" />
-      </div>
-
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->
-      <div v-if="api.chatView" ref="composer" class="usearch-panel__composer">
-        <R4InputTextarea ref="promptEl" class="usearch-panel__prompt" :model-value="api.prompt" auto-grow :max-rows="6" font-size="medium" :resizable="false" submit-on-enter
-                         placeholder="Escribe tu pregunta" aria-label="Tu pregunta al asistente" @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()">
-          <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar pregunta" :disabled="!api.prompt.trim() || api.pending" @click="api.enviarPrompt()" />
-        </R4InputTextarea>
-      </div>
+      <div v-if="api.chatView && withComposer" class="usearch-panel__composer"><ChatComposer :api="api" /></div>
     </div>
   `,
 })

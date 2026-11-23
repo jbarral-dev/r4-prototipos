@@ -1,5 +1,5 @@
 // PENDIENTE-IT: no oficial. Prototipo de investigación (variante F: conversación primero). NO es un componente del catálogo ni tiene diseño en Figma ni página en Confluence:
-// es una COMPOSICIÓN de componentes reconstruidos (R4InputTextarea, R4Button, _SearchResultItem) con tokens semánticos; lo que no cubre ningún componente
+// es una COMPOSICIÓN de componentes reconstruidos (R4Prompt, R4Button, _SearchResultItem) con tokens semánticos; lo que no cubre ningún componente
 // (saludo inicial, burbujas de mensaje) son estilos propios mínimos y se avisan en «Pendiente / dudas».
 // Contrato: recibe el estado compartido (`api`, ver screens/_chatEstado.js). Sin pestañas ni modo: pantalla inicial (saludo + descripción + caja del prompt, centrado en vertical) y,
 // al enviar el primer mensaje, conversación con el prompt fijo abajo. Las respuestas del asistente son texto o una lista de resultados (mismo _SearchResultItem que el buscador).
@@ -7,14 +7,14 @@
 import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
 import R4BrandTypes from './R4BrandTypes.js'
 import R4Button from './R4Button.js'
-import R4InputTextarea from './R4InputTextarea.js'
+import R4Prompt from './R4Prompt.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
 
 export default defineComponent({
   name: '_ChatSearchPanel',
-  components: { R4BrandTypes, R4Button,R4InputTextarea, R4NavigationItems, R4SearchResults, SearchResultItem: _SearchResultItem },
+  components: { R4BrandTypes, R4Button, R4Prompt, R4NavigationItems, R4SearchResults, SearchResultItem: _SearchResultItem },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const body = ref(null)
@@ -96,10 +96,8 @@ export default defineComponent({
       </div>
 
       <div v-if="!enHistorial" class="csearch__composer">
-        <R4InputTextarea ref="promptEl" class="csearch__prompt" :model-value="api.prompt" auto-grow :max-rows="6" font-size="medium" :resizable="false" submit-on-enter
-                         placeholder="Pregunta o busca un producto" aria-label="Tu pregunta o búsqueda" @update:model-value="api.prompt = $event" @submit="api.enviar()">
-          <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar" :disabled="!api.prompt.trim() || api.pending" @click="api.enviar()" />
-        </R4InputTextarea>
+        <R4Prompt ref="promptEl" class="csearch__prompt" :model-value="api.prompt" placeholder="Pregunta o busca un producto" aria-label="Tu pregunta o búsqueda" send-label="Enviar" :send-disabled="api.pending"
+                  @update:model-value="api.prompt = $event" @submit="api.enviar()" />
       </div>
 
       <!-- Bajo la caja del prompt (patrón de los chats): nueva conversación e historial. Con la conversación en blanco no hay nada que cerrar, así que no se ofrece «Nueva conversación» -->
