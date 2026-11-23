@@ -1,0 +1,7 @@
+/* _ProductActionsMenu: el botón es el R4Button secondary de solo icono (40). El icono es #851A2E en Figma (accent/text) y el trazo accent/border. */
+.r4-actionsmenu { position: relative; display: flex; }
+.r4-actionsmenu .r4-actionsmenu__trigger.r4-button--content-icon { color: var(--accent-text); }
+
+.r4-actionsmenu__popover { position: absolute; z-index: 200; right: 0; }
+.r4-actionsmenu__popover--down { top: calc(100% + var(--spacing-2)); }
+.r4-actionsmenu__popover--up { bottom: calc(100% + var(--spacing-2)); left: 0; right: auto; }

@@ -1,0 +1,13 @@
+/*
+ * Estilos de efecto de Figma (no son variables, así que no salen del volcado de colecciones). Los colores se expresan con los
+ * tokens equivalentes de la cascada, no con hex. Origen: CardFocusOutline, CardHoverShadow, InputFocusShadow, InputErrorFocusShadow, InputSuccessFocusShadow.
+ */
+:root {
+  /* Foco de botones, enlaces y checkbox: 4 px de superficie de página + 6 px de borde inverso (negro) */
+  --effect-card-focus-outline: 0 0 0 4px var(--surface-page), 0 0 0 6px var(--border-inverse);
+  /* Hover de chips, navigation items y cards: 0 0 8 sombra negra al 30 % (Figma: CardHoverShadow, 0 0 8 #000 @0.3) */
+  --effect-card-hover-shadow: 0 0 8px 0 color-mix(in srgb, var(--color-neutral-black) 30%, transparent);
+  --effect-input-focus-shadow: 0 0 8px 0 color-mix(in srgb, var(--color-neutral-black) 30%, transparent);
+  --effect-input-error-focus-shadow: 0 0 4px 2px color-mix(in srgb, var(--color-feedback-red-600) 45%, transparent);
+  --effect-input-success-focus-shadow: 0 0 4px 2px color-mix(in srgb, var(--feedback-success-border) 45%, transparent);
+}

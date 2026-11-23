@@ -1,0 +1,57 @@
+/*
+ * Layout propio de la pantalla (no del sistema de diseño). Todo el responsive es CSS (container query `r4page` de la Template).
+ * Contenido: 6 de 12 columnas (desktop) · 6 de 8 (tablet) · 4 de 4 (mobile) — las pone R4Wrapper con layout="6" (tabla de "Páginas de Procesos").
+ * El espacio vertical entre bloques lo pone el R4Wrapper (row-gap = padding vertical de la density: 48 / 40 / 32).
+ */
+
+/* Variantes de contenido por breakpoint: desktop y tablet (ancho) frente a mobile (estrecho) */
+.screen-2fa__only-narrow { display: none; }
+.screen-2fa__col.screen-2fa__only-narrow { display: none; }
+
+@container r4page (max-width: 599px) {
+  .screen-2fa__only-wide,
+  .screen-2fa__col.screen-2fa__only-wide { display: none; }
+  .screen-2fa__only-narrow { display: block; }
+  .screen-2fa__col.screen-2fa__only-narrow { display: flex; }
+}
+
+.screen-2fa__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+.screen-2fa__content--narrow { gap: var(--spacing-4); }
+
+.screen-2fa__qr-steps {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-6);
+  width: 100%;
+}
+
+.screen-2fa__steps { flex: 1 1 0; min-width: 0; width: 100%; }
+
+/* Fila "key" de mobile: input + botón de copiar, gap spacing/2 */
+.screen-2fa__key {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  width: 100%;
+}
+.screen-2fa__key-input { flex: 1 1 0; min-width: 0; }
+/* En Figma el texto del valor tiene un override local de 14/20 (no es una prop de R4InputText) */
+.screen-2fa__key-input .r4-input-text__input {
+  font-size: var(--size-body-s);
+  line-height: var(--line-height-body-s);
+}
+.screen-2fa__key .r4-button { flex: none; }
+
+.screen-2fa__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

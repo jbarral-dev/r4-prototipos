@@ -1,0 +1,64 @@
+/* Typography · tamaños y alturas de línea por breakpoint (Desktop · Tablet · Mobile)
+ * GENERADO por tools/generate-tokens.ps1 desde tools/tokens/*.txt (Figma · Primitivos 1.2). No editar a mano.
+ * Capa 5 de 6. Desktop por defecto; Tablet y Mobile se aplican sobre .r4-layout-modes (la Template) según el ancho del contenedor r4page.
+ */
+:root {
+  --size-heading-2xl: 64px;
+  --size-heading-xl: 48px;
+  --size-heading-l: 40px;
+  --size-heading-m: 32px;
+  --size-heading-s: 24px;
+  --size-heading-xs: 20px;
+  --size-body-xl: 20px;
+  --size-body-l: 18px;
+  --size-body-m: 16px;
+  --size-body-s: 14px;
+  --size-body-xs: 12px;
+  --line-height-heading-2xl: 64px;
+  --line-height-heading-xl: 52px;
+  --line-height-heading-l: 44px;
+  --line-height-heading-m: 36px;
+  --line-height-heading-s: 28px;
+  --line-height-heading-xs: 24px;
+  --line-height-body-xl: 28px;
+  --line-height-body-l: 26px;
+  --line-height-body-m: 24px;
+  --line-height-body-s: 20px;
+  --line-height-body-xs: 16px;
+}
+
+@container r4page (max-width: 1023px) {
+  .r4-layout-modes {
+    --size-heading-2xl: 56px;
+    --size-heading-xl: 44px;
+    --size-heading-l: 36px;
+    --size-heading-m: 28px;
+    --size-heading-s: 22px;
+    --size-heading-xs: 18px;
+    --line-height-heading-2xl: 60px;
+    --line-height-heading-xl: 48px;
+    --line-height-heading-l: 40px;
+    --line-height-heading-m: 32px;
+    --line-height-heading-s: 26px;
+    --line-height-heading-xs: 22px;
+    --line-height-body-xl: 26px;
+  }
+}
+
+@container r4page (max-width: 599px) {
+  .r4-layout-modes {
+    --size-heading-2xl: 48px;
+    --size-heading-xl: 40px;
+    --size-heading-l: 32px;
+    --size-heading-m: 24px;
+    --size-heading-s: 20px;
+    --size-heading-xs: 16px;
+    --line-height-heading-2xl: 52px;
+    --line-height-heading-xl: 44px;
+    --line-height-heading-l: 36px;
+    --line-height-heading-m: 28px;
+    --line-height-heading-s: 24px;
+    --line-height-heading-xs: 20px;
+    --line-height-body-xl: 26px;
+  }
+}

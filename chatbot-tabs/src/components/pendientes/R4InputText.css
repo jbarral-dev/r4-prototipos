@@ -1,0 +1,106 @@
+/*
+ * R4InputText — _Text: padding horizontal 12, radio 8, trazo 1 px interior, contenido 40 px (padding vertical 7), texto body/l 18/26.
+ * Estados (interaction): default (texto muted), hover (borde muted), focused (sin valor: borde focused + InputFocusShadow),
+ * typing (con valor y foco: fondo default, borde focused), filled (con valor), disabled.
+ * Status Error / Success: fondo y borde del feedback; en focused añaden su sombra; typing vuelve a fondo default + borde focused.
+ */
+.r4-input-text {
+  --r4-input-bg: var(--component-input-bg-default);
+  --r4-input-border: var(--component-input-border-default);
+  --r4-input-text: var(--text-muted);
+  --r4-input-focus: var(--effect-input-focus-shadow);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.r4-input-text--error {
+  --r4-input-bg: var(--feedback-error-bg);
+  --r4-input-border: var(--feedback-error-border);
+  --r4-input-text: var(--feedback-error-text);
+  --r4-input-focus: var(--effect-input-error-focus-shadow);
+}
+.r4-input-text--success {
+  --r4-input-bg: var(--feedback-success-bg);
+  --r4-input-border: var(--feedback-success-border);
+  --r4-input-text: var(--feedback-success-text);
+  --r4-input-focus: var(--effect-input-success-focus-shadow);
+}
+
+/* _Input Label/Default: padding 4 0, gap 4; título body/m bold; "(opcional)" body/s muted */
+.r4-input-text__label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) 0;
+}
+.r4-input-text__label-text {
+  font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-text__optional {
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-muted);
+}
+
+/* _Text */
+.r4-input-text__field {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-3);
+  border-radius: var(--component-input-radius);
+  background: var(--r4-input-bg);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-input-border);
+}
+.r4-input-text__input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--spacing-10);
+  padding-block: calc((var(--spacing-10) - var(--line-height-body-l)) / 2);
+  border: 0;
+  background: transparent;
+  outline: 0;
+  text-overflow: ellipsis;
+  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
+  color: var(--r4-input-text);
+}
+.r4-input-text__input::placeholder { color: var(--text-muted); }
+
+/* hover (solo status default cambia: borde muted) */
+.r4-input-text--default:not(.r4-input-text--disabled) .r4-input-text__field:hover { --r4-input-border: var(--component-input-border-hover); }
+
+/* filled: texto con color por defecto */
+.r4-input-text__field:has(.r4-input-text__input:not(:placeholder-shown)) .r4-input-text__input { color: var(--text-default); }
+
+/* focused (sin valor): borde focused + sombra del status */
+.r4-input-text--default .r4-input-text__field:focus-within {
+  --r4-input-border: var(--component-input-border-focused);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-input-border), var(--r4-input-focus);
+}
+.r4-input-text--error .r4-input-text__field:focus-within,
+.r4-input-text--success .r4-input-text__field:focus-within {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-input-border), var(--r4-input-focus);
+}
+
+/* typing (foco con valor): fondo default y borde focused, sin sombra */
+.r4-input-text__field:focus-within:has(.r4-input-text__input:not(:placeholder-shown)) {
+  background: var(--component-input-bg-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused);
+}
+
+/* disabled */
+.r4-input-text--disabled .r4-input-text__field {
+  background: var(--component-input-bg-disabled);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default);
+}
+.r4-input-text--disabled .r4-input-text__input,
+.r4-input-text--disabled .r4-input-text__input::placeholder { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+/* _Input Caption: padding-top 2, body/s; color según status (default: text/default) */
+.r4-input-text__caption {
+  padding-top: var(--spacing-05);
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-text--error .r4-input-text__caption { color: var(--feedback-error-text); }
+.r4-input-text--success .r4-input-text__caption { color: var(--feedback-success-text); }

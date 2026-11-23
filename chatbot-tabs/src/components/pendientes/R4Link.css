@@ -1,0 +1,38 @@
+.r4-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-link);
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.r4-link .r4-icon { flex: none; }
+
+.r4-link--small { gap: var(--spacing-1); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-link--medium { gap: var(--spacing-2); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.r4-link--large { gap: var(--spacing-3); font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
+
+/* type=inline va subrayado en todos los estados; standalone solo en hover */
+.r4-link--inline { text-decoration: underline; }
+.r4-link:hover { color: var(--accent-link-hover); text-decoration: underline; }
+
+/* Foco: trazo interior de 1 px (accent/border) + efecto CardFocusOutline */
+.r4-link:focus-visible {
+  outline: 0;
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--accent-border), var(--effect-card-focus-outline);
+}
+
+.r4-link--disabled,
+.r4-link--disabled:hover {
+  color: var(--text-disabled);
+  cursor: not-allowed; /* Changelog SM-19378 */
+}
+.r4-link--standalone.r4-link--disabled:hover { text-decoration: none; }
+
+/* Iconos de 16 px (small/medium) o 18 px (large) */
+.r4-link--small .r4-icon,
+.r4-link--medium .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+.r4-link--large .r4-icon { width: calc(var(--spacing-4) + var(--spacing-05)); height: calc(var(--spacing-4) + var(--spacing-05)); }

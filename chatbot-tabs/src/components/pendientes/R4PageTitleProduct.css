@@ -1,0 +1,106 @@
+/*
+ * R4PageTitleProduct — valores leídos de Figma (desktop y mobile, ficha de acción). Los modos (Desktop / Tablet / Mobile) los resuelve el contenedor `r4page`; las tipografías
+ * salen de los tokens por modo (--size-heading-*), salvo donde el diseño mobile usa otro escalón (nombre: heading/l en desktop, heading/m en mobile; precio 28/32).
+ * Desktop: bloque en columna con gap 32 (breadcrumb ↔ título) y 24 (datos ↔ precio/acciones); logo 80, gap 20; nombre heading/l Exo 2 Bold; precio heading/l Exo 2 Medium con
+ * tabular/lining nums; rentabilidad heading/s Exo 2 Medium en chart/positive|negative; hora body/m text/muted; precio objetivo body/m con icono 16 y R4Tag small; acciones a la derecha.
+ * Mobile (≤ 599): gap 24 / 16; logo 64, gap 12; nombre 24/28; precio 28/32; rentabilidad heading/s (20/24); hora body/s; las acciones se ocultan (van en el R4ButtonDock).
+ */
+.r4-pagetitleproduct {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: 100%;
+  font-family: var(--font-family-body);
+}
+
+.r4-pagetitleproduct__title { display: flex; flex-direction: column; gap: var(--spacing-6); width: 100%; }
+
+.r4-pagetitleproduct__data { display: flex; align-items: center; gap: var(--spacing-5); width: 100%; }
+.r4-pagetitleproduct__logo { flex: none; width: calc(var(--spacing-16) + var(--spacing-4)); height: calc(var(--spacing-16) + var(--spacing-4)); }   /* 80 */
+.r4-pagetitleproduct__info { display: flex; flex-direction: column; gap: var(--spacing-3); min-width: 0; }
+
+.r4-pagetitleproduct__name { display: flex; align-items: center; gap: var(--spacing-3); }
+.r4-pagetitleproduct__heading {
+  margin: 0;
+  color: var(--text-default);
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--size-heading-l);
+  line-height: var(--line-height-heading-l);
+}
+
+.r4-pagetitleproduct__fav { display: flex; flex: none; padding: 0; border: 0; background: transparent; color: var(--icon-default); cursor: pointer; border-radius: var(--radius-xs); }
+.r4-pagetitleproduct__fav .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.r4-pagetitleproduct__fav.is-added { color: var(--component-ratingstar-bg); }
+.r4-pagetitleproduct__fav:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+.r4-pagetitleproduct__metadata { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-3); }
+.r4-pagetitleproduct__market { display: flex; align-items: center; gap: var(--spacing-1); color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.r4-pagetitleproduct__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }
+
+.r4-pagetitleproduct__price-actions { display: flex; align-items: flex-end; gap: var(--spacing-12); width: 100%; }
+.r4-pagetitleproduct__left { display: flex; flex: 1 1 0; flex-direction: column; gap: var(--spacing-5); min-width: 0; } /* 20 entre precio y precio objetivo en desktop (Figma 2756:76644) */
+
+.r4-pagetitleproduct__price { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--spacing-4); height: var(--spacing-10); } /* Figma: capa de 40 con el precio (44) sobresaliendo 4 por arriba */
+.r4-pagetitleproduct__amount {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--spacing-05);
+  color: var(--text-default);
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--size-heading-l);
+  line-height: var(--line-height-heading-l);
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+  white-space: nowrap;
+}
+.r4-pagetitleproduct__amount-value { letter-spacing: -0.02em; }
+.r4-pagetitleproduct__currency { text-transform: uppercase; }
+
+.r4-pagetitleproduct__variation {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-05);
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--size-heading-s);
+  line-height: var(--line-height-heading-s);
+  font-feature-settings: 'lnum' 1, 'tnum' 1;
+  white-space: nowrap;
+}
+.r4-pagetitleproduct__variation.is-positive { color: var(--chart-positive); }
+.r4-pagetitleproduct__variation.is-negative { color: var(--chart-negative); }
+.r4-pagetitleproduct__variation-value { letter-spacing: -0.04em; }
+.r4-pagetitleproduct__variation-unit { font-weight: var(--font-weight-semibold); letter-spacing: -0.04em; }
+
+.r4-pagetitleproduct__updated { color: var(--text-muted); font-size: var(--size-body-m); line-height: var(--line-height-body-m); white-space: nowrap; }
+
+.r4-pagetitleproduct__target { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-3); }
+.r4-pagetitleproduct__target-info { display: flex; align-items: center; gap: var(--spacing-2); color: var(--text-muted); font-size: var(--size-body-m); line-height: var(--line-height-body-m); white-space: nowrap; }
+.r4-pagetitleproduct__target-info .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); color: var(--icon-default); }
+.r4-pagetitleproduct__target-value { color: var(--text-default); font-weight: var(--font-weight-bold); }
+
+.r4-pagetitleproduct__actions { display: flex; flex: none; align-items: center; justify-content: flex-end; gap: var(--spacing-4); }
+
+/* Mobile (Figma Device=mobile) */
+@container r4page (max-width: 599px) {
+  .r4-pagetitleproduct { gap: var(--spacing-6); }
+  .r4-pagetitleproduct__title { gap: var(--spacing-4); }
+  .r4-pagetitleproduct__data { gap: var(--spacing-3); }
+  .r4-pagetitleproduct__logo { width: var(--spacing-16); height: var(--spacing-16); }
+  .r4-pagetitleproduct__info { flex: 1 1 0; gap: var(--spacing-2); }
+  .r4-pagetitleproduct__heading { font-size: var(--size-heading-m); line-height: var(--line-height-heading-m); }
+  .r4-pagetitleproduct__metadata { gap: var(--spacing-2); }
+  .r4-pagetitleproduct__price-actions { gap: 0; }
+  .r4-pagetitleproduct__left { gap: var(--spacing-4); }
+  .r4-pagetitleproduct__price { gap: var(--spacing-3); height: auto; }
+  .r4-pagetitleproduct__amount { font-size: var(--spacing-7); line-height: var(--spacing-8); }
+  .r4-pagetitleproduct__updated { font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+  .r4-pagetitleproduct__target-info { gap: var(--spacing-1); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+  .r4-pagetitleproduct__actions { display: none; } /* van en el R4ButtonDock (capa fija inferior) */
+}
+
+/* En el diseño mobile el precio objetivo no lleva la recomendación (R4Tag) */
+@container r4page (max-width: 599px) {
+  .r4-pagetitleproduct__target .r4-tag { display: none; }
+}

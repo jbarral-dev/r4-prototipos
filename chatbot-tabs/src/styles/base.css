@@ -1,0 +1,24 @@
+/* Base del prototipo: reset mínimo y rejilla. No es un componente del sistema de diseño. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-m);
+  line-height: var(--line-height-body-m);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-default);
+  background: var(--surface-page);
+}
+
+h1, h2, h3, p { margin: 0; }
+
+/* Rejilla de 12 columnas que Figma pone dentro del slot del Wrapper (frame "Grid"). */
+.r4-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--grid-columns, 12), minmax(0, 1fr));
+  column-gap: var(--grid-gutter);
+  row-gap: var(--spacing-6);
+  width: 100%;
+}

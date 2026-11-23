@@ -1,0 +1,66 @@
+/*
+ * R4NavigationItems — valores leídos de Figma (NavigationItem size=medium, hasCardContainer=no): padding 16 vertical / 8 horizontal, gap 16, icono de 40 en caja
+ * (component/icon/boxed), título body/m SemiBold (text/default), descripción body/s Regular (text/muted), chevron ic-angle-right (icon/subdued) y línea inferior de 1 px
+ * (surface/muted). Estados: hover → fondo surface/subtle · pressed → fondo surface/subtle + línea surface/inverse · focused → CardFocusOutline · disabled → text/disabled.
+ * Gap entre ítems por density: narrow 0 · default 16 (component/navigationItems/gap/default) · relaxed 32.
+ */
+.r4-navitems { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.r4-navitems--default { gap: var(--component-navigationitems-gap-default); }
+.r4-navitems--relaxed { gap: var(--component-navigationitems-gap-relaxed); }
+
+.r4-navitems__li { margin: 0; }
+
+.r4-navitems__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-4) var(--spacing-2);
+  color: var(--text-default);
+  font-family: var(--font-family-body);
+  text-decoration: none;
+  cursor: pointer;
+}
+.r4-navitems__item::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--r4-line-width);
+  background: var(--surface-muted);
+}
+.r4-navitems__li:last-child .r4-navitems__item::after { display: none; }
+
+.r4-navitems__icon { display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); }
+.r4-navitems__icon--boxed { background: var(--component-icon-boxed-bg); color: var(--component-icon-boxed-fg); }
+.r4-navitems__icon .r4-icon { width: var(--spacing-5); height: var(--spacing-5); }
+
+.r4-navitems__text { display: flex; flex: 1 1 0; flex-direction: column; gap: var(--spacing-1); min-width: 0; }
+.r4-navitems__title { font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); color: var(--text-default); }
+.r4-navitems__description { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-regular); color: var(--text-muted); }
+
+.r4-navitems__chevron { flex: none; width: var(--spacing-5); height: var(--spacing-5); color: var(--icon-subdued); }
+
+.r4-navitems__item:hover:not(.is-disabled) { background: var(--surface-subtle); }
+.r4-navitems__item:active:not(.is-disabled) { background: var(--surface-subtle); }
+.r4-navitems__item:active:not(.is-disabled)::after { background: var(--surface-inverse); }
+.r4-navitems__item:focus-visible { outline: 0; background: var(--surface-default); box-shadow: var(--effect-card-focus-outline); }
+
+.r4-navitems__item.is-disabled { cursor: not-allowed; /* Changelog SM-19378 */ }
+.r4-navitems__item.is-disabled .r4-navitems__title,
+.r4-navitems__item.is-disabled .r4-navitems__description { color: var(--text-disabled); }
+.r4-navitems__item.is-disabled .r4-navitems__chevron { color: var(--icon-disabled); }
+
+/* iconIsBoxed=false (R4Icon style=plain): sin caja ni fondo, icono de 20 en gris oscuro (component/icon/plain/neutralDark) */
+.r4-navitems__icon:not(.r4-navitems__icon--boxed) { width: var(--spacing-5); height: var(--spacing-5); color: var(--component-icon-plain-neutraldark); }
+
+/* showLine=false por ítem (Figma): sin línea inferior */
+.r4-navitems__item.has-no-line::after { display: none; }
+
+/* hasCardContainer=true (size medium, default): CardContainer (surface/default, trazo border/subtle de 1, radio card/radius = 0) y padding de 16 por los cuatro lados; sin línea */
+.r4-navitems--card .r4-navitems__item { padding: calc(var(--spacing-4) - var(--r4-line-width)); /* el trazo de Figma es interior: el ítem mide 16 + contenido + 16 */ border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--component-card-radius); background: var(--surface-default); }
+.r4-navitems--card .r4-navitems__item::after { display: none; }
+/* Estados del CardContainer (Figma): hover → trazo border/default + sombra card hover (fondo igual) · pressed → fondo surface/subtle + trazo border/inverse · focused → anillo card focus (trazo y fondo del default) · disabled → fondo card/bg/disabled */
+.r4-navitems--card .r4-navitems__item:hover:not(.is-disabled) { background: var(--surface-default); border-color: var(--border-default); box-shadow: var(--effect-card-hover-shadow); }
+.r4-navitems--card .r4-navitems__item:active:not(.is-disabled) { background: var(--surface-subtle); border-color: var(--border-inverse); box-shadow: none; }
+.r4-navitems--card .r4-navitems__item:focus-visible { border-color: var(--border-subtle); box-shadow: var(--effect-card-focus-outline); }
+.r4-navitems--card .r4-navitems__item.is-disabled { background: var(--component-card-bg-disabled); }

@@ -1,0 +1,58 @@
+/*
+ * R4Tabs — valores leídos de Figma (_TabItem, 12 variantes): alto 48 (padding vertical 12 + texto 24), padding horizontal 12 (spacing/3),
+ * gap 8, ancho mínimo 90. inactive: text/muted, SemiBold (title) o Regular (divider) · hover: text/subdued · active: text/default Bold + borde inferior
+ * 2 px border/inverse · type=divider añade una línea inferior de 2 px (border/subtle) en todo el componente.
+ * layout=scrollable: cada pestaña conserva su ancho y la barra desborda (scroll) · layout=fixed: se reparten el ancho a partes iguales.
+ */
+.r4-tabs { position: relative; width: 100%; }
+
+.r4-tabs--divider::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--spacing-05);
+  background: var(--border-subtle);
+  pointer-events: none;
+}
+
+.r4-tabs__list {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  scrollbar-width: none;
+}
+.r4-tabs__list::-webkit-scrollbar { display: none; }
+.r4-tabs--scrollable .r4-tabs__list { overflow-x: auto; }
+.r4-tabs--fixed .r4-tabs__list { overflow: hidden; }
+
+.r4-tabs__item {
+  position: relative;
+  z-index: 1; /* por encima de la línea del divider, para que el borde activo la tape */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-width: var(--r4-tabitem-min-width);
+  box-sizing: border-box;
+  height: var(--spacing-12); /* 48: padding vertical 12 + texto 24 + borde inferior de 2 px dentro (Figma: trazo "inside") */
+  padding: 0 var(--spacing-3);
+  border: 0;
+  border-bottom: var(--spacing-05) solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-m);
+  line-height: var(--line-height-body-m);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.r4-tabs--divider .r4-tabs__item:not(.is-active) { font-weight: var(--font-weight-regular); }
+.r4-tabs--scrollable .r4-tabs__item { flex: 0 0 auto; }
+.r4-tabs--fixed .r4-tabs__item { flex: 1 1 0; }
+
+.r4-tabs__item:hover:not(.is-active) { color: var(--text-subdued); }
+.r4-tabs__item.is-active { color: var(--text-default); font-weight: var(--font-weight-bold); border-bottom-color: var(--border-inverse); }
+.r4-tabs__item:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--component-chip-radius); }
+.r4-tabs__item:disabled { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+.r4-tabs__item .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }

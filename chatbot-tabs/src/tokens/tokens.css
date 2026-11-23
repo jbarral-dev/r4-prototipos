@@ -1,0 +1,16 @@
+/*
+ * Tokens R4 — punto de entrada. Cascada de 6 capas del archivo Figma "R4 Design System | Primitivos | 1.2"
+ * (Confluence: "Arquitecturas de tokens", página 3694592029). Orden = de la capa más baja a la más alta:
+ *   Foundations (literales) → Brand → Theme → Components ; Typography y Layout (por breakpoint).
+ * Los componentes consumen la capa MÁS ALTA posible: Components > Theme > Brand > Foundations. Nunca un hex ni un valor literal.
+ * foundations/brand/theme/components/typography/layout.css están GENERADOS desde Figma con tools/generate-tokens.ps1: no se editan a mano.
+ * effects.css y pending.css sí son manuales (ver su cabecera).
+ */
+@import url('foundations.css');
+@import url('brand.css');
+@import url('theme.css');
+@import url('components.css');
+@import url('typography.css');
+@import url('layout.css');
+@import url('effects.css');
+@import url('pending.css');

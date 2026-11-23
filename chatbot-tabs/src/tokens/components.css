@@ -1,0 +1,65 @@
+/* Components · tokens por componente (la capa que consumen los componentes)
+ * GENERADO por tools/generate-tokens.ps1 desde tools/tokens/*.txt (Figma · Primitivos 1.2). No editar a mano.
+ * Capa 4 de 6. Solo recoge las EXCEPCIONES a los tokens semánticos (radio del botón, fondo hover del secundario…). Si no hay token de componente, se usa el de Theme.
+ */
+:root {
+  --component-input-bg-default: var(--surface-default);
+  --component-input-bg-disabled: var(--surface-muted);
+  --component-avatar-bg: var(--color-neutral-gray-500);
+  --component-avatar-radius: var(--radius-full);
+  --component-avatar-size-large: var(--spacing-16);
+  --component-avatar-size-medium: var(--spacing-10);
+  --component-avatar-size-small: var(--spacing-6);
+  --component-avatar-size-extrasmall: var(--spacing-4);
+  --component-badge-radius: var(--radius-full);
+  --component-badge-negative-bg: var(--surface-page);
+  --component-badge-negative-border: var(--border-inverse);
+  --component-badge-positive-bg: var(--surface-inverse);
+  --component-badge-positive-border: var(--border-muted);
+  --component-banner-radius: var(--radius-none);
+  --component-button-radius: var(--radius-sm);
+  --component-buttoncircle-secondary-bg-default: var(--brand-accent-subtle);
+  --component-buttoncircle-secondary-bg-hover: var(--brand-accent-subtle-hover);
+  --component-button-size-large: var(--spacing-10);
+  --component-button-size-medium: var(--spacing-8);
+  --component-button-primary-bg-disabled: var(--surface-muted);
+  --component-button-primary-border-disabled: var(--border-default);
+  --component-button-secondary-bg-hover: var(--accent-surface);
+  --component-button-text-bg-hover: var(--brand-accent-surface);
+  --component-button-text-bg-pressed: var(--brand-accent-subtle);
+  --component-button-secondary-bg-pressed: var(--accent-subtle);
+  --component-button-secondary-bg-disabled: var(--surface-muted);
+  --component-button-secondary-border-hover: var(--brand-accent-border-hover);
+  --component-card-radius: var(--radius-none);
+  --component-checkbox-radius: var(--radius-xs);
+  --component-checkbox-size: var(--spacing-6);
+  --component-checkbox-borderwidth: var(--spacing-05);
+  --component-chip-radius: var(--radius-sm);
+  --component-chip-size-medium: var(--spacing-10);
+  --component-chip-size-small: var(--spacing-8);
+  --component-icon-boxed-bg: var(--brand-secondary-light);
+  --component-icon-boxed-fg: var(--brand-accent-icon-light);
+  --component-icon-plain-accentlight: var(--brand-accent-icon-light);
+  --component-icon-plain-neutraldark: var(--icon-default);
+  --component-card-bg-disabled: var(--surface-muted);
+  --component-input-radius: var(--radius-sm);
+  --component-input-border-default: var(--border-default);
+  --component-input-border-focused: var(--border-inverse);
+  --component-input-border-hover: var(--border-medium);
+  --component-inputsearch-size-large: var(--spacing-12);
+  --component-inputsearch-size-medium: var(--spacing-10);
+  --component-modal-radius: var(--radius-none);
+  --component-navigationitems-gap-default: var(--spacing-4);
+  --component-navigationitems-gap-relaxed: var(--spacing-8);
+  --component-notification-radius: var(--radius-none);
+  --component-popover-radius: var(--radius-xs);
+  --component-ratingstar-bg: var(--color-supporting-yellow-500);
+  --component-section-radius: var(--radius-none);
+  --component-segmentedcontrol-radius-inner: var(--radius-xs);
+  --component-segmentedcontrol-radius-outer: var(--radius-sm);
+  --component-sheet-bottom-radius: var(--radius-md);
+  --component-sheet-side-radius: var(--radius-none);
+  --component-table-breakdown-bg: var(--color-supporting-orange-100);
+  --component-tag-radius: var(--radius-xs);
+  --component-tooltip-radius: var(--radius-sm);
+}

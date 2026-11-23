@@ -1,0 +1,93 @@
+/*
+ * R4InputPhone — Pre Tab "_Input Pre Post Tab" (Variant=Phone, Tab=Pre): 87×40, padding horizontal 16, gap 8, fondo surface/muted,
+ * trazo component/input/border/default, esquinas 8/0/0/8; número 18/26. Decisión de Jon: el campo ocupa el 100 % del padre y usa los
+ * tokens nuevos (component/input/*, feedback/*), como R4InputText, no los antiguos "Interaction/Input/*" de `_Phone` en Figma.
+ * Label y caption reutilizan los de R4InputText.
+ */
+.r4-input-phone {
+  --r4-phone-bg: var(--component-input-bg-default);
+  --r4-phone-border: var(--component-input-border-default);
+  --r4-phone-text: var(--text-muted);
+  --r4-phone-tab-border: var(--component-input-border-default);
+  --r4-phone-focus: var(--effect-input-focus-shadow);
+  width: 100%;
+}
+
+.r4-input-phone__field {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  width: 100%;
+  padding-right: var(--spacing-3);
+  border-radius: var(--component-input-radius);
+  background: var(--r4-phone-bg);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-phone-border);
+}
+
+.r4-input-phone__tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  height: var(--spacing-10);
+  gap: var(--spacing-2);
+  padding: 0 var(--spacing-4);
+  border-radius: var(--component-input-radius) 0 0 var(--component-input-radius);
+  background: var(--surface-muted);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-phone-tab-border);
+  color: var(--text-default);
+  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
+}
+
+.r4-input-phone__input {
+  flex: 1 1 0;
+  min-width: 0;
+  height: var(--spacing-10);
+  padding-block: calc((var(--spacing-10) - var(--line-height-body-l)) / 2);
+  border: 0;
+  background: transparent;
+  outline: 0;
+  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
+  color: var(--r4-phone-text);
+}
+.r4-input-phone__input::placeholder { color: var(--text-muted); }
+
+.r4-input-phone__sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* filled: texto con color por defecto */
+.r4-input-phone__field:has(.r4-input-phone__input:not(:placeholder-shown)) .r4-input-phone__input { color: var(--text-default); }
+
+/* hover */
+.r4-input-phone:not(.r4-input-phone--disabled):not(.r4-input-phone--error) .r4-input-phone__field:hover { --r4-phone-border: var(--component-input-border-hover); }
+
+/* focused (sin valor): borde focused + sombra */
+.r4-input-phone:not(.r4-input-phone--error) .r4-input-phone__field:focus-within {
+  --r4-phone-border: var(--component-input-border-focused);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-phone-border), var(--r4-phone-focus);
+}
+/* typing (con valor y foco): sin sombra */
+.r4-input-phone__field:focus-within:has(.r4-input-phone__input:not(:placeholder-shown)) {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused);
+}
+
+/* error */
+.r4-input-phone--error {
+  --r4-phone-bg: var(--feedback-error-bg);
+  --r4-phone-border: var(--feedback-error-border);
+  --r4-phone-tab-border: var(--feedback-error-border);
+  --r4-phone-text: var(--feedback-error-text);
+  --r4-phone-focus: var(--effect-input-error-focus-shadow);
+}
+.r4-input-phone--error .r4-input-phone__field:focus-within { box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-phone-border), var(--r4-phone-focus); }
+.r4-input-phone--error .r4-input-text__caption { color: var(--feedback-error-text); }
+
+/* disabled */
+.r4-input-phone--disabled {
+  --r4-phone-bg: var(--component-input-bg-disabled);
+  --r4-phone-border: var(--component-input-border-default);
+  --r4-phone-text: var(--text-disabled);
+}
+.r4-input-phone--disabled .r4-input-phone__input,
+.r4-input-phone--disabled .r4-input-phone__input::placeholder { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+.r4-input-phone__tab .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }

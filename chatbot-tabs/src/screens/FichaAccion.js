@@ -1,0 +1,374 @@
+// Pantalla: ficha de producto · Acción (IBERDROLA). Figma "Proyectos - Fichas de Productos" (anbsZ1mpaxogwUM7dzbcPn):
+//   desktop cl-ficha-accion--dk (2463:42378; variantes con Derivados = Opciones: 2478:41029 y 2481:36427) · mobile ficha-accion--mb (2448:15016; con Opciones: 2454:15572;
+//   con el sheet «En otros mercados» sheetOtherMarkets 2454:15486 y la caja fija FixedProductTitle del frame «Efecto Scroll» 2612:141963).
+//   Tablet: no hay diseño (nunca se diseña tablet): se apila como mobile con los tokens de modo Tablet y la rejilla de 8 columnas.
+// Composición (TemplateDetail con headerSticky="main": solo la barra del Menu queda fija; superficie gris, sin Footer): 4 R4Wrapper density=compact con la prop `layout` (presets ya documentados en Confluence R4Wrapper v1.2).
+//   [layout 12: R4PageTitleProduct] · [layout 12: R4Tabs] · [layout 8-4 (tabpanel): R4ChartLine | R4Stack gap=lg (_RiskBox + Resumen)] · [layout 8-4: Productos relacionados | Datos de cotización].
+//   _RiskBox (caja de riesgo «6 / 6») va encima del Resumen, a 24 px (R4Stack gap=lg), como en el Figma desktop. En mobile y tablet (≤ 1023; mobile Figma 2816:102389, tablet extrapolado por decisión de Jon, 2026-11-11) sube a un PRIMER R4Wrapper (`ficha__w0`, antes del título):
+//   se renderiza dos veces y el CSS muestra solo una (la oculta con display:none no se anuncia). Con `ficha__w0` oculto, el título (`ficha__w1`) recupera
+//   el padding-top del primer Wrapper (token) porque `main > :first-child` lo seguiría siendo el oculto.
+//   (El título del bloque Derivados es «Productos relacionados» por decisión de Jon, 2026-11-07; el Figma aún dice «Derivados».)
+//   Un Wrapper = una fila-patrón, así que las tabs ya no comparten Wrapper con el gráfico (en el Figma sí): entre ambos queda el espacio natural de dos Wrappers (2 × density), sin corregir.
+//   Mobile: el Figma parte los wrappers de otra manera ([título + tabs + gráfico] · [resumen + derivados + datos de cotización]); como el DOM es único se mantiene el reparto de desktop y el
+//   espaciado vertical es solo el de los R4Wrapper (paddings y gap de la density compact), sin márgenes verticales en la pantalla.
+// Controles del gráfico (Figma «Acciones Gráfico», desktop 2813:74279 y mobile 2816:98718; estado y reglas en _graficoEstado.js): R4Chip «Comparar» y «Configurar» (type=multiple, con badge) + selector de tipo
+//   Líneas | Velas (R4SegmentedControls; en mobile, R4Button de icono). Comparar: R4Popover (≥ 1024) o R4Sheet bottom con buscador y resultados; al elegir un valor se añade su serie (eje en %), se deshabilitan
+//   Configurar y el tipo de gráfico y salen los chips de series (_ChartComparativeChip); su aspa sale del modo. Configurar: R4Popover o R4Sheet con indicadores; al aplicarlos salta un R4Spinner y se pintan.
+// Interacciones: tabs (Resumen, Productos relacionados, Análisis R4, Valoración, Dividendos y Salud financiera, según Jon, 2026-11-11 y 14; solo «Resumen» tiene contenido diseñado) · periodos del gráfico (la serie no cambia: datos de ejemplo) · chips de Derivados (muestran los derivados de esa categoría,
+//   como en la variante con Opciones del Figma) · «Mercado» del Resumen abre el sheet «En otros mercados» (bottom en <1024, side en ≥1024) · en mobile el título del producto, al salir del
+//   viewport, deja fija bajo la cabecera la capa fixedProductTitleLayer (Figma 2756:76562, variantes mobile y desktop) y las acciones van en el R4ButtonDock.
+// Datos de ejemplo: src/data/ficha-accion.js.
+import { defineComponent, ref, reactive, computed, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
+import TemplateDetail from '../templates/TemplateDetail.js'
+import Menu from '../components/pendientes/Menu.js'
+import FixedProductTitle from '../components/pendientes/FixedProductTitle.js'
+import R4Wrapper from '../components/pendientes/R4Wrapper.js'
+import R4Stack from '../components/pendientes/R4Stack.js'
+import _RiskBox from '../components/pendientes/_RiskBox.js'
+import R4Section from '../components/pendientes/R4Section.js'
+import R4PageTitleProduct from '../components/pendientes/R4PageTitleProduct.js'
+import R4Tabs from '../components/pendientes/R4Tabs.js'
+import R4ChartLine from '../components/pendientes/R4ChartLine.js'
+import R4ListDetail from '../components/pendientes/R4ListDetail.js'
+import R4Chip from '../components/pendientes/R4Chip.js'
+import R4SegmentedControls from '../components/pendientes/R4SegmentedControls.js'
+import _ChartComparativeChip from '../components/pendientes/_ChartComparativeChip.js'
+import _ChartConfigPanel from '../components/pendientes/_ChartConfigPanel.js'
+import _ChartComparePanel from '../components/pendientes/_ChartComparePanel.js'
+import R4Title from '../components/pendientes/R4Title.js'
+import R4Table from '../components/pendientes/R4Table.js'
+import R4Tag from '../components/pendientes/R4Tag.js'
+import R4Button from '../components/pendientes/R4Button.js'
+import R4Link from '../components/pendientes/R4Link.js'
+import R4Sheet from '../components/pendientes/R4Sheet.js'
+import R4Popover from '../components/pendientes/R4Popover.js'
+import R4NavigationItems from '../components/pendientes/R4NavigationItems.js'
+import R4ButtonDock from '../components/pendientes/R4ButtonDock.js'
+import _ProductActionsMenu from '../components/pendientes/_ProductActionsMenu.js'
+import R4ProductList from '../components/pendientes/R4ProductList.js'
+import { iconComponent } from '../icons/_Icon.js'
+import { accion, graficoControles } from '../data/ficha-accion.js'
+import { useGraficoControles } from './_graficoEstado.js'
+import dragScroll from '../directives/dragScroll.js'
+import VentanaContratacion from '../components/prototipo/VentanaContratacion.js'
+import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
+
+// Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
+const FACILITADOR = [
+  { label: 'Tipo de usuario', controls: [{ id: 'usuario', type: 'radio', options: [{ value: 'logado', label: 'Cliente logado', default: true }, { value: 'potencial', label: 'Potencial' }, { value: 'sinLogar', label: 'Cliente sin logar' }] }] },
+  { label: 'Tab Resumen', controls: [{ id: 'precios', type: 'switch', label: 'Mostrar precios en productos relacionados', default: true }] },
+  { label: 'Tab productos', controls: [{ id: 'tabProductos', param: 'tab-productos', type: 'radio', options: [{ value: 'listado', label: 'Listado', default: true }, { value: 'tabla', label: 'Tabla' }] }] },
+]
+
+const IcArrowRight = iconComponent('ic-arrow-right')
+const IcExternal = iconComponent('ic-external-link')
+
+export default defineComponent({
+  name: 'FichaAccion',
+  // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
+  emits: ['search'],
+  // Extra: `data` (por defecto la ficha de acción estándar; el prototipo «Ficha de acción (CAIFE)» pasa accionCaife).
+  props: { searchIcon: { type: String, default: undefined }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
+  directives: { dragScroll },
+  components: {
+    Facilitador, VentanaContratacion,
+    R4Title, R4Table,
+    TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
+    R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
+    R4SegmentedControls, ChartComparativeChip: _ChartComparativeChip, ChartConfigPanel: _ChartConfigPanel, ChartComparePanel: _ChartComparePanel,
+  },
+  setup(props) {
+    const d = props.data
+    const caso = ref(valoresPorDefecto(FACILITADOR)) // estado del Facilitador (use cases)
+    document.title = `${d.producto.productName} · Acciones · Renta 4`
+    // Pestaña activa en la URL, en el hash: #productos-relacionados (el resumen es la de por defecto y no lleva hash). Con ?tab-productos=… y sin hash, se abre la pestaña de productos relacionados.
+    const slug = (t) => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    const tabSlugs = d.tabs.map((t) => slug(t.label))
+    const hashSlug = () => decodeURIComponent(location.hash.replace(/^#/, ''))
+    const tabDesdeUrl = () => {
+      const q = new URLSearchParams(location.search)
+      const s = hashSlug()
+      const i = tabSlugs.indexOf(s)
+      if (i >= 0) return i
+      return !s && q.has('tab-productos') ? tabSlugs.indexOf('productos-relacionados') : 0
+    }
+    const tab = ref(tabDesdeUrl())
+    // La pestaña va en el hash (#productos-relacionados); el resumen, que es la de por defecto, no lleva hash
+    const cambiarTab = (i) => {
+      tab.value = i
+      const q = new URLSearchParams(location.search)
+      history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + (i === 0 ? '' : '#' + tabSlugs[i]))
+    }
+    const onHashChange = () => { const i = tabSlugs.indexOf(hashSlug()); tab.value = i >= 0 ? i : 0 }
+    const period = ref('1d')
+    const categoria = ref('cfds')
+    const sheetOpen = ref(false)
+    const titleVisible = ref(true)
+
+    const mercadoCategoria = computed(() => d.derivados.categorias.find((c) => c.id === categoria.value)?.mercado)
+    const derivados = computed(() => d.derivados.items[categoria.value].map(({ action, ...it }) => ({ ...it, market: mercadoCategoria.value?.name, marketFlag: mercadoCategoria.value?.flag, logoSrc: d.producto.logoURL }))) // sin botón de compra: la fila lleva a la ficha del producto
+    const conPrecio = computed(() => caso.value.precios)
+    // Tab «Productos relacionados» (versión listado): chips con «Todos» + los tipos y el catálogo completo con precio; se muestran de 20 en 20
+    const PASO = 20
+    const tabTipo = ref('todos')
+    const tabVisibles = ref(PASO)
+    const catalogo = d.derivados.catalogo || []
+    const TIPOS = [['CFD', 'CFDs'], ['Futuro', 'Futuros'], ['Opción', 'Opciones'], ['Warrant', 'Warrants']]
+    const chipsTab = computed(() => [{ id: 'todos', label: `Todos (${catalogo.length})` }, ...TIPOS.map(([t, plural]) => ({ id: t, label: `${plural} (${catalogo.filter((p) => p.tipo === t).length})` }))])
+    const tabLista = computed(() => (tabTipo.value === 'todos' ? catalogo : catalogo.filter((p) => p.tipo === tabTipo.value)))
+    const CAT_DE_TIPO = { CFD: 'cfds', Futuro: 'futuros', Opción: 'opciones', Warrant: 'warrants' }
+    const mercadoDe = (tipo) => d.derivados.categorias.find((c) => c.id === CAT_DE_TIPO[tipo])?.mercado
+    const tabItems = computed(() => tabLista.value.slice(0, tabVisibles.value).map((p) => ({ ...p, market: mercadoDe(p.tipo)?.name, marketFlag: mercadoDe(p.tipo)?.flag, logoSrc: d.producto.logoURL })))
+    const tabResumen = computed(() => `${Math.min(tabVisibles.value, tabLista.value.length)} productos de un total de ${tabLista.value.length}`)
+    const nombreEmpresa = d.producto.productName.toLowerCase().replace(/(^|\s)\S/g, (m) => m.toUpperCase()) // «IBERDROLA» → «Iberdrola»
+    const tabTexto = `Productos de ${nombreEmpresa}`
+    // Versión «Tabla» de la tab (R4Table, 20 filas por página): una fila por producto con las columnas Nombre, Tipo, Condiciones (vencimiento o garantía: no todos los productos tienen los mismos datos), Variación, Precio y Acciones (el precio junto al botón)
+    const TABLA_FILAS = 20
+    const tablaColumnas = [
+      { field: 'name', header: 'Nombre', frozen: true, width: '34%' },
+      { field: 'tipo', header: 'Tipo', width: '12%' },
+      { field: 'condiciones', header: 'Condiciones', width: '22%' },
+      { field: 'variation', header: 'Variación', align: 'right', width: '12%' },
+      { field: 'price', header: 'Precio', align: 'right', width: '12%' },
+      { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '8%' },
+    ]
+    const tablaFilas = computed(() => tabLista.value.map((p, i) => ({ ...p, id: `${p.tipo}-${p.name}-${p.meta[1] || ''}-${i}`, condiciones: p.meta.join(' · ') })))
+    const variacionTabla = (v) => String(v).replace(/\s*%\s*$/, ' %') // en la tabla siempre hay un espacio entre la cifra y el %
+    const signoVariacion = (v) => (String(v).trim().startsWith('-') ? 'is-negative' : 'is-positive')
+    const elegirTipoTab =(id) => { tabTipo.value = id; tabVisibles.value = PASO }
+    const verTodos = computed(() => d.derivados.verTodos[categoria.value])
+    const tabIds = d.tabs.map((_, i) => ({ id: `ficha-tab-${i}`, panelId: 'ficha-panel', label: d.tabs[i].label }))
+    const popover = ref(null) // { top, right } del popover «En otros mercados» (desktop), relativo al Resumen
+    const actionsSheetOpen = ref(false)
+    const closePopover = () => { popover.value = null }
+    const mercadoOpen = computed(() => !!popover.value || sheetOpen.value)
+    // Popover CAIFE (solo si los datos traen `caife`): lo abre el botón de información de la fila «Elegible Cuenta Europa»; se coloca bajo el botón, sin salirse del Resumen
+    const caifePopover = ref(null) // { top, left } relativo al Resumen (desktop ≥ 1024: R4Popover)
+    const caifeSheet = ref(false) // < 1024: R4Sheet bottom (patrón Progressive disclosure › Superposición › «Icono de info (ayuda breve)»: R4Popover en desktop, R4Sheet bottom en mobile)
+    const caifeOpen = computed(() => !!caifePopover.value || caifeSheet.value)
+    const closeCaife = () => { caifePopover.value = null; caifeSheet.value = false }
+    const resumen = computed(() => d.resumen.map((r) => {
+      if (r.action) return { ...r, action: { ...r.action, haspopup: true, pressed: mercadoOpen.value } }
+      if (r.info && d.caife && r.concept === d.caife.concept) return { ...r, info: { ...r.info, haspopup: true, pressed: caifeOpen.value } }
+      return r
+    }))
+    const onResumenInfo = async (it, e) => {
+      if (!d.caife || it.concept !== d.caife.concept) return
+      if (caifeOpen.value) { closeCaife(); return }
+      const btn = e && e.currentTarget
+      const box = btn && btn.closest(".ficha__resumen")
+      if (!box) return
+      const b = btn.getBoundingClientRect(); const s = box.getBoundingClientRect()
+      const width = 320 // R4Popover wide: se limita para que no sobresalga por la derecha del Resumen
+      caifePopover.value = { top: b.bottom - s.top + 8, left: Math.max(0, Math.min(b.left - s.left, s.width - width)) }
+      caifeSheet.value = true
+      await nextTick()
+      // El CSS decide cuál se ve (popover en ≥ 1024, bottom sheet por debajo): se descarta el que quede oculto
+      const sheet = document.querySelector(".ficha__sheet--caife")
+      if (sheet && getComputedStyle(sheet).display === "none") caifeSheet.value = false
+      else caifePopover.value = null
+    }
+    const onResumenAction = async (it, e) => {
+      if (it.concept !== 'Mercado') return
+      if (mercadoOpen.value) { popover.value = null; sheetOpen.value = false; return } // segundo clic: cierra
+      const btn = e && e.currentTarget
+      const box = btn && btn.closest('.ficha__resumen')
+      if (box) { const b = btn.getBoundingClientRect(); const s = box.getBoundingClientRect(); popover.value = { top: b.bottom - s.top + 8, right: s.right - b.right } }
+      sheetOpen.value = true
+      await nextTick()
+      // El CSS decide cuál se ve (popover en ≥ 1024, bottom sheet por debajo): se descarta el que quede oculto para no duplicar estado
+      const sheet = document.querySelector('.ficha__sheet--market')
+      if (sheet && getComputedStyle(sheet).display === 'none') sheetOpen.value = false
+      else popover.value = null
+    }
+    const onDocClick = (e) => { if (popover.value && !e.target.closest('.ficha__market-popover, .ficha__resumen .r4-listdetail__action')) closePopover()
+      if (caifePopover.value && !e.target.closest('.ficha__caife-popover, .ficha__resumen .r4-listdetail__info')) closeCaife() }
+    const onKey = (e) => { if (e.key === 'Escape') { closePopover(); closeCaife() } }
+    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey); window.addEventListener('hashchange', onHashChange) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey); window.removeEventListener('hashchange', onHashChange) })
+    const contratacionOpen = ref(false) // ventana de contratación (prototipo): spinner de 1 s y captura de la web actual
+    const contratar = () => { contratacionOpen.value = true }
+    const onTitleAction = (a) => { if (a.label === 'Comparar') setTimeout(() => gr.open('compare')) } // «Comparar» del menú de elipsis abre el mismo comparador que el chip del gráfico
+    const actionItems = d.producto.secondaryActions.map((a) => ({ title: a.label, icon: a.icon, showLink: a.showLink, linkHref: '#' }))
+
+    // Controles del gráfico (Comparar · Configurar · tipo de gráfico): estado y reglas en _graficoEstado.js
+    const gc = graficoControles
+    const gr = reactive(useGraficoControles(d.grafico, gc, period))
+    const vizItems = computed(() => [
+      { label: 'Líneas', value: 'line', icon: 'ic-chart-line', disabled: gr.comparing },
+      { label: 'Velas', value: 'candle', icon: 'ic-chart-candlestick', disabled: gr.comparing },
+    ])
+    const periodoTexto = computed(() => `en el periodo «${d.grafico.periods.find((p) => p.value === period.value)?.label}»`)
+    const chartLabel = computed(() => (gr.comparing
+      ? `Comparación de la variación porcentual de ${d.producto.productName} con ${gr.compared.map((c) => c.name).join(", ")} ${periodoTexto.value}`
+      : `${gr.visualization === 'candle' ? 'Velas' : 'Evolución'} del precio de ${d.producto.productName} ${periodoTexto.value}`))
+
+    return { contratacionOpen, contratar, onTitleAction, variacionTabla, cambiarTab, TABLA_FILAS, tablaColumnas, tablaFilas, signoVariacion, tabTexto, tabTipo, tabVisibles, PASO, chipsTab, tabLista, tabItems, tabResumen, elegirTipoTab, conPrecio, FACILITADOR, caso, resumen, popover, caifePopover, caifeSheet, onResumenInfo, IcExternal, actionsSheetOpen, actionItems, d, tab, period, categoria, sheetOpen, titleVisible, derivados, verTodos, tabIds, onResumenAction, IcArrowRight, gc, gr, vizItems, chartLabel }
+  },
+  template: `
+    <TemplateDetail header-sticky="main">
+      <template #header>
+        <Menu type="default" :client="caso.usuario" :search-icon="searchIcon" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
+      </template>
+      <template #header-extra>
+        <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" @cta="contratar" />
+      </template>
+
+      <R4Wrapper density="compact" layout="12" class="ficha__w0">
+        <RiskBox v-bind="d.riesgo" />
+      </R4Wrapper>
+
+      <R4Wrapper density="compact" layout="12" class="ficha__w1">
+        <R4PageTitleProduct v-bind="d.producto" @visible-change="titleVisible = $event" @action="onTitleAction" @cta="contratar" />
+      </R4Wrapper>
+
+      <R4Wrapper density="compact" layout="12" class="ficha__w2">
+        <R4Tabs :tabs="tabIds" :active-tab="tab" type="title" layout="scrollable" aria-label="Secciones del producto" @change="cambiarTab($event)" />
+      </R4Wrapper>
+
+      <R4Wrapper id="ficha-panel" density="compact" :layout="tab === 0 ? '8-4' : '12'" class="ficha__w3" role="tabpanel" :aria-labelledby="'ficha-tab-' + tab">
+        <template v-if="tab === 0">
+          <div class="ficha__chart">
+            <R4ChartLine timeline="today" :points="gr.chart.points" :domain="gr.chart.domain" :progress="gr.progress" :y-labels="gr.chart.yLabels" :x-labels="gr.xLabels"
+                         :visualization="gr.visualization" :candles="gr.candles" :compare-series="gr.chart.compareSeries" :overlays="gr.overlays" :loading="gr.loading"
+                         :point-labels="gr.pointLabels" :value-format="gr.valueFormat" :series-names="gr.seriesNames" :periods="d.grafico.periods" :selected-period="period" :aria-label="chartLabel" @period="period = $event">
+              <template #filters>
+                <div class="ficha__chart-anchor ficha__chart-anchor--compare">
+                  <R4Chip type="multiple" icon="ic-exchange" label="Comparar" :selected="gr.panel === 'compare' || gr.sheet === 'compare' || gr.comparing" :expanded="gr.panel === 'compare' || gr.sheet === 'compare'"
+                          :badge="gr.comparing ? 1 + gr.compared.length : undefined" :badge-aria-label="1 + gr.compared.length + ' valores en el gráfico'" :disabled="gr.full" aria-haspopup="dialog" @click="gr.open('compare')" />
+                  <div v-if="gr.panel === 'compare'" class="ficha__chart-popover" role="dialog" aria-label="Comparar valores">
+                    <R4Popover width="wider">
+                      <ChartComparePanel v-model="gr.query" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
+                    </R4Popover>
+                  </div>
+                </div>
+                <div class="ficha__chart-anchor ficha__chart-anchor--config">
+                  <R4Chip type="multiple" icon="ic-cog" label="Configurar" :selected="gr.panel === 'config' || gr.sheet === 'config' || gr.selected.length > 0" :expanded="gr.panel === 'config' || gr.sheet === 'config'"
+                          :badge="gr.selected.length || undefined" :badge-aria-label="gr.selected.length + ' indicadores aplicados'" :disabled="gr.comparing" aria-haspopup="dialog" @click="gr.open('config')" />
+                  <div v-if="gr.panel === 'config'" class="ficha__chart-popover" role="dialog" aria-label="Configuración del gráfico">
+                    <R4Popover width="wide">
+                      <ChartConfigPanel :model-value="gr.selected" :groups="gc.configuracion" @update:model-value="gr.setIndicators($event)" />
+                    </R4Popover>
+                  </div>
+                </div>
+              </template>
+              <template #visualization>
+                <R4SegmentedControls class="ficha__viz-segmented" size="medium" type="iconAndText" aria-label="Tipo de gráfico" :items="vizItems" :selected-value="gr.visualization" @select="gr.visualization = $event" />
+                <R4Button class="ficha__viz-button" type="secondary" size="medium" :icon="gr.visualization === 'line' ? 'ic-chart-candlestick' : 'ic-chart-line'"
+                          :aria-label="gr.visualization === 'line' ? 'Ver gráfico de velas' : 'Ver gráfico de líneas'" :disabled="gr.comparing" @click="gr.toggleVisualization()" />
+              </template>
+              <template v-if="gr.comparing" #comparing>
+                <ul class="r4-chartline__comparing" aria-label="Series del gráfico">
+                  <ChartComparativeChip :ticker="gc.ticker" :color="1" />
+                  <ChartComparativeChip v-for="c in gr.compared" :key="c.ticker" :ticker="c.ticker" :color="c.color" removable :remove-label="'Quitar ' + c.name + ' de la comparación'" @remove="gr.uncompare(c.ticker)" />
+                </ul>
+              </template>
+            </R4ChartLine>
+          </div>
+          <R4Stack gap="lg">
+            <RiskBox class="ficha__riskbox-inline" v-bind="d.riesgo" />
+            <R4Section class="ficha__resumen" appearance="boxed" background-color="white" title="Resumen">
+              <R4ListDetail size="medium" :items="resumen" @action="onResumenAction" @info="onResumenInfo" />
+              <div v-if="popover" class="ficha__market-popover" role="dialog" aria-label="En otros mercados" :style="{ top: popover.top + 'px', right: popover.right + 'px' }">
+                <R4Popover width="wide">
+                  <p class="ficha__market-title">En otros mercados</p>
+                  <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
+                </R4Popover>
+              </div>
+              <div v-if="caifePopover && d.caife" class="ficha__caife-popover" role="dialog" :aria-label="d.caife.title" :style="{ top: caifePopover.top + 'px', left: caifePopover.left + 'px' }">
+                <R4Popover width="wide">
+                  <div class="ficha__caife">
+                    <p class="ficha__caife-title">{{ d.caife.title }}</p>
+                    <div class="ficha__caife-text">
+                      <p>{{ d.caife.intro }}<strong>{{ d.caife.introStrong }}</strong>.</p>
+                      <p>{{ d.caife.description }}</p>
+                    </div>
+                    <R4Link type="standalone" size="medium" :href="d.caife.linkHref" :icon-right="IcExternal">{{ d.caife.linkText }}</R4Link>
+                  </div>
+                </R4Popover>
+              </div>
+            </R4Section>
+          </R4Stack>
+        </template>
+        <R4Stack v-else-if="tab === 1 && caso.tabProductos === 'listado'" gap="lg">
+          <R4Title :h="2" size="small">{{ tabTexto }}</R4Title>
+          <R4Stack v-drag-scroll class="ficha__chips" direction="horizontal" gap="sm" :wrap="false" role="group" aria-label="Tipo de producto">
+            <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
+          </R4Stack>
+          <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
+            <R4ProductList class="ficha__results" :items="tabItems" show-action aria-label="Productos relacionados" @action="contratar" />
+            <R4Button v-if="tabVisibles < tabLista.length" class="ficha__mostrar-mas" type="secondary" size="medium" text="Mostrar más productos" @click="tabVisibles += PASO" />
+          </R4Section>
+          <p class="ficha__sr-only" role="status" aria-live="polite">{{ tabResumen }}</p>
+        </R4Stack>
+        <R4Stack v-else-if="tab === 1 && caso.tabProductos === 'tabla'" gap="lg">
+          <R4Title :h="2" size="medium">{{ tabTexto }}</R4Title>
+          <R4Stack v-drag-scroll class="ficha__chips" direction="horizontal" gap="sm" :wrap="false" role="group" aria-label="Tipo de producto">
+            <R4Chip v-for="c in chipsTab" :key="c.id" size="small" :label="c.label" :selected="tabTipo === c.id" @click="elegirTipoTab(c.id)" />
+          </R4Stack>
+          <R4Section class="ficha__tabproductos" appearance="boxed" background-color="white">
+            <R4Table :data="tablaFilas" :columns="tablaColumnas" data-key="id" paginator :rows="TABLA_FILAS" aria-label="Productos relacionados">
+              <template #body-name="{ data }"><span class="ficha__tabla-nombre"><img class="ficha__tabla-logo" :src="d.producto.logoURL" alt="" /><a class="ficha__tabla-link" href="#">{{ data.name }}</a></span></template>
+              <template #body-tipo="{ data }"><R4Tag color="blue" size="small" :text="data.tipo" /></template>
+              <template #body-variation="{ data }"><span class="ficha__tabla-var" :class="signoVariacion(data.variation)">{{ variacionTabla(data.variation) }}</span></template>
+              <template #body-accion="{ data }"><R4Button type="secondary" size="medium" icon="ic-shopping-cart" :aria-label="'Contratar ' + data.name" @click="contratar" /></template>
+            </R4Table>
+          </R4Section>
+        </R4Stack>
+        <p v-else class="ficha__placeholder">Contenido de «{{ d.tabs[tab].label }}» no incluido en el prototipo.</p>
+      </R4Wrapper>
+
+      <R4Wrapper v-if="tab === 0" density="compact" layout="8-4" class="ficha__w4">
+        <R4Section class="ficha__derivados" appearance="boxed" background-color="white" title="Productos relacionados">
+          <div v-drag-scroll class="ficha__filters" role="group" aria-label="Tipo de derivado">
+            <R4Chip v-for="c in d.derivados.categorias" :key="c.id" size="small" :label="c.label" :selected="categoria === c.id" @click="categoria = c.id" />
+          </div>
+          <R4ProductList class="ficha__results" :items="derivados" :show-price="conPrecio" aria-label="Productos relacionados" />
+          <template v-if="verTodos">
+            <R4Button class="ficha__ver-todos-desktop" type="text" size="medium" icon="ic-external-link" :text="verTodos" />
+            <R4Link class="ficha__ver-todos-mobile" type="standalone" size="medium" href="#" :icon-right="IcArrowRight">{{ verTodos }}</R4Link>
+          </template>
+        </R4Section>
+
+        <R4Section class="ficha__cotizacion" appearance="boxed" background-color="white" title="Datos de cotización">
+          <R4ListDetail size="medium" :items="d.cotizacion" />
+        </R4Section>
+      </R4Wrapper>
+
+      <template #dock>
+        <R4ButtonDock>
+          <ProductActionsMenu :actions="d.producto.secondaryActions" as-sheet @open="actionsSheetOpen = true" />
+          <R4Button type="primary" :text="d.producto.ctaText" @click="contratar" />
+        </R4ButtonDock>
+      </template>
+
+      <template #overlay>
+        <slot name="overlay" />
+        <VentanaContratacion :open="contratacionOpen" @close="contratacionOpen = false" />
+        <Facilitador v-if="facilitator" v-model:values="caso" :groups="FACILITADOR" />
+        <R4Sheet class="ficha__sheet ficha__sheet--market" position="bottom" title="En otros mercados" :open="sheetOpen" @close="sheetOpen = false">
+          <R4ProductList class="ficha__results" :items="d.otrosMercados" aria-label="En otros mercados" />
+        </R4Sheet>
+        <R4Sheet v-if="d.caife" class="ficha__sheet ficha__sheet--caife" position="bottom" :title="d.caife.title" :open="caifeSheet" @close="caifeSheet = false">
+          <div class="ficha__caife">
+            <div class="ficha__caife-text">
+              <p>{{ d.caife.intro }}<strong>{{ d.caife.introStrong }}</strong>.</p>
+              <p>{{ d.caife.description }}</p>
+            </div>
+            <R4Link type="standalone" size="medium" :href="d.caife.linkHref" :icon-right="IcExternal">{{ d.caife.linkText }}</R4Link>
+          </div>
+        </R4Sheet>
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" full-height title="Comparar valores" :open="gr.sheet === 'compare'" @close="gr.close()">
+          <ChartComparePanel v-model="gr.query" placeholder="Buscar por valor, símbolo o ISIN" :results="gr.results" @select="gr.compare($event)" @close="gr.close()" />
+        </R4Sheet>
+        <R4Sheet class="ficha__sheet ficha__sheet--chart" position="bottom" title="Configuración del gráfico" :open="gr.sheet === 'config'" primary-action-label="Guardar ajustes"
+                 secondary-action-label="Cancelar" @primary="gr.saveDraft()" @secondary="gr.close()" @close="gr.close()">
+          <ChartConfigPanel v-model="gr.draft" :groups="gc.configuracion" />
+        </R4Sheet>
+        <R4Sheet class="ficha__sheet ficha__sheet--actions" position="bottom" title="Más acciones" :open="actionsSheetOpen" @close="actionsSheetOpen = false">
+          <R4NavigationItems size="medium" density="narrow" :icon-is-boxed="false" :items="actionItems" aria-label="Más acciones" @select="actionsSheetOpen = false" />
+        </R4Sheet>
+      </template>
+    </TemplateDetail>
+  `,
+})

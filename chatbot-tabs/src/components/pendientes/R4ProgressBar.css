@@ -1,0 +1,57 @@
+.r4-progress-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background: var(--surface-default);
+}
+
+.r4-progress-bar__process {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--grid-containermaxwidth);
+  height: var(--spacing-14);
+  padding-inline: var(--grid-containerpadding);
+  background: var(--surface-default);
+}
+
+.r4-progress-bar__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--spacing-5);
+  height: var(--spacing-5);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--icon-default);
+  cursor: pointer;
+}
+
+/* Área táctil de 44 px (CLAUDE.md) aunque el visual sea 20 px. */
+.r4-progress-bar__action { position: relative; }
+.r4-progress-bar__action::after { content: ''; position: absolute; inset: calc(var(--spacing-3) * -1); }
+
+.r4-progress-bar__title {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  color: var(--text-default);
+  font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body);
+}
+
+.r4-progress-bar__track {
+  display: flex;
+  width: 100%;
+  height: var(--spacing-1);
+  background: var(--surface-muted);
+}
+
+.r4-progress-bar__segment { flex: 1 1 0; height: var(--spacing-1); }
+.r4-progress-bar__segment--done { background: var(--accent-border); }
+
+/* Sin botón de cierre se mantiene su hueco para que el título siga centrado */
+.r4-progress-bar__action--empty { pointer-events: none; }

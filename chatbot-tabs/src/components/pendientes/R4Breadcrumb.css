@@ -1,0 +1,46 @@
+/* R4Breadcrumb — valores leídos de Figma (desktop: texto body/s, gap 8; separador ic-angle-right 12 px; Home ic-home-alt 18 px). */
+.r4-breadcrumb { width: 100%; }
+
+.r4-breadcrumb__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-s);
+  line-height: var(--line-height-body-s);
+}
+
+.r4-breadcrumb__item { display: flex; align-items: center; gap: var(--spacing-2); }
+
+.r4-breadcrumb__home { display: flex; color: var(--accent-link); }
+.r4-breadcrumb__home .r4-icon { width: calc(var(--spacing-4) + var(--spacing-05)); height: calc(var(--spacing-4) + var(--spacing-05)); }
+
+.r4-breadcrumb__link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  color: var(--accent-link);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+}
+.r4-breadcrumb__link:hover { color: var(--accent-link-hover); }
+
+.r4-breadcrumb__sep { flex: none; width: var(--spacing-3); height: var(--spacing-3); color: var(--icon-default); }
+.r4-breadcrumb__back { display: none; width: var(--spacing-4); height: var(--spacing-4); }
+
+.r4-breadcrumb__current { color: var(--text-subdued); font-weight: var(--font-weight-regular); }
+
+.r4-breadcrumb__home:focus-visible,
+.r4-breadcrumb__link:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
+
+/* Mobile (Figma Device=mobile): solo "← nivel padre", sin subrayado */
+@container r4page (max-width: 599px) {
+  .r4-breadcrumb__item:not(.r4-breadcrumb__item--parent) { display: none; }
+  .r4-breadcrumb__item--parent .r4-breadcrumb__sep { display: none; }
+  .r4-breadcrumb__item--parent .r4-breadcrumb__back { display: block; }
+  .r4-breadcrumb__link { text-decoration: none; }
+}

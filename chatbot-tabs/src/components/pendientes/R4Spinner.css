@@ -1,0 +1,32 @@
+/*
+ * R4Spinner — valores de la doc (R4Spinner 3160408139) y de Figma: contenedor cuadrado small 24 (spacing/6) · medium 48 (spacing/12) · large 64 (spacing/16); distancia al texto spacing/2;
+ * track surface/muted al 30 % (la opacidad no tiene token); arco accent/default; texto text/default con la tipografía body del mismo size (14/20 · 16/24 · 18/26).
+ * Animación: una vuelta por segundo, lineal, sin fin; aparece tras 300 ms; con movimiento reducido no gira.
+ */
+.r4-spinner {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-2);
+  color: var(--text-default);
+  font-family: var(--font-family-body);
+  animation: r4-spinner-appear 0s linear 0.3s both;
+  opacity: 0;
+}
+@keyframes r4-spinner-appear { to { opacity: 1; } }
+
+.r4-spinner__svg { width: var(--spacing-12); height: var(--spacing-12); animation: r4-spinner-spin 1s linear infinite; }
+.r4-spinner--small .r4-spinner__svg { width: var(--spacing-6); height: var(--spacing-6); }
+.r4-spinner--large .r4-spinner__svg { width: var(--spacing-16); height: var(--spacing-16); }
+@keyframes r4-spinner-spin { to { transform: rotate(360deg); } }
+
+.r4-spinner__track { stroke: color-mix(in srgb, var(--surface-muted) 30%, transparent); }
+.r4-spinner__arc { stroke: var(--accent-default); }
+
+.r4-spinner__label { font-size: var(--size-body-m); line-height: var(--line-height-body-m); text-align: center; }
+.r4-spinner--small .r4-spinner__label { font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.r4-spinner--large .r4-spinner__label { font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
+
+@media (prefers-reduced-motion: reduce) {
+  .r4-spinner__svg { animation: none; }
+}

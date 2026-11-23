@@ -1,0 +1,22 @@
+/*
+ * R4ButtonDock — valores leídos de Figma: fondo surface/default, borde superior 1 px border/subtle, padding 16 (margin/margin y spacing/4), gap 16, alto 72 (16 + 40 + 16).
+ * El primer hijo es la acción secundaria de icono (40 × 40) y el segundo ocupa el ancho restante (flex 1). Pegado abajo con position: sticky (ver cabecera del .js).
+ */
+.r4-buttondock {
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  gap: var(--spacing-4);
+  align-items: flex-end;
+  justify-content: center;
+  padding: var(--spacing-4);
+  background: var(--surface-default);
+  box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle);
+}
+.r4-buttondock > .r4-button:not(.r4-button--content-icon) { flex: 1 1 0; }
+
+/* Solo mobile: a partir de tablet las acciones van inline en la cabecera del producto */
+@container r4page (min-width: 600px) {
+  .r4-buttondock { display: none; }
+}
