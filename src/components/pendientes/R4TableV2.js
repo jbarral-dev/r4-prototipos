@@ -9,7 +9,7 @@
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24; el chip de la vista es size small): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
-// Cada opción de filtro lleva entre paréntesis su nº de resultados y solo se muestran las que devuelven alguno (las marcadas se mantienen). El título de cada acordeón lleva su nº (opciones visibles; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
+// Cada opción de filtro lleva entre paréntesis su nº de resultados (también las que dan 0). El título de cada acordeón lleva su nº (opciones de la categoría; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -90,12 +90,12 @@ export default defineComponent({
     onBeforeUnmount(() => clearTimeout(timer))
 
     // — Opciones con resultados —
-    // Cada opción lleva entre paréntesis las filas que devuelve (con el resto de categorías ya seleccionadas en `sel`) y solo se muestran las que devuelven alguna; las ya marcadas se mantienen aunque den 0 (para poder desmarcarlas)
+    // Cada opción lleva entre paréntesis las filas que devuelve (con el resto de categorías ya seleccionadas en `sel`). Se muestran TODAS, también las que dan (0) (Jon, 2026-11-25; el 2026-11-24 se ocultaban)
     const conteoOpcion = (f, o, sel) => {
       const otros = view.value.filters.filter((x) => x.id !== f.id && (sel[x.id] || []).length)
       return props.data.filter((r) => otros.every((x) => x.predicate(r, sel[x.id])) && f.predicate(r, [o.value])).length
     }
-    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => ({ value: o.value, label: `${o.label} (${conteoOpcion(f, o, sel)})`, n: conteoOpcion(f, o, sel) })).filter((o) => o.n > 0 || (sel[f.id] || []).includes(o.value)) })
+    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => ({ value: o.value, label: `${o.label} (${conteoOpcion(f, o, sel)})`, n: conteoOpcion(f, o, sel) })) })
     const opcionesCategoria = (f) => opcionesDe(f, { ...actuales.value, [f.id]: catDraft.value }) // popover / sheet de una categoría
     const opcionesSheet = (f) => opcionesDe(f, draft) // sheet «Todos los filtros»
 
@@ -137,10 +137,10 @@ export default defineComponent({
       recargar('table', () => {})
     }
     // Acordeones del sheet: «Filtros seleccionados» solo existe si hay algún filtro activo (en la selección del sheet, en vivo); abiertos los filtros que se ven sobre la tabla (destacados) y cerrados los demás
-    // El nº (de filtros seleccionados o de opciones con resultados de la categoría) va en una R4Tag small lightgray en el slot `title` del acordeón; las categorías sin ninguna opción con resultados no se muestran
+    // El nº (de filtros seleccionados o de opciones de la categoría) va en una R4Tag small en el slot `title` del acordeón
     const accordionItems = computed(() => [
       ...(draftTotal.value ? [{ id: 'aplicados', title: 'Filtros seleccionados', count: draftTotal.value }] : []),
-      ...view.value.filters.map((f) => ({ id: f.id, title: f.label, count: opcionesSheet(f).options.length, filter: f })).filter((i) => i.count > 0),
+      ...view.value.filters.map((f) => ({ id: f.id, title: f.label, count: opcionesSheet(f).options.length, filter: f })),
     ])
     const abiertos = computed(() => ['aplicados', ...view.value.filters.filter((f) => f.highlighted).map((f) => f.id)])
     // «Ver N resultados»: al cambiar N con el sheet abierto, spinner de 800 ms en el botón
