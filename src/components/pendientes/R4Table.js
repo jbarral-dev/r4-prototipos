@@ -11,7 +11,7 @@
 // R4Table v2 (prototipo «R4Table (v2)»): `sortable` por columna (API del Vue en Confluence 3001581575): botón en la cabecera con el icono «Icon Arrow» de Figma (Proyectos - Tablas): doble flecha sin ordenar, flecha abajo = ascendente y arriba = descendente (así lo pinta Figma;
 // la Confluence dice lo contrario —asc = arriba—: discrepancia a validar); a la izquierda del texto en columnas alineadas a la derecha. Orden en cliente; clic: asc → desc → sin orden. Extras: `defaultSort` ({ field, order }), evento `sort-change` ({ field, order }; lo usa R4TableV2 para conservar el orden al cambiar de vista) y slot `empty`
 // (filas vacías: «No hay resultados»; en Storybook no se ha podido comprobar el comportamiento sin datos). aria-sort en la cabecera.
-// Extra `loading`: la cabecera se mantiene y las filas pasan a R4Skeleton (mismo nº de filas y alto que los datos que había; ≥ 5), sin paginador, con aria-busy y texto oculto «Cargando contenido»; la forma exacta del Storybook no se ha podido leer (401): es una interpretación.
+// `loading` (Storybook: vídeo de Jon): la cabecera se mantiene y las filas pasan a R4Skeleton: `rows` filas con una barra por celda a todo el ancho de la celda (alto = línea de texto, 24; esquinas redondeadas) en todas las columnas; sin paginador, con aria-busy y texto oculto «Cargando contenido».
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
 // Extras del prototipo: ariaLabel y el paginador propio (`<nav>` con botones; el del Storybook es el de PrimeVue). El icono «siguiente» es el chevron izquierdo girado (no hay chevron derecho registrado).
 import { defineComponent, ref, computed, watch } from '../../../vendor/vue.esm-browser.prod.js'
@@ -33,7 +33,7 @@ export default defineComponent({
     hideLastRowBorder: { type: Boolean, default: false },
     ariaLabel: { type: String, default: undefined },
     defaultSort: { type: Object, default: undefined },
-    loading: { type: Boolean, default: false }, // Storybook (R4Table › Loading; no se ha podido leer desde aquí): la cabecera se mantiene y las filas se sustituyen por formas R4Skeleton con las mismas dimensiones
+    loading: { type: Boolean, default: false }, // Storybook (R4Table › Loading, grabación de Jon 2026-11-24): «se muestra un skeleton con el número de filas definido en `rows`; respeta la configuración de columnas, mostrando el mismo nº de celdas por fila»
   },
   emits: ['sort-change'],
   setup(props, { emit }) {
@@ -68,9 +68,8 @@ export default defineComponent({
     const ir = (n) => { page.value = Math.min(pageCount.value, Math.max(1, n)) }
     watch(() => props.data, () => { page.value = 1 })
     watch(sort, (s) => { page.value = 1; emit('sort-change', { ...s }) }) // al cambiar los datos (p. ej. otro filtro) se vuelve a la primera página
-    const filasSkeleton = computed(() => Array.from({ length: Math.max(5, visibles.value.length) }, (_, i) => i))
-    const anchoSkeleton = (i, j) => `${[78, 62, 90, 70, 84, 56][(i * 2 + j) % 6]}%` // anchos variados (determinista)
-    return { filasSkeleton, anchoSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
+    const filasSkeleton = computed(() => Array.from({ length: props.rows }, (_, i) => i))
+    return { filasSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },
   template: `
     <div class="r4-table" :class="['r4-table--' + size, { 'r4-table--hide-last-border': hideLastRowBorder, 'r4-table--has-sort': columns.some((c) => c.sortable) }]">
@@ -89,8 +88,8 @@ export default defineComponent({
           </thead>
           <tbody v-if="loading">
             <tr v-for="i in filasSkeleton" :key="'sk' + i" class="r4-table__row r4-table__row--skeleton">
-              <td v-for="(c, j) in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
-                <span class="r4-table__skeleton-cell" :class="'r4-table__skeleton-cell--' + (c.align || 'left')"><R4Skeleton v-if="c.header || c.srHeader" shape="paragraph" :width="anchoSkeleton(i, j)" /></span>
+              <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
+                <span class="r4-table__skeleton-cell"><R4Skeleton shape="paragraph" width="100%" height="100%" /></span>
               </td>
             </tr>
           </tbody>

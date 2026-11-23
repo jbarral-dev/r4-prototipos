@@ -45,8 +45,7 @@
 .r4-table__sort-icon.is-desc { transform: rotate(180deg); }
 .r4-table__empty { padding-block: var(--spacing-8); text-align: center; color: var(--text-subdued); }
 
-/* loading: celdas con R4Skeleton paragraph (alto 14) centrado en el alto de línea (24) para que la fila conserve sus 48 px; las columnas alineadas a la derecha pegan la forma al borde derecho */
-.r4-table__skeleton-cell { display: flex; align-items: center; height: var(--line-height-body-m); }
-.r4-table__skeleton-cell--right { justify-content: flex-end; }
+/* loading (Storybook): una barra por celda a todo el ancho de la celda, de 24 de alto (la línea de texto, así la fila conserva sus 48 px) y con esquinas redondeadas (radius/sm) */
+.r4-table__skeleton-cell { display: block; width: 100%; height: var(--line-height-body-m); }
+.r4-table__skeleton-cell .r4-skeleton { border-radius: var(--radius-sm); }
 .r4-table__row--skeleton:hover .r4-table__td { background: var(--surface-default); }
-.r4-table__skeleton-cell .r4-skeleton { max-width: 100%; }

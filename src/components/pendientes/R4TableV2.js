@@ -8,7 +8,7 @@
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
-// Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
+// Tablet y mobile (≤ 1023 px; Jon, 2026-11-24; el chip de la vista es size small): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Cada opción de filtro lleva entre paréntesis su nº de resultados y solo se muestran las que devuelven alguno (las marcadas se mantienen). El título de cada acordeón lleva su nº (opciones visibles; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
@@ -197,7 +197,7 @@ export default defineComponent({
         <div class="r4-table-v2__meta">
           <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
           <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
-          <R4Chip class="r4-table-v2__views-chip" type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+          <R4Chip class="r4-table-v2__views-chip" type="multiple" size="small" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export default defineComponent({
       <!-- Tablet y mobile (≤ 1023 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
       <div class="r4-table-v2__bar r4-table-v2__bar--compact">
         <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
-        <R4Chip type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+        <R4Chip type="multiple" size="small" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
       </template>
 
