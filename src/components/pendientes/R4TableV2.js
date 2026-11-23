@@ -8,7 +8,7 @@
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
-// El título de cada acordeón de categoría lleva entre paréntesis el nº de opciones que contiene (p. ej. «Mercados (14)»).
+// El título de cada acordeón de categoría lleva entre paréntesis el nº de opciones que contiene (p. ej. «Mercados (14)»); «Filtros seleccionados» lleva el nº de filtros activos en el sheet (el de chips).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -123,7 +123,7 @@ export default defineComponent({
       recargar('table', () => {})
     }
     // Acordeones del sheet: «Filtros seleccionados» solo existe si hay algún filtro activo (en la selección del sheet, en vivo); abiertos los filtros que se ven sobre la tabla (destacados) y cerrados los demás
-    const accordionItems = computed(() => [...(draftTotal.value ? [{ id: 'aplicados', title: 'Filtros seleccionados' }] : []), ...view.value.filters.map((f) => ({ id: f.id, title: `${f.label} (${f.options.length})`, filter: f }))])
+    const accordionItems = computed(() => [...(draftTotal.value ? [{ id: 'aplicados', title: `Filtros seleccionados (${draftTotal.value})` }] : []), ...view.value.filters.map((f) => ({ id: f.id, title: `${f.label} (${f.options.length})`, filter: f }))])
     const abiertos = computed(() => ['aplicados', ...view.value.filters.filter((f) => f.highlighted).map((f) => f.id)])
     // «Ver N resultados»: al cambiar N con el sheet abierto, spinner de 800 ms en el botón
     const contando = ref(false)
