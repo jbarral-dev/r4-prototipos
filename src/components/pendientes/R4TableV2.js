@@ -7,6 +7,7 @@
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
+// Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // El título de cada acordeón de categoría lleva entre paréntesis el nº de opciones que contiene (p. ej. «Mercados (14)»); «Filtros seleccionados» lleva el nº de filtros activos en el sheet (el de chips).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
@@ -63,6 +64,7 @@ export default defineComponent({
     rows: { type: Number, default: 25 },
     ariaLabel: { type: String, default: undefined },
     footnote: { type: String, default: undefined }, // nota al pie bajo la tabla (R4Table v1.1.0 de Confluence: «Footnote»); extra aquí: se pinta con R4Text small
+    layout: { type: String, default: 'inline', validator: (v) => ['inline', 'stacked'].includes(v) }, // inline (A): filtros y vistas en la misma fila · stacked (B): filtros en una fila y, 16 px debajo, «N resultados» + vistas
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' },
   },
   setup(props) {
@@ -157,7 +159,33 @@ export default defineComponent({
       contando, abiertos, vistaOpen, vistaActual, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
-    <div class="r4-table-v2" :aria-busy="loading ? 'true' : undefined">
+    <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
+      <!-- Variante B (stacked): fila de filtros y, debajo (16 px), «N resultados» a la izquierda y las vistas a la derecha (R4SegmentedControls en desktop; R4Chip multiple en tablet y mobile) -->
+      <div v-if="layout === 'stacked'" class="r4-table-v2__toolbar">
+        <div class="r4-table-v2__filters" role="group" aria-label="Filtros de la tabla">
+          <div class="r4-table-v2__all">
+            <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Todos los filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'"
+                    aria-haspopup="dialog" @click="abrirSheet" />
+          </div>
+          <div class="r4-table-v2__highlighted">
+            <div v-for="f in destacados" :key="f.id" class="r4-table-v2__anchor">
+              <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
+              <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
+                <R4Popover width="default">
+                  <TableFilterPanel :filter="f" v-model="catDraft" @apply="aplicarCategoria(f)" @clear="catDraft = []" />
+                </R4Popover>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="r4-table-v2__meta">
+          <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
+          <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
+          <R4Chip class="r4-table-v2__views-chip" type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+        </div>
+      </div>
+
+      <template v-else>
       <div class="r4-table-v2__bar r4-table-v2__bar--wide" :class="{ 'is-loading': loading === 'all' }" :inert="loading === 'all'">
         <div class="r4-table-v2__filters" role="group" aria-label="Filtros de la tabla">
           <div class="r4-table-v2__all">
@@ -183,6 +211,7 @@ export default defineComponent({
         <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
         <R4Chip type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
+      </template>
 
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <R4Section appearance="boxed" background-color="white">

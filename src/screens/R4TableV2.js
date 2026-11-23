@@ -40,9 +40,10 @@ const tono = (v) => (v > 0 ? 'success' : v < 0 ? 'error' : 'normal')
 
 export default defineComponent({
   name: 'R4TableV2Prototipo',
+  props: { variante: { type: String, default: 'a', validator: (v) => ['a', 'b'].includes(v) } }, // a = filtros y vistas en la misma fila · b = en filas distintas (con «N resultados»)
   components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador },
-  setup() {
-    document.title = 'R4Table (v2) · Prototipo R4'
+  setup(props) {
+    document.title = `R4Table (v2) - ${props.variante.toUpperCase()} · Prototipo R4`
     const caso = ref(valoresPorDefecto(FACILITADOR))
     const esc = computed(() => ESCENARIOS[caso.value.escenario])
     return { caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
@@ -54,7 +55,7 @@ export default defineComponent({
       <R4Wrapper density="compact" layout="12"><R4PageTitleSection :title="esc.titulo" :breadcrumb="esc.breadcrumb" /></R4Wrapper>
 
       <R4Wrapper density="compact" layout="12">
-        <R4TableV2 :key="caso.escenario" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
+        <R4TableV2 :key="caso.escenario" :layout="variante === 'b' ? 'stacked' : 'inline'" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
           <template #body-name="{ data }">
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
