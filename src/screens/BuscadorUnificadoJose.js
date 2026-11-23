@@ -106,7 +106,9 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
     // Teclado del móvil: la capa bottom sigue al viewport visual (ver seguirTeclado.js)
     let dejarDeSeguir = () => {}
-    onMounted(() => { dejarDeSeguir = seguirTeclado() })
+    // Con el teclado a la vista, la barra «¿No encuentras lo que buscas?» (acciones del R4Sheet en resultados) no se muestra; aparece cuando el teclado desaparece. El prompt del chat sí se queda.
+    const tecladoVisible = ref(false)
+    onMounted(() => { dejarDeSeguir = seguirTeclado((v) => { tecladoVisible.value = v }) })
     onBeforeUnmount(() => { dejarDeSeguir(); document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
     // «Volver» (chat y listado del histórico) va en la cabecera del R4Sheet (slot `header`): al chat lo saca a la pantalla inicial (la conversación queda activa) y, desde el listado, también a la inicial. El foco pasa al aspa de cerrar (sin abrir el teclado en mobile)
@@ -121,7 +123,7 @@ export default defineComponent({
     }
     watch(() => [api.open, api.chatView, api.barra, api.vista], medirAcciones, { flush: 'post' })
     onBeforeUnmount(() => ro && ro.disconnect())
-    return { api, proxy, abrirDesdeCabecera, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    return { api, tecladoVisible, proxy, abrirDesdeCabecera, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion :client="caso.usuario" :app-header="$options.components.AppHeaderJose" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="abrirDesdeCabecera()">
@@ -152,8 +154,8 @@ export default defineComponent({
 
         <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
         <div v-if="contenedor === 'sheet'" class="jusearch-sheet">
-          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="api.barra || api.chatView" @close="cerrarYDevolverFoco()">
-            <div class="jusearch-sheet__body" :class="{ 'jusearch-sheet__body--actions': api.barra || api.chatView, 'jusearch-sheet__body--prompt': api.chatView }">
+          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+            <div class="jusearch-sheet__body" :class="{ 'jusearch-sheet__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheet__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
                 <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
@@ -174,8 +176,8 @@ export default defineComponent({
 
         <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
         <div class="jusearch-sheetbottom">
-          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="api.barra || api.chatView" @close="cerrarYDevolverFoco()">
-            <div class="jusearch-sheetbottom__body" :class="{ 'jusearch-sheetbottom__body--actions': api.barra || api.chatView, 'jusearch-sheetbottom__body--prompt': api.chatView }">
+          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+            <div class="jusearch-sheetbottom__body" :class="{ 'jusearch-sheetbottom__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheetbottom__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
                 <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
