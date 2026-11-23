@@ -1,5 +1,5 @@
 /*
- * R4Accordion — tokens de la tabla de Confluence (R4Accordion v1.1.0): medium → cabecera y separación spacing/4 (16), contenedor del icono spacing/12 (48), título body/xl semibold, contenido body/m;
+ * R4Accordion — el espaciado vertical de la cabecera (spacing/4 · spacing/2) es el padding de TODA la fila: título y contenedor del icono quedan dentro (small = 8 + 40 + 8 = 56; medium = 16 + 48 + 16 = 80). Tokens de la tabla de Confluence (R4Accordion v1.1.0): medium → cabecera y separación spacing/4 (16), contenedor del icono spacing/12 (48), título body/xl semibold, contenido body/m;
  * small → spacing/2 (8), contenedor spacing/10 (40), título body/m semibold, contenido body/s. Línea divisoria border/subtle de 1 px (el último panel no la lleva). Título text/default, contenido text/subdued.
  * hover: fondo surface/subtle y radio button/radius en el contenedor del icono · foco de teclado: CardFocusOutline en el panel, contenido abierto (y, en small, la cabecera) en surface/subtle · disabled: text/disabled.
  */
@@ -13,9 +13,9 @@
 .r4-accordion__panel:has(.r4-accordion__header:focus-visible) .r4-accordion__content { background: var(--surface-subtle); }
 .r4-accordion--small .r4-accordion__panel:has(.r4-accordion__header:focus-visible) .r4-accordion__header { background: var(--surface-subtle); }
 
-.r4-accordion__header { display: flex; align-items: center; justify-content: space-between; gap: var(--r4-acc-pad); width: 100%; margin: 0; padding: 0; border: 0; background: transparent; color: var(--text-default); text-align: left; cursor: pointer; font: inherit; }
+.r4-accordion__header { display: flex; align-items: center; justify-content: space-between; gap: var(--r4-acc-pad); width: 100%; margin: 0; padding: var(--r4-acc-pad) 0; border: 0; background: transparent; color: var(--text-default); text-align: left; cursor: pointer; font: inherit; }
 .r4-accordion__header:focus-visible { outline: 0; }
-.r4-accordion__title { flex: 1 1 auto; min-width: 0; padding-block: var(--r4-acc-pad); font-size: var(--r4-acc-title-size); line-height: var(--r4-acc-title-line); font-weight: var(--font-weight-semibold); }
+.r4-accordion__title { flex: 1 1 auto; min-width: 0; font-size: var(--r4-acc-title-size); line-height: var(--r4-acc-title-line); font-weight: var(--font-weight-semibold); }
 .r4-accordion__icon { flex: none; display: flex; align-items: center; justify-content: center; width: var(--r4-acc-icon-box); height: var(--r4-acc-icon-box); border-radius: var(--component-button-radius); color: var(--icon-default); }
 .r4-accordion__icon .r4-icon { width: var(--spacing-5); height: var(--spacing-5); transition: transform 200ms; }
 .r4-accordion__panel.is-open .r4-accordion__icon .r4-icon { transform: rotate(180deg); }
