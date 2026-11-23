@@ -74,7 +74,8 @@ export default defineComponent({
           <template #body-ytd="{ value }"><R4Text :text="signo(value, fmt(abs(value)) + ' %')" :variant="tono(value)" /></template>
           <template #body-fecha="{ value }"><R4Text :text="value" /></template>
           <template #body-valor="{ data }">
-            <span class="r4tv2__nombre"><img v-if="logoPorNombre[data.valor]" class="r4tv2__logo" :src="logoPorNombre[data.valor]" alt="" /><ProductDefaultLogo v-else :name="data.valor" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.valor }}</a></span>
+            <R4Text v-if="data.esDetalle" class="r4tv2__detalle" :text="data.valor" />
+            <span v-else class="r4tv2__nombre"><img v-if="logoPorNombre[data.valor]" class="r4tv2__logo" :src="logoPorNombre[data.valor]" alt="" /><ProductDefaultLogo v-else :name="data.valor" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.valor }}</a></span>
           </template>
           <template #body-descripcion="{ value }"><R4Text :text="value" /></template>
           <template #body-tipo="{ value }"><R4Tag size="small" :color="colorTipo[value]" :text="value" /></template>

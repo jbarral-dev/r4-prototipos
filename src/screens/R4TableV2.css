@@ -10,3 +10,6 @@
 /* Nombres largos: se recortan con puntos suspensivos en vez de cortarse en seco */
 .r4tv2__nombre { max-width: 100%; }
 .r4tv2__link { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Fila hija de un movimiento (desglose): el texto queda alineado con el nombre del padre (tras el logo de 24 + gap de 8) */
+.r4tv2__detalle { padding-left: calc(var(--spacing-6) + var(--spacing-2)); }

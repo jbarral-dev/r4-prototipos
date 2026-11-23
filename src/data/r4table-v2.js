@@ -190,14 +190,24 @@ const MOV = [
   [105, 'Ethereum', 'Criptoactivos', 'Compra', 0.8, 2700], [130, 'BBVA', 'Acciones', 'Compra', 500, 21.8], [160, 'Amundi MSCI World', 'ETFs', 'Venta', 10, 515], [210, 'Bitcoin', 'Criptoactivos', 'Compra', 0.03, 66200],
   [260, 'Azvalor Internacional', 'Fondos', 'Suscripción', 60, 31.2], [320, 'SANTANDER', 'Acciones', 'Dividendo', 800, 0.1],
 ]
+const es = (n) => n.toLocaleString('es-ES', { maximumFractionDigits: 4 })
 const SALIDAS = new Set(['Compra', 'Suscripción'])
 let saldoAcum = 60000
 const _movs = [...MOV].reverse().map(([dias, valor, tipo, operacion, cantidad, precio], i) => {
   const bruto = +(cantidad * precio).toFixed(2)
-  const comision = operacion === 'Dividendo' ? 0 : +Math.max(1.5, bruto * 0.0035).toFixed(2)
-  const importe = SALIDAS.has(operacion) ? -(bruto + comision) : operacion === 'Dividendo' ? bruto : bruto - comision
+  const esDividendo = operacion === 'Dividendo'
+  const comision = esDividendo ? 0 : +Math.max(1.5, bruto * 0.0035).toFixed(2)
+  const retencion = esDividendo ? +(bruto * 0.19).toFixed(2) : 0 // dividendos: retención del 19 %
+  const importe = SALIDAS.has(operacion) ? -(bruto + comision) : esDividendo ? bruto - retencion : bruto - comision
   saldoAcum = +(saldoAcum + importe).toFixed(2)
-  return { id: `mov-${i}`, dias, fecha: fechaDe(dias), valor, tipo, operacion, descripcion: `${operacion} de ${tipo === 'Criptoactivos' ? 'criptoactivos' : tipo === 'Acciones' ? 'acciones' : tipo === 'ETFs' ? 'ETF' : 'fondo'}`, cantidad, precio, comision, importe: +importe.toFixed(2), saldo: saldoAcum }
+  // Filas hijas (desplegable de R4Table «With children rows»): desglose del importe; usan las mismas columnas que el movimiento (las vacías no se pintan)
+  const signo = SALIDAS.has(operacion) ? -1 : 1
+  const etiquetaBruto = { Compra: 'Compra bruta', Venta: 'Venta bruta', Dividendo: 'Dividendo bruto', Suscripción: 'Suscripción bruta', Reembolso: 'Reembolso bruto' }[operacion]
+  const children = [
+    { id: `mov-${i}-bruto`, esDetalle: true, valor: etiquetaBruto, descripcion: esDividendo ? `${es(cantidad)} títulos × ${es(precio)} €` : `${es(cantidad)} × ${es(precio)} €`, cantidad, precio, importe: +(signo * bruto).toFixed(2) },
+    ...(esDividendo ? [{ id: `mov-${i}-ret`, esDetalle: true, valor: 'Retención (19 %)', descripcion: 'A cuenta del IRPF', importe: -retencion }] : [{ id: `mov-${i}-com`, esDetalle: true, valor: 'Comisiones y gastos', descripcion: 'Intermediación y custodia', comision, importe: -comision }]),
+  ]
+  return { id: `mov-${i}`, children, dias, fecha: fechaDe(dias), valor, tipo, operacion, descripcion: `${operacion} de ${tipo === 'Criptoactivos' ? 'criptoactivos' : tipo === 'Acciones' ? 'acciones' : tipo === 'ETFs' ? 'ETF' : 'fondo'}`, cantidad, precio, comision, importe: +importe.toFixed(2), saldo: saldoAcum }
 }).reverse() // más recientes primero
 
 // Logos de criptoactivos: Figma «Resources - Cryptocurrency Logos» (8jbsiGYTKPZ8nf8le8wKgt, nodo 2001:163). XRP no está en ese archivo → logo de relleno.

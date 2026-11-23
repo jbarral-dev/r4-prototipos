@@ -50,3 +50,18 @@
 .r4-table__skeleton-cell { display: block; width: 100%; height: var(--line-height-body-m); }
 .r4-table__skeleton-cell .r4-skeleton { border-radius: var(--radius-sm); }
 .r4-table__row--skeleton:hover .r4-table__td { background: var(--surface-default); }
+
+/*
+ * Filas con hijos (Storybook «With children rows»): columna del botón de 60 (Storybook) con el chevron de 14 en color primario (accent/default), que gira 90° al abrir (200 ms); filas hijas con fondo surface/subtle y sin hover.
+ * Con la columna del botón, las columnas `frozen` quedan fijas a su derecha.
+ */
+.r4-table { --r4-table-toggle-width: calc(var(--spacing-10) + var(--spacing-5)); }
+.r4-table__col-toggle { width: var(--r4-table-toggle-width); }
+.r4-table__toggle-cell { width: var(--r4-table-toggle-width); min-width: var(--r4-table-toggle-width); padding-inline: var(--spacing-2); text-align: center; }
+.r4-table--expandable .r4-table__frozen:not(.r4-table__toggle-cell) { left: var(--r4-table-toggle-width); }
+.r4-table__toggle-cell.r4-table__frozen { z-index: 2; }
+.r4-table__toggle { display: inline-flex; align-items: center; justify-content: center; width: var(--spacing-6); height: var(--spacing-6); margin: 0; padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; color: var(--accent-default); cursor: pointer; }
+.r4-table__toggle:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-table__toggle .r4-icon { width: calc(var(--spacing-4) - var(--spacing-05)); height: calc(var(--spacing-4) - var(--spacing-05)); transition: transform 200ms; }
+.r4-table__row.is-expanded .r4-table__toggle .r4-icon { transform: rotate(90deg); }
+.r4-table__row--child .r4-table__td, .r4-table__row--child:hover .r4-table__td { background: var(--surface-subtle); }

@@ -12,6 +12,10 @@
 // la Confluence dice lo contrario —asc = arriba—: discrepancia a validar); a la izquierda del texto en columnas alineadas a la derecha. Orden en cliente; clic: asc → desc → sin orden. Extras: `defaultSort` ({ field, order }), evento `sort-change` ({ field, order }; lo usa R4TableV2 para conservar el orden al cambiar de vista) y slot `empty`
 // (filas vacías: «No hay resultados»; en Storybook no se ha podido comprobar el comportamiento sin datos). aria-sort en la cabecera.
 // `loading` (Storybook: vídeo de Jon): la cabecera se mantiene y las filas pasan a R4Skeleton: `rows` filas con una barra por celda a todo el ancho de la celda (alto = línea de texto, 24; esquinas redondeadas) en todas las columnas; sin paginador, con aria-busy y texto oculto «Cargando contenido».
+// Filas con hijos (Storybook «With children rows», leída por Jon con la extensión de Chrome el 2026-11-25; Storybook: R4Table v1.0.3): se activan solo con `children` (array) dentro de una fila de `data`; no hay prop específica. Los hijos usan las MISMAS `columns` que el padre
+// (los campos sin columna no se pintan). Se añade una primera columna con un botón de expandir (chevron ›, color primario, que gira al abrir; aria-expanded + aria-controls, aria-label «Expandir fila» / «Contraer fila»: el Storybook trae los de PrimeVue en inglés) y, al expandir, las filas hijas
+// van debajo con fondo surface/subtle, sin cabecera propia y con la primera columna vacía para que el nombre quede alineado con el del padre; el borde inferior es el de la tabla. Diferencias con el Storybook: allí la expansión es una tabla anidada dentro de una celda (colspan) y aquí son filas de la
+// misma tabla (así las columnas casan siempre); allí el chevron sale también en filas sin hijos (comportamiento sin verificar), aquí solo en las que tienen `children`. NO reconstruidas: `expandableOn` (all | desktop | mobile) y `nested`.
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
 // Extras del prototipo: ariaLabel y el paginador propio (`<nav>` con botones; el del Storybook es el de PrimeVue). El icono «siguiente» es el chevron izquierdo girado (no hay chevron derecho registrado).
 import { defineComponent, ref, computed, watch } from '../../../vendor/vue.esm-browser.prod.js'
@@ -66,18 +70,29 @@ export default defineComponent({
       return Array.from({ length: Math.min(5, total) }, (_, i) => ini + i)
     })
     const ir = (n) => { page.value = Math.min(pageCount.value, Math.max(1, n)) }
-    watch(() => props.data, () => { page.value = 1 })
+    watch(() => props.data, () => { page.value = 1; abiertas.value = new Set() })
     watch(sort, (s) => { page.value = 1; emit('sort-change', { ...s }) }) // al cambiar los datos (p. ej. otro filtro) se vuelve a la primera página
+    // — Filas con hijos —
+    const expandible = computed(() => props.data.some((r) => Array.isArray(r.children) && r.children.length))
+    const abiertas = ref(new Set())
+    const tieneHijos = (r) => Array.isArray(r.children) && r.children.length > 0
+    const estaAbierta = (r) => abiertas.value.has(r[props.dataKey])
+    const alternar = (r) => { const s = new Set(abiertas.value); const k = r[props.dataKey]; if (s.has(k)) s.delete(k); else s.add(k); abiertas.value = s }
+    const idHijo = (r, i) => `r4-table-${r[props.dataKey]}-hijo-${i}`
+    const idsHijos = (r) => r.children.map((_, i) => idHijo(r, i)).join(' ')
+    // Con la columna del botón (60 px fijos) las demás columnas con `width` en % se reducen un 6 % para que la tabla no desborde
+    const anchoColumna = (c) => (expandible.value && c.width && c.width.endsWith('%') ? `${(parseFloat(c.width) * 0.94).toFixed(2)}%` : c.width)
     const filasSkeleton = computed(() => Array.from({ length: props.rows }, (_, i) => i))
-    return { filasSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
+    return { expandible, tieneHijos, estaAbierta, alternar, idHijo, idsHijos, anchoColumna, filasSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },
   template: `
-    <div class="r4-table" :class="['r4-table--' + size, { 'r4-table--hide-last-border': hideLastRowBorder, 'r4-table--has-sort': columns.some((c) => c.sortable) }]">
+    <div class="r4-table" :class="['r4-table--' + size, { 'r4-table--hide-last-border': hideLastRowBorder, 'r4-table--has-sort': columns.some((c) => c.sortable), 'r4-table--expandable': expandible }]">
       <div class="r4-table__scroll" role="region" tabindex="0" :aria-label="ariaLabel" :aria-busy="loading ? 'true' : undefined">
         <table class="r4-table__table" :class="{ 'r4-table__table--fixed': columns.some((c) => c.width) }">
-          <colgroup v-if="columns.some((c) => c.width)"><col v-for="c in columns" :key="c.field" :style="{ width: c.width }" /></colgroup>
+          <colgroup v-if="columns.some((c) => c.width)"><col v-if="expandible" class="r4-table__col-toggle" /><col v-for="c in columns" :key="c.field" :style="{ width: anchoColumna(c) }" /></colgroup>
           <thead v-if="showHeader">
             <tr>
+              <th v-if="expandible" scope="col" class="r4-table__th r4-table__toggle-cell r4-table__frozen"><span class="r4-table__sr">Detalle</span></th>
               <th v-for="c in columns" :key="c.field" scope="col" class="r4-table__th" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]" :aria-sort="ariaSort(c)">
                 <button v-if="c.sortable" type="button" class="r4-table__sort" :class="'r4-table__sort--' + (c.align || 'left')" @click="toggleSort(c.field)">
                   <span>{{ c.header }}</span><Icon class="r4-table__sort-icon" :class="{ 'is-desc': sort.field === c.field && sort.order === 'desc' }" :name="sortIcon(c.field)" />
@@ -88,6 +103,7 @@ export default defineComponent({
           </thead>
           <tbody v-if="loading">
             <tr v-for="i in filasSkeleton" :key="'sk' + i" class="r4-table__row r4-table__row--skeleton">
+              <td v-if="expandible" class="r4-table__td r4-table__toggle-cell r4-table__frozen"></td>
               <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
                 <span class="r4-table__skeleton-cell"><R4Skeleton shape="paragraph" width="100%" height="100%" /></span>
               </td>
@@ -95,11 +111,24 @@ export default defineComponent({
           </tbody>
           <tbody v-else>
             <tr v-if="!visibles.length" class="r4-table__row r4-table__row--empty"><td class="r4-table__td r4-table__empty" :colspan="columns.length"><slot name="empty"><R4Text text="No hay resultados" /></slot></td></tr>
-            <tr v-for="row in visibles" :key="row[dataKey]" class="r4-table__row">
-              <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
-                <slot :name="'body-' + c.field" :data="row" :value="row[c.field]"><R4Text :text="row[c.field] === undefined || row[c.field] === null ? '' : String(row[c.field])" /></slot>
-              </td>
-            </tr>
+            <template v-for="row in visibles" :key="row[dataKey]">
+              <tr class="r4-table__row" :class="{ 'is-expanded': estaAbierta(row) }">
+                <td v-if="expandible" class="r4-table__td r4-table__toggle-cell r4-table__frozen">
+                  <button v-if="tieneHijos(row)" type="button" class="r4-table__toggle" :aria-expanded="estaAbierta(row) ? 'true' : 'false'" :aria-controls="idsHijos(row)" :aria-label="estaAbierta(row) ? 'Contraer fila' : 'Expandir fila'" @click="alternar(row)"><Icon name="ic-angle-right" /></button>
+                </td>
+                <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
+                  <slot :name="'body-' + c.field" :data="row" :value="row[c.field]"><R4Text :text="row[c.field] === undefined || row[c.field] === null ? '' : String(row[c.field])" /></slot>
+                </td>
+              </tr>
+              <template v-if="expandible && tieneHijos(row) && estaAbierta(row)">
+                <tr v-for="(hijo, hi) in row.children" :key="idHijo(row, hi)" :id="idHijo(row, hi)" class="r4-table__row r4-table__row--child">
+                  <td class="r4-table__td r4-table__toggle-cell r4-table__frozen"></td>
+                  <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
+                    <template v-if="hijo[c.field] !== undefined && hijo[c.field] !== null"><slot :name="'body-' + c.field" :data="hijo" :value="hijo[c.field]"><R4Text :text="String(hijo[c.field])" /></slot></template>
+                  </td>
+                </tr>
+              </template>
+            </template>
           </tbody>
         </table>
       </div>
