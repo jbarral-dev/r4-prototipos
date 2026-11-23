@@ -13,6 +13,7 @@ import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
 import _AssistantAccess from '../components/pendientes/_AssistantAccess.js'
 import _ChatComposer from '../components/pendientes/_ChatComposer.js'
+import _AppTabBar from '../components/pendientes/_AppTabBar.js'
 import R4Badge from '../components/pendientes/R4Badge.js'
 import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
@@ -21,7 +22,7 @@ import { crearEstado } from './_buscadorEstado.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoE',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
@@ -30,6 +31,7 @@ export default defineComponent({
         { value: 'potencial', label: 'Potencial' },
         { value: 'sinLogar', label: 'Cliente no logado' },
         { value: 'logado', label: 'Cliente logado', default: true },
+        { value: 'app', label: 'App (solo mobile)' },
       ] }] }, // elige la cabecera (prop `client` del Menu)
       { label: '¿Primera interacción con el chatbot?', controls: [{ id: 'primera', type: 'radio', options: [
         { value: 'si', label: 'Sí', default: true },
@@ -66,7 +68,7 @@ export default defineComponent({
     // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
-    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .facilitador'))) api.cerrar() }
+    const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.usearch, .usearch-desk, .r4-sheet, .menu__compact-button, .app-header__search, .facilitador'))) api.cerrar() }
     // Los enlaces «#» de la maqueta recargarían el prototipo por el router de hash: se neutralizan
     const onDocLink = (e) => { const a = e.target.closest('a[href="#"]'); if (a) e.preventDefault() }
     const onKey = (e) => { if (e.key === 'Escape' && api.open) cerrarYDevolverFoco() }
@@ -137,6 +139,9 @@ export default defineComponent({
         </div>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
+
+        <!-- Usuario «App» (solo mobile): TabBar fija abajo; el menú que despliega su botón central no se reproduce -->
+        <AppTabBar v-if="caso.usuario === 'app'" @select="api.avisar('Prototipo: se abriría «' + $event.label + '»')" @menu="api.avisar('Prototipo: se abriría el menú de la App')" />
 
         <Facilitador v-model:values="caso" :groups="FACILITADOR" @change="onCaso" />
 

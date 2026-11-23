@@ -52,6 +52,7 @@ import { useGraficoControles } from './_graficoEstado.js'
 import dragScroll from '../directives/dragScroll.js'
 import VentanaContratacion from '../components/prototipo/VentanaContratacion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
+import _AppHeader from '../components/pendientes/_AppHeader.js'
 
 // Use cases reproducibles con el panel Facilitador (herramienta del prototipo): variable «Tipo de usuario» (el use case; determina la cabecera que se pinta) (Figma, Menu del archivo Templates).
 const FACILITADOR = [
@@ -71,7 +72,7 @@ export default defineComponent({
   props: { client: { type: String, default: undefined }, searchIcon: { type: String, default: undefined }, searchBadge: { type: Boolean, default: false }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
   directives: { dragScroll },
   components: {
-    Facilitador, VentanaContratacion,
+    Facilitador, VentanaContratacion, AppHeader: _AppHeader,
     R4Title, R4Table,
     TemplateDetail, Menu, FixedProductTitle, R4Wrapper, R4Stack, RiskBox: _RiskBox, R4Section, R4PageTitleProduct, R4Tabs, R4ChartLine, R4ListDetail, R4Chip, R4Tag, R4Button, R4Link,
     R4Sheet, R4Popover, R4NavigationItems, R4ButtonDock, ProductActionsMenu: _ProductActionsMenu, R4ProductList,
@@ -208,7 +209,8 @@ export default defineComponent({
   template: `
     <TemplateDetail header-sticky="main">
       <template #header>
-        <Menu type="default" :client="client || caso.usuario" :search-icon="searchIcon" :search-badge="searchBadge" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
+        <AppHeader v-if="(client || caso.usuario) === 'app'" :search-badge="searchBadge" @search="$emit('search')" />
+        <Menu v-else type="default" :client="client || caso.usuario" :search-icon="searchIcon" :search-badge="searchBadge" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
         <FixedProductTitle :visible="!titleVisible" :product-name="d.producto.productName" :logo-u-r-l="d.producto.logoURL" :price="d.producto.price" :currency="d.producto.currency" :variation="d.producto.variation" :market="d.capaFija.market" :cta-text="d.producto.ctaText" @cta="contratar" />
