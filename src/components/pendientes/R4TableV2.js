@@ -6,7 +6,7 @@
 // Composición: «Filters and Views» (chips + R4SegmentedControls) + R4Section boxed blanca con R4Table. Los filtros destacados (`highlighted`) son R4Chip type=multiple con R4Popover debajo (a 8 px) en ≥ 1024 px y R4Sheet bottom por debajo
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
-//   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista recarga toda la capa (filtros + vistas + tabla) con el mismo spinner.
+//   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Acordeones del sheet: en mobile/tablet (sheet bottom) size small y en desktop medium; «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -134,7 +134,12 @@ export default defineComponent({
 
     // — Vistas —
     const itemsVistas = computed(() => props.views.map((v) => ({ label: v.label, value: v.value })))
-    const cambiarVista = (v) => { selectedView.value = v; cerrarCategoria(); cerrarSheet(); recargar('all', () => { contentView.value = v }) }
+    // El cambio de vista es instantáneo (Jon, 2026-11-23): sin spinner ni recarga; solo al aplicar filtros hay recarga de 1 s
+    const cambiarVista = (v) => {
+      clearTimeout(timer); loading.value = null
+      selectedView.value = v; contentView.value = v; cerrarCategoria(); cerrarSheet()
+      filasMostradas.value = filtrar(view.value.filters, actuales.value)
+    }
 
     // Cierre del popover: clic fuera y Escape
     const onDocClick = (e) => { if (catAbierta.value && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer')) cerrarCategoria() }
