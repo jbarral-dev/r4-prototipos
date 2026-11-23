@@ -64,7 +64,7 @@ export default defineComponent({
     dataKey: { type: String, required: true },
     rows: { type: Number, default: 25 },
     ariaLabel: { type: String, default: undefined },
-    footnote: { type: String, default: undefined }, // nota al pie bajo la tabla (R4Table v1.1.0 de Confluence: «Footnote»); extra aquí: se pinta con R4Text small
+    footnote: { type: String, default: undefined }, // (se oculta cuando la tabla no tiene resultados) nota al pie bajo la tabla (R4Table v1.1.0 de Confluence: «Footnote»); extra aquí: se pinta con R4Text small
     layout: { type: String, default: 'inline', validator: (v) => ['inline', 'stacked'].includes(v) }, // inline (A): filtros y vistas en la misma fila · stacked (B): filtros en una fila y, 16 px debajo, «N resultados» + vistas
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' },
   },
@@ -236,7 +236,7 @@ export default defineComponent({
               <slot :name="'body-' + c.field" v-bind="slotProps"><R4Text :text="c.format ? c.format(slotProps.value, slotProps.data) : (slotProps.value ?? '')" /></slot>
             </template>
           </R4Table>
-          <R4Text v-if="footnote" class="r4-table-v2__footnote" size="small" variant="paragraph" :text="footnote" />
+          <R4Text v-if="footnote && filasMostradas.length" class="r4-table-v2__footnote" size="small" variant="paragraph" :text="footnote" />
         </R4Section>
       </div>
       <div v-if="loading" class="r4-table-v2__spinner" :class="'is-' + loading"><R4Spinner size="medium" /></div>
