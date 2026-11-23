@@ -68,7 +68,14 @@ export default defineComponent({
     const placeholder = 'Busca o pregunta'
     onMounted(() => { document.title = 'Chatbot (Jose) · Prototipo R4' })
 
-    // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
+    // Chatbot (Jose): en tablet y mobile (R4Sheet bottom) al abrir la capa el R4InputSearch SÍ recibe el foco y sale el teclado (en el prototipo «Chatbot» no). En desktop (R4Sheet side) no se enfoca.
+    // R4Sheet enfoca su botón de cierre al abrir (accesibilidad): el foco al campo se pide después. Si se reanuda una conversación no hay campo (va el prompt) y no se enfoca nada.
+    watch(() => api.open, async (abierta) => {
+      if (!abierta) return
+      await nextTick(); await nextTick()
+      const el = mobileField.value?.$el
+      if (el && el.getClientRects().length) mobileField.value.focus()
+    })
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
     const onDocClick = (e) => { if (api.open && !e.composedPath().some((n) => n.matches && n.matches('.jusearch, .jusearch-desk, .r4-sheet, .menu__compact-button, .japp-header__search, .facilitador'))) api.cerrar() }
