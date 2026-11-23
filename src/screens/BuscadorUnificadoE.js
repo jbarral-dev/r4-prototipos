@@ -8,6 +8,7 @@
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
+import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
@@ -77,7 +78,10 @@ export default defineComponent({
       if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.r4-sheet, .usearch')) api.cerrar()
     }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
+    // Teclado del móvil: la capa bottom sigue al viewport visual (ver seguirTeclado.js)
+    let dejarDeSeguir = () => {}
+    onMounted(() => { dejarDeSeguir = seguirTeclado() })
+    onBeforeUnmount(() => { dejarDeSeguir(); document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
     return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },

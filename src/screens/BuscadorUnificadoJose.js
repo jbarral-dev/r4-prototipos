@@ -8,6 +8,7 @@
 import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
+import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import R4Text from '../components/pendientes/R4Text.js'
@@ -93,7 +94,10 @@ export default defineComponent({
       if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.r4-sheet, .jusearch')) api.cerrar()
     }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
+    // Teclado del móvil: la capa bottom sigue al viewport visual (ver seguirTeclado.js)
+    let dejarDeSeguir = () => {}
+    onMounted(() => { dejarDeSeguir = seguirTeclado() })
+    onBeforeUnmount(() => { dejarDeSeguir(); document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
     // «Volver» (chat y listado del histórico) va en la cabecera del R4Sheet (slot `header`): al chat lo saca a la pantalla inicial (la conversación queda activa) y, desde el listado, también a la inicial. El foco pasa al aspa de cerrar (sin abrir el teclado en mobile)
     const volver = async (e) => { const sheet = e.currentTarget.closest('.r4-sheet'); if (api.chatView) api.volver(); else api.vista = 'inicio'; await nextTick(); sheet?.querySelector('.r4-sheet__close')?.focus() }

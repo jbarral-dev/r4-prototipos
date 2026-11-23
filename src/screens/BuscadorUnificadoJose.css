@@ -113,3 +113,8 @@ html.jusearch-lock { overflow: hidden; }
 
 /* Input invisible que recibe el foco en el toque de la lupa (abre el teclado en móvil); 16 px para que iOS no haga zoom */
 .jusearch-focus-proxy { position: fixed; top: 0; left: 0; width: var(--spacing-05); height: var(--spacing-05); padding: 0; border: 0; opacity: 0; font-size: var(--size-body-m); pointer-events: none; }
+
+
+/* Teclado del móvil abierto (clase r4-teclado y variables de seguirTeclado.js): la capa bottom se sube por encima del teclado y su alto (90 %) se calcula sobre el espacio visible, para que se vea la caja de búsqueda */
+html.r4-teclado .jusearch-sheetbottom { --r4-sheet-bottom-maxheight: calc(var(--r4-vv-height) * 0.9); }
+html.r4-teclado .jusearch-sheetbottom .r4-sheet--bottom { bottom: var(--r4-vv-bottom, 0); }
