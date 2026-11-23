@@ -4,13 +4,14 @@
 // Contrato: recibe el estado compartido (`api`, ver screens/_buscadorEstado.js) y pinta, bajo el campo, el panel según el modo: vacío (ejemplos) · Resultados · Conversación.
 // Hace visible y corregible el modo: selector Resultados | Conversación (siempre que haya modo) + frase que explica por qué se activó + región aria-live que lo anuncia.
 // Patrón «Búsqueda y selección de elementos» (Confluence 3950968833): sin coincidencias → estado vacío que dice qué se buscó y ofrece salida (aquí, preguntar al asistente).
-import { defineComponent, computed, ref, watch, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, computed, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4BrandTypes from './R4BrandTypes.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
 import R4Link from './R4Link.js'
 import R4Text from './R4Text.js'
+import R4Spinner from './R4Spinner.js'
 import _ChatComposer from './_ChatComposerJose.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
@@ -20,14 +21,19 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanelJose',
-  components: { R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, ChatComposer: _ChatComposer, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Spinner, R4BrandTypes, R4Chip, R4Text, R4Link, R4NavigationItems, R4Button, ChatComposer: _ChatComposer, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true }, withComposer: { type: Boolean, default: true } }, // withComposer=false: el prompt va en la capa de acciones del R4Sheet (lo pinta el host)
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
     const bodyId = 'jusearch-body-' + uid
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
-    const vacio = computed(() => !props.api.mode || preguntaPendiente.value || (props.api.mode === 'search' && !props.api.autocompletar))
+    const vacio = computed(() => !props.api.mode || (props.api.mode === 'search' && !props.api.autocompletar))
+    // Pregunta en curso (el enrutado la ve como pregunta): mientras el usuario escribe se muestra el spinner; si deja de escribir 1 s, el mensaje «Para consultas más complejas» con el CTA «Pregunta al asistente». Intro envía la pregunta al chat.
+    const escribiendo = ref(false)
+    let idle = null
+    watch(() => props.api.query, () => { escribiendo.value = true; clearTimeout(idle); idle = setTimeout(() => { escribiendo.value = false }, 1000) })
+    onBeforeUnmount(() => clearTimeout(idle))
     // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes; sin Centro de ayuda: no se muestra en los resultados)
     const GRUPOS = [
       { id: 'acciones', label: 'Acciones', test: (r) => r.type === 'Acción' },
@@ -81,7 +87,7 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, ocultarTeclado, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, escribiendo, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, ocultarTeclado, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
     <div class="jusearch-panel" :class="{ 'jusearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar" @touchmove.passive="ocultarTeclado" @click="ocultarTeclado">
@@ -91,6 +97,14 @@ export default defineComponent({
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="jusearch-panel__group">
           <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
+        </div>
+        <!-- Pregunta en curso: spinner mientras escribe; a 1 s sin escribir, el mensaje y el CTA (Figma «Proyectos - Chatbot» 22:13453) -->
+        <div v-else-if="preguntaPendiente" class="jusearch-panel__complex">
+          <R4Spinner v-if="escribiendo" size="medium" aria-label="Escribiendo tu pregunta" />
+          <template v-else>
+            <R4Text size="medium" class="jusearch-panel__complex-text" text="Para consultas más complejas" />
+            <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="api.preguntarLoEscrito()" />
+          </template>
         </div>
         <div v-else-if="vacio" class="jusearch-panel__start">
           <section v-if="api.opciones.ejemplos && hayBusquedas" class="jusearch-panel__section" :aria-labelledby="'jusearch-rec-' + uid">
@@ -120,7 +134,7 @@ export default defineComponent({
               <R4Text size="large" font-style="strong" text="Sin coincidencias" />
               <R4Text size="medium" :text="'Comprueba que «' + api.searchTerm + '» esté bien escrito. También puedes probar preguntando a nuestro asistente.'" />
             </div>
-            <R4Button type="secondary" size="medium" icon="ic-ai" text="Preguntar al asistente" @click="api.setMode('chat')" />
+            <R4Button type="secondary" size="medium" icon="ic-ai" text="Pregunta al asistente" @click="api.setMode('chat')" />
           </div>
         </template>
 
