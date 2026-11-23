@@ -51,3 +51,6 @@
 .r4-table-v2__views .r4-segmented__slot { flex: 0 0 auto; }
 .r4-table-v2__views .r4-segmented__item { flex: 0 0 auto; padding-inline: var(--spacing-4); }
 .r4-table-v2__footnote { display: block; padding: 0 var(--spacing-3); margin-top: 0; padding-bottom: var(--spacing-2); }
+
+/* Cabecera de 56 como en Figma (padding vertical 16) aunque las columnas no sean ordenables (R4Table solo lo aplica cuando hay `sortable`) */
+.r4-table-v2 .r4-table__th { padding-block: var(--spacing-4); }

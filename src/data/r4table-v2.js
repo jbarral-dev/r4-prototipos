@@ -158,8 +158,9 @@ const fYtd = { id: 'ytd', label: 'Rentabilidad YTD', type: 'single', options: op
 const fCap = { id: 'cap', label: 'Capitalización', type: 'multiple', options: opc(['peq', 'Pequeña (menos de 500 M€)'], ['med', 'Mediana (500 M€ - 5.000 M€)'], ['gran', 'Grande (más de 5.000 M€)']),
   predicate: (r, vs) => vs.includes(r.cap < 500 ? 'peq' : r.cap <= 5000 ? 'med' : 'gran') }
 
-const nombre = { field: 'name', header: 'Nombre', sortable: true, frozen: true, width: '13%' }
-const num_ = (field, header, width) => ({ field, header, sortable: true, align: 'right', width })
+// Ordenar columnas (`sortable` de R4Table): disponible en la reconstrucción y en Figma, pero NO está desarrollado todavía → de momento ninguna columna es ordenable (sin iconos de orden en la cabecera). Se activa añadiendo `sortable: true`.
+const nombre = { field: 'name', header: 'Nombre', frozen: true, width: '13%' }
+const num_ = (field, header, width) => ({ field, header, align: 'right', width })
 const accion = { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '5%' }
 export const vistas = [
   { value: 'basica', label: 'Vista básica',
