@@ -80,3 +80,6 @@
   .r4-table-v2__toolbar .r4-table-v2__filters { flex: none; }
 }
 
+
+/* Popover de vistas (variante A, desktop): alineado al borde derecho del chip, que está en el extremo derecho de la barra */
+.r4-table-v2__popover--end { left: auto; right: 0; }

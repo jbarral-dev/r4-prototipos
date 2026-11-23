@@ -7,6 +7,7 @@
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
+// Variante A (`inline`) en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24; el chip de la vista es size small): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Cada opción de filtro lleva entre paréntesis su nº de resultados (las que dan 0 salen deshabilitadas, Jon 2026-11-25). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
@@ -107,7 +108,7 @@ export default defineComponent({
     const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + seleccion(f).length, 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
-    const abrirCategoria = (f) => { if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
+    const abrirCategoria = (f) => { vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
     const filtroAbierto = computed(() => view.value.filters.find((f) => f.id === catAbierta.value))
     const cerrarCategoria = () => { catAbierta.value = null }
     const aplicarCategoria = (f) => {
@@ -152,25 +153,27 @@ export default defineComponent({
 
     // — Vistas —
     const vistaOpen = ref(false)
+    const vistaPopover = ref(false) // popover de vistas (variante A, desktop)
+    const alternarVistaPopover = () => { cerrarCategoria(); vistaPopover.value = !vistaPopover.value }
     const vistaActual = computed(() => vistaPorValor(selectedView.value))
     const itemsVistas = computed(() => props.views.map((v) => ({ label: v.label, value: v.value })))
     // El cambio de vista es instantáneo (Jon, 2026-11-23): sin spinner ni recarga; solo al aplicar filtros hay recarga de 1 s
     const cambiarVista = (v) => {
-      clearTimeout(timer); loading.value = null
+      clearTimeout(timer); loading.value = null; vistaPopover.value = false
       selectedView.value = v; contentView.value = v; cerrarCategoria(); cerrarSheet()
       filasMostradas.value = filtrar(view.value.filters, actuales.value)
     }
 
     // Cierre del popover: clic fuera y Escape
-    const onDocClick = (e) => { if (catAbierta.value && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer')) cerrarCategoria() }
-    const onKey = (e) => { if (e.key === 'Escape') cerrarCategoria() }
+    const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer')) { cerrarCategoria(); vistaPopover.value = false } }
+    const onKey = (e) => { if (e.key === 'Escape') { cerrarCategoria(); vistaPopover.value = false } }
     onMounted(() => { target.value = document.querySelector(props.overlay); document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
     watch(contentView, () => {}, { flush: 'post' })
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
+      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -217,7 +220,18 @@ export default defineComponent({
             </div>
           </div>
         </div>
-        <R4SegmentedControls class="r4-table-v2__views" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
+        <!-- Variante A, desktop: las vistas en un R4Chip multiple (la vista actual, seleccionada) que abre un R4Popover con las vistas (R4InputRadio); elegir una cambia la vista al instante -->
+        <div class="r4-table-v2__anchor r4-table-v2__anchor--views">
+          <R4Chip type="multiple" :label="vistaActual.label" selected :expanded="vistaPopover" aria-haspopup="dialog" @click="alternarVistaPopover" />
+          <div v-if="vistaPopover" class="r4-table-v2__popover r4-table-v2__popover--end" role="dialog" aria-label="Vista">
+            <R4Popover width="default">
+              <div class="r4-table-v2__panel">
+                <R4Text size="large" font-style="strong" tag="p" text="Vista" />
+                <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaPopover = false" />
+              </div>
+            </R4Popover>
+          </div>
+        </div>
       </div>
 
       <!-- Tablet y mobile (≤ 1023 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
