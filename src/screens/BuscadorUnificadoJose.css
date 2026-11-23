@@ -110,3 +110,6 @@ html.jusearch-lock { overflow: hidden; }
 /* Texto legal bajo el prompt, en el bloque Actions del R4Sheet: small, muted y centrado; el enlace va dentro del párrafo, subrayado y en peso regular */
 .jusearch-legal.r4-text { margin: 0; color: var(--text-muted); text-align: center; }
 .jusearch-legal .r4-link--inline { display: inline; font-weight: var(--font-weight-regular); }
+
+/* Input invisible que recibe el foco en el toque de la lupa (abre el teclado en móvil); 16 px para que iOS no haga zoom */
+.jusearch-focus-proxy { position: fixed; top: 0; left: 0; width: var(--spacing-05); height: var(--spacing-05); padding: 0; border: 0; opacity: 0; font-size: var(--size-body-m); pointer-events: none; }

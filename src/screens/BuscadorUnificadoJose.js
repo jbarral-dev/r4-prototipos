@@ -70,11 +70,17 @@ export default defineComponent({
 
     // Chatbot (Jose): en tablet y mobile (R4Sheet bottom) al abrir la capa el R4InputSearch SÍ recibe el foco y sale el teclado (en el prototipo «Chatbot» no). En desktop (R4Sheet side) no se enfoca.
     // R4Sheet enfoca su botón de cierre al abrir (accesibilidad): el foco al campo se pide después. Si se reanuda una conversación no hay campo (va el prompt) y no se enfoca nada.
+    // Teclado en móvil real: iOS/Android solo abren el teclado si el foco se pide DENTRO del gesto del toque, y la capa aún no existe en ese momento. Truco: un input invisible recibe el foco de forma síncrona en el toque
+    // y, cuando la capa ya está pintada, el foco pasa al R4InputSearch (el teclado se queda abierto). Si no hay campo (se reanuda una conversación), se suelta.
+    const proxy = ref(null)
+    const compacto = () => !trigger.value || trigger.value.offsetParent === null // el botón de desktop está oculto: tablet y mobile
+    const abrirDesdeCabecera = () => { if (!api.open && compacto()) proxy.value?.focus({ preventScroll: true }); api.abrir() }
     watch(() => api.open, async (abierta) => {
       if (!abierta) return
       await nextTick(); await nextTick()
       const el = mobileField.value?.$el
       if (el && el.getClientRects().length) mobileField.value.focus()
+      else if (document.activeElement === proxy.value) proxy.value.blur()
     })
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }
     // composedPath y no e.target: al pulsar «Borrar» el botón desaparece del DOM antes de que el clic llegue al documento y e.target.closest() no lo encontraría dentro del panel
@@ -101,10 +107,10 @@ export default defineComponent({
     }
     watch(() => [api.open, api.chatView, api.barra, api.vista], medirAcciones, { flush: 'post' })
     onBeforeUnmount(() => ro && ro.disconnect())
-    return { api, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    return { api, proxy, abrirDesdeCabecera, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
-    <FichaAccion :client="caso.usuario" :app-header="$options.components.AppHeaderJose" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
+    <FichaAccion :client="caso.usuario" :app-header="$options.components.AppHeaderJose" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="abrirDesdeCabecera()">
       <template #search>
         <div class="jusearch">
           <button ref="trigger" type="button" class="menu__search jusearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
@@ -175,6 +181,8 @@ export default defineComponent({
         </div>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
+
+        <input ref="proxy" class="jusearch-focus-proxy" type="text" inputmode="search" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
         <!-- Usuario «App» (solo mobile): TabBar fija abajo; el menú que despliega su botón central no se reproduce -->
         <AppTabBar v-if="caso.usuario === 'app'" @select="api.avisar('Prototipo: se abriría «' + $event.label + '»')" @menu="api.avisar('Prototipo: se abriría el menú de la App')" />
