@@ -63,7 +63,7 @@ export default defineComponent({
     const trigger = ref(null)
     const mobileField = ref(null)
     const placeholder = 'Busca o pregunta'
-    onMounted(() => { document.title = 'Enfoque buscador · Prototipo R4' })
+    onMounted(() => { document.title = 'Chatbot · Prototipo R4' })
 
     // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
     const cerrarYDevolverFoco = () => { api.cerrar(); const t = trigger.value; if (t && t.offsetParent !== null) t.focus() }

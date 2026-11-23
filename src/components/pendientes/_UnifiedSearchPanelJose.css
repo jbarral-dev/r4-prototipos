@@ -1,0 +1,81 @@
+/*
+ * _UnifiedSearchPanel (prototipo de investigación, variante E). Sin diseño en Figma: composición con tokens semánticos de los componentes existentes.
+ * Espaciado: escala de Foundations. Tipografía: body/s y body/m. Superficie: la pone el host (R4Popover en desktop, capa a pantalla completa en tablet y mobile).
+ */
+.jusearch-panel { display: flex; flex-direction: column; min-height: 0; color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.jusearch-panel__live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; } /* sr-only */
+
+.jusearch-panel__modebar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-2) var(--spacing-4); padding: var(--spacing-1) var(--spacing-1) var(--spacing-3); }
+.jusearch-panel__modebar .r4-tabs { width: 100%; }
+
+.jusearch-panel__body { display: flex; flex-direction: column; gap: var(--spacing-5); min-height: 0; padding: 0; overflow-y: auto; overscroll-behavior: contain; }
+.jusearch-panel__start { display: flex; flex-direction: column; gap: var(--spacing-8); } /* estado inicial: bloques Búsquedas y Preguntas separados 32 */
+.jusearch-panel__section { display: flex; flex-direction: column; gap: var(--spacing-2); }
+.jusearch-panel__heading { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
+.jusearch-panel__count { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.jusearch-panel__chips { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
+
+.jusearch-panel__results, .jusearch-panel__thread { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+
+.jusearch-panel__exit { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-2) var(--spacing-4); padding-top: var(--spacing-3); border-top: var(--r4-line-width) solid var(--border-subtle); color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+
+/* Sin coincidencias (Figma «Proyectos - Contratar», 10169:5272): Empty centrado, padding vertical 32, gap 20; icono 28 en icon/default; título body/l bold; texto body/m; gap 8 entre textos */
+.jusearch-panel__empty { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-5); padding: var(--spacing-8) 0; color: var(--text-default); text-align: center; }
+.jusearch-panel__empty-icon { flex: none; width: var(--spacing-7); height: var(--spacing-7); color: var(--component-icon-plain-neutraldark); }
+.jusearch-panel__empty-texts { display: flex; flex-direction: column; gap: var(--spacing-2); }
+
+/* Conversación */
+.jusearch-panel__ask { display: flex; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); border-radius: var(--radius-sm); background: var(--surface-subtle); }
+.jusearch-panel__ask-label { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+.jusearch-panel__ask-text { margin: 0; font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
+.jusearch-panel__ask-actions { display: flex; align-items: center; gap: var(--spacing-3); padding-top: var(--spacing-1); }
+.jusearch-panel__hint { margin: 0; color: var(--text-subdued); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+
+.jusearch-panel__thread { gap: var(--spacing-4); } /* entre burbujas: 16 */
+.jusearch-msg { display: flex; flex-direction: column; gap: var(--spacing-1); max-width: 85%; padding: var(--spacing-3) var(--spacing-4); border-radius: var(--radius-sm); }
+.jusearch-msg--user { background: var(--surface-subtle); border: var(--r4-line-width) solid var(--border-subtle); color: var(--text-default); }
+.jusearch-msg--assistant { background: var(--surface-default); border: var(--r4-line-width) solid var(--border-subtle); border-bottom-left-radius: 0; } /* la esquina junto al logotipo, recta */
+/* Fila de mensaje: el asistente lleva el isotipo de R4 a su izquierda, abajo y a 4 px de la burbuja */
+.jusearch-row { display: flex; align-items: flex-end; gap: var(--spacing-1); }
+.jusearch-row--user { justify-content: flex-end; }
+.jusearch-row__logo { flex: none; width: var(--spacing-6); height: auto; }
+.jusearch-msg--pending .jusearch-msg__text { color: var(--text-subdued); }
+.jusearch-msg__who { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-semibold); color: var(--text-muted); } /* «Tú» / «Asistente»: color text/muted, sin opacidad */
+.jusearch-msg__text { margin: 0; overflow-wrap: anywhere; }
+.jusearch-msg__links { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
+
+/* Conversación pintada: el área de mensajes ocupa el alto disponible y el prompt queda fijo debajo */
+.jusearch-panel--chat { flex: 1 1 auto; }
+.jusearch-panel--chat .jusearch-panel__body { flex: 1 1 auto; min-height: calc(var(--spacing-16) * 4); }
+.jusearch-panel__composer { flex: none; padding: var(--spacing-3) var(--spacing-1) var(--spacing-1); }
+
+/* Burbujas del chat (compartidas por los dos enfoques) */
+.jusearch-msg--user { border-bottom-right-radius: 0; } /* la esquina inferior derecha de la burbuja del usuario, recta (las burbujas son las mismas en el Enfoque buscador y en el Enfoque chat) */
+.jusearch-row { gap: var(--spacing-2); } /* logotipo → burbuja: 8 */
+
+/* Autocompletado agrupado por tipo (Figma «Proyectos - Chatbot», buscador-autocomplete--mb 11:8764): título de grupo (R4Text medium, muted) a 4 del listado; 20 entre grupos (24 desde desktop). */
+/* El contenedor hace scroll horizontal y recortaría la sombra de hover (0 0 8) y el anillo de foco de las chips: lleva 12 de padding por los cuatro lados, compensados con margen negativo (el bloque no cambia de tamaño ni de sitio) */
+.jusearch-panel__filters { flex: none; display: flex; gap: var(--spacing-2); margin: calc(var(--spacing-3) * -1); padding: var(--spacing-3); padding-bottom: calc(var(--spacing-6) + var(--spacing-3)); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+.jusearch-panel__filters::-webkit-scrollbar { display: none; }
+.jusearch-panel__filters .r4-chip { flex: none; }
+.jusearch-panel__groups { display: flex; flex-direction: column; gap: var(--spacing-5); }
+@container r4page (min-width: 1024px) { .jusearch-panel__groups { gap: var(--spacing-6); } }
+.jusearch-panel__group { display: flex; flex-direction: column; gap: var(--spacing-1); }
+.jusearch-panel .jusearch-panel__group-title { margin: 0; color: var(--text-muted); }
+
+
+/* Chat del Enfoque buscador: enlaces R4Link en la burbuja del asistente (fila o lista con viñetas) y «Volver» fijo arriba */
+.jusearch-msg__list { display: flex; flex-direction: column; gap: var(--spacing-2); margin: 0; padding: 0 0 0 var(--spacing-5); list-style: disc; }
+.jusearch-panel__back { flex: none; display: flex; justify-content: flex-start; margin-left: calc(var(--spacing-3) * -1); padding-bottom: var(--spacing-4); } /* el texto del botón queda alineado con el contenido (el R4Button text lleva 12 de padding) */
+
+/* Resultados (searchResultItem) dentro de la burbuja del asistente: sin agrupar, uno bajo otro */
+.jusearch-msg__results { margin-top: 0; }
+/* Dentro de la burbuja del asistente: 20 px en total entre el texto y el bloque de enlaces / enlace único / resultados (el gap de la burbuja ya pone 4) */
+.jusearch-msg__text + .jusearch-msg__list, .jusearch-msg__text + .jusearch-msg__links, .jusearch-msg__text + .jusearch-msg__results, .jusearch-msg__text + .jusearch-msg__cta { margin-top: calc(var(--spacing-5) - var(--spacing-1)); }
+
+/* Acceso al chat desde el buscador (contenido del bloque Actions del R4Sheet): texto small muted centrado; en el R4Popover el bloque lo reproduce .jusearch-actions (mismos valores que .r4-sheet__actions) */
+.jusearch-actions__text { margin: 0; color: var(--text-muted); text-align: center; }
+.jusearch-actions { display: flex; flex: none; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); background: var(--surface-default); box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle); }
+
+/* Aviso legal del primer uso (Figma 42:1499): el enlace va dentro del párrafo, subrayado y en peso regular (el R4Link inline reconstruido es inline-flex y semibold; aquí se ajusta solo en este texto) */
+.jusearch-msg__text .r4-link--inline { display: inline; font-weight: var(--font-weight-regular); }

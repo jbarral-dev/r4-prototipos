@@ -69,7 +69,7 @@ export default defineComponent({
   // Extras para el prototipo del buscador unificado (BuscadorUnificadoE): evento `search` (lupa de la barra compacta) y slots `search` (campo en la franja superior del Menu, desktop) y `overlay` (capas propias).
   emits: ['search'],
   // Extra: `data` (por defecto la ficha de acción estándar; el prototipo «Ficha de acción (CAIFE)» pasa accionCaife).
-  props: { client: { type: String, default: undefined }, searchIcon: { type: String, default: undefined }, searchBadge: { type: Boolean, default: false }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
+  props: { appHeader: { type: [Object, Function], default: undefined }, client: { type: String, default: undefined }, searchIcon: { type: String, default: undefined }, searchBadge: { type: Boolean, default: false }, data: { type: Object, default: () => accion }, facilitator: { type: Boolean, default: true } },
   directives: { dragScroll },
   components: {
     Facilitador, VentanaContratacion, AppHeader: _AppHeader,
@@ -209,7 +209,7 @@ export default defineComponent({
   template: `
     <TemplateDetail header-sticky="main">
       <template #header>
-        <AppHeader v-if="(client || caso.usuario) === 'app'" :search-badge="searchBadge" @search="$emit('search')" />
+        <component :is="appHeader || 'AppHeader'" v-if="(client || caso.usuario) === 'app'" :search-badge="searchBadge" @search="$emit('search')" />
         <Menu v-else type="default" :client="client || caso.usuario" :search-icon="searchIcon" :search-badge="searchBadge" @search="$emit('search')"><template v-if="$slots.search" #search><slot name="search" /></template></Menu>
       </template>
       <template #header-extra>
