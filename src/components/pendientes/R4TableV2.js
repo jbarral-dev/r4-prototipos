@@ -9,7 +9,7 @@
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24; el chip de la vista es size small): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
-// Cada opción de filtro lleva entre paréntesis su nº de resultados (también las que dan 0). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
+// Cada opción de filtro lleva entre paréntesis su nº de resultados (las que dan 0 salen deshabilitadas, Jon 2026-11-25). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -89,12 +89,12 @@ export default defineComponent({
     onBeforeUnmount(() => clearTimeout(timer))
 
     // — Opciones con resultados —
-    // Cada opción lleva entre paréntesis las filas que devuelve (con el resto de categorías ya seleccionadas en `sel`). Se muestran TODAS, también las que dan (0) (Jon, 2026-11-25; el 2026-11-24 se ocultaban)
+    // Cada opción lleva entre paréntesis las filas que devuelve (con el resto de categorías ya seleccionadas en `sel`). Se muestran TODAS; las que dan (0) salen deshabilitadas salvo que ya estén marcadas (Jon, 2026-11-25)
     const conteoOpcion = (f, o, sel) => {
       const otros = view.value.filters.filter((x) => x.id !== f.id && (sel[x.id] || []).length)
       return props.data.filter((r) => otros.every((x) => x.predicate(r, sel[x.id])) && f.predicate(r, [o.value])).length
     }
-    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => ({ value: o.value, label: `${o.label} (${conteoOpcion(f, o, sel)})`, n: conteoOpcion(f, o, sel) })) })
+    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: n === 0 && !(sel[f.id] || []).includes(o.value) } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
     const opcionesCategoria = (f) => opcionesDe(f, { ...actuales.value, [f.id]: catDraft.value }) // popover / sheet de una categoría
     const opcionesSheet = (f) => opcionesDe(f, draft) // sheet «Todos los filtros»
 
