@@ -99,3 +99,8 @@ html.usearch-lock { overflow: hidden; }
 
 /* Con la conversación pintada el prompt (_ChatComposer) va en el bloque Actions del R4Sheet (fijo abajo): alto del bloque = 16 + caja de 48 (spacing/12) + 16 */
 .usearch-sheet__body--prompt, .usearch-sheetbottom__body--prompt { --usearch-actions-h: calc(var(--spacing-4) * 2 + var(--spacing-12)); }
+
+
+/* Teclado del móvil abierto (clase r4-teclado y variables de seguirTeclado.js): la capa bottom se sube por encima del teclado y su alto (90 %) se calcula sobre el espacio visible, para que se vea la caja de búsqueda */
+html.r4-teclado .usearch-sheetbottom { --r4-sheet-bottom-maxheight: calc(var(--r4-vv-height) * 0.9); }
+html.r4-teclado .usearch-sheetbottom .r4-sheet--bottom { bottom: var(--r4-vv-bottom, 0); }

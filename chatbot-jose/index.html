@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Enfoque buscador · Prototipo R4</title>
+  <title>Chatbot (Jose) · Prototipo R4</title>
   <!-- Fuentes de marca (Open Sans, Exo 2). Provisional: IT las servirá desde su propia librería. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,13 +15,17 @@
   <link rel="stylesheet" href="../src/styles/componentes.css" />
   <!-- Propio de este prototipo -->
   <link rel="stylesheet" href="../src/screens/FichaAccion.css" />
-  <link rel="stylesheet" href="../src/screens/BuscadorUnificadoE.css" />
+  <!-- Copia del prototipo «Chatbot» con clases CSS propias (prefijo j): no interfiere con el original -->
+  <link rel="stylesheet" href="../src/components/pendientes/_UnifiedSearchPanelJose.css" />
+  <link rel="stylesheet" href="../src/components/pendientes/_AppHeaderJose.css" />
+  <link rel="stylesheet" href="../src/components/pendientes/_AppTabBarJose.css" />
+  <link rel="stylesheet" href="../src/screens/BuscadorUnificadoJose.css" />
 </head>
 <body>
   <div id="app"></div>
   <script type="module">
     import { montar } from '../src/montar.js'
-    import Pantalla from '../src/screens/BuscadorUnificadoE.js'
+    import Pantalla from '../src/screens/BuscadorUnificadoJose.js'
     montar(Pantalla)
   </script>
 </body>

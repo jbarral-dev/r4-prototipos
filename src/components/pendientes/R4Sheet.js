@@ -90,7 +90,7 @@ export default defineComponent({
     <Transition :name="'r4-sheet-' + position">
       <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': hasActions, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
-          <h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2>
+          <slot name="header" :title-id="titleId"><h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2></slot>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>
         </div>
         <div class="r4-sheet__content"><div class="r4-sheet__slot"><slot /></div></div>
