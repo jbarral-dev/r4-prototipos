@@ -13,7 +13,7 @@
 // (filas vacías: «No hay resultados»; en Storybook no se ha podido comprobar el comportamiento sin datos). aria-sort en la cabecera.
 // `loading` (Storybook: vídeo de Jon): la cabecera se mantiene y las filas pasan a R4Skeleton: `rows` filas con una barra por celda a todo el ancho de la celda (alto = línea de texto, 24; esquinas redondeadas) en todas las columnas; sin paginador, con aria-busy y texto oculto «Cargando contenido».
 // Filas con hijos (Storybook «With children rows», leída por Jon con la extensión de Chrome el 2026-11-25; Storybook: R4Table v1.0.3): se activan solo con `children` (array) dentro de una fila de `data`; no hay prop específica. Los hijos usan las MISMAS `columns` que el padre
-// (los campos sin columna no se pintan). Se añade una primera columna con un botón de expandir (chevron ›, color primario, que gira al abrir; aria-expanded + aria-controls, aria-label «Expandir fila» / «Contraer fila»: el Storybook trae los de PrimeVue en inglés) y, al expandir, las filas hijas
+// (los campos sin columna no se pintan). Se añade una primera columna de 40 px (en Storybook 60: Jon pidió que no pase de 40) con un botón de expandir (chevron ›, color primario, que gira al abrir; aria-expanded + aria-controls, aria-label «Expandir fila» / «Contraer fila»: el Storybook trae los de PrimeVue en inglés) y, al expandir, las filas hijas
 // van debajo con fondo surface/subtle, sin cabecera propia y con la primera columna vacía para que el nombre quede alineado con el del padre; el borde inferior es el de la tabla. Diferencias con el Storybook: allí la expansión es una tabla anidada dentro de una celda (colspan) y aquí son filas de la
 // misma tabla (así las columnas casan siempre); allí el chevron sale también en filas sin hijos (comportamiento sin verificar), aquí solo en las que tienen `children`. NO reconstruidas: `expandableOn` (all | desktop | mobile) y `nested`.
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
@@ -80,8 +80,8 @@ export default defineComponent({
     const alternar = (r) => { const s = new Set(abiertas.value); const k = r[props.dataKey]; if (s.has(k)) s.delete(k); else s.add(k); abiertas.value = s }
     const idHijo = (r, i) => `r4-table-${r[props.dataKey]}-hijo-${i}`
     const idsHijos = (r) => r.children.map((_, i) => idHijo(r, i)).join(' ')
-    // Con la columna del botón (60 px fijos) las demás columnas con `width` en % se reducen un 6 % para que la tabla no desborde
-    const anchoColumna = (c) => (expandible.value && c.width && c.width.endsWith('%') ? `${(parseFloat(c.width) * 0.94).toFixed(2)}%` : c.width)
+    // Con la columna del botón (40 px fijos) las demás columnas con `width` en % se calculan sobre el ancho restante (100 % - 40 px), así el botón mide exactamente 40 y la tabla no desborda
+    const anchoColumna = (c) => (expandible.value && c.width && c.width.endsWith('%') ? `calc((100% - var(--r4-table-toggle-width)) * ${(parseFloat(c.width) / 100).toFixed(4)})` : c.width)
     const filasSkeleton = computed(() => Array.from({ length: props.rows }, (_, i) => i))
     return { expandible, tieneHijos, estaAbierta, alternar, idHijo, idsHijos, anchoColumna, filasSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },

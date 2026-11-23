@@ -52,10 +52,10 @@
 .r4-table__row--skeleton:hover .r4-table__td { background: var(--surface-default); }
 
 /*
- * Filas con hijos (Storybook «With children rows»): columna del botón de 60 (Storybook) con el chevron de 14 en color primario (accent/default), que gira 90° al abrir (200 ms); filas hijas con fondo surface/subtle y sin hover.
+ * Filas con hijos (Storybook «With children rows»): columna del botón de 40 con el chevron de 14 en color primario (accent/default), que gira 90° al abrir (200 ms); filas hijas con fondo surface/subtle y sin hover.
  * Con la columna del botón, las columnas `frozen` quedan fijas a su derecha.
  */
-.r4-table { --r4-table-toggle-width: calc(var(--spacing-10) + var(--spacing-5)); }
+.r4-table { --r4-table-toggle-width: var(--spacing-10); } /* columna del chevron: 40 como máximo (Jon, 2026-11-25; el Storybook mide 60) */
 .r4-table__col-toggle { width: var(--r4-table-toggle-width); }
 .r4-table__toggle-cell { width: var(--r4-table-toggle-width); min-width: var(--r4-table-toggle-width); padding-inline: var(--spacing-2); text-align: center; }
 .r4-table--expandable .r4-table__frozen:not(.r4-table__toggle-cell) { left: var(--r4-table-toggle-width); }
