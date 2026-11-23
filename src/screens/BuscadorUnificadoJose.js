@@ -10,6 +10,8 @@ import FichaAccion from './FichaAccion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
+import R4Text from '../components/pendientes/R4Text.js'
+import R4Link from '../components/pendientes/R4Link.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
 import _AssistantAccess from '../components/pendientes/_AssistantAccessJose.js'
 import _ChatComposer from '../components/pendientes/_ChatComposerJose.js'
@@ -23,7 +25,7 @@ import { crearEstado } from './_buscadorEstadoJose.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoJose',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Text, R4Link, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
@@ -80,7 +82,19 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
-    return { api, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    // «Volver» (chat y listado del histórico) va en la cabecera del R4Sheet (slot `header`): al chat lo saca a la pantalla inicial (la conversación queda activa) y, desde el listado, también a la inicial. El foco pasa al aspa de cerrar (sin abrir el teclado en mobile)
+    const volver = async (e) => { const sheet = e.currentTarget.closest('.r4-sheet'); if (api.chatView) api.volver(); else api.vista = 'inicio'; await nextTick(); sheet?.querySelector('.r4-sheet__close')?.focus() }
+    const hayVolver = () => api.chatView || api.vista === 'historial'
+    // El bloque Actions del chat (prompt + texto legal) tiene alto variable: el cuerpo cede el alto REAL medido (si no, el panel no hace scroll por dentro)
+    let ro = null
+    const medirAcciones = async () => {
+      await nextTick(); ro?.disconnect(); if (!window.ResizeObserver) return
+      ro = new ResizeObserver((entries) => entries.forEach((en) => { const h = Math.round(en.target.getBoundingClientRect().height); const sheet = en.target.closest('.r4-sheet'); if (sheet && h) sheet.style.setProperty('--jusearch-actions-live', h + 'px') }))
+      document.querySelectorAll('.jusearch-sheet .r4-sheet__actions, .jusearch-sheetbottom .r4-sheet__actions').forEach((el) => ro.observe(el))
+    }
+    watch(() => [api.open, api.chatView, api.barra, api.vista], medirAcciones, { flush: 'post' })
+    onBeforeUnmount(() => ro && ro.disconnect())
+    return { api, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion :client="caso.usuario" :app-header="$options.components.AppHeaderJose" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
@@ -120,7 +134,14 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
-            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
+            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
+            <template #actions>
+              <template v-if="api.chatView">
+                <ChatComposer :api="api" />
+                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
+              </template>
+              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
+            </template>
           </R4Sheet>
         </div>
 
@@ -135,7 +156,14 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
-            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
+            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
+            <template #actions>
+              <template v-if="api.chatView">
+                <ChatComposer :api="api" />
+                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
+              </template>
+              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
+            </template>
           </R4Sheet>
         </div>
 

@@ -79,20 +79,11 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
     <div class="jusearch-panel" :class="{ 'jusearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
       <p class="jusearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
-
-      <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
-      <div v-if="mostrarFiltros" class="jusearch-panel__filters" role="group" aria-label="Filtrar resultados por tipo">
-        <R4Chip size="small" label="Todos" :selected="filtroActivo === 'todos'" @click="api.filtro = 'todos'" />
-        <R4Chip v-for="g in grupos" :key="g.id" size="small" :label="g.label" :selected="filtroActivo === g.id" @click="api.filtro = g.id" />
-      </div>
-
-      <!-- Volver a la pantalla inicial: fijo arriba de la conversación (donde en el estado inicial está la caja). La conversación se conserva como activa -->
-      <div v-if="api.chatView || enListado" class="jusearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
 
       <div ref="body" class="jusearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
@@ -100,13 +91,13 @@ export default defineComponent({
           <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
         </div>
         <div v-else-if="vacio" class="jusearch-panel__start">
-          <section v-if="api.opciones.ejemplos" class="jusearch-panel__section" :aria-labelledby="'jusearch-rec-' + uid">
+          <section v-if="api.opciones.ejemplos && hayBusquedas" class="jusearch-panel__section" :aria-labelledby="'jusearch-rec-' + uid">
             <h3 :id="'jusearch-rec-' + uid" class="jusearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="jusearch-panel__chips">
               <R4Chip v-for="b in busquedas" :key="b.texto" size="small" :label="b.texto" :icon="b.icon" @click="api.buscarTermino(b.texto)" />
             </div>
           </section>
-          <section v-if="api.opciones.ejemplos" class="jusearch-panel__section" :aria-labelledby="'jusearch-ej-' + uid">
+          <section v-if="api.opciones.ejemplos && api.historial.conversaciones.length" class="jusearch-panel__section" :aria-labelledby="'jusearch-ej-' + uid">
             <h3 :id="'jusearch-ej-' + uid" class="jusearch-panel__heading">{{ tituloPreguntas }}</h3>
             <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
             <R4Button v-if="hayMas" type="text" size="medium" width="full-width" text="Ver todas" @click="api.verHistorial()" />
@@ -155,12 +146,7 @@ export default defineComponent({
             <li v-if="api.pending" class="jusearch-row jusearch-row--assistant" aria-live="polite"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant jusearch-msg--pending"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">Escribiendo…</p></div></li>
           </ol>
           <ol v-if="api.chatView && !api.thread.length" class="jusearch-panel__thread" aria-label="Chat">
-            <li v-if="api.legal" class="jusearch-row jusearch-row--assistant"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant">
-              <span class="jusearch-msg__who">Asistente</span>
-              <p class="jusearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="#">nuestra información de protección de datos</R4Link>.</p>
-              <div class="jusearch-msg__cta"><R4Button type="primary" size="medium" width="full-width" text="Comenzar chat" @click="api.aceptarLegal()" /></div>
-            </div></li>
-            <li v-else class="jusearch-row jusearch-row--assistant"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
+            <li class="jusearch-row jusearch-row--assistant"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>
       </div>

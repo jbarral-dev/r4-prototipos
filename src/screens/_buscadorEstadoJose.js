@@ -28,8 +28,6 @@ export function crearEstado() {
   const desdeListado = ref(false) // el chat abierto viene del listado completo: «Volver» regresa al listado, no al inicio
   const vista = ref('inicio') // 'inicio' (estado inicial) | 'historial' (listado completo de conversaciones: «Ver todas»)
   const historicoOn = ref(false) // Facilitador «Tiene histórico de conversaciones»: 12 conversaciones en lugar de las 2 de ejemplo
-  const legalAceptado = ref(false) // primer uso del chat: hasta pulsar «Comenzar chat» se muestra el aviso legal y el prompt va disabled (el use case «ya ha entrado» lo trae aceptado)
-  let retenida = '' // pregunta que el usuario ya eligió/escribió antes de aceptar el aviso: se envía al aceptar
   const filtro = ref('todos') // chip de tipo activo en el autocompletado (Todos · Acciones · CFDs · Futuros · Fondos · Centro de ayuda)
 
   const ruta = computed(() => enrutar(query.value))
@@ -40,7 +38,6 @@ export function crearEstado() {
   // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
   const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
   // Acceso al chat desde el buscador (bloque Actions del R4Sheet): visible con el autocompletado y resultados
-  const legal = computed(() => chatView.value && !legalAceptado.value && thread.value.length === 0) // chat en primer uso: aviso legal en la burbuja del asistente
   const barra = computed(() => mode.value === 'search' && autocompletar.value && results.value.length > 0)
   const auto = computed(() => !locked.value && !thread.value.length && !!ruta.value.mode)
 
@@ -58,7 +55,7 @@ export function crearEstado() {
   watch(mode, (m, prev) => { if (m !== prev && m) anotar('modo', `${m}${auto.value ? ' (automático: ' + ruta.value.nota + ')' : locked.value ? ' (fijado)' : ''}`) })
 
   // Estado inicial del panel (campo vacío, sin modo ni conversación). Lo usan «Borrar», vaciar el campo y cerrar la capa.
-  const limpiar = () => { retenida = ''; vista.value = 'inicio'; desdeListado.value = false; gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
+  const limpiar = () => { vista.value = 'inicio'; desdeListado.value = false; gen++; filtro.value = 'todos'; query.value = ''; prompt.value = ''; locked.value = null; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
   // Cambios del campo hechos por el usuario (enviar() vacía `query` sin pasar por aquí, para no perder la conversación)
   const escribir = (v) => { if (v) query.value = v; else { limpiar(); anotar('vacía el campo') } }
 
@@ -76,7 +73,6 @@ export function crearEstado() {
   const enviar = () => {
     const text = query.value.trim()
     if (!text || pending.value) return
-    if (!legalAceptado.value) { retenida = text; locked.value = 'chat'; anotar('pregunta retenida hasta aceptar el aviso legal', text); return }
     if (!convActual) { convActual = { titulo: text, fecha: formatoFecha(new Date()), thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(50) }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
@@ -99,8 +95,6 @@ export function crearEstado() {
     if (m === 'search' && !query.value) { const t = prompt.value.trim() || lastSent.value; if (t) { query.value = t; prompt.value = '' } } // vuelve a la búsqueda con lo último escrito
   }
 
-  // «Comenzar chat» (primer uso): habilita el prompt y, si el usuario ya había elegido una pregunta, la envía
-  const aceptarLegal = () => { legalAceptado.value = true; anotar('acepta el aviso legal'); if (retenida) { const t = retenida; retenida = ''; locked.value = null; query.value = t; enviar() } }
   const nuevaConversacion = () => { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false; locked.value = null; anotar('nueva conversación') }
   // «Pregunta al asistente» del estado inicial: lleva directo al chat (conversación vacía con el saludo y el prompt)
   const irAlChat = () => { locked.value = 'chat'; anotar('abre el chat', 'desde «Pregunta al asistente»') }
@@ -111,7 +105,7 @@ export function crearEstado() {
   // Chip de «Búsquedas frecuentes» / «Últimas búsquedas»: mete el término en la caja y pinta el listado de resultados de esa consulta (el panel sigue abierto)
   const buscarTermino = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); query.value = term }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
-  const abrirConversacion = (conv, desde = 'inicio') => { vista.value = 'inicio'; desdeListado.value = desde === 'historial'; gen++; locked.value = null; legalAceptado.value = true; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const abrirConversacion = (conv, desde = 'inicio') => { vista.value = 'inicio'; desdeListado.value = desde === 'historial'; gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntarLoEscrito = () => { const t = query.value.trim() || lastSent.value; if (t) preguntar(t); else irAlChat() } // el botón del acceso al chat envía lo escrito en la caja
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
@@ -142,14 +136,13 @@ export function crearEstado() {
   const cargarEstado = (tipo) => {
     partida.value = tipo
     limpiar()
-    legalAceptado.value = tipo === 'historial'
     historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
     historial.conversaciones = historicoOn.value ? preguntasHistorico.map((q, i) => conversacionEjemplo(q, i)) : tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?', 0), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?', 1)] : []
     anotar('estado de partida', tipo)
   }
 
   return reactive({
-    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, legal, legalAceptado, aceptarLegal, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
+    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results, autocompletar, filtro,
     abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, volver, irAlChat, preguntarLoEscrito, barra, cargarRespuesta, vista, setHistorico, verHistorial, abriendo, hayConversacion, setConversacionActiva, usarTexto, abrirResultado, buscarTermino, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }

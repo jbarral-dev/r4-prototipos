@@ -92,10 +92,21 @@ html.jusearch-lock { overflow: hidden; }
 
 /* Con el bloque Actions del R4Sheet (acceso al chat desde el buscador) el cuerpo cede su alto: alto del bloque = 16 + texto small + 8 + botón large + 16, y el padding inferior del contenido pasa de 48 (side) / 32 (bottom) a 16 */
 .jusearch-sheet__body, .jusearch-sheetbottom__body { --jusearch-actions-h: calc(var(--spacing-4) * 2 + var(--line-height-body-s) + var(--spacing-2) + var(--component-button-size-large)); }
-.jusearch-sheet__body--actions { height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4) + var(--spacing-8) - var(--jusearch-actions-h)); }
-.jusearch-sheetbottom__body--actions { height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-4) - var(--jusearch-actions-h)); }
+.jusearch-sheet__body--actions { height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4) + var(--spacing-8) - var(--jusearch-actions-live, var(--jusearch-actions-h))); }
+.jusearch-sheetbottom__body--actions { height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-4) - var(--jusearch-actions-live, var(--jusearch-actions-h))); }
 /* En el R4Popover el bloque va a sangre (el popover tiene 12 de padding) */
 .jusearch__pop .jusearch-actions { margin: 0 calc(var(--spacing-3) * -1) calc(var(--spacing-3) * -1); }
 
 /* Con la conversación pintada el prompt (_ChatComposer) va en el bloque Actions del R4Sheet (fijo abajo): alto del bloque = 16 + caja de 48 (spacing/12) + 16 */
 .jusearch-sheet__body--prompt, .jusearch-sheetbottom__body--prompt { --jusearch-actions-h: calc(var(--spacing-4) * 2 + var(--spacing-12)); }
+
+
+/* «Volver» en la cabecera del R4Sheet (slot header; Figma «Proyectos - Chatbot» 42:1499, SheetHeader/Left: ic-arrow-left de 20 + gap 12 + título) */
+.jusearch-sheet-head { display: flex; flex: 1 1 0; min-width: 0; align-items: center; gap: var(--spacing-3); }
+.jusearch-sheet-head__back { display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-6); height: var(--spacing-6); padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; color: var(--text-default); cursor: pointer; }
+.jusearch-sheet-head__back .r4-icon { width: var(--spacing-5); height: var(--spacing-5); }
+.jusearch-sheet-head__back:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+/* Texto legal bajo el prompt, en el bloque Actions del R4Sheet: small, muted y centrado; el enlace va dentro del párrafo, subrayado y en peso regular */
+.jusearch-legal.r4-text { margin: 0; color: var(--text-muted); text-align: center; }
+.jusearch-legal .r4-link--inline { display: inline; font-weight: var(--font-weight-regular); }
