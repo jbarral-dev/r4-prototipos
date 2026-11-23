@@ -11,8 +11,6 @@ import Facilitador, { valoresPorDefecto, escribirParam } from '../components/pro
 import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
-import R4Text from '../components/pendientes/R4Text.js'
-import R4Link from '../components/pendientes/R4Link.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
 import _AssistantAccess from '../components/pendientes/_AssistantAccessJose.js'
 import _ChatComposer from '../components/pendientes/_ChatComposerJose.js'
@@ -26,7 +24,7 @@ import { crearEstado } from './_buscadorEstadoJose.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoJose',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Text, R4Link, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
@@ -164,13 +162,7 @@ export default defineComponent({
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
             <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
-            <template #actions>
-              <template v-if="api.chatView">
-                <ChatComposer :api="api" />
-                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
-              </template>
-              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
-            </template>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
@@ -186,13 +178,7 @@ export default defineComponent({
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
             <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
-            <template #actions>
-              <template v-if="api.chatView">
-                <ChatComposer :api="api" />
-                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
-              </template>
-              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
-            </template>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
