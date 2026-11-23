@@ -35,7 +35,7 @@
 @container r4page (max-width: 1023px) {
   .r4-table-v2__sheet--side { display: none; }
   .r4-table-v2__popover { display: none; }
-  .r4-table-v2__bar { flex-direction: column; align-items: stretch; }
+  .r4-table-v2__bar--wide { flex-direction: column; align-items: stretch; }
   .r4-table-v2__filters { overflow-x: auto; scrollbar-width: none; padding-block: var(--spacing-1); }
   .r4-table-v2__filters::-webkit-scrollbar { display: none; }
   .r4-table-v2__views { align-self: flex-start; }
@@ -60,3 +60,13 @@
 .r4-table-v2 .r4-input-radio__option,
 .r4-sheet .r4-table-v2__options .r4-input-checkbox__option,
 .r4-sheet .r4-table-v2__options .r4-input-radio__option { font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+
+/* Barra compacta (mobile < 600 px): una línea con «Filtros» a la izquierda y la vista a la derecha; la barra ancha se oculta */
+.r4-table-v2__bar--compact { display: none; }
+@container r4page (max-width: 599px) {
+  .r4-table-v2__bar--wide { display: none; }
+  .r4-table-v2__bar--compact { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
+}
+@container r4page (min-width: 600px) {
+  .r4-table-v2__sheet--view { display: none; }
+}

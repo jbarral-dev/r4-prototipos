@@ -7,6 +7,7 @@
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
 //   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
+// Mobile (< 600 px): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -133,6 +134,8 @@ export default defineComponent({
     onBeforeUnmount(() => clearTimeout(timerContar))
 
     // — Vistas —
+    const vistaOpen = ref(false)
+    const vistaActual = computed(() => vistaPorValor(selectedView.value))
     const itemsVistas = computed(() => props.views.map((v) => ({ label: v.label, value: v.value })))
     // El cambio de vista es instantáneo (Jon, 2026-11-23): sin spinner ni recarga; solo al aplicar filtros hay recarga de 1 s
     const cambiarVista = (v) => {
@@ -150,11 +153,11 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      contando, abiertos, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
+      contando, abiertos, vistaOpen, vistaActual, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :aria-busy="loading ? 'true' : undefined">
-      <div class="r4-table-v2__bar" :class="{ 'is-loading': loading === 'all' }" :inert="loading === 'all'">
+      <div class="r4-table-v2__bar r4-table-v2__bar--wide" :class="{ 'is-loading': loading === 'all' }" :inert="loading === 'all'">
         <div class="r4-table-v2__filters" role="group" aria-label="Filtros de la tabla">
           <div class="r4-table-v2__all">
             <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Todos los filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'"
@@ -172,6 +175,12 @@ export default defineComponent({
           </div>
         </div>
         <R4SegmentedControls class="r4-table-v2__views" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
+      </div>
+
+      <!-- Mobile (< 600 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
+      <div class="r4-table-v2__bar r4-table-v2__bar--compact">
+        <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
+        <R4Chip type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
 
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
@@ -199,6 +208,9 @@ export default defineComponent({
               <TableFilterPanel v-else :filter="item.filter" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
             </template>
           </R4Accordion>
+        </R4Sheet>
+        <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
+          <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
         <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="filtroAbierto.label" :open="true" @close="cerrarCategoria">
           <TableFilterPanel :filter="filtroAbierto" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @clear="catDraft = []" />

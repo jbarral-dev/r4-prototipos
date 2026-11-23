@@ -2,8 +2,9 @@
 // Contenido: tabla «Acciones · Mercado continuo» de r4.com (pantallazo de Jon, 2026-11-19) y logos de «Resources - Logos» (Figma).
 // Composición (TemplateDetail, superficie gris, sin Footer como en el frame): Header (Menu type=default, Cliente=Logado) · Main: [R4Wrapper compact: R4PageTitleSection «Acciones», sin botones de acción]
 // · [R4Wrapper compact: R4TableV2]. El R4TableV2 lleva «Filters and Views» + R4Section con la tabla (R4Table de Storybook). Interacción de filtros y vistas: ver la cabecera de R4TableV2.js.
+// Facilitador: bloque «Escenarios» (Acciones · Movimientos; parámetro de URL ?escenario=movimientos). Los datos de «Movimientos» son inventados.
 // Los enlaces de cada fila y el botón de compra no navegan (prototipo).
-import { defineComponent } from '../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, ref, computed } from '../../vendor/vue.esm-browser.prod.js'
 import TemplateDetail from '../templates/TemplateDetail.js'
 import Menu from '../components/pendientes/Menu.js'
 import R4Wrapper from '../components/pendientes/R4Wrapper.js'
@@ -12,7 +13,21 @@ import R4TableV2 from '../components/pendientes/R4TableV2.js'
 import R4Text from '../components/pendientes/R4Text.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
-import { filas, vistas } from '../data/r4table-v2.js'
+import R4Tag from '../components/pendientes/R4Tag.js'
+import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
+import { filas, vistas, movimientos, vistasMovimientos } from '../data/r4table-v2.js'
+
+// Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
+const FACILITADOR = [
+  { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }] }] },
+]
+const ESCENARIOS = {
+  acciones: { titulo: 'Acciones', breadcrumb: { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] }, views: vistas, data: filas, aria: 'Acciones del Mercado continuo', footnote: 'Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.' },
+  movimientos: { titulo: 'Movimientos', breadcrumb: { items: [{ label: 'Tu cuenta', href: '#' }, { label: 'Movimientos' }] }, views: vistasMovimientos, data: movimientos, aria: 'Movimientos de la cuenta', footnote: undefined },
+}
+const logoPorNombre = Object.fromEntries(filas.map((f) => [f.name, f.logoURL]))
+const colorTipo = { Acciones: 'blue', Criptoactivos: 'neutralDark', ETFs: 'neutralLight', Fondos: 'neutralLight' } // R4Tag solo tiene reconstruidos blue, neutralDark y neutralLight
+const fmtE = (v) => nf(2).format(v) + '\u2009€'
 
 const navItems = ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === 0 })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú
 
@@ -25,20 +40,21 @@ const tono = (v) => (v > 0 ? 'success' : v < 0 ? 'error' : 'normal')
 
 export default defineComponent({
   name: 'R4TableV2Prototipo',
-  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, ProductDefaultLogo },
+  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador },
   setup() {
     document.title = 'R4Table (v2) · Prototipo R4'
-    const breadcrumb = { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] } // 🏠 › Invertir › Acciones (la página actual, sin enlace)
-    return { breadcrumb, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
+    const caso = ref(valoresPorDefecto(FACILITADOR))
+    const esc = computed(() => ESCENARIOS[caso.value.escenario])
+    return { caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `
     <TemplateDetail>
       <template #header><Menu type="default" client="logado" :nav-items="navItems" :sub-nav-items="[]" /></template>
 
-      <R4Wrapper density="compact" layout="12"><R4PageTitleSection title="Acciones" :breadcrumb="breadcrumb" /></R4Wrapper>
+      <R4Wrapper density="compact" layout="12"><R4PageTitleSection :title="esc.titulo" :breadcrumb="esc.breadcrumb" /></R4Wrapper>
 
       <R4Wrapper density="compact" layout="12">
-        <R4TableV2 :views="vistas" :data="filas" data-key="id" aria-label="Acciones del Mercado continuo" footnote="Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.">
+        <R4TableV2 :key="caso.escenario" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
           <template #body-name="{ data }">
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
@@ -55,9 +71,21 @@ export default defineComponent({
           <template #body-cap="{ value }"><R4Text :text="fmtN(value)" /></template>
           <template #body-per="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-ytd="{ value }"><R4Text :text="signo(value, fmt(abs(value)) + ' %')" :variant="tono(value)" /></template>
+          <template #body-fecha="{ value }"><R4Text :text="value" /></template>
+          <template #body-valor="{ data }">
+            <span class="r4tv2__nombre"><img v-if="logoPorNombre[data.valor]" class="r4tv2__logo" :src="logoPorNombre[data.valor]" alt="" /><ProductDefaultLogo v-else :name="data.valor" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.valor }}</a></span>
+          </template>
+          <template #body-descripcion="{ value }"><R4Text :text="value" /></template>
+          <template #body-tipo="{ value }"><R4Tag size="small" :color="colorTipo[value]" :text="value" /></template>
+          <template #body-importe="{ value }"><R4Text :text="signo(value, fmtE(abs(value)))" :variant="tono(value)" /></template>
+          <template #body-saldo="{ value }"><R4Text :text="fmtE(value)" /></template>
+          <template #body-cantidad="{ value }"><R4Text :text="fmt(value)" /></template>
+          <template #body-precio="{ value }"><R4Text :text="fmtE(value)" /></template>
+          <template #body-comision="{ value }"><R4Text :text="fmtE(value)" /></template>
           <template #body-accion="{ data }"><R4Button type="text" size="medium" icon="ic-shopping-cart" :aria-label="'Comprar ' + data.name" /></template>
         </R4TableV2>
       </R4Wrapper>
+      <template #overlay><Facilitador v-model:values="caso" :groups="FACILITADOR" /></template>
     </TemplateDetail>
   `,
 })

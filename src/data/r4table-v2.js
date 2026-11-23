@@ -172,3 +172,50 @@ export const vistas = [
     filters: [fMercados, fIndices, fYtd, fCap],
     initial: { indices: ['Ibex 35'] } },
 ]
+
+// ───────────────────────── Escenario «Movimientos» (Facilitador › Escenarios) ─────────────────────────
+// Tabla de movimientos de una cuenta. Visual y filtros de la primera versión del Figma «Proyectos - Tablas» (frame 668:23386: Fecha «Últimos 3 meses», Tipo «Criptoactivos», Valor; columnas Fecha · Valor · Descripción · Tipo · Importe · Saldo).
+// TODOS los datos son INVENTADOS (el encargo no trae contenido de esta tabla): fechas relativas a hoy, importes y saldos acumulados coherentes entre sí.
+const HOY = new Date()
+const fechaDe = (dias) => { const d = new Date(HOY); d.setDate(d.getDate() - dias); return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) }
+// [días atrás, valor, tipo, operación, cantidad, precio]
+const MOV = [
+  [0, 'Bitcoin', 'Criptoactivos', 'Compra', 0.05, 86420.5], [1, 'SANTANDER', 'Acciones', 'Dividendo', 400, 0.11], [2, 'Ethereum', 'Criptoactivos', 'Compra', 1.2, 2985.3],
+  [3, 'iShares Core S&P 500', 'ETFs', 'Compra', 6, 612.4], [5, 'Solana', 'Criptoactivos', 'Venta', 14, 128.74], [6, 'TELEFONICA', 'Acciones', 'Venta', 900, 3.356],
+  [9, 'Magallanes Value Iberia', 'Fondos', 'Suscripción', 120, 42.5], [11, 'XRP', 'Criptoactivos', 'Compra', 1500, 2.18], [14, 'IBERDROLA', 'Acciones', 'Compra', 250, 22.59],
+  [17, 'Bitcoin', 'Criptoactivos', 'Venta', 0.02, 84100], [21, 'BBVA', 'Acciones', 'Dividendo', 300, 0.3], [25, 'Dogecoin', 'Criptoactivos', 'Compra', 9000, 0.163],
+  [30, 'Ethereum', 'Criptoactivos', 'Venta', 0.6, 3050], [36, 'Vanguard FTSE All-World', 'ETFs', 'Compra', 25, 138.7], [41, 'SANTANDER', 'Acciones', 'Compra', 1200, 10.4],
+  [48, 'Cobas Selección', 'Fondos', 'Reembolso', 80, 19.8], [55, 'Solana', 'Criptoactivos', 'Compra', 22, 119.9], [63, 'Bitcoin', 'Criptoactivos', 'Compra', 0.04, 79800],
+  [72, 'TELEFONICA', 'Acciones', 'Dividendo', 900, 0.15], [80, 'XRP', 'Criptoactivos', 'Venta', 800, 2.4], [88, 'IBERDROLA', 'Acciones', 'Venta', 120, 23.1],
+  [105, 'Ethereum', 'Criptoactivos', 'Compra', 0.8, 2700], [130, 'BBVA', 'Acciones', 'Compra', 500, 21.8], [160, 'Amundi MSCI World', 'ETFs', 'Venta', 10, 515], [210, 'Bitcoin', 'Criptoactivos', 'Compra', 0.03, 66200],
+  [260, 'Azvalor Internacional', 'Fondos', 'Suscripción', 60, 31.2], [320, 'SANTANDER', 'Acciones', 'Dividendo', 800, 0.1],
+]
+const SALIDAS = new Set(['Compra', 'Suscripción'])
+let saldoAcum = 60000
+const _movs = [...MOV].reverse().map(([dias, valor, tipo, operacion, cantidad, precio], i) => {
+  const bruto = +(cantidad * precio).toFixed(2)
+  const comision = operacion === 'Dividendo' ? 0 : +Math.max(1.5, bruto * 0.0035).toFixed(2)
+  const importe = SALIDAS.has(operacion) ? -(bruto + comision) : operacion === 'Dividendo' ? bruto : bruto - comision
+  saldoAcum = +(saldoAcum + importe).toFixed(2)
+  return { id: `mov-${i}`, dias, fecha: fechaDe(dias), valor, tipo, operacion, descripcion: `${operacion} de ${tipo === 'Criptoactivos' ? 'criptoactivos' : tipo === 'Acciones' ? 'acciones' : tipo === 'ETFs' ? 'ETF' : 'fondo'}`, cantidad, precio, comision, importe: +importe.toFixed(2), saldo: saldoAcum }
+}).reverse() // más recientes primero
+
+export const movimientos = _movs
+const FECHAS = { hoy: 0, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
+const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', icon: 'ic-calendar', highlighted: true,
+  options: opc(['hoy', 'Hoy'], ['1w', 'Última semana'], ['1m', 'Último mes'], ['3m', 'Últimos 3 meses'], ['1y', 'Último año']),
+  predicate: (r, [v]) => r.dias <= FECHAS[v] }
+const fTipoM = { id: 'tipo', label: 'Tipo', type: 'multiple', highlighted: true, options: opc('Acciones', 'Criptoactivos', 'ETFs', 'Fondos'), predicate: (r, vs) => vs.includes(r.tipo) }
+const fValorM = { id: 'valor', label: 'Valor', type: 'multiple', highlighted: true, options: opc(...[...new Set(_movs.map((m) => m.valor))].sort((a, b) => a.localeCompare(b, 'es')).map((n) => [n, n])), predicate: (r, vs) => vs.includes(r.valor) }
+const fOperacion = { id: 'operacion', label: 'Operación', type: 'multiple', options: opc('Compra', 'Venta', 'Dividendo', 'Suscripción', 'Reembolso'), predicate: (r, vs) => vs.includes(r.operacion) }
+const fSigno = { id: 'signo', label: 'Importe', type: 'single', options: opc(['entrada', 'Entradas de dinero'], ['salida', 'Salidas de dinero']), predicate: (r, [v]) => (v === 'entrada' ? r.importe > 0 : r.importe < 0) }
+export const vistasMovimientos = [
+  { value: 'basica', label: 'Vista básica',
+    columns: [{ field: 'fecha', header: 'Fecha', width: '14%' }, { field: 'valor', header: 'Valor', frozen: true, width: '24%' }, { field: 'descripcion', header: 'Descripción', width: '22%' }, { field: 'tipo', header: 'Tipo', width: '14%' }, num_('importe', 'Importe', '13%'), num_('saldo', 'Saldo', '13%')],
+    filters: [fFechaM, fTipoM, fValorM, fOperacion],
+    initial: { fecha: ['3m'], tipo: ['Criptoactivos'] } },
+  { value: 'adicional', label: 'Vista adicional',
+    columns: [{ field: 'fecha', header: 'Fecha', width: '14%' }, { field: 'valor', header: 'Valor', frozen: true, width: '26%' }, num_('cantidad', 'Cantidad', '14%'), num_('precio', 'Precio', '14%'), num_('comision', 'Comisión', '14%'), num_('importe', 'Importe', '18%')],
+    filters: [fFechaM, fTipoM, fValorM, fSigno],
+    initial: { fecha: ['3m'], tipo: ['Criptoactivos'] } },
+]
