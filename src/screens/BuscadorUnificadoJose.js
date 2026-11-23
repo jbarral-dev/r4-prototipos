@@ -77,7 +77,17 @@ export default defineComponent({
     const compacto = () => !trigger.value || trigger.value.offsetParent === null // el botón de desktop está oculto: tablet y mobile
     const abrirDesdeCabecera = () => { if (!api.open && compacto()) proxy.value?.focus({ preventScroll: true }); api.abrir() }
     watch(() => api.open, async (abierta) => {
-      if (!abierta) return
+      if (!abierta) {
+        // Al cerrar, R4Sheet devuelve el foco al elemento que lo tenía al abrir: aquí era el input invisible, y el teclado seguía a la vista. Se suelta y el foco va a la lupa (un botón no abre el teclado).
+        await nextTick(); await nextTick()
+        const a = document.activeElement
+        if (a && a.matches && a.matches('input, textarea')) {
+          a.blur()
+          const lupa = [...document.querySelectorAll('.menu__compact-button--search, .japp-header__search')].find((e) => e.getClientRects().length)
+          if (lupa) lupa.focus()
+        }
+        return
+      }
       await nextTick(); await nextTick()
       const el = mobileField.value?.$el
       if (el && el.getClientRects().length) mobileField.value.focus()
