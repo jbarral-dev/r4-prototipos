@@ -57,6 +57,8 @@ export default defineComponent({
     const preguntarLoEscrito = () => { const t = props.api.query.trim() || props.api.lastSent; if (t) props.api.preguntar(t); else props.api.irAlChat() }
     // Enlaces del asistente: uno suelto (R4Link standalone) o varios en lista con viñetas; nunca varios en fila (documentación 3.4)
     const enlacesLista = (m) => m.lista || (m.links && m.links.length > 1 ? m.links : null)
+    // Mobile: en la pantalla de resultados, en cuanto el dedo hace scroll sobre el panel el teclado se oculta (el campo pierde el foco)
+    const ocultarTeclado = () => { if (!props.api.barra) return; const a = document.activeElement; if (a && a.matches && a.matches('input, textarea')) a.blur() }
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
     const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
@@ -79,10 +81,10 @@ export default defineComponent({
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
+    return { itemProps, uid, bodyId, vacio, preguntaPendiente, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, ocultarTeclado, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
-    <div class="jusearch-panel" :class="{ 'jusearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
+    <div class="jusearch-panel" :class="{ 'jusearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar" @touchmove.passive="ocultarTeclado">
       <p class="jusearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
       <div ref="body" class="jusearch-panel__body" :id="bodyId">
