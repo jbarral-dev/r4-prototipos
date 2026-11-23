@@ -83,3 +83,6 @@
   .r4-table-v2__views-chip { display: inline-flex; }
   .r4-table-v2__toolbar .r4-table-v2__filters { flex: none; }
 }
+
+/* Título del acordeón: texto + R4Tag small lightgray con el nº */
+.r4-table-v2__acc-title { display: inline-flex; align-items: center; gap: var(--spacing-2); }
