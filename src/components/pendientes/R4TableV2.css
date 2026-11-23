@@ -61,12 +61,12 @@
 .r4-sheet .r4-table-v2__options .r4-input-checkbox__option,
 .r4-sheet .r4-table-v2__options .r4-input-radio__option { font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
 
-/* Barra compacta (mobile < 600 px): una línea con «Filtros» a la izquierda y la vista a la derecha; la barra ancha se oculta */
+/* Barra compacta (tablet y mobile, ≤ 1023 px): una línea con «Filtros» a la izquierda y la vista a la derecha; la barra ancha se oculta */
 .r4-table-v2__bar--compact { display: none; }
-@container r4page (max-width: 599px) {
+@container r4page (max-width: 1023px) {
   .r4-table-v2__bar--wide { display: none; }
   .r4-table-v2__bar--compact { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
 }
-@container r4page (min-width: 600px) {
+@container r4page (min-width: 1024px) {
   .r4-table-v2__sheet--view { display: none; }
 }
