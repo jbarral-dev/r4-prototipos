@@ -1,0 +1,69 @@
+/*
+ * fixedProductTitleLayer — valores leídos de Figma (2756:76562). Fondo surface/default, borde inferior 1 px border/subtle; contenedor interior con ancho máximo 1368 y padding horizontal
+ * grid/containerPadding (12 mobile · 24 desktop).
+ * Mobile: padding vertical 12 (alto 48); izquierda gap 8 con padding derecho 24: logo 24 + nombre body/m Regular (elipsis); derecha gap 4: variación Exo 2 Medium 12/16 en chart/negative|positive
+ *   (texto «(-2,85%)», sin separación entre partes) y precio Exo 2 SemiBold 16/24.
+ * Desktop/tablet (≥ 600; releído el 2026-11-09 tras los ajustes de Jon): padding vertical 12 (como mobile) y alto 56 (el botón de 32 manda); izquierda gap 16: logo 32, nombre body/l Regular (18/26),
+ *   separador de 1 px (surface/muted, alto completo) y mercado (gap 16 con el separador; bandera 16 + nombre body/m en text/subdued, gap 4); derecha gap 24: variación (la misma de mobile, 12/16, con
+ *   padding-bottom 2) y precio Exo 2 SemiBold heading/xs (20/24) (gap 8, alineados abajo) + R4Button primary medium (32).
+ */
+.r4-fixedproducttitle {
+  width: 100%;
+  padding-block: var(--spacing-3);
+  background: var(--surface-default);
+  box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle);
+}
+.r4-fixedproducttitle__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: var(--grid-containermaxwidth);
+  margin-inline: auto;
+  padding-inline: var(--grid-containerpadding);
+}
+
+.r4-fixedproducttitle__left { display: flex; flex: 1 1 0; align-items: center; gap: var(--spacing-2); min-width: 0; padding-right: var(--spacing-6); }
+.r4-fixedproducttitle__logo { flex: none; width: var(--spacing-6); height: var(--spacing-6); }
+.r4-fixedproducttitle__name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-default);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-m);
+  line-height: var(--line-height-body-m);
+  font-weight: var(--font-weight-regular);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.r4-fixedproducttitle__market { display: none; }
+
+.r4-fixedproducttitle__right { display: flex; flex: none; align-items: center; justify-content: flex-end; gap: var(--spacing-1); font-family: var(--font-family-headings); white-space: nowrap; text-align: right; }
+.r4-fixedproducttitle__figures { display: flex; align-items: center; justify-content: flex-end; gap: var(--spacing-1); }
+.r4-fixedproducttitle__variation { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); font-weight: var(--font-weight-medium); }
+.r4-fixedproducttitle__variation.is-positive { color: var(--chart-positive); }
+.r4-fixedproducttitle__variation.is-negative { color: var(--chart-negative); }
+.r4-fixedproducttitle__price { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); }
+.r4-fixedproducttitle .r4-fixedproducttitle__cta.r4-button { display: none; }
+
+/* Desktop y tablet */
+@container r4page (min-width: 600px) {
+  .r4-fixedproducttitle__left { gap: var(--spacing-4); }
+  .r4-fixedproducttitle__logo { width: var(--spacing-8); height: var(--spacing-8); }
+  .r4-fixedproducttitle__name { flex: none; max-width: 100%; font-size: var(--size-body-l); line-height: var(--line-height-body-l); }
+  .r4-fixedproducttitle__market { display: flex; align-self: stretch; align-items: center; gap: var(--spacing-4); min-width: 0; color: var(--text-subdued); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); white-space: nowrap; }
+  .r4-fixedproducttitle__market::before { content: ''; align-self: stretch; width: var(--r4-line-width); background: var(--surface-muted); }
+  .r4-fixedproducttitle__market-item { display: flex; align-items: center; gap: var(--spacing-1); } /* bandera + nombre (frame «market» interior de Figma, gap 4); el gap de 16 del exterior es solo el del separador */
+  .r4-fixedproducttitle__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }
+  .r4-fixedproducttitle__right { gap: var(--spacing-6); }
+  .r4-fixedproducttitle__figures { align-items: flex-end; gap: var(--spacing-2); }
+  .r4-fixedproducttitle__variation { padding-bottom: var(--spacing-05); }
+  .r4-fixedproducttitle__price { font-size: var(--size-heading-xs); line-height: var(--line-height-heading-xs); }
+  .r4-fixedproducttitle .r4-fixedproducttitle__cta.r4-button { display: inline-flex; }
+}
+
+/* fadeIn / fadeOut al aparecer y desaparecer (Jon) */
+.r4-fixedproducttitle-enter-active, .r4-fixedproducttitle-leave-active { transition: opacity 0.2s ease; }
+.r4-fixedproducttitle-enter-from, .r4-fixedproducttitle-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .r4-fixedproducttitle-enter-active, .r4-fixedproducttitle-leave-active { transition: none; }
+}

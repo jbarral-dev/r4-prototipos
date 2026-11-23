@@ -1,0 +1,137 @@
+/*
+ * Ficha de acción — ajustes por contenedor (`r4page`). Todo el responsive lo resuelve el CSS.
+ * La colocación en la rejilla la hace la prop `layout` de R4Wrapper (12 · 12 · 8-4 · 8-4): desktop (≥ 1024, 12 columnas) título 12 · tabs 12 · gráfico 8 + resumen 4 · productos
+ * relacionados 8 + datos de cotización 4 (antes Recomendación Renta 4); tablet (8 columnas, sin diseño) y mobile (4): todo a ancho completo, apilado.
+ */
+.ficha__placeholder { margin: 0; color: var(--text-muted); }
+
+/* Sin márgenes verticales: todo el espaciado vertical sale de los paddings y el gap de los R4Wrapper (density compact). */
+
+/* Caja de riesgo: mobile y tablet (≤ 1023) en su propio primer Wrapper sobre el título; desde 1024 (desktop) va sobre el Resumen y ese Wrapper se oculta */
+@container r4page (max-width: 1023px) {
+  .ficha__riskbox-inline { display: none; }
+}
+@container r4page (min-width: 1024px) {
+  .ficha__w0 { display: none; }
+  .ficha__w1 { padding-top: var(--wrapper-paddingtopfirstwrapper); }
+}
+
+/* Mobile: el Resumen no muestra título (Figma showHeader=false); se mantiene el h2 solo para lectores de pantalla */
+@container r4page (max-width: 599px) {
+  .ficha__resumen .r4-section__header {
+    position: absolute;
+    width: var(--r4-line-width);
+    height: var(--r4-line-width);
+    margin: calc(var(--r4-line-width) * -1);
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .ficha__resumen { position: relative; }
+}
+
+/* R4ListDetail: desktop/tablet size=medium; mobile size=small (Figma): se reasignan las variables de tamaño */
+@container r4page (max-width: 599px) {
+  .ficha__resumen .r4-listdetail,
+  .ficha__cotizacion .r4-listdetail {
+    --r4-ld-font-size: var(--size-body-s);
+    --r4-ld-line-height: var(--line-height-body-s);
+    --r4-ld-divider-pad: var(--spacing-1);
+    --r4-ld-value-gap: var(--spacing-1);
+    --r4-ld-logo: var(--spacing-4);
+  }
+  .ficha__resumen .r4-listdetail__info,
+  .ficha__cotizacion .r4-listdetail__info { width: var(--spacing-5); height: var(--spacing-5); }
+}
+
+/* Derivados: chips (gap 12, scroll horizontal sin barra) y lista de resultados */
+.ficha__filters { display: flex; gap: var(--spacing-3); width: calc(100% + var(--spacing-2)); padding-right: var(--spacing-3); overflow-x: auto; scrollbar-width: none; }
+/* Las filas de chips con scroll (overflow-x: auto) recortaban el sombreado del hover (0 0 8) y el foco (6) por arriba, abajo y a la izquierda: se reserva ese margen con padding y se compensa con margen negativo para no mover el diseño */
+.ficha__filters, .ficha__chips { padding-block: var(--spacing-2); margin-block: calc(var(--spacing-2) * -1); padding-inline-start: var(--spacing-2); margin-inline-start: calc(var(--spacing-2) * -1); }
+.ficha__filters::-webkit-scrollbar { display: none; }
+
+.ficha__results { display: flex; flex-direction: column; width: 100%; margin: 0; padding: 0; list-style: none; }
+
+/* «Ver todas…»: desktop = R4Button text medium con icono, centrado · mobile = R4Link standalone con flecha, a la derecha */
+.ficha__ver-todos-desktop { align-self: center; }
+.r4-link.ficha__ver-todos-mobile { display: none; align-self: flex-end; }
+@container r4page (max-width: 599px) {
+  .r4-button.ficha__ver-todos-desktop { display: none; }
+  .r4-link.ficha__ver-todos-mobile { display: inline-flex; }
+}
+
+/* Datos de cotización: R4ListDetail a todo el ancho del slot */
+.ficha__cotizacion .r4-section__slot { align-items: stretch; }
+
+/*
+ * «En otros mercados»: R4Popover wide anclado a la acción de «Mercado» del Resumen (Figma desktop, 2481:37183) en ≥ 1024 px; por debajo, bottom sheet (Figma mobile).
+ * El menú «Más acciones» del dock de mobile también va en un bottom sheet, por encima del dock (la capa de superposición está sobre él).
+ */
+.ficha__resumen { position: relative; }
+.ficha__market-popover { position: absolute; z-index: 200; }
+.ficha__market-title { margin: 0; color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
+.ficha__market-popover .r4-popover { gap: var(--spacing-4); }
+.ficha__market-popover { display: none; }
+@container r4page (min-width: 1024px) {
+  .ficha__market-popover { display: block; }
+  .ficha__sheet--market { display: none; }
+}
+@container r4page (min-width: 600px) {
+  .ficha__sheet--actions { display: none; }
+}
+
+/*
+ * Controles del gráfico (Comparar · Configurar · tipo de gráfico), Figma «Acciones Gráfico (Desktop)» 2813:74279 y «(Mobile)» 2816:98718.
+ * Comparar y Configurar son R4Chip type=multiple; cada uno lleva su R4Popover anclado debajo (a 8 px, alineado a la izquierda del chip) en ≥ 1024 px; por debajo, bottom sheet (como «En otros mercados»).
+ * El tipo de gráfico es un R4SegmentedControls (Líneas | Velas) desde 600 px; en mobile (< 600) un R4Button solo icono que alterna (Figma).
+ */
+.ficha__chart-anchor { position: relative; display: inline-flex; }
+.ficha__chart-popover { display: none; position: absolute; z-index: 200; top: calc(100% + var(--spacing-2)); left: 0; }
+@container r4page (min-width: 1024px) {
+  .ficha__chart-popover { display: block; }
+  .ficha__sheet--chart { display: none; }
+}
+@container r4page (max-width: 599px) {
+  .ficha__viz-segmented { display: none; }
+}
+@container r4page (min-width: 600px) {
+  .r4-button.ficha__viz-button { display: none; }
+}
+
+/*
+ * Variante CAIFE (Figma 3369:10004, R4PopoverCAIFE): R4Popover wide anclado bajo el botón de información de «Elegible Cuenta Europa» (a 8 px), en todos los anchos.
+ * Contenido: título body/l Bold, dos párrafos body/m subdued (gap 12; el nombre de la cuenta en SemiBold) y R4Link standalone medium; gap entre bloques 20.
+ */
+.ficha__caife-popover { position: absolute; z-index: 200; }
+.ficha__caife { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-5); width: 100%; }
+.ficha__caife-title { margin: 0; color: var(--text-default); font-size: var(--size-body-l); line-height: var(--line-height-body-l); font-weight: var(--font-weight-bold); }
+.ficha__caife-text { display: flex; flex-direction: column; gap: var(--spacing-3); color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.ficha__caife-text p { margin: 0; }
+.ficha__caife-text strong { font-weight: var(--font-weight-semibold); }
+/* Superposición del CAIFE según dispositivo (Confluence Patrones › Progressive disclosure): R4Popover en ≥ 1024 px, R4Sheet bottom por debajo */
+.ficha__caife-popover { display: none; }
+@container r4page (min-width: 1024px) {
+  .ficha__caife-popover { display: block; }
+  .ficha__sheet--caife { display: none; }
+}
+
+/* Tab «Productos relacionados» (listado): chips de tipo, lista completa con precio y «Mostrar más productos» (R4Button secondary) centrado respecto al listado */
+.ficha__mostrar-mas { align-self: center; }
+/* Fila de chips de la tab (R4Stack horizontal, gap sm): en mobile hace scroll horizontal sin barra, como los chips de la sección del Resumen */
+.ficha__chips { overflow-x: auto; scrollbar-width: none; padding-right: var(--spacing-3); max-width: calc(100% + var(--spacing-2)); }
+.ficha__chips::-webkit-scrollbar { display: none; }
+.ficha__chips > * { flex: none; }
+.ficha__tabproductos .r4-section__slot { align-items: stretch; }
+.ficha__sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Tab «Productos relacionados» · versión Tabla (R4Table): nombre con el logotipo y enlace a la ficha del producto, variación verde o roja por el signo (tokens del gráfico) */
+.ficha__tabla-nombre { display: inline-flex; align-items: center; gap: var(--spacing-3); white-space: nowrap; }
+.ficha__tabla-logo { flex: none; width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); object-fit: cover; }
+.ficha__tabla-link { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.ficha__tabla-link:hover { text-decoration: underline; }
+.ficha__tabla-link:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
+.ficha__tabla-var { font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); }
+.ficha__tabla-var.is-positive { color: var(--chart-positive); }
+.ficha__tabla-var.is-negative { color: var(--chart-negative); }

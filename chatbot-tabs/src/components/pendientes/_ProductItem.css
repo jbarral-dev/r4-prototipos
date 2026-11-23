@@ -1,0 +1,97 @@
+/*
+ * productItem (hijo de R4ProductList) — look & feel y hover del searchResultItem con mercado: fila de padding 12/4 (8/4 en mobile), gap 12; contenido con gap 16: columna izquierda (nombre body/m SemiBold text/default y línea
+ * secundaria body/s text/muted con wrap) y columna derecha alineada a la derecha: precio body/m Bold text/subdued con variación body/s SemiBold (versión con precio) o el mercado, bandera + nombre en body/s text/muted (versión sin precio).
+ * Hover: fondo surface/subtle; divisor inferior border/subtle, salvo en la última fila. Logo opcional de 32 (p. ej. bandera en «En otros mercados»). Un solo elemento interactivo: el nombre se estira sobre la fila.
+ * Botón «Contratar» opcional (showAction, Jon 2026-11-14): R4Button secondary medium al final del contenido, por encima del enlace estirado (z-index:1); en mobile (≤ 599) solo icono.
+ * Jon, 2026-11-16: en large (≥ 480) el botón solo se muestra en hover/foco de la fila; en small (< 480) el precio va encima de la variación, alineados a la derecha.
+ */
+.r4-productitem {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: var(--spacing-3) var(--spacing-1);
+  list-style: none;
+  font-family: var(--font-family-body);
+}
+.r4-productitem:hover { background: var(--surface-subtle); }
+.r4-productitem.has-divider { box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle); }
+.r4-productitem.has-divider:last-child { box-shadow: none; }
+@container r4page (max-width: 599px) { .r4-productitem { padding-block: var(--spacing-2); } }
+
+.r4-productitem__logo { flex: none; width: var(--spacing-8); height: var(--spacing-8); border-radius: var(--radius-full); }
+/* Logotipo de la empresa (logoSrc): 32 en filas estrechas y 28 a partir de 480, como en searchResultItem */
+.r4-productitem__logo--img { width: var(--spacing-8); height: var(--spacing-8); border-radius: 0; object-fit: cover; }
+@container (min-width: 480px) { .r4-productitem__logo--img { width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); } }
+.r4-productitem__content { display: flex; flex: 1 1 0; align-items: center; gap: var(--spacing-4); min-width: 0; }
+.r4-productitem__left { display: flex; flex: 1 1 0; flex-direction: column; justify-content: center; min-width: 0; }
+
+.r4-productitem__name { color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.r4-productitem__name::after { content: ''; position: absolute; inset: 0; }
+.r4-productitem__name:focus-visible { outline: 0; }
+.r4-productitem__name:focus-visible::after { box-shadow: var(--effect-card-focus-outline); border-radius: var(--radius-xs); }
+
+.r4-productitem__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-1); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); }
+
+/* size = large (fila ≥ 480, como searchResultItem 1117:20355): los metadatos van a la derecha del nombre (body/s text/muted, «·» entre ellos, gap 8), no debajo; en small quedan bajo el nombre.
+   La copia de la derecha es aria-hidden (el lector de pantalla lee la de debajo del nombre, oculta visualmente en large) */
+.r4-productitem__info { display: none; flex: none; align-items: center; gap: var(--spacing-2); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); white-space: nowrap; }
+/* Metadatos = los del R4PageTitleProduct de derivados: texto («Vence 18/12/26») · bandera + mercado; «·» entre ellos (como searchResultItem) */
+.r4-productitem__info > span:not(:last-child)::after, .r4-productitem__info.has-next > span:last-child::after { content: '·'; margin-left: var(--spacing-2); }
+.r4-productitem__meta > span:not(:last-child)::after { content: '·'; margin-left: var(--spacing-1); }
+.r4-productitem__infomarket { display: flex; align-items: center; gap: var(--spacing-1); }
+.r4-productitem__infomarket .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
+@container (min-width: 480px) { .r4-productitem__market { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); } }
+@container (min-width: 480px) {
+  .r4-productitem__info { display: flex; }
+  .r4-productitem__meta { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .r4-productitem__left { overflow: hidden; }
+  .r4-productitem__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+.r4-productitem__right { display: flex; flex: none; flex-direction: row; align-items: baseline; gap: var(--spacing-2); justify-content: flex-end; text-align: right; white-space: nowrap; }
+.r4-productitem__price { color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
+.r4-productitem__variation { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-semibold); }
+.r4-productitem__variation.is-positive { color: var(--chart-positive); }
+.r4-productitem__variation.is-negative { color: var(--chart-negative); }
+
+.r4-productitem__market { display: flex; flex: none; align-items: center; gap: var(--spacing-1); color: var(--text-muted); font-size: var(--size-body-s); line-height: var(--line-height-body-s); white-space: nowrap; }
+.r4-productitem__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
+@container r4page (max-width: 599px) { .r4-productitem__market { color: var(--text-subdued); } }
+
+/* Botón «Contratar» (showAction; Jon, 2026-11-14 y 2026-11-16). Nombre accesible «Contratar {name}». Por encima del enlace estirado (z-index:1) para que pulsarlo no navegue.
+   Hay dos botones y el CSS deja uno solo (el otro es display:none, fuera del árbol de accesibilidad):
+   · size = small (fila < 480): R4Button secondary SOLO icono, siempre visible, al final del contenido.
+   · size = large (fila ≥ 480; Figma searchResultItem interaction=hover, size=large 2039:11260): capa `actions` superpuesta a la derecha de la fila, con fondo surface/subtle (tapa lo que haya debajo,
+     p. ej. los metadatos), padding 12 a la izquierda y 4 a la derecha, gap 8, y un R4Button primary medium con texto «Contratar» y sin icono. Solo se ve en el hover de la fila; el foco de teclado también la muestra.
+     Se oculta con opacity (no display) para que el botón siga siendo enfocable. En pantallas sin hover (táctiles) queda siempre visible. No empuja el contenido: es absoluta y deja libre el divisor inferior. */
+.r4-productitem__actions { position: relative; z-index: 1; display: flex; flex: none; align-items: center; }
+.r4-productitem .r4-productitem__action.r4-button { flex: none; }
+.r4-productitem .r4-productitem__action--text { display: none; }
+
+@container (min-width: 480px) {
+  .r4-productitem .r4-productitem__action--icon { display: none; }
+  .r4-productitem .r4-productitem__action--text { display: flex; }
+  .r4-productitem__actions {
+    position: absolute; inset-block: 0 var(--r4-line-width); inset-inline-end: 0;
+    justify-content: flex-end; gap: var(--spacing-2);
+    padding-inline: var(--spacing-3) var(--spacing-1);
+    background: var(--surface-subtle);
+    opacity: 0; pointer-events: none;
+  }
+  .r4-productitem:hover .r4-productitem__actions,
+  .r4-productitem:focus-within .r4-productitem__actions { opacity: 1; pointer-events: auto; }
+  /* El texto del botón es body/s Bold (14/20) en Figma; el R4Button medium reconstruido usa body/m (16/24): discrepancia, se ajusta aquí solo para esta capa */
+  .r4-productitem__action--text { font-size: var(--size-body-s); line-height: var(--line-height-body-s); font-weight: var(--font-weight-bold); }
+  .r4-productitem__action--text .r4-button__text { line-height: var(--line-height-body-s); }
+}
+@media (hover: none) {
+  .r4-productitem__actions { opacity: 1; pointer-events: auto; }
+}
+
+/* size = small (fila < 480; Jon, 2026-11-16): el valor (precio) encima de la variación, ambos alineados a la derecha. El orden del DOM se mantiene (variación, precio); lo invierte column-reverse */
+@container (max-width: 479px) {
+  .r4-productitem__right { flex-direction: column-reverse; align-items: flex-end; gap: 0; }
+}

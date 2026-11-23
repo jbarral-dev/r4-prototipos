@@ -1,0 +1,99 @@
+/* Brand · identidad de marca (modos Renta4 | Colombia)
+ * GENERADO por tools/generate-tokens.ps1 desde tools/tokens/*.txt (Figma · Primitivos 1.2). No editar a mano.
+ * Capa 2 de 6. Cada modo apunta a una familia de Foundations (Renta4 → ruby, Colombia → blue-galaxy). Prefijo --brand- porque Theme reusa los mismos nombres (accent/*, secondary/*).
+ * Modo por defecto: Renta4. Para Colombia: <html data-brand="colombia">.
+ */
+:root {
+  --brand-accent-border: var(--color-brand-ruby-500);
+  --brand-accent-border-hover: var(--color-brand-ruby-700);
+  --brand-accent-border-subtle: var(--color-brand-ruby-200);
+  --brand-accent-border-subtler: var(--color-brand-ruby-100);
+  --brand-accent-border-subtle-on-dark: var(--color-brand-ruby-500);
+  --brand-accent-border-subtler-on-dark: var(--color-brand-ruby-600);
+  --brand-accent-default: var(--color-brand-ruby-500);
+  --brand-accent-default-on-dark: var(--color-brand-ruby-300);
+  --brand-accent-hover: var(--color-brand-ruby-700);
+  --brand-accent-icon: var(--color-brand-ruby-500);
+  --brand-accent-icon-light: var(--color-brand-ruby-400);
+  --brand-accent-link: var(--color-brand-ruby-400);
+  --brand-accent-link-hover: var(--color-brand-ruby-600);
+  --brand-accent-link-on-dark: var(--color-brand-ruby-300);
+  --brand-accent-pressed: var(--color-brand-ruby-700);
+  --brand-accent-subtle: var(--color-brand-ruby-100);
+  --brand-accent-subtle-hover: var(--color-brand-ruby-300);
+  --brand-accent-subtle-on-dark: var(--color-brand-ruby-500);
+  --brand-accent-surface: var(--color-brand-ruby-50);
+  --brand-accent-surface-on-dark: var(--color-brand-ruby-700);
+  --brand-accent-text: var(--color-brand-ruby-500);
+  --brand-accent-text-on-accent: var(--color-neutral-white);
+  --brand-accent-text-on-dark: var(--color-brand-ruby-300);
+  --brand-accent-text-hover: var(--color-brand-ruby-700);
+  --brand-accent-text-hover-on-dark: var(--color-brand-ruby-200);
+  --brand-secondary-border: var(--color-brand-peach-500);
+  --brand-secondary-border-subtle: var(--color-brand-peach-200);
+  --brand-secondary-border-subtle-on-dark: var(--color-brand-peach-600);
+  --brand-secondary-default: var(--color-brand-peach-500);
+  --brand-secondary-default-on-dark: var(--color-brand-peach-400);
+  --brand-secondary-hover: var(--color-brand-peach-600);
+  --brand-secondary-icon: var(--color-brand-peach-700);
+  --brand-secondary-light: var(--color-brand-peach-200);
+  --brand-secondary-light-on-dark: var(--color-brand-peach-600);
+  --brand-secondary-link: var(--color-brand-peach-700);
+  --brand-secondary-link-on-dark: var(--color-brand-peach-300);
+  --brand-secondary-pressed: var(--color-brand-peach-700);
+  --brand-secondary-subtle: var(--color-brand-peach-100);
+  --brand-secondary-subtle-on-dark: var(--color-brand-peach-700);
+  --brand-secondary-surface: var(--color-brand-peach-100);
+  --brand-secondary-surface-on-dark: var(--color-brand-peach-700);
+  --brand-secondary-text: var(--color-brand-peach-700);
+  --brand-secondary-text-on-dark: var(--color-brand-peach-300);
+  --brand-secondary-text-hover: var(--color-brand-peach-600);
+  --brand-secondary-text-hover-on-dark: var(--color-brand-peach-200);
+}
+
+:root[data-brand="colombia"] {
+  --brand-accent-border: var(--color-brand-blue-galaxy-500);
+  --brand-accent-border-hover: var(--color-brand-blue-galaxy-700);
+  --brand-accent-border-subtle: var(--color-brand-blue-galaxy-200);
+  --brand-accent-border-subtler: var(--color-brand-blue-galaxy-100);
+  --brand-accent-border-subtle-on-dark: var(--color-brand-blue-galaxy-500);
+  --brand-accent-border-subtler-on-dark: var(--color-brand-blue-galaxy-600);
+  --brand-accent-default: var(--color-brand-blue-galaxy-500);
+  --brand-accent-default-on-dark: var(--color-brand-blue-galaxy-300);
+  --brand-accent-hover: var(--color-brand-blue-galaxy-700);
+  --brand-accent-icon: var(--color-brand-blue-galaxy-500);
+  --brand-accent-icon-light: var(--color-brand-blue-galaxy-400);
+  --brand-accent-link: var(--color-brand-blue-galaxy-400);
+  --brand-accent-link-hover: var(--color-brand-blue-galaxy-600);
+  --brand-accent-link-on-dark: var(--color-brand-blue-galaxy-200);
+  --brand-accent-pressed: var(--color-brand-blue-galaxy-700);
+  --brand-accent-subtle: var(--color-brand-blue-galaxy-100);
+  --brand-accent-subtle-hover: var(--color-brand-blue-galaxy-300);
+  --brand-accent-subtle-on-dark: var(--color-brand-blue-galaxy-500);
+  --brand-accent-surface: var(--color-brand-blue-galaxy-50);
+  --brand-accent-surface-on-dark: var(--color-brand-blue-galaxy-700);
+  --brand-accent-text: var(--color-brand-blue-galaxy-500);
+  --brand-accent-text-on-dark: var(--color-brand-blue-galaxy-200);
+  --brand-accent-text-hover: var(--color-brand-blue-galaxy-700);
+  --brand-accent-text-hover-on-dark: var(--color-brand-blue-galaxy-100);
+  --brand-secondary-border: var(--color-brand-ruby-500);
+  --brand-secondary-border-subtle: var(--color-brand-ruby-200);
+  --brand-secondary-border-subtle-on-dark: var(--color-brand-ruby-600);
+  --brand-secondary-default: var(--color-brand-ruby-500);
+  --brand-secondary-default-on-dark: var(--color-brand-ruby-400);
+  --brand-secondary-hover: var(--color-brand-ruby-600);
+  --brand-secondary-icon: var(--color-brand-ruby-700);
+  --brand-secondary-light: var(--color-brand-ruby-200);
+  --brand-secondary-light-on-dark: var(--color-brand-ruby-400);
+  --brand-secondary-link: var(--color-brand-ruby-700);
+  --brand-secondary-link-on-dark: var(--color-brand-ruby-300);
+  --brand-secondary-pressed: var(--color-brand-ruby-700);
+  --brand-secondary-subtle: var(--color-brand-ruby-50);
+  --brand-secondary-subtle-on-dark: var(--color-brand-ruby-700);
+  --brand-secondary-surface: var(--color-brand-ruby-50);
+  --brand-secondary-surface-on-dark: var(--color-brand-ruby-700);
+  --brand-secondary-text: var(--color-brand-ruby-700);
+  --brand-secondary-text-on-dark: var(--color-brand-ruby-300);
+  --brand-secondary-text-hover: var(--color-brand-ruby-600);
+  --brand-secondary-text-hover-on-dark: var(--color-brand-ruby-100);
+}

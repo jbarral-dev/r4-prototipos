@@ -1,0 +1,8 @@
+/*
+ * Contenido de «Configuración» del gráfico — valores leídos de Figma: grupos en columna con gap spacing/4 (16) y una línea 1 px border/subtle entre ellos; dentro de cada grupo el título
+ * (R4Text strong medium: body/m Bold text/default) y los checkboxes con gap spacing/3 (12) (Estudios, spacing/2: se unifica en 12, ver discrepancias de la tarea).
+ */
+.r4-chartconfig { display: flex; flex-direction: column; gap: var(--spacing-4); width: 100%; }
+.r4-chartconfig__group { display: flex; flex-direction: column; gap: var(--spacing-3); }
+.r4-chartconfig__title { margin: 0; color: var(--text-default); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-bold); }
+.r4-chartconfig__divider { width: 100%; height: 0; margin: 0; border: 0; border-top: var(--r4-line-width) solid var(--border-subtle); }

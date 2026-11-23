@@ -5,14 +5,12 @@
 // contenido va en una capa por encima de la página que baja desde arriba (animación propia: Figma no define movimiento).
 // Un solo estado compartido (screens/_buscadorEstado.js): los dos hosts (popover de desktop y capa de tablet/mobile) lo pintan; el CSS muestra el que toca.
 // Datos de ejemplo: src/data/buscador-unificado.js (casos de enrutado fijados, resultados y respuestas guionizadas). Panel del facilitador: abajo a la izquierda (se oculta con ?f=0).
-import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
 import R4InputSearch from '../components/pendientes/R4InputSearch.js'
 import R4Button from '../components/pendientes/R4Button.js'
-import R4Text from '../components/pendientes/R4Text.js'
-import R4Link from '../components/pendientes/R4Link.js'
 import R4Popover from '../components/pendientes/R4Popover.js'
 import _AssistantAccess from '../components/pendientes/_AssistantAccessJose.js'
 import _ChatComposer from '../components/pendientes/_ChatComposerJose.js'
@@ -26,7 +24,7 @@ import { crearEstado } from './_buscadorEstadoJose.js'
 
 export default defineComponent({
   name: 'BuscadorUnificadoJose',
-  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Text, R4Link, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
+  components: { Icon, FichaAccion, Facilitador, R4Badge, AssistantAccess: _AssistantAccess, ChatComposer: _ChatComposer, AppTabBar: _AppTabBar, AppHeaderJose: _AppHeader, R4Button, R4InputSearch, R4Popover, R4Sheet, UnifiedSearchPanel: _UnifiedSearchPanel },
   setup() {
     const api = crearEstado()
     // Use cases del prototipo (panel Facilitador, URL `?usuario=potencial&primera=no`; el valor por defecto no ensucia la URL)
@@ -67,6 +65,8 @@ export default defineComponent({
     const trigger = ref(null)
     const mobileField = ref(null)
     const placeholder = 'Busca o pregunta'
+    // Título del R4Sheet según la pantalla: conversación → «Chat» · listado del histórico → «Histórico» · resto → «Busca o pregunta»
+    const tituloCapa = computed(() => (api.chatView ? 'Chat' : api.vista === 'historial' ? 'Histórico' : placeholder))
     onMounted(() => { document.title = 'Chatbot (Jose) · Prototipo R4' })
 
     // Chatbot (Jose): en tablet y mobile (R4Sheet bottom) al abrir la capa el R4InputSearch SÍ recibe el foco y sale el teclado (en el prototipo «Chatbot» no). En desktop (R4Sheet side) no se enfoca.
@@ -123,13 +123,13 @@ export default defineComponent({
     }
     watch(() => [api.open, api.chatView, api.barra, api.vista], medirAcciones, { flush: 'post' })
     onBeforeUnmount(() => ro && ro.disconnect())
-    return { api, tecladoVisible, proxy, abrirDesdeCabecera, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    return { api, tituloCapa, tecladoVisible, proxy, abrirDesdeCabecera, volver, hayVolver, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion :client="caso.usuario" :app-header="$options.components.AppHeaderJose" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="abrirDesdeCabecera()">
       <template #search>
         <div class="jusearch">
-          <button ref="trigger" type="button" class="menu__search jusearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
+          <button ref="trigger" type="button" class="menu__search jusearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="tituloCapa" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
         </div>
       </template>
 
@@ -154,7 +154,7 @@ export default defineComponent({
 
         <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
         <div v-if="contenedor === 'sheet'" class="jusearch-sheet">
-          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+          <R4Sheet position="side" :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="jusearch-sheet__body" :class="{ 'jusearch-sheet__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheet__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
                 <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
@@ -163,20 +163,14 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
-            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
-            <template #actions>
-              <template v-if="api.chatView">
-                <ChatComposer :api="api" />
-                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
-              </template>
-              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
-            </template>
+            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ tituloCapa }}</h2></div></template>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 
         <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
         <div class="jusearch-sheetbottom">
-          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+          <R4Sheet position="bottom" full-height :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="jusearch-sheetbottom__body" :class="{ 'jusearch-sheetbottom__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheetbottom__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
                 <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
@@ -185,14 +179,8 @@ export default defineComponent({
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
-            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ placeholder }}</h2></div></template>
-            <template #actions>
-              <template v-if="api.chatView">
-                <ChatComposer :api="api" />
-                <R4Text class="jusearch-legal" size="small">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="small" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</R4Text>
-              </template>
-              <AssistantAccess v-else @ask="api.preguntarLoEscrito()" />
-            </template>
+            <template #header="{ titleId }"><div class="jusearch-sheet-head"><button v-if="hayVolver()" type="button" class="jusearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ tituloCapa }}</h2></div></template>
+            <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
 

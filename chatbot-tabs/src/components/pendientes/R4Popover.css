@@ -1,0 +1,21 @@
+/*
+ * R4Popover — valores leídos de Figma y de la doc: fondo surface/default, borde 1 px border/subtle, radio component/popover/radius, sombra 0 4 16 negro al 12 %,
+ * padding spacing/3 (12). Anchos: narrow 184 · default 240 · wide 320 · wider 480 (sin tokens: se derivan de la escala). El ancho máximo es el del padre.
+ */
+.r4-popover {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  max-width: 100%;
+  padding: var(--spacing-3);
+  border: var(--r4-line-width) solid var(--border-subtle);
+  border-radius: var(--component-popover-radius);
+  background: var(--surface-default);
+  box-shadow: 0 var(--spacing-1) var(--spacing-4) color-mix(in srgb, var(--color-neutral-black) 12%, transparent);
+}
+.r4-popover--density-none { gap: 0; }
+
+.r4-popover--narrow { width: calc(var(--spacing-16) * 3 - var(--spacing-2)); }                          /* 184 */
+.r4-popover--default { width: calc(var(--spacing-16) * 4 - var(--spacing-4)); }                         /* 240 */
+.r4-popover--wide { width: calc(var(--spacing-16) * 5); }                                               /* 320 */
+.r4-popover--wider { width: calc(var(--spacing-16) * 7 + var(--spacing-8)); }                           /* 480 */

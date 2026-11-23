@@ -1,0 +1,129 @@
+/*
+ * stepItem — valores leídos de las variantes de Figma.
+ * medium: indicador 32, gap 12, padding-bottom 4, Content padding-bottom 24, gap 12, Texts padding-top 4 / gap 4, título 16/24 bold, descripción 14/20.
+ * large:  indicador 48, gap 24, padding-bottom 8, Content padding-bottom 32, gap 16, Texts padding-top 8 / gap 8, título 20/28 bold, descripción 16/24.
+ * isLastItem=yes: sin padding-bottom y sin línea.
+ */
+.r4-steps {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.r4-step-item {
+  --r4-step-indicator: var(--spacing-8);
+  --r4-step-gap: var(--spacing-3);
+  --r4-step-pad-bottom: var(--spacing-1);
+  --r4-step-content-gap: var(--spacing-3);
+  --r4-step-content-pad-bottom: var(--spacing-6);
+  --r4-step-texts-pad-top: var(--spacing-1);
+  --r4-step-texts-gap: var(--spacing-1);
+  --r4-step-title-size: var(--size-body-m);
+  --r4-step-title-lh: var(--line-height-body-m);
+  --r4-step-desc-size: var(--size-body-s);
+  --r4-step-desc-lh: var(--line-height-body-s);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--r4-step-gap);
+  padding: 0 0 var(--r4-step-pad-bottom);
+}
+
+.r4-step-item--large {
+  --r4-step-indicator: var(--spacing-12);
+  --r4-step-gap: var(--spacing-6);
+  --r4-step-pad-bottom: var(--spacing-2);
+  --r4-step-content-gap: var(--spacing-4);
+  --r4-step-content-pad-bottom: var(--spacing-8);
+  --r4-step-texts-pad-top: var(--spacing-2);
+  --r4-step-texts-gap: var(--spacing-2);
+  --r4-step-title-size: var(--size-body-xl);
+  --r4-step-title-lh: var(--line-height-body-xl);
+  --r4-step-desc-size: var(--size-body-m);
+  --r4-step-desc-lh: var(--line-height-body-m);
+}
+
+.r4-step-item--last {
+  --r4-step-pad-bottom: var(--spacing-0);
+  --r4-step-content-pad-bottom: var(--spacing-0);
+}
+
+.r4-step-item__indicator-and-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-1);
+  align-self: stretch;
+  flex: none;
+}
+.r4-step-item--large .r4-step-item__indicator-and-line { gap: var(--spacing-2); }
+.r4-step-item--large.r4-step-item--last .r4-step-item__indicator-and-line { gap: var(--spacing-1); } /* tal cual en Figma (isLastItem=yes, large) */
+
+.r4-step-item__indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--r4-step-indicator);
+  height: var(--r4-step-indicator);
+  border-radius: var(--radius-full);
+  background: var(--surface-muted);
+  color: var(--text-default);
+}
+
+.r4-step-item__number {
+  font-family: var(--font-family-body);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--r4-step-title-size);
+  line-height: var(--r4-step-title-lh);
+}
+
+/* Línea vertical de 1 px, discontinua 2 px / 2 px, color border/default (trazo del nodo Line del stepItem) */
+.r4-step-item__line {
+  flex: 1 1 0;
+  min-height: var(--r4-line-width);
+  width: var(--r4-line-width);
+  background: repeating-linear-gradient(to bottom, var(--border-default) 0 var(--spacing-05), transparent var(--spacing-05) var(--spacing-1));
+}
+
+.r4-step-item__content {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--r4-step-content-gap);
+  min-width: 0;
+  padding-bottom: var(--r4-step-content-pad-bottom);
+}
+
+.r4-step-item__texts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--r4-step-texts-gap);
+  width: 100%;
+  padding-top: var(--r4-step-texts-pad-top);
+}
+
+.r4-step-item__title {
+  font: var(--font-weight-bold) var(--r4-step-title-size) / var(--r4-step-title-lh) var(--font-family-body);
+  color: var(--text-default);
+}
+
+.r4-step-item__description {
+  font: var(--font-weight-regular) var(--r4-step-desc-size) / var(--r4-step-desc-lh) var(--font-family-body);
+  color: var(--text-subdued);
+}
+
+.r4-step-item__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--r4-step-content-gap);
+  width: 100%;
+}
+
+/* indicator=icon: R4Icon plain neutralDark de 16 px (medium) o 20 px (large) */
+.r4-step-item__icon { width: var(--spacing-4); height: var(--spacing-4); color: var(--text-default); }
+.r4-step-item--large .r4-step-item__icon { width: var(--spacing-5); height: var(--spacing-5); }

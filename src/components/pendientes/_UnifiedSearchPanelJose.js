@@ -153,7 +153,8 @@ export default defineComponent({
               <R4BrandTypes v-if="m.role !== 'user'" class="jusearch-row__logo" variant="Red" aria-hidden="true" />
               <div class="jusearch-msg" :class="'jusearch-msg--' + m.role">
                 <span class="jusearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
-                <p class="jusearch-msg__text">{{ m.text }}</p>
+                <p v-if="m.legal" class="jusearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</p>
+                <p v-else class="jusearch-msg__text">{{ m.text }}</p>
  <R4SearchResults v-if="m.resultados" class="jusearch-panel__results jusearch-msg__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in m.resultados" :key="i" v-bind="itemProps(r)" :highlight="''" @select="pick(r.name, $event)" /></R4SearchResults>
                 <ul v-if="enlacesLista(m)" class="jusearch-msg__list"><li v-for="l in enlacesLista(m)" :key="l.label"><R4Link size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></li></ul>
                 <div v-else-if="m.links" class="jusearch-msg__links"><R4Link v-for="l in m.links" :key="l.label" size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></div>
@@ -161,7 +162,8 @@ export default defineComponent({
             </li>
             <li v-if="api.pending" class="jusearch-row jusearch-row--assistant" aria-live="polite"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant jusearch-msg--pending"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">Escribiendo…</p></div></li>
           </ol>
-          <ol v-if="api.chatView && !api.thread.length" class="jusearch-panel__thread" aria-label="Chat">
+          <ol v-if="api.chatView && !api.thread.some((m) => m.role === 'user')" class="jusearch-panel__thread" aria-label="Chat">
+            <li v-if="api.legalPendiente" class="jusearch-row jusearch-row--assistant"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</p></div></li>
             <li class="jusearch-row jusearch-row--assistant"><R4BrandTypes class="jusearch-row__logo" variant="Red" aria-hidden="true" /><div class="jusearch-msg jusearch-msg--assistant"><span class="jusearch-msg__who">Asistente</span><p class="jusearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></div></li>
           </ol>
         </template>

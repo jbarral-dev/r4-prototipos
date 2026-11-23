@@ -1,0 +1,116 @@
+/*
+ * R4Sheet — valores leídos de Figma (position=bottom y side).
+ * bottom: ancho 100 %, radio superior component/sheet/bottom/radius, borde 1 px border/subtle, sombra 0 -8 24 negro al 20 %; cabecera de 72 (padding 16/8/16/16, gap 8)
+ *   con título heading/s en Exo 2 Bold y botón de cierre de 40; contenido con padding superior 80 e inferior 32; el slot tiene padding horizontal 16 y gap 24.
+ * side: 520 de ancho a toda la altura, sin radio (component/sheet/side/radius), borde border/subtle, sombra -4 0 12 negro al 10 %; cabecera de 80 (padding 20/16/20/48),
+ *   contenido con padding 88 / 48 y slot con padding horizontal 48, gap 32.
+ * Va dentro de la capa de superposición de la Template (position: fixed relativa al viewport). El slot hace scroll; la cabecera queda fija.
+ */
+.r4-sheet {
+  position: fixed;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-subtle), 0 calc(var(--spacing-2) * -1) var(--spacing-6) color-mix(in srgb, var(--color-neutral-black) 20%, transparent);
+  pointer-events: auto;
+  color: var(--text-default);
+  font-family: var(--font-family-body);
+}
+
+.r4-sheet--bottom {
+  inset: auto 0 0 0;
+  max-height: var(--r4-sheet-bottom-maxheight);
+  border-radius: var(--component-sheet-bottom-radius) var(--component-sheet-bottom-radius) 0 0;
+}
+.r4-sheet--side {
+  inset: 0 0 0 auto;
+  width: calc(var(--spacing-16) * 8 + var(--spacing-1) * 2); /* 520 */
+  max-width: 100%;
+  border-radius: var(--component-sheet-side-radius);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-subtle), calc(var(--spacing-1) * -1) 0 var(--spacing-3) color-mix(in srgb, var(--color-neutral-black) 10%, transparent);
+}
+
+.r4-sheet__header {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  background: var(--surface-default);
+  border-radius: inherit;
+}
+.r4-sheet--bottom .r4-sheet__header { height: calc(var(--spacing-16) + var(--spacing-2)); padding: var(--spacing-4) var(--spacing-2) var(--spacing-4) var(--spacing-4); } /* 72 */
+.r4-sheet--side .r4-sheet__header {
+  height: calc(var(--spacing-16) + var(--spacing-4));                                     /* 80 */
+  padding: var(--spacing-5) var(--spacing-4) var(--spacing-5) var(--spacing-12);
+  box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle);
+}
+
+.r4-sheet__title {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  padding-right: var(--spacing-4);
+  font-family: var(--font-family-headings);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--size-heading-s);
+  line-height: var(--line-height-heading-s);
+  color: var(--text-default);
+}
+
+.r4-sheet__close {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--spacing-10);
+  height: var(--spacing-10);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-default);
+  cursor: pointer;
+}
+.r4-sheet__close:hover { background: var(--surface-subtle); }
+.r4-sheet__close .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.r4-sheet__close:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+.r4-sheet__content { min-height: 0; overflow-y: auto; }
+.r4-sheet--bottom .r4-sheet__content { padding: calc(var(--spacing-16) + var(--spacing-4)) 0 var(--spacing-8); }
+.r4-sheet--side .r4-sheet__content { padding: calc(var(--spacing-12) * 2 - var(--spacing-2)) 0 var(--spacing-12); }
+.r4-sheet__slot { display: flex; flex-direction: column; }
+.r4-sheet--bottom .r4-sheet__slot { gap: var(--spacing-6); padding: 0 var(--spacing-4); }
+.r4-sheet--side .r4-sheet__slot { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+
+/* Actions (showActions): fijo bajo el contenido; padding spacing/4 (16), gap spacing/2 (8), borde superior 1 px border/subtle, fondo surface/default; R4Button large a ancho completo (Figma 2816:99277) */
+.r4-sheet__actions { display: flex; flex: none; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); background: var(--surface-default); box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle); }
+.r4-sheet--bottom.has-actions .r4-sheet__content { padding-bottom: var(--spacing-4); }
+
+/* Transiciones propias (Figma no define movimiento) */
+.r4-sheet-bottom-enter-active, .r4-sheet-bottom-leave-active,
+.r4-sheet-side-enter-active, .r4-sheet-side-leave-active { transition: transform 0.28s ease; }
+.r4-sheet-bottom-enter-from, .r4-sheet-bottom-leave-to { transform: translateY(100%); }
+.r4-sheet-side-enter-from, .r4-sheet-side-leave-to { transform: translateX(100%); }
+@media (prefers-reduced-motion: reduce) {
+  .r4-sheet-bottom-enter-active, .r4-sheet-bottom-leave-active,
+  .r4-sheet-side-enter-active, .r4-sheet-side-leave-active { transition: none; }
+}
+
+/* Scrim: velo sobre la página, justo debajo del sheet; recibe los clics (la capa de superposición no los intercepta) y cierra. La capa envolvente no genera caja. */
+.r4-sheet-layer { display: contents; }
+.r4-sheet__scrim { position: fixed; inset: 0; z-index: 299; background: var(--r4-scrim); pointer-events: auto; }
+.r4-sheet-scrim-enter-active, .r4-sheet-scrim-leave-active { transition: opacity 0.28s ease; }
+.r4-sheet-scrim-enter-from, .r4-sheet-scrim-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .r4-sheet-scrim-enter-active, .r4-sheet-scrim-leave-active { transition: none; }
+}
+
+/* Con un sheet visible abierto la página no hace scroll (la clase la pone/quita R4Sheet en <html>); scrollbar-gutter evita el salto de ancho al ocultar la barra */
+html.r4-scroll-lock { overflow: hidden; scrollbar-gutter: stable; }
+html.r4-scroll-lock body { position: fixed; width: 100%; overflow: hidden; }
+.r4-sheet__scrim { touch-action: none; }
+.r4-sheet__content { overscroll-behavior: contain; }
+.r4-sheet--bottom.is-full-height { height: var(--r4-sheet-bottom-maxheight); }

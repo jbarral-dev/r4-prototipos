@@ -1,0 +1,72 @@
+/*
+ * R4Section — valores leídos de las 12 variantes de Figma. Los breakpoints los resuelve el contenedor `r4page` (la Template):
+ * desktop: gap 32 (Space/Padding/paddingExtraLarge), padding 24 (spacing/6) · tablet: gap 32 (spacing/8), padding 20 (spacing/5)
+ * mobile: gap 24 (spacing/6), padding 16 (spacing/4), el enlace "Ver todos" pasa debajo del slot y se alinea a la derecha.
+ * plain: sin padding ni borde; mismos gaps (32 / 32 / 24).
+ * Título (Heading/Small): 24/28 · 22/26 · 20/24 según el modo (tokens size/heading/s y line-height/heading/s).
+ */
+.r4-section {
+  --r4-section-pad: var(--spacing-6);
+  --r4-section-gap: var(--spacing-8);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--r4-section-gap);
+  width: 100%;
+}
+
+.r4-section--plain { padding: 0; }
+
+/* boxed: el trazo de 1 px va "inside" en Figma → box-shadow interior para no sumar tamaño */
+.r4-section--boxed {
+  padding: var(--r4-section-pad);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-subtle);
+}
+.r4-section--bg-white { background: var(--surface-default); }
+.r4-section--bg-subtleGrey { background: var(--surface-subtle); }
+.r4-section--bg-transparent { background: transparent; }
+
+.r4-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--spacing-2) + var(--spacing-05));
+  width: 100%;
+}
+
+.r4-section__title-wrapper {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  min-width: 0;
+  padding-right: var(--spacing-6);
+}
+
+.r4-section__title {
+  font: var(--font-weight-bold) var(--size-heading-s) / var(--line-height-heading-s) var(--font-family-headings);
+  color: var(--text-default);
+}
+
+.r4-section__more { flex: none; }
+
+.r4-section__slot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+  width: 100%;
+}
+
+/* tablet */
+@container r4page (max-width: 1023px) {
+  .r4-section { --r4-section-pad: var(--spacing-5); --r4-section-gap: var(--spacing-8); }
+}
+
+/* mobile: la cabecera se "disuelve" para que el enlace baje debajo del slot (orden DOM: título → enlace → slot) */
+@container r4page (max-width: 599px) {
+  .r4-section { --r4-section-pad: var(--spacing-4); --r4-section-gap: var(--spacing-6); }
+  .r4-section__header { display: contents; }
+  .r4-section__title-wrapper { order: 1; width: 100%; flex: none; }
+  .r4-section__slot { order: 2; }
+  .r4-section__more { order: 3; align-self: flex-end; }
+}

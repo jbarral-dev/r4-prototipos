@@ -1,0 +1,79 @@
+/*
+ * R4InputCheckbox — valores leídos de Figma (Primitivos 1.2):
+ * _Checkbox: 24×24, placa con radio 4, trazo de 2 px interior. inactive: borde input/border/default · hover: borde input/border/hover ·
+ * focused: borde input/border/focused · active: borde input/border/focused + check (icon/default) · disabled: fondo input/bg/disabled,
+ * borde default, check icon/disabled.
+ * _CheckBox with Label: gap 8, padding vertical 8, texto body/l 18/26 (text/default; disabled: text/disabled).
+ * _Checkbox Group: vertical gap 4 · horizontal gap 24. Label del grupo = _Input Label/Default; caption = _Input Caption.
+ */
+.r4-input-checkbox {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+  width: 100%;
+}
+
+.r4-input-checkbox__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  padding: var(--spacing-1) 0;
+}
+.r4-input-checkbox__legend-text {
+  font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-checkbox__optional {
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-muted);
+}
+
+.r4-input-checkbox__group { display: flex; }
+.r4-input-checkbox__group--vertical { flex-direction: column; gap: var(--spacing-1); }
+.r4-input-checkbox__group--horizontal { flex-wrap: wrap; gap: var(--spacing-6); }
+
+.r4-input-checkbox__option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) 0;
+  font: var(--font-weight-regular) var(--size-body-l) / var(--line-height-body-l) var(--font-family-body);
+  color: var(--text-default);
+  cursor: pointer;
+}
+.r4-input-checkbox__option--disabled { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+.r4-input-checkbox__box {
+  appearance: none;
+  flex: none;
+  width: var(--component-checkbox-size);
+  height: var(--component-checkbox-size);
+  margin: 0;
+  border-radius: var(--component-checkbox-radius);
+  background: var(--component-input-bg-default) center / 12px 10px no-repeat;
+  box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-default);
+  cursor: inherit;
+}
+.r4-input-checkbox__box:hover:not(:disabled) { box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-hover); }
+.r4-input-checkbox__box:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-focused), var(--effect-card-focus-outline); }
+.r4-input-checkbox__box:checked {
+  box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-focused);
+  /* check de Figma (vector 10×8, relleno y trazo #0B0B0B) */
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='10' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.4707 0.5C10.9567 0.5 11.2496 1.06378 10.9365 1.45898L5.21387 8.71289L5.21289 8.71387C4.8624 9.15402 4.19086 9.15681 3.83984 8.71289L0.629883 4.64648V4.64551C0.322998 4.25625 0.600263 3.68569 1.0957 3.68555H1.91602C2.01508 3.68571 2.11309 3.7025 2.20605 3.73535L2.29688 3.77344L2.38379 3.82129C2.46686 3.87404 2.54035 3.94091 2.60156 4.01855L4.52539 6.45605L8.96484 0.833008V0.833984C9.13097 0.621949 9.38513 0.500117 9.65137 0.5H10.4707Z' fill='%230B0B0B' stroke='%230B0B0B'/%3E%3C/svg%3E");
+}
+.r4-input-checkbox__box:disabled {
+  background-color: var(--component-input-bg-disabled);
+  box-shadow: inset 0 0 0 var(--component-checkbox-borderwidth) var(--component-input-border-default);
+}
+.r4-input-checkbox__box:checked:disabled {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='10' viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.4707 0.5C10.9567 0.5 11.2496 1.06378 10.9365 1.45898L5.21387 8.71289L5.21289 8.71387C4.8624 9.15402 4.19086 9.15681 3.83984 8.71289L0.629883 4.64648V4.64551C0.322998 4.25625 0.600263 3.68569 1.0957 3.68555H1.91602C2.01508 3.68571 2.11309 3.7025 2.20605 3.73535L2.29688 3.77344L2.38379 3.82129C2.46686 3.87404 2.54035 3.94091 2.60156 4.01855L4.52539 6.45605L8.96484 0.833008V0.833984C9.13097 0.621949 9.38513 0.500117 9.65137 0.5H10.4707Z' fill='%23ABABAB' stroke='%23C7C7C7'/%3E%3C/svg%3E");
+}
+
+/* _Input Caption: padding-top 2, body/s; Error en rojo */
+.r4-input-checkbox__caption {
+  padding-top: var(--spacing-05);
+  font: var(--font-weight-regular) var(--size-body-s) / var(--line-height-body-s) var(--font-family-body);
+  color: var(--text-default);
+}
+.r4-input-checkbox--error .r4-input-checkbox__caption { color: var(--feedback-error-text); }

@@ -1,0 +1,8 @@
+/* R4Title — tokens de la tabla «size» de Confluence (2798944260): Exo 2 Bold, text/default; tamaño y altura de línea de Typography (ya cambian por breakpoint). Ocupa el ancho disponible y salta de línea. */
+.r4-title { margin: 0; color: var(--text-default); font-family: var(--font-family-headings); font-weight: var(--font-weight-bold); font-size: var(--size-heading-m); line-height: var(--line-height-heading-m); }
+.r4-title--small { font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); }
+.r4-title--medium { font-size: var(--size-heading-m); line-height: var(--line-height-heading-m); }
+.r4-title--large { font-size: var(--size-heading-l); line-height: var(--line-height-heading-l); }
+.r4-title--extraLarge { font-size: var(--size-heading-xl); line-height: var(--line-height-heading-xl); }
+.r4-title--extraLarge2 { font-size: var(--size-heading-2xl); line-height: var(--line-height-heading-2xl); }
+.r4-title--align-center { text-align: center; }

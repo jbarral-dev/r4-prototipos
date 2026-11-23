@@ -17,11 +17,11 @@ export default defineComponent({
       if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
       promptEl.value?.focus()
     }
-    watch(() => props.api.chatView && !props.api.legal, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
+    watch(() => props.api.chatView, (v) => { if (v && !props.api.abriendo) enfocarPrompt() })
     return { promptEl }
   },
   template: `
-    <R4Prompt ref="promptEl" class="usearch-composer" :model-value="api.prompt" :disabled="api.legal" aria-label="Tu pregunta al asistente" send-label="Enviar pregunta" :send-disabled="api.pending"
+    <R4Prompt ref="promptEl" class="usearch-composer" :model-value="api.prompt" aria-label="Tu pregunta al asistente" send-label="Enviar pregunta" :send-disabled="api.pending"
               @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()" />
   `,
 })

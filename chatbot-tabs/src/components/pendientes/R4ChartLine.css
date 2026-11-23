@@ -1,0 +1,170 @@
+/*
+ * R4ChartLine — valores leídos de Figma. Desktop: separación gráfico/selector 32 (marginxl), columna de importes ↔ gráfico 24, plot de 336 de alto, etiquetas
+ * del eje X con padding-top 8 (alto 24), texto body/xs en chart/axis. Mobile (≤ 599): separación 24, gap 16, plot de 216 de alto, selector medium (40).
+ * Serie: línea 2 px chart/series/1/solid con relleno degradado (chart/series/1/area → superficie, opacidad .8 del Figma); indicador = línea vertical
+ * (chart/baseline, 1 px) + punto de 16 px con borde blanco 2 px y sombra (Figma: 0 8 8 @8 %).
+ */
+.r4-chartline {
+  --r4-chart-plot-height: calc(var(--spacing-12) * 7);   /* 336 */
+  --r4-chart-gap: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  width: 100%;
+  border-radius: var(--component-segmentedcontrol-radius-outer);
+}
+
+.r4-chartline__chart { display: flex; gap: var(--r4-chart-gap); width: 100%; }
+
+.r4-chartline__y {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: var(--spacing-6);
+  color: var(--chart-axis);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-xs);
+  line-height: var(--line-height-body-xs);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.r4-chartline__plot-col { position: relative; display: flex; flex: 1 1 0; flex-direction: column; min-width: 0; }
+.r4-chartline__plot { position: relative; height: var(--r4-chart-plot-height); }
+.r4-chartline__svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+.r4-chartline__stop-top { stop-color: var(--chart-series-1-area); }
+.r4-chartline__stop-bottom { stop-color: var(--surface-default); }
+.r4-chartline__area { opacity: 0.8; }
+.r4-chartline__line { stroke: var(--r4-series, var(--chart-series-1-solid)); stroke-width: var(--spacing-05); stroke-linecap: square; stroke-linejoin: bevel; vector-effect: non-scaling-stroke; }
+
+.r4-chartline__x {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--spacing-2);
+  color: var(--chart-axis);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-xs);
+  line-height: var(--line-height-body-xs);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.r4-chartline .r4-segmented { --r4-segmented-height: var(--spacing-12); }
+
+@container r4page (max-width: 599px) {
+  .r4-chartline { --r4-chart-plot-height: calc(var(--spacing-12) * 4.5); --r4-chart-gap: var(--spacing-4); gap: var(--spacing-6); }
+  .r4-chartline .r4-segmented { --r4-segmented-height: var(--spacing-10); }
+  .r4-chartline__x span:nth-child(even) { display: none; }
+}
+
+/* Indicador: contenedor de 0 de ancho en el último punto. El punto va en top = y %; su ::after es la línea vertical hasta la base (el plot recorta por abajo). */
+.r4-chartline__plot { clip-path: inset(calc(var(--spacing-2) * -1) calc(var(--spacing-2) * -1) 0 calc(var(--spacing-2) * -1)); }
+.r4-chartline__indicator { position: absolute; top: 0; width: 0; height: 100%; pointer-events: none; }
+.r4-chartline__indicator-dot {
+  position: absolute;
+  left: calc(var(--spacing-2) * -1);
+  top: calc(var(--r4-dot-y) * 1% - var(--spacing-2));
+  width: var(--spacing-4);
+  height: var(--spacing-4);
+  box-sizing: border-box;
+  border: var(--spacing-05) solid var(--surface-default);
+  border-radius: var(--radius-full);
+  background: var(--r4-series, var(--chart-series-1-solid));
+  box-shadow: 0 var(--spacing-2) var(--spacing-2) color-mix(in srgb, var(--color-neutral-black) 8%, transparent);
+}
+
+/* Línea vertical del indicador: del punto a la base. La posición del punto la anima el componente (JS) al cargar. */
+.r4-chartline__indicator::before { content: ''; position: absolute; left: 0; top: calc(var(--r4-y) * 1%); bottom: 0; width: var(--r4-line-width); background: var(--chart-baseline); }
+
+/*
+ * Fila superior (Figma "Chart Configuration" y chips de comparación). Grupo superior en columna con gap spacing/5 (20) entre la fila y los chips de las series; la fila: filtros (R4Chip,
+ * gap spacing/4 = 16) a la izquierda y el selector de tipo de gráfico (R4SegmentedControls medium iconAndText, 40) a la derecha, con space-between. Entre el grupo y el gráfico va el gap de la raíz (32 · 24 en mobile).
+ * Mobile (≤ 599): los chips pasan a small (32) —medidas de R4Chip por variables— y el selector de tipo es un R4Button secondary solo icono (lo decide la pantalla con su CSS).
+ */
+.r4-chartline__top { display: flex; flex-direction: column; gap: var(--spacing-5); width: 100%; }
+.r4-chartline__toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-4); width: 100%; }
+.r4-chartline__filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-4); min-width: 0; }
+.r4-chartline__visualization { display: flex; align-items: center; margin-left: auto; }
+.r4-chartline__visualization .r4-segmented { --r4-segmented-height: var(--spacing-10); width: auto; }
+.r4-chartline__visualization .r4-segmented__slot { flex: none; }
+.r4-chartline__visualization .r4-segmented__item { flex: none; }
+.r4-chartline__comparing { display: flex; flex-wrap: wrap; gap: var(--spacing-3); margin: 0; padding: 0; list-style: none; }
+
+@container r4page (max-width: 599px) {
+  .r4-chartline__filters .r4-chip {
+    --r4-chip-height: var(--component-chip-size-small);
+    --r4-chip-gap: var(--spacing-1);
+    --r4-chip-pad: var(--spacing-3);
+    --r4-chip-pad-end: var(--spacing-2);
+    --r4-chip-font: var(--size-body-s);
+    --r4-chip-line: var(--line-height-body-s);
+    --r4-chip-icon: calc(var(--spacing-4) - var(--spacing-05));
+    --r4-chip-chevron: calc(var(--spacing-4) - var(--spacing-05));
+  }
+}
+
+/* Series: color por clase (chart/series/N/solid) */
+.r4-chartline__s--1 { --r4-series: var(--chart-series-1-solid); }
+.r4-chartline__s--2 { --r4-series: var(--chart-series-2-solid); }
+.r4-chartline__s--3 { --r4-series: var(--chart-series-3-solid); }
+.r4-chartline__s--4 { --r4-series: var(--chart-series-4-solid); }
+
+/* Capa que se descubre de izquierda a derecha al cargar (clip-path desde el componente) */
+.r4-chartline__reveal { position: absolute; inset: 0; }
+
+/* Velas (visualization=candle): cuerpo de 12 (Figma, 12 px) con mecha de 2; subida chart/positive, bajada chart/negative. Posición y alto en % del plot. */
+.r4-chartline__candle { position: absolute; top: 0; bottom: 0; width: 0; --r4-candle: var(--chart-positive); }
+.r4-chartline__candle.is-down { --r4-candle: var(--chart-negative); }
+.r4-chartline__wick { position: absolute; left: calc(var(--spacing-05) * -0.5); width: var(--spacing-05); background: var(--r4-candle); }
+.r4-chartline__body { position: absolute; left: calc(var(--spacing-3) / -2); width: var(--spacing-3); border-radius: var(--spacing-05); background: var(--r4-candle); }
+
+/* Indicadores (overlays): medias móviles y bandas con chart/average/*; volumen en barras al pie; marcadores sobre la línea */
+.r4-chartline__ov--average-1 { --r4-ov: var(--chart-average-1-solid); }
+.r4-chartline__ov--average-2 { --r4-ov: var(--chart-average-2-solid); }
+.r4-chartline__ov--average-3 { --r4-ov: var(--chart-average-3-solid); }
+.r4-chartline__ov-line { stroke: var(--r4-ov); stroke-width: var(--spacing-05); vector-effect: non-scaling-stroke; fill: none; }
+.r4-chartline__ov-line--dashed { stroke-dasharray: 4 4; stroke-width: var(--r4-line-width); }
+.r4-chartline__ov-area { fill: var(--r4-ov); opacity: 0.12; }
+.r4-chartline__bar { position: absolute; bottom: 0; transform: translateX(-50%); background: var(--chart-series-1-area); }
+.r4-chartline__marker {
+  position: absolute;
+  width: var(--spacing-2);
+  height: var(--spacing-2);
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: var(--chart-positive);
+  box-shadow: 0 0 0 var(--spacing-05) var(--surface-default);
+}
+
+/* Spinner sobre el gráfico mientras se cargan los datos (R4Spinner: aparece tras 300 ms) */
+.r4-chartline__loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+
+/*
+ * Hover / toque (estilo Coinbase, pedido por Jon): línea vertical de 1 px (chart/baseline) en el punto, punto sobre cada serie, la parte DERECHA de la serie atenuada con una máscara
+ * de opacidad (50 %; sin depender del color de fondo: en la ficha el fondo es surface/page, no blanco) y un R4Popover (narrow, density none) SIEMPRE encima de la bolita del punto (a 12 px), centrado
+ * sobre la línea y sin salirse del área de trazado. Su contenido son R4Text small centrados (valor en strong; fecha y hora en la misma línea). El popover no captura el puntero.
+ * En táctil, touch-action: pan-y deja el scroll vertical y el arrastre horizontal mueve el punto.
+ */
+.r4-chartline__plot { touch-action: pan-y; -webkit-user-select: none; user-select: none; }
+.r4-chartline__plot.is-hovering .r4-chartline__indicator { visibility: hidden; }
+.r4-chartline__plot.is-hovering .r4-chartline__reveal {
+  -webkit-mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.5) var(--r4-hx));
+  mask-image: linear-gradient(to right, black var(--r4-hx), rgb(0 0 0 / 0.5) var(--r4-hx));
+}
+.r4-chartline__hover { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; }
+.r4-chartline__hover::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: var(--r4-line-width); background: var(--chart-baseline); }
+/* El R4Popover se ajusta al contenido (no usa los anchos fijos narrow/default/wide/wider): ocupa lo mínimo y deja ver el gráfico, sobre todo en mobile */
+.r4-chartline__tip .r4-popover { width: max-content; }
+/* Encima de la bolita del punto, a 12 px de ella (radio de la bolita 8 + 12): top lo pone el componente (y de la bolita más alta) */
+.r4-chartline__tip { position: absolute; transform: translateY(calc(-100% - var(--spacing-2) - var(--spacing-3))); z-index: 3; width: max-content; pointer-events: none; }
+.r4-chartline__tip-body { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-05); text-align: center; white-space: nowrap; }
+.r4-chartline__tip-body p { margin: 0; }
+.r4-chartline__tip-row { display: flex; align-items: center; gap: var(--spacing-2); }
+.r4-chartline__tip-row .r4-text:first-of-type { flex: 1 1 auto; text-align: left; }
+.r4-chartline__tip-dot { flex: none; width: var(--spacing-2); height: var(--spacing-2); border-radius: var(--radius-full); background: var(--r4-series, var(--chart-series-1-solid)); }
+.r4-chartline__chart:focus-visible { outline: none; box-shadow: var(--effect-card-focus-outline); }
+/* Texto para lectores de pantalla con el punto activo (utilidad técnica, sin tamaño visual) */
+.r4-chartline__live { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

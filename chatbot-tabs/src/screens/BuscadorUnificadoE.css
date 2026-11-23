@@ -1,0 +1,67 @@
+/* Prototipo de investigación · buscador unificado (variante E). Sin diseño en Figma: tokens semánticos y escala de Foundations. */
+
+/* Campo sobre la barra principal del Menu (desktop): 40 de alto en una barra de 76. El desplegable se ancla al borde derecho del campo. */
+.usearch { position: relative; }
+.usearch__trigger { cursor: pointer; }
+/* Dentro del popover: campo medium a todo el ancho y, debajo, el panel (el panel absorbe la altura que sobra y hace scroll) */
+.usearch__pop { display: flex; flex-direction: column; gap: var(--spacing-3); max-height: calc(100vh - var(--spacing-16) * 2 - var(--spacing-6)); }
+.usearch__pop .usearch-panel { flex: 1 1 auto; min-height: 0; max-height: none; }
+
+/* Desktop: capa blanca que se superpone a la barra principal oscura del Menu (justo bajo la franja de usuario de 36; alto = barra). Campo centrado con máx. 800 y el popover a 8 px debajo, del mismo ancho que el campo.
+   Vive en la capa de superposición de la Template (arriba del todo de la página), como la de tablet/mobile. */
+.usearch-desk { position: absolute; top: var(--spacing-9); left: 0; right: 0; z-index: 10; display: none; align-items: center; justify-content: center; height: var(--r4-menu-height); padding-inline: var(--spacing-6); background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
+.usearch-desk__center { position: relative; width: min(100%, calc(var(--spacing-16) * 12.5)); }
+/* El popover queda a 4 px del borde inferior de la capa blanca (no del campo): mitad del aire de la barra + 4 */
+.usearch-desk__pop { position: absolute; top: calc(100% + (var(--r4-menu-height) - var(--spacing-10)) / 2 + var(--spacing-1)); left: 0; right: 0; }
+/* Scrim: capa negra con opacidad por debajo de la capa blanca y del popover (desktop) */
+.usearch-scrim { position: absolute; inset: 0; z-index: 9; display: none; background: var(--r4-scrim); pointer-events: auto; }
+@container r4page (min-width: 1024px) { .usearch-scrim { display: block; } }
+.usearch-desk__pop .r4-popover { width: 100%; max-height: calc(100vh - var(--spacing-16) * 2); padding: var(--spacing-3); }
+@container r4page (min-width: 1024px) { .usearch-desk { display: flex; } }
+
+
+/* Desktop con R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que el panel haga scroll por dentro y el prompt quede abajo */
+.usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-3); margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4)); } /* +16 de aire entre la cabecera del Sheet y el campo */
+.usearch-sheet__body .usearch-panel { flex: 1 1 0; }@container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet, .usearch-sheet .r4-sheet__scrim { display: none; } }
+
+/* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
+/* Alto y posición = viewport VISUAL (--usearch-vvh/--usearch-vvt los fija el JS): con el teclado nativo abierto la capa se encoge y el panel puede hacer scroll hasta el final */
+.usearch-mobile { position: absolute; top: var(--usearch-vvt, 0); left: 0; right: 0; height: var(--usearch-vvh, 100%); z-index: 6; display: none; flex-direction: column; background: var(--surface-default); pointer-events: auto; color: var(--text-default); }
+.usearch-mobile__bar { flex: none; padding: var(--spacing-4); border-bottom: var(--r4-line-width) solid var(--border-subtle); }
+.usearch-mobile__panel { flex: 1 1 0; display: flex; flex-direction: column; min-height: 0; padding: var(--spacing-3); } /* mismo aire abajo que a los lados: la caja del prompt (con su padding de 4) queda a 16 px de los tres bordes */
+.usearch-mobile__panel .usearch-panel { flex: 1 1 0; }
+@container r4page (max-width: 1023px) { .usearch-mobile { display: flex; } }
+/* Entrada de arriba abajo (animación propia: Figma no define movimiento) */
+.usearch-layer-enter-active, .usearch-layer-leave-active { transition: transform 0.3s ease; }
+.usearch-layer-enter-from, .usearch-layer-leave-to { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) { .usearch-layer-enter-active, .usearch-layer-leave-active { transition: none; } }
+html.usearch-lock { overflow: hidden; }
+
+/* Contenido de relleno de la página: cajas grises */
+.buscador__col { grid-column: 1 / -1; min-width: 0; }
+.buscador__row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gutter); }
+.buscador__box { display: flex; flex-direction: column; gap: var(--spacing-3); min-height: calc(var(--spacing-16) * 2); padding: var(--spacing-6); border-radius: var(--radius-sm); background: var(--surface-subtle); color: var(--text-subdued); }
+.buscador__box--tall { min-height: calc(var(--spacing-16) * 4); }
+.buscador__title { margin: 0; color: var(--text-default); font-family: var(--font-family-headings); font-size: var(--size-heading-s); line-height: var(--line-height-heading-s); font-weight: var(--font-weight-bold); }
+@container r4page (max-width: 599px) { .buscador__row { grid-template-columns: 1fr; } }
+
+.buscador__toast { position: absolute; left: 50%; bottom: var(--spacing-8); transform: translateX(-50%); max-width: calc(100% - var(--spacing-8)); padding: var(--spacing-3) var(--spacing-5); border-radius: var(--radius-sm); background: var(--surface-inverse); color: var(--text-on-inverse); font-size: var(--size-body-s); line-height: var(--line-height-body-s); pointer-events: none; }
+
+/* Panel del facilitador (herramienta de la sesión, no forma parte del diseño) */
+.facil { position: absolute; left: var(--spacing-3); bottom: var(--spacing-3); z-index: 5; width: calc(var(--spacing-16) * 5); max-width: calc(100% - var(--spacing-6)); border: var(--r4-line-width) solid var(--border-default); border-radius: var(--radius-sm); background: var(--surface-default); color: var(--text-default); font-family: var(--font-family-body); font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); pointer-events: auto; }
+.facil > summary { padding: var(--spacing-2) var(--spacing-3); cursor: pointer; font-weight: var(--font-weight-semibold); }
+.facil__body { display: flex; flex-direction: column; gap: var(--spacing-2); max-height: 60vh; padding: 0 var(--spacing-3) var(--spacing-3); overflow-y: auto; }
+.facil__group { display: flex; flex-direction: column; gap: var(--spacing-1); margin: 0; padding: var(--spacing-2); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); }
+.facil__group legend { padding: 0 var(--spacing-1); font-weight: var(--font-weight-semibold); }
+.facil__cases, .facil__log { margin: 0; padding: 0; list-style: none; }
+.facil__log { max-height: calc(var(--spacing-16) * 2); overflow-y: auto; }
+.facil__log li { padding: var(--spacing-05) 0; }
+.facil__log span { color: var(--text-muted); }
+.facil__cases button, .facil__reset { width: 100%; padding: var(--spacing-1) var(--spacing-2); border: var(--r4-line-width) solid var(--border-subtle); border-radius: var(--radius-xs); background: var(--surface-default); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.facil__cases button { margin-bottom: var(--spacing-1); }
+.facil__cases em { color: var(--feedback-warning-text); font-style: normal; }
+.facil__reset { text-align: center; font-weight: var(--font-weight-semibold); }
+
+/* Campo + cierre (el cierre aparece solo con el campo disabled, es decir, con la conversación pintada). El campo mantiene SIEMPRE su alto: no se comprime aunque el contenido crezca. */
+.usearch__fieldrow { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
+.usearch__fieldrow .r4-inputsearch { flex: 1 1 0; min-width: 0; }

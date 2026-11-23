@@ -1,0 +1,118 @@
+.r4-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  height: var(--component-button-size-large);
+  padding: 0 var(--spacing-4);
+  border: 0;
+  border-radius: var(--component-button-radius);
+  background: transparent;
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-l);
+  line-height: var(--line-height-body-l);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.r4-button__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  height: var(--component-button-size-large);
+}
+
+.r4-button__text { white-space: nowrap; }
+.r4-button .r4-icon { flex: none; }
+
+/* content=icon: cuadrado de 40 px, sin padding horizontal */
+.r4-button--content-icon {
+  width: var(--component-button-size-large);
+  padding: 0;
+}
+
+/* ── variant=primary ── */
+.r4-button--primary {
+  background: var(--accent-default);
+  color: var(--accent-text-on-accent);
+  font-weight: var(--font-weight-bold);
+}
+.r4-button--primary:hover { background: var(--accent-hover); }
+.r4-button--primary:active, .r4-button--primary.r4-button--pressed { background: var(--accent-pressed); color: var(--accent-text-on-accent); }
+.r4-button--primary:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-button--primary:disabled {
+  background: var(--component-button-primary-bg-disabled);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-button-primary-border-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed; /* Changelog SM-19378 */
+}
+
+/* ── variant=text ── */
+.r4-button--text {
+  color: var(--accent-link);
+  font-weight: var(--font-weight-semibold);
+}
+.r4-button--text:hover { background: var(--component-button-text-bg-hover); color: var(--accent-link-hover); }
+.r4-button--text:active, .r4-button--text.r4-button--pressed { background: var(--component-button-text-bg-pressed); color: var(--accent-link-hover); }
+.r4-button--text:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-button--text:disabled { color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+/* Con content=icon el color del icono es el de texto por defecto de Figma (el glifo no está ligado al color del enlace). */
+.r4-button--text.r4-button--content-icon { color: var(--text-default); }
+.r4-button--text.r4-button--content-icon:disabled { color: var(--text-disabled); }
+
+/* Área táctil de 44 px (CLAUDE.md): el botón de icono mide 40 px */
+.r4-button--content-icon { position: relative; }
+.r4-button--content-icon::after { content: ''; position: absolute; inset: calc(var(--spacing-05) * -1); }
+
+/* ── variant=secondary (fondo blanco, trazo accent/border 1 px interior) ── */
+.r4-button--secondary {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--accent-border);
+  background: var(--surface-default);
+  color: var(--accent-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.r4-button--secondary:hover {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-button-secondary-border-hover);
+  background: var(--component-button-secondary-bg-hover);
+  color: var(--accent-text-hover);
+}
+.r4-button--secondary:active, .r4-button--secondary.r4-button--pressed {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-button-secondary-border-hover);
+  background: var(--component-button-secondary-bg-pressed);
+  color: var(--accent-text-hover);
+}
+.r4-button--secondary:focus-visible {
+  outline: 0;
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--accent-border), var(--effect-card-focus-outline);
+}
+.r4-button--secondary:disabled {
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-button-primary-border-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed; /* Changelog SM-19378 */
+}
+/* En content=icon el glifo es #0B0B0B en Figma */
+.r4-button--secondary.r4-button--content-icon { color: var(--text-default); }
+.r4-button--secondary.r4-button--content-icon:disabled { color: var(--text-disabled); }
+
+/* width=full-width (API): 100 % del contenedor; auto (por defecto): ajustado al contenido */
+.r4-button--full-width { display: flex; width: 100%; }
+.r4-button:not(.r4-button--full-width) { display: inline-flex; }
+
+/* Iconos del botón: 16 px (spacing/4) en Figma */
+.r4-button .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+
+/* ── size=medium (Figma: 32 px de alto, padding horizontal 12, texto 16/24) ── */
+.r4-button--medium {
+  height: var(--component-button-size-medium);
+  padding: 0 var(--spacing-3);
+  font-size: var(--size-body-m);
+  line-height: var(--line-height-body-m);
+}
+.r4-button--medium .r4-button__content { height: var(--component-button-size-medium); }
+.r4-button--medium.r4-button--content-icon { width: var(--component-button-size-medium); padding: 0; }
+
+/* type=text con texto: subrayado en todos los estados (Figma) */
+.r4-button--text:not(.r4-button--content-icon) .r4-button__text { text-decoration: underline; }

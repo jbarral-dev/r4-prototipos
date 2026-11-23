@@ -1,0 +1,34 @@
+/* Layout · rejilla y paddings por breakpoint (Desktop XL · Desktop · Tablet · Mobile)
+ * GENERADO por tools/generate-tokens.ps1 desde tools/tokens/*.txt (Figma · Primitivos 1.2). No editar a mano.
+ * Capa 6 de 6. Desktop XL por defecto; el modo Desktop solo se distingue en screenWidth y grid/containerMaxWidth, que NO se sobrescriben por modo:
+ * son anchos del marco de diseño (1024/768/390), no topes; el tope real es 1368 (tabla de R4Wrapper en Confluence: sin ancho máx. por debajo de 1368).
+ */
+:root {
+  --screenwidth: 1440px;
+  --grid-containermaxwidth: 1368px;
+  --grid-containerpadding: var(--spacing-6);
+  --grid-gutter: var(--spacing-6);
+  --wrapper-paddingrelaxed: var(--spacing-16);
+  --wrapper-paddingdefault: var(--spacing-12);
+  --wrapper-paddingcompact: var(--spacing-8);
+  --wrapper-paddingtopfirstwrapper: var(--spacing-12);
+}
+
+@container r4page (max-width: 1023px) {
+  .r4-layout-modes {
+    --wrapper-paddingrelaxed: var(--spacing-14);
+    --wrapper-paddingdefault: var(--spacing-10);
+    --wrapper-paddingcompact: var(--spacing-7);
+    --wrapper-paddingtopfirstwrapper: var(--spacing-10);
+  }
+}
+
+@container r4page (max-width: 599px) {
+  .r4-layout-modes {
+    --grid-containerpadding: var(--spacing-3);
+    --wrapper-paddingrelaxed: var(--spacing-12);
+    --wrapper-paddingdefault: var(--spacing-8);
+    --wrapper-paddingcompact: var(--spacing-6);
+    --wrapper-paddingtopfirstwrapper: var(--spacing-8);
+  }
+}

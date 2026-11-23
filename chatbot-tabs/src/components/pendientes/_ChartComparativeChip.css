@@ -1,0 +1,37 @@
+/*
+ * _chartComparativeChip — valores leídos de Figma: alto component/chip/size/small (32), padding horizontal spacing/2 (8), radio component/chip/radius, fondo surface/subtle, borde 1 px
+ * border/default; contenido con gap spacing/1 (4): punto (R4Badge none, 12) + ticker (body/s SemiBold, text/subdued) + aspa de 14 (icon/subdued).
+ */
+.r4-chartcomparativechip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--spacing-1);
+  height: var(--component-chip-size-small);
+  padding: 0 var(--spacing-2);
+  border-radius: var(--component-chip-radius);
+  background: var(--surface-subtle);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-default);
+  color: var(--text-subdued);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-s);
+  line-height: var(--line-height-body-s);
+  font-weight: var(--font-weight-semibold);
+  list-style: none;
+}
+.r4-chartcomparativechip__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--spacing-4) - var(--spacing-05));
+  height: calc(var(--spacing-4) - var(--spacing-05));
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--icon-subdued);
+  cursor: pointer;
+}
+.r4-chartcomparativechip__remove .r4-icon { width: 100%; height: 100%; }
+.r4-chartcomparativechip__remove:hover { color: var(--icon-default); }
+.r4-chartcomparativechip__remove:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }

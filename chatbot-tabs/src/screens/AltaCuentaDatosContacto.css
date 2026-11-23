@@ -1,0 +1,12 @@
+/*
+ * Layout propio de la pantalla. Las columnas (6 de 12 · 6 de 8 · 4 de 4, «Páginas de Procesos») las pone R4Wrapper con layout="6".
+ * El espacio entre título, formulario y acción lo pone el R4Wrapper (row-gap = padding de la density: 48 / 40 / 32).
+ * Separación entre campos del formulario: spacing/6 (24 px) — INFERIDA: ni Figma ni Confluence la definen.
+ */
+
+.alta__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  margin: 0;
+}

@@ -1,0 +1,94 @@
+/*
+ * R4ListDetail — valores leídos de Figma (_ListItemDetail horizontal). Las variables --r4-ld-* son las que cambian por size:
+ *   medium: texto body/m (16/24), padding vertical de la fila 8, separador de 16 px (línea 1 px border/subtle centrada) · small: body/s (14/20), padding 8, separador de 8.
+ * Concepto: text/subdued Regular, con padding derecho 24 · valor: text/default SemiBold, alineado a la derecha, gap 8 (small: 4).
+ * El separador no se pinta tras la última fila.
+ */
+.r4-listdetail {
+  --r4-ld-font-size: var(--size-body-m);
+  --r4-ld-line-height: var(--line-height-body-m);
+  --r4-ld-pad-y: var(--spacing-2);
+  --r4-ld-divider-pad: var(--spacing-2);
+  --r4-ld-value-gap: var(--spacing-2);
+  --r4-ld-logo: var(--spacing-6);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--font-family-body);
+  font-size: var(--r4-ld-font-size);
+  line-height: var(--r4-ld-line-height);
+}
+.r4-listdetail--small {
+  --r4-ld-font-size: var(--size-body-s);
+  --r4-ld-line-height: var(--line-height-body-s);
+  --r4-ld-divider-pad: var(--spacing-1);
+  --r4-ld-value-gap: var(--spacing-1);
+  --r4-ld-logo: var(--spacing-4);
+}
+
+/*
+ * large y extraLarge (leídos de Figma 12792:31047 y 12792:81439, 2026-11-13): large = texto body/l (18/26), padding vertical de la fila 12 (contenido 50); extraLarge = body/xl (20/28), padding 16 (contenido 60).
+ * El separador sigue siendo de 16 (línea centrada). Lo que NO se ha leído (logo/bandera del valor, gap del valor) se mantiene como en medium.
+ */
+.r4-listdetail--large {
+  --r4-ld-font-size: var(--size-body-l);
+  --r4-ld-line-height: var(--line-height-body-l);
+  --r4-ld-pad-y: var(--spacing-3);
+}
+.r4-listdetail--extraLarge {
+  --r4-ld-font-size: var(--size-body-xl);
+  --r4-ld-line-height: var(--line-height-body-xl);
+  --r4-ld-pad-y: var(--spacing-4);
+}
+
+.r4-listdetail__row { display: flex; flex-direction: column; margin: 0; }
+
+.r4-listdetail__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+  padding-block: var(--r4-ld-pad-y);
+}
+
+.r4-listdetail__concept {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  gap: var(--spacing-05);
+  min-width: 0;
+  margin: 0;
+  padding-right: var(--spacing-6);
+  color: var(--text-subdued);
+  font-weight: var(--font-weight-regular);
+}
+
+.r4-listdetail__value {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--r4-ld-value-gap);
+  margin: 0;
+  color: var(--text-default);
+  font-weight: var(--font-weight-semibold);
+  text-align: right;
+  white-space: nowrap;
+}
+.r4-listdetail__value-icon { flex: none; width: var(--r4-ld-logo); height: var(--r4-ld-logo); }
+
+/* Capa de las acciones (Figma 12792:2758, leído el 2026-11-13: «Action1/Action2», alto fill del padre): su alto es el de la línea de la fila (small 20, medium 24, large 26…, no un valor fijo), SIN overflow:hidden.
+   El R4Button conserva sus 32 y, centrado (y = -6 en small, -4 en medium), sobresale por arriba y por abajo sin aumentar la altura de la fila. */
+.r4-listdetail__actions { display: flex; flex: none; align-items: center; align-self: center; height: var(--r4-ld-line-height); }
+
+/* Botón de información del concepto (24 px en medium, 20 en small) y acción de fila (32 px, el icono queda a la altura de la fila) */
+.r4-listdetail .r4-listdetail__info { width: var(--spacing-6); height: var(--spacing-6); padding: 0; color: var(--accent-link); }
+.r4-listdetail--small .r4-listdetail__info { width: var(--spacing-5); height: var(--spacing-5); }
+.r4-listdetail .r4-listdetail__info .r4-button__content { width: 100%; height: 100%; }
+.r4-listdetail .r4-listdetail__action { color: var(--accent-link); }
+
+.r4-listdetail__divider { display: flex; align-items: center; height: calc(var(--r4-ld-divider-pad) * 2); } /* la línea de 1 px no suma altura (Figma: Divider Line de alto 0) */
+.r4-listdetail__divider::before { content: ''; width: 100%; height: var(--r4-line-width); background: var(--border-subtle); }

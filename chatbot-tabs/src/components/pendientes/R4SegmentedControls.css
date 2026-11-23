@@ -1,0 +1,58 @@
+/*
+ * R4SegmentedControls — valores leídos de Figma. Contenedor: fondo surface/subtle, borde 1 px border/subtle, radio exterior
+ * (component/segmentedControl/radius/outer), padding 4, gap 4; alto small 32 · medium 40 · large 48. Segmento: alto = contenedor − 8; radio interior;
+ * padding 4/8 (4/12 con icono + texto); texto body/s SemiBold. selected: fondo surface/default + borde 2 px border/strong · hover: surface/muted ·
+ * pressed: borde 1 px border/strong · disabled: surface/muted + text/disabled · focused: CardFocusOutline.
+ * La altura se gobierna con --r4-segmented-height para que un componente padre (R4ChartLine) la cambie por contenedor sin cambiar la API.
+ */
+.r4-segmented {
+  --r4-segmented-height: var(--spacing-8);
+  display: flex;
+  width: 100%;
+  height: var(--r4-segmented-height);
+  padding: var(--spacing-1);
+  background: var(--surface-subtle);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-subtle);
+  border-radius: var(--component-segmentedcontrol-radius-outer);
+}
+.r4-segmented--medium { --r4-segmented-height: var(--spacing-10); }
+.r4-segmented--large { --r4-segmented-height: var(--spacing-12); }
+
+.r4-segmented__slot { display: flex; flex: 1 1 0; gap: var(--spacing-1); min-width: 0; height: 100%; overflow: hidden; }
+
+.r4-segmented__item {
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  min-width: 0;
+  height: 100%;
+  padding: var(--spacing-1) var(--spacing-2);
+  border: 0;
+  border-radius: var(--component-segmentedcontrol-radius-inner);
+  background: var(--surface-subtle);
+  color: var(--text-subdued);
+  font-family: var(--font-family-body);
+  font-size: var(--size-body-s);
+  line-height: var(--line-height-body-s);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.r4-segmented--iconAndText .r4-segmented__item { padding-inline: var(--spacing-3); }
+.r4-segmented__item .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); }
+
+.r4-segmented__item:hover:not(.is-selected):not(:disabled) { background: var(--surface-muted); }
+.r4-segmented__item:active:not(.is-selected):not(:disabled) { box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-strong); color: var(--text-default); }
+.r4-segmented__item.is-selected { background: var(--surface-default); box-shadow: inset 0 0 0 var(--spacing-05) var(--border-strong); color: var(--text-default); }
+.r4-segmented__item:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); position: relative; z-index: 1; }
+.r4-segmented__item.is-selected:focus-visible { box-shadow: inset 0 0 0 var(--spacing-05) var(--border-strong), var(--effect-card-focus-outline); }
+.r4-segmented__item:disabled { background: var(--surface-muted); color: var(--text-disabled); cursor: not-allowed; /* Changelog SM-19378 */ }
+
+/* Etiqueta larga / abreviada (extra shortLabel): por defecto la larga */
+.r4-segmented__short { display: none; }
+@container r4page (max-width: 599px) {
+  .r4-segmented__long:not(:only-child) { display: none; }
+  .r4-segmented__short { display: inline; }
+}
