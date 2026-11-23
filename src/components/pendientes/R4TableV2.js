@@ -9,7 +9,7 @@
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24; el chip de la vista es size small): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
-// Cada opción de filtro lleva entre paréntesis su nº de resultados (también las que dan 0). El título de cada acordeón lleva su nº (opciones de la categoría; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
+// Cada opción de filtro lleva entre paréntesis su nº de resultados (también las que dan 0). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -28,7 +28,6 @@ import R4Accordion from './R4Accordion.js'
 import R4InputCheckbox from './R4InputCheckbox.js'
 import R4InputRadio from './R4InputRadio.js'
 import R4Button from './R4Button.js'
-import R4Tag from './R4Tag.js'
 
 const RECARGA_MS = 1000 // tiempo de recarga pedido por Jon
 
@@ -57,7 +56,7 @@ const _TableFilterPanel = defineComponent({
 
 export default defineComponent({
   name: 'R4TableV2',
-  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, R4Tag, TableFilterPanel: _TableFilterPanel },
+  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, TableFilterPanel: _TableFilterPanel },
   props: {
     views: { type: Array, required: true },
     data: { type: Array, required: true },
@@ -137,10 +136,9 @@ export default defineComponent({
       recargar('table', () => {})
     }
     // Acordeones del sheet: «Filtros seleccionados» solo existe si hay algún filtro activo (en la selección del sheet, en vivo); abiertos los filtros que se ven sobre la tabla (destacados) y cerrados los demás
-    // El nº (de filtros seleccionados o de opciones de la categoría) va en una R4Tag small en el slot `title` del acordeón
     const accordionItems = computed(() => [
-      ...(draftTotal.value ? [{ id: 'aplicados', title: 'Filtros seleccionados', count: draftTotal.value }] : []),
-      ...view.value.filters.map((f) => ({ id: f.id, title: f.label, count: opcionesSheet(f).options.length, filter: f })),
+      ...(draftTotal.value ? [{ id: 'aplicados', title: 'Filtros seleccionados' }] : []),
+      ...view.value.filters.map((f) => ({ id: f.id, title: f.label, filter: f })),
     ])
     const abiertos = computed(() => ['aplicados', ...view.value.filters.filter((f) => f.highlighted).map((f) => f.id)])
     // «Ver N resultados»: al cambiar N con el sheet abierto, spinner de 800 ms en el botón
@@ -246,7 +244,6 @@ export default defineComponent({
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" title="Todos los filtros" :open="sheetOpen"
                  :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Quitar filtros" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftTotal === 0" @primary="aplicarSheet" @secondary="quitarFiltros" @close="cerrarSheet">
           <R4Accordion :items="accordionItems" multiple size="small" :default-open="abiertos">
-            <template #title="{ item }"><span class="r4-table-v2__acc-title">{{ item.title }}<R4Tag size="small" color="blue" :text="String(item.count)" /></span></template>
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
                 <R4Chip v-for="c in chipsDraft" :key="c.filtro + c.value" size="small" :label="c.label" dismissable @dismiss="quitarChip(c)" />
