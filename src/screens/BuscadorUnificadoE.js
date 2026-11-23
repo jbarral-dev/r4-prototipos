@@ -5,7 +5,7 @@
 // contenido va en una capa por encima de la página que baja desde arriba (animación propia: Figma no define movimiento).
 // Un solo estado compartido (screens/_buscadorEstado.js): los dos hosts (popover de desktop y capa de tablet/mobile) lo pintan; el CSS muestra el que toca.
 // Datos de ejemplo: src/data/buscador-unificado.js (casos de enrutado fijados, resultados y respuestas guionizadas). Panel del facilitador: abajo a la izquierda (se oculta con ?f=0).
-import { defineComponent, ref, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, ref, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../vendor/vue.esm-browser.prod.js'
 import FichaAccion from './FichaAccion.js'
 import Facilitador, { valoresPorDefecto, escribirParam } from '../components/prototipo/Facilitador.js'
 import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
@@ -64,6 +64,8 @@ export default defineComponent({
     const trigger = ref(null)
     const mobileField = ref(null)
     const placeholder = 'Busca o pregunta'
+    // Título del R4Sheet según la pantalla: conversación → «Chat» · listado del histórico → «Histórico» · resto → «Busca o pregunta»
+    const tituloCapa = computed(() => (api.chatView ? 'Chat' : api.vista === 'historial' ? 'Histórico' : placeholder))
     onMounted(() => { document.title = 'Chatbot · Prototipo R4' })
 
     // Al abrir la capa NO se enfoca la caja (Jon, 2026-11-19): el usuario la ve y entra en ella cuando quiere. (R4Sheet sí enfoca su botón de cierre, como pide su accesibilidad.)
@@ -85,13 +87,13 @@ export default defineComponent({
     onMounted(() => { dejarDeSeguir = seguirTeclado((v) => { tecladoVisible.value = v }) })
     onBeforeUnmount(() => { dejarDeSeguir(); document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
-    return { api, tecladoVisible, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    return { api, tituloCapa, tecladoVisible, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion :client="caso.usuario" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
       <template #search>
         <div class="usearch">
-          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="placeholder" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
+          <button ref="trigger" type="button" class="menu__search usearch__trigger" aria-haspopup="dialog" :aria-expanded="api.open ? 'true' : 'false'" :aria-label="api.hayConversacion ? placeholder + ' (conversación activa)' : placeholder" :title="tituloCapa" @click="api.open ? cerrarYDevolverFoco() : api.abrir()"><Icon class="menu__search-ai" name="ic-search-ai" /><R4Badge v-if="api.hayConversacion" class="menu__badge" tone="highlight" :outline="false" decorative /></button>
         </div>
       </template>
 
@@ -116,7 +118,7 @@ export default defineComponent({
 
         <!-- Desktop con Sheet: R4Sheet side (520) con el campo arriba y el panel debajo. El CSS lo oculta en tablet y mobile, donde manda la capa a pantalla completa -->
         <div v-if="contenedor === 'sheet'" class="usearch-sheet">
-          <R4Sheet position="side" :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+          <R4Sheet position="side" :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheet__body" :class="{ 'usearch-sheet__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'usearch-sheet__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
@@ -131,7 +133,7 @@ export default defineComponent({
 
         <!-- Tablet y mobile (≤ 1023): R4Sheet bottom con el título «Busca o pregunta» y el aspa de cerrar, y dentro el campo y el panel. El CSS lo oculta en desktop, donde manda el popover o el Sheet side -->
         <div class="usearch-sheetbottom">
-          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
+          <R4Sheet position="bottom" full-height :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheetbottom__body" :class="{ 'usearch-sheetbottom__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'usearch-sheetbottom__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
                 <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
