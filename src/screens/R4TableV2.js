@@ -15,7 +15,7 @@ import R4Button from '../components/pendientes/R4Button.js'
 import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
-import { filas, vistas, movimientos, vistasMovimientos } from '../data/r4table-v2.js'
+import { filas, vistas, movimientos, vistasMovimientos, logosCripto } from '../data/r4table-v2.js'
 
 // Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
 const FACILITADOR = [
@@ -25,8 +25,8 @@ const ESCENARIOS = {
   acciones: { titulo: 'Acciones', breadcrumb: { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] }, views: vistas, data: filas, aria: 'Acciones del Mercado continuo', footnote: 'Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.' },
   movimientos: { titulo: 'Movimientos', breadcrumb: { items: [{ label: 'Tu cuenta', href: '#' }, { label: 'Movimientos' }] }, views: vistasMovimientos, data: movimientos, aria: 'Movimientos de la cuenta', footnote: undefined },
 }
-const logoPorNombre = Object.fromEntries(filas.map((f) => [f.name, f.logoURL]))
-const colorTipo = { Acciones: 'blue', Criptoactivos: 'neutralDark', ETFs: 'neutralLight', Fondos: 'neutralLight' } // R4Tag solo tiene reconstruidos blue, neutralDark y neutralLight
+const logoPorNombre = { ...Object.fromEntries(filas.map((f) => [f.name, f.logoURL])), ...logosCripto }
+const colorTipo = { Acciones: 'blue', Criptoactivos: 'blue', ETFs: 'blue', Fondos: 'blue' } // el tipo de producto es siempre R4Tag blue
 const fmtE = (v) => nf(2).format(v) + '\u2009€'
 
 const navItems = ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === 0 })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú

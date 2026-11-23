@@ -11,15 +11,17 @@
 // R4Table v2 (prototipo «R4Table (v2)»): `sortable` por columna (API del Vue en Confluence 3001581575): botón en la cabecera con el icono «Icon Arrow» de Figma (Proyectos - Tablas): doble flecha sin ordenar, flecha abajo = ascendente y arriba = descendente (así lo pinta Figma;
 // la Confluence dice lo contrario —asc = arriba—: discrepancia a validar); a la izquierda del texto en columnas alineadas a la derecha. Orden en cliente; clic: asc → desc → sin orden. Extras: `defaultSort` ({ field, order }), evento `sort-change` ({ field, order }; lo usa R4TableV2 para conservar el orden al cambiar de vista) y slot `empty`
 // (filas vacías: «No hay resultados»; en Storybook no se ha podido comprobar el comportamiento sin datos). aria-sort en la cabecera.
+// Extra `loading`: la cabecera se mantiene y las filas pasan a R4Skeleton (mismo nº de filas y alto que los datos que había; ≥ 5), sin paginador, con aria-busy y texto oculto «Cargando contenido»; la forma exacta del Storybook no se ha podido leer (401): es una interpretación.
 // NO reconstruido: stickyHeader, expandableOn y filas expandibles (nested/children), loading (esqueleto), orden de columnas (sortable), filtros, vistas, agrupaciones y los tipos de columna de Confluence (link, tag, button… se hacen por slot).
 // Extras del prototipo: ariaLabel y el paginador propio (`<nav>` con botones; el del Storybook es el de PrimeVue). El icono «siguiente» es el chevron izquierdo girado (no hay chevron derecho registrado).
 import { defineComponent, ref, computed, watch } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Text from './R4Text.js'
+import R4Skeleton from './R4Skeleton.js'
 import Icon from '../../icons/_Icon.js'
 
 export default defineComponent({
   name: 'R4Table',
-  components: { R4Text, Icon },
+  components: { R4Text, R4Skeleton, Icon },
   props: {
     data: { type: Array, required: true },
     columns: { type: Array, required: true },
@@ -31,6 +33,7 @@ export default defineComponent({
     hideLastRowBorder: { type: Boolean, default: false },
     ariaLabel: { type: String, default: undefined },
     defaultSort: { type: Object, default: undefined },
+    loading: { type: Boolean, default: false }, // Storybook (R4Table › Loading; no se ha podido leer desde aquí): la cabecera se mantiene y las filas se sustituyen por formas R4Skeleton con las mismas dimensiones
   },
   emits: ['sort-change'],
   setup(props, { emit }) {
@@ -65,11 +68,13 @@ export default defineComponent({
     const ir = (n) => { page.value = Math.min(pageCount.value, Math.max(1, n)) }
     watch(() => props.data, () => { page.value = 1 })
     watch(sort, (s) => { page.value = 1; emit('sort-change', { ...s }) }) // al cambiar los datos (p. ej. otro filtro) se vuelve a la primera página
-    return { page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
+    const filasSkeleton = computed(() => Array.from({ length: Math.max(5, visibles.value.length) }, (_, i) => i))
+    const anchoSkeleton = (i, j) => `${[78, 62, 90, 70, 84, 56][(i * 2 + j) % 6]}%` // anchos variados (determinista)
+    return { filasSkeleton, anchoSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },
   template: `
     <div class="r4-table" :class="['r4-table--' + size, { 'r4-table--hide-last-border': hideLastRowBorder, 'r4-table--has-sort': columns.some((c) => c.sortable) }]">
-      <div class="r4-table__scroll" role="region" tabindex="0" :aria-label="ariaLabel">
+      <div class="r4-table__scroll" role="region" tabindex="0" :aria-label="ariaLabel" :aria-busy="loading ? 'true' : undefined">
         <table class="r4-table__table" :class="{ 'r4-table__table--fixed': columns.some((c) => c.width) }">
           <colgroup v-if="columns.some((c) => c.width)"><col v-for="c in columns" :key="c.field" :style="{ width: c.width }" /></colgroup>
           <thead v-if="showHeader">
@@ -82,7 +87,14 @@ export default defineComponent({
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="loading">
+            <tr v-for="i in filasSkeleton" :key="'sk' + i" class="r4-table__row r4-table__row--skeleton">
+              <td v-for="(c, j) in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
+                <span class="r4-table__skeleton-cell" :class="'r4-table__skeleton-cell--' + (c.align || 'left')"><R4Skeleton v-if="c.header || c.srHeader" shape="paragraph" :width="anchoSkeleton(i, j)" /></span>
+              </td>
+            </tr>
+          </tbody>
+          <tbody v-else>
             <tr v-if="!visibles.length" class="r4-table__row r4-table__row--empty"><td class="r4-table__td r4-table__empty" :colspan="columns.length"><slot name="empty"><R4Text text="No hay resultados" /></slot></td></tr>
             <tr v-for="row in visibles" :key="row[dataKey]" class="r4-table__row">
               <td v-for="c in columns" :key="c.field" class="r4-table__td" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]">
@@ -92,7 +104,8 @@ export default defineComponent({
           </tbody>
         </table>
       </div>
-      <nav v-if="paginator && pageCount > 1" class="r4-table__paginator" aria-label="Paginación">
+      <p v-if="loading" class="r4-table__sr" role="status">Cargando contenido</p>
+      <nav v-if="paginator && pageCount > 1 && !loading" class="r4-table__paginator" aria-label="Paginación">
         <button type="button" class="r4-table__page" aria-label="Página anterior" :disabled="page === 1" @click="ir(page - 1)"><Icon name="chevron-left" /></button>
         <button v-for="p in paginas" :key="p" type="button" class="r4-table__page" :class="{ 'is-current': p === page }" :aria-label="'Página ' + p" :aria-current="p === page ? 'page' : undefined" @click="ir(p)">{{ p }}</button>
         <button type="button" class="r4-table__page r4-table__page--next" aria-label="Página siguiente" :disabled="page === pageCount" @click="ir(page + 1)"><Icon name="chevron-left" /></button>

@@ -1,0 +1,12 @@
+/*
+ * R4Skeleton — Figma 26305:7381: relleno degradado de surface/subtle a surface/muted; formas: title 240×20 · paragraph 320×14 · image 200×140 (radio 8) · circle 40 (radio completo) · chip 80×28 (radio de chip).
+ * Shimmer (doc): un degradado translúcido que recorre la forma de izquierda a derecha; sin movimiento (prefers-reduced-motion) queda el degradado estático.
+ */
+.r4-skeleton { position: relative; display: block; flex: none; overflow: hidden; width: calc(var(--spacing-16) * 3 + var(--spacing-12)); height: var(--spacing-5); background: linear-gradient(to right, var(--surface-subtle), var(--surface-muted)); }
+.r4-skeleton::after { content: ''; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-neutral-white) 55%, transparent), transparent); animation: r4-skeleton-shimmer 1.4s ease-in-out infinite; }
+.r4-skeleton--paragraph { width: calc(var(--spacing-16) * 5); height: calc(var(--spacing-3) + var(--spacing-05)); }
+.r4-skeleton--image { width: calc(var(--spacing-16) * 3 + var(--spacing-8) * 2 + var(--spacing-2)); height: calc(var(--spacing-16) * 2 + var(--spacing-3)); border-radius: var(--radius-sm); }
+.r4-skeleton--circle { width: var(--spacing-10); height: var(--spacing-10); border-radius: var(--component-avatar-radius); }
+.r4-skeleton--chip { width: calc(var(--spacing-16) + var(--spacing-4)); height: calc(var(--spacing-6) + var(--spacing-1)); border-radius: var(--component-chip-radius); }
+@keyframes r4-skeleton-shimmer { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .r4-skeleton::after { animation: none; display: none; } }

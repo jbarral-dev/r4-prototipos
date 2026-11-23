@@ -6,7 +6,7 @@
 // Composición: «Filters and Views» (chips + R4SegmentedControls) + R4Section boxed blanca con R4Table. Los filtros destacados (`highlighted`) son R4Chip type=multiple con R4Popover debajo (a 8 px) en ≥ 1024 px y R4Sheet bottom por debajo
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
-//   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
+//   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Cada opción de filtro lleva entre paréntesis su nº de resultados y solo se muestran las que devuelven alguno (las marcadas se mantienen). El título de cada acordeón lleva su nº (opciones visibles; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
@@ -14,6 +14,7 @@
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
 // Decisiones inferidas: «Limpiar» (popover) vacía la selección del popover y hay que pulsar «Aplicar» para aplicar (disabled si no hay nada); categorías con AND entre sí y OR dentro; el estado aplicado es por vista; el tiempo de recarga (1 s) es el pedido.
+// Filtros de selección única (R4InputRadio): nunca se pueden limpiar (sin botón «Limpiar» en el popover); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
 // Extras / NO oficial: R4Chip `dismissable`/`hideChevron`, R4Accordion `defaultOpen`, R4Table `sortable`/`defaultSort`/slot `empty` (ver cada archivo). Mobile y tablet: sin diseño; se adapta con el patrón de la doc (chips en una fila con scroll, sheets bottom).
 import { defineComponent, ref, reactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Chip from './R4Chip.js'
@@ -21,7 +22,6 @@ import R4SegmentedControls from './R4SegmentedControls.js'
 import R4Section from './R4Section.js'
 import R4Table from './R4Table.js'
 import R4Text from './R4Text.js'
-import R4Spinner from './R4Spinner.js'
 import R4Popover from './R4Popover.js'
 import R4Sheet from './R4Sheet.js'
 import R4Accordion from './R4Accordion.js'
@@ -49,7 +49,7 @@ const _TableFilterPanel = defineComponent({
       </div>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" size="medium" width="full-width" text="Aplicar" @click="$emit('apply')" />
-        <R4Button type="text" size="medium" width="full-width" text="Limpiar" :disabled="!modelValue.length" @click="$emit('clear')" />
+        <R4Button v-if="filter.type !== 'single'" type="text" size="medium" width="full-width" text="Limpiar" :disabled="!modelValue.length" @click="$emit('clear')" />
       </div>
     </div>
   `,
@@ -57,7 +57,7 @@ const _TableFilterPanel = defineComponent({
 
 export default defineComponent({
   name: 'R4TableV2',
-  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Spinner, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, R4Tag, TableFilterPanel: _TableFilterPanel },
+  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, R4Tag, TableFilterPanel: _TableFilterPanel },
   props: {
     views: { type: Array, required: true },
     data: { type: Array, required: true },
@@ -104,7 +104,8 @@ export default defineComponent({
     const etiquetas = (f, vals) => vals.map((v) => f.options.find((o) => o.value === v)?.label ?? v)
     const chipLabel = (f) => { const l = etiquetas(f, seleccion(f)); return !l.length ? f.label : l.length > 1 ? `${l[0]} +${l.length - 1}` : l[0] }
     const destacados = computed(() => view.value.filters.filter((f) => f.highlighted))
-    const totalAplicados = computed(() => view.value.filters.reduce((n, f) => n + seleccion(f).length, 0))
+    // Los filtros `required` (selección única que siempre tiene uno marcado, p. ej. Fecha) no cuentan como «filtro aplicado»: ni en el badge, ni en «Filtros seleccionados», ni se pueden quitar (Quitar filtros los devuelve a su valor inicial)
+    const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + seleccion(f).length, 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
     const abrirCategoria = (f) => { if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
@@ -121,15 +122,15 @@ export default defineComponent({
     const draft = reactive({}) // { filtroId: [valores] } (sin aplicar)
     const abrirSheet = () => { cerrarCategoria(); view.value.filters.forEach((f) => { draft[f.id] = [...seleccion(f)] }); sheetOpen.value = true }
     const cerrarSheet = () => { sheetOpen.value = false }
-    const draftTotal = computed(() => view.value.filters.reduce((n, f) => n + (draft[f.id] || []).length, 0))
-    const chipsDraft = computed(() => view.value.filters.flatMap((f) => (draft[f.id] || []).map((v) => ({ filtro: f.id, value: v, label: etiquetas(f, [v])[0] }))))
+    const draftTotal = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + (draft[f.id] || []).length, 0))
+    const chipsDraft = computed(() => view.value.filters.filter((f) => !f.required).flatMap((f) => (draft[f.id] || []).map((v) => ({ filtro: f.id, value: v, label: etiquetas(f, [v])[0] }))))
     const nResultados = computed(() => (sheetOpen.value ? filtrar(view.value.filters, draft).length : filasMostradas.value.length))
     const primaria = computed(() => pluralResultados(nResultados.value))
     const quitarChip = (c) => { draft[c.filtro] = draft[c.filtro].filter((v) => v !== c.value); nextTick(() => { // el foco no se pierde: siguiente chip o, si ya no quedan, la cabecera del primer acordeón (solo entre los elementos visibles; hay un sheet por posición)
         const visible = (s) => [...document.querySelectorAll(s)].find((e) => e.getClientRects().length)
         ;(visible('.r4-table-v2__applied .r4-chip') || visible('.r4-sheet .r4-accordion__header'))?.focus?.()
       }) }
-    const quitarFiltros = () => { view.value.filters.forEach((f) => { draft[f.id] = [] }) }
+    const quitarFiltros = () => { view.value.filters.forEach((f) => { draft[f.id] = f.required ? [...((view.value.initial || {})[f.id] || [])] : [] }) }
     const aplicarSheet = () => {
       aplicados[contentView.value] = Object.fromEntries(view.value.filters.map((f) => [f.id, [...(draft[f.id] || [])]]))
       cerrarSheet()
@@ -230,7 +231,7 @@ export default defineComponent({
 
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <R4Section appearance="boxed" background-color="white">
-          <R4Table :key="contentView" :data="filasMostradas" :columns="view.columns" :data-key="dataKey" paginator :rows="rows" :aria-label="ariaLabel"
+          <R4Table :key="contentView" :loading="!!loading" :data="filasMostradas" :columns="view.columns" :data-key="dataKey" paginator :rows="rows" :aria-label="ariaLabel"
                    :default-sort="orden" @sort-change="orden = $event">
             <template v-for="c in view.columns" #[\`body-\${c.field}\`]="slotProps">
               <slot :name="'body-' + c.field" v-bind="slotProps"><R4Text :text="c.format ? c.format(slotProps.value, slotProps.data) : (slotProps.value ?? '')" /></slot>
@@ -239,7 +240,6 @@ export default defineComponent({
           <R4Text v-if="footnote && filasMostradas.length" class="r4-table-v2__footnote" size="small" variant="paragraph" :text="footnote" />
         </R4Section>
       </div>
-      <div v-if="loading" class="r4-table-v2__spinner" :class="'is-' + loading"><R4Spinner size="medium" /></div>
       <p class="r4-table-v2__sr" role="status" aria-live="polite">{{ estado }}</p>
 
       <Teleport v-if="target" :to="target">

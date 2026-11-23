@@ -56,8 +56,6 @@
 :root { --r4-sheet-bottom-maxheight: 90vh; }
 @supports (height: 1dvh) { :root { --r4-sheet-bottom-maxheight: 90dvh; } }
 
-/* R4Table v2: opacidad de la tabla mientras recarga bajo el R4Spinner. Jon lo pide («pierde opacidad») pero Figma no define el valor: provisional, a validar con diseño */
-:root { --r4-table-loading-opacity: 0.4; }
 
 /* TabBar de la App (Figma Templates 1.0, 12135:4909): tamaño de la etiqueta (11 px: no hay token tipográfico de 11) y sombra de la barra (drop-shadow 0 -4 2, negro 10 %: no hay estilo de efecto) */
 :root { --r4-tabbar-label-size: 11px; --r4-tabbar-shadow: drop-shadow(0 calc(var(--spacing-1) * -1) var(--spacing-05) color-mix(in srgb, var(--color-neutral-black) 10%, transparent)); }

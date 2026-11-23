@@ -200,9 +200,11 @@ const _movs = [...MOV].reverse().map(([dias, valor, tipo, operacion, cantidad, p
   return { id: `mov-${i}`, dias, fecha: fechaDe(dias), valor, tipo, operacion, descripcion: `${operacion} de ${tipo === 'Criptoactivos' ? 'criptoactivos' : tipo === 'Acciones' ? 'acciones' : tipo === 'ETFs' ? 'ETF' : 'fondo'}`, cantidad, precio, comision, importe: +importe.toFixed(2), saldo: saldoAcum }
 }).reverse() // más recientes primero
 
+// Logos de criptoactivos: Figma «Resources - Cryptocurrency Logos» (8jbsiGYTKPZ8nf8le8wKgt, nodo 2001:163). XRP no está en ese archivo → logo de relleno.
+export const logosCripto = Object.fromEntries(['bitcoin', 'ethereum', 'solana', 'dogecoin'].map((n) => [n[0].toUpperCase() + n.slice(1), logo(`iso-crypto-${n}.svg`)]))
 export const movimientos = _movs
 const FECHAS = { hoy: 0, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
-const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', icon: 'ic-calendar', highlighted: true,
+const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', required: true, icon: 'ic-calendar', highlighted: true,
   options: opc(['hoy', 'Hoy'], ['1w', 'Última semana'], ['1m', 'Último mes'], ['3m', 'Últimos 3 meses'], ['1y', 'Último año']),
   predicate: (r, [v]) => r.dias <= FECHAS[v] }
 const fTipoM = { id: 'tipo', label: 'Tipo', type: 'multiple', highlighted: true, options: opc('Acciones', 'Criptoactivos', 'ETFs', 'Fondos'), predicate: (r, vs) => vs.includes(r.tipo) }
