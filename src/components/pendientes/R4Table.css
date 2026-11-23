@@ -18,7 +18,8 @@
 .r4-table__td .r4-text { white-space: nowrap; }
 
 .r4-table__row:hover .r4-table__td { background: var(--surface-subtle); }
-.r4-table--hide-last-border .r4-table__row:last-child .r4-table__td { box-shadow: none; }
+/* La última fila de una R4Table nunca lleva línea inferior (Jon, 2026-11-25); `hideLastRowBorder` queda como prop de la API de Storybook sin efecto adicional */
+.r4-table__row:last-child .r4-table__td { box-shadow: none; }
 
 .r4-table__frozen { position: sticky; left: 0; z-index: 1; }
 
