@@ -9,7 +9,7 @@
 //   Al aplicar (sheet o popover) un R4Spinner se superpone a la tabla (que pierde opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea: «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
-// Cada opción de filtro lleva entre paréntesis su nº de resultados y solo se muestran las que devuelven alguno (las marcadas se mantienen). El título de cada acordeón lleva su nº (opciones visibles; en «Filtros seleccionados», los filtros activos) en una R4Tag small neutralLight.
+// Cada opción de filtro lleva entre paréntesis su nº de resultados y solo se muestran las que devuelven alguno (las marcadas se mantienen). El título de cada acordeón lleva su nº (opciones visibles; en «Filtros seleccionados», los filtros activos) en una R4Tag small blue (Jon, 2026-11-24; antes neutralLight).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
@@ -246,7 +246,7 @@ export default defineComponent({
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" title="Todos los filtros" :open="sheetOpen"
                  :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Quitar filtros" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftTotal === 0" @primary="aplicarSheet" @secondary="quitarFiltros" @close="cerrarSheet">
           <R4Accordion :items="accordionItems" multiple size="small" :default-open="abiertos">
-            <template #title="{ item }"><span class="r4-table-v2__acc-title">{{ item.title }}<R4Tag size="small" color="neutralLight" :text="String(item.count)" /></span></template>
+            <template #title="{ item }"><span class="r4-table-v2__acc-title">{{ item.title }}<R4Tag size="small" color="blue" :text="String(item.count)" /></span></template>
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
                 <R4Chip v-for="c in chipsDraft" :key="c.filtro + c.value" size="small" :label="c.label" dismissable @dismiss="quitarChip(c)" />

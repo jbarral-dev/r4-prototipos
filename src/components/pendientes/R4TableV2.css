@@ -73,16 +73,17 @@
 
 
 /* Variante B (stacked): fila de filtros + 16 px + fila con «N resultados» a la izquierda y las vistas a la derecha. Las vistas: R4SegmentedControls en desktop y R4Chip multiple (que abre el sheet «Vista») en tablet y mobile */
-.r4-table-v2__toolbar { display: flex; flex-direction: column; gap: var(--spacing-4); }
+.r4-table-v2__toolbar { display: flex; flex-direction: column; gap: var(--spacing-6); } /* filtros → fila de «N resultados» + vistas: 24 */
+.r4-table-v2--stacked { gap: var(--spacing-4); } /* fila de «N resultados» + vistas → tabla: 16 */
 .r4-table-v2__meta { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); min-height: var(--component-chip-size-medium); }
 .r4-table-v2__count { margin: 0; color: var(--text-default); }
 .r4-table-v2__views-chip { display: none; }
-.r4-table-v2--stacked .r4-table-v2__spinner.is-table { top: calc(var(--component-chip-size-medium) * 2 + var(--spacing-4) + var(--spacing-6)); }
+.r4-table-v2--stacked .r4-table-v2__spinner.is-table { top: calc(var(--component-chip-size-medium) * 2 + var(--spacing-6) + var(--spacing-4)); }
 @container r4page (max-width: 1023px) {
   .r4-table-v2__views--segmented { display: none; }
   .r4-table-v2__views-chip { display: inline-flex; }
   .r4-table-v2__toolbar .r4-table-v2__filters { flex: none; }
 }
 
-/* Título del acordeón: texto + R4Tag small lightgray con el nº */
+/* Título del acordeón: texto + R4Tag small blue con el nº */
 .r4-table-v2__acc-title { display: inline-flex; align-items: center; gap: var(--spacing-2); }
