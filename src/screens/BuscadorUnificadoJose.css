@@ -38,7 +38,7 @@
 html.jusearch-lock { overflow: hidden; }
 
 /* Tablet y mobile (Enfoque buscador): R4Sheet bottom de alto completo (--r4-sheet-bottom-maxheight). El cuerpo ocupa el alto útil (alto - padding superior 80 - inferior 32) para que el panel haga scroll por dentro y el prompt quede abajo */
-.jusearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; } /* este bottom sheet llega al 90 % del alto (el resto de bottom sheets, 80) */
+.jusearch-sheetbottom { --r4-sheet-bottom-maxheight: 90vh; } /* 90 % del alto (ahora es también el valor global; se mantiene por si el global cambia) */
 @supports (height: 1dvh) { .jusearch-sheetbottom { --r4-sheet-bottom-maxheight: 90dvh; } }
 .jusearch-sheetbottom__body { display: flex; flex-direction: column; gap: var(--spacing-8); height: calc(var(--r4-sheet-bottom-maxheight) - var(--spacing-16) - var(--spacing-4) - var(--spacing-8)); }
 .jusearch-sheetbottom__body .jusearch-panel { flex: 1 1 0; }

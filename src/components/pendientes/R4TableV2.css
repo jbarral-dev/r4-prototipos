@@ -71,6 +71,3 @@
   .r4-table-v2__sheet--view { display: none; }
 }
 
-/* Alto máximo de los R4Sheet bottom (tablet y mobile): 90 % del alto de la ventana (el global es 80; Jon, 2026-11-24) */
-.r4-table-v2__sheet { --r4-sheet-bottom-maxheight: 90vh; }
-@supports (height: 1dvh) { .r4-table-v2__sheet { --r4-sheet-bottom-maxheight: 90dvh; } }
