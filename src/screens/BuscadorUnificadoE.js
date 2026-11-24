@@ -87,7 +87,10 @@ export default defineComponent({
     onMounted(() => { dejarDeSeguir = seguirTeclado((v) => { tecladoVisible.value = v }) })
     onBeforeUnmount(() => { dejarDeSeguir(); document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey) })
 
-    return { api, tituloCapa, tecladoVisible, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
+    // «Volver» (chat y listado del histórico) va en la cabecera del R4Sheet (slot `header`), como en «Chatbot (Jose)»: del chat sale a la pantalla inicial (la conversación queda activa) y, desde el listado, también a la inicial. El foco pasa al aspa de cerrar (sin abrir el teclado en mobile)
+    const volver = async (e) => { const sheet = e.currentTarget.closest('.r4-sheet'); if (api.chatView) api.volver(); else api.vista = 'inicio'; await nextTick(); sheet?.querySelector('.r4-sheet__close')?.focus() }
+    const hayVolver = () => api.chatView || api.vista === 'historial'
+    return { api, volver, hayVolver, tituloCapa, tecladoVisible, caso, FACILITADOR, onCaso, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut }
   },
   template: `
     <FichaAccion :client="caso.usuario" search-icon="ic-search-ai" :search-badge="api.hayConversacion" :facilitator="false" @search="api.abrir()">
@@ -103,7 +106,7 @@ export default defineComponent({
         <div v-if="api.open && contenedor === 'popover'" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
             <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
-              <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+              <R4InputSearch ref="desktopField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
             </div>
@@ -121,12 +124,13 @@ export default defineComponent({
           <R4Sheet position="side" :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheet__body" :class="{ 'usearch-sheet__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'usearch-sheet__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
-                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="sheetField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
+            <template #header="{ titleId }"><div class="usearch-sheet-head"><button v-if="hayVolver()" type="button" class="usearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ tituloCapa }}</h2></div></template>
             <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>
@@ -136,12 +140,13 @@ export default defineComponent({
           <R4Sheet position="bottom" full-height :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheetbottom__body" :class="{ 'usearch-sheetbottom__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'usearch-sheetbottom__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="usearch__fieldrow">
-                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="mobileField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
               <UnifiedSearchPanel :api="api" :with-composer="false" />
             </div>
+            <template #header="{ titleId }"><div class="usearch-sheet-head"><button v-if="hayVolver()" type="button" class="usearch-sheet-head__back" aria-label="Volver" @click="volver"><Icon name="ic-arrow-left" /></button><h2 :id="titleId" class="r4-sheet__title">{{ tituloCapa }}</h2></div></template>
             <template #actions><ChatComposer v-if="api.chatView" :api="api" /><AssistantAccess v-else @ask="api.preguntarLoEscrito()" /></template>
           </R4Sheet>
         </div>

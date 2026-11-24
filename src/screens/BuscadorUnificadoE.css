@@ -104,3 +104,10 @@ html.usearch-lock { overflow: hidden; }
 /* Teclado del móvil abierto (clase r4-teclado y variables de seguirTeclado.js): la capa bottom se sube por encima del teclado y su alto (90 %) se calcula sobre el espacio visible, para que se vea la caja de búsqueda */
 html.r4-teclado .usearch-sheetbottom { --r4-sheet-bottom-maxheight: calc(var(--r4-vv-height) * 0.9); }
 html.r4-teclado .usearch-sheetbottom .r4-sheet--bottom { bottom: var(--r4-vv-bottom, 0); }
+
+
+/* «Volver» en la cabecera del R4Sheet (slot header; Figma «Proyectos - Chatbot» 42:1499, SheetHeader/Left: ic-arrow-left de 20 + gap 12 + título) */
+.usearch-sheet-head { display: flex; flex: 1 1 0; min-width: 0; align-items: center; gap: var(--spacing-3); }
+.usearch-sheet-head__back { display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-6); height: var(--spacing-6); padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; color: var(--text-default); cursor: pointer; }
+.usearch-sheet-head__back .r4-icon { width: var(--spacing-5); height: var(--spacing-5); }
+.usearch-sheet-head__back:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }

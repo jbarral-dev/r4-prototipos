@@ -75,7 +75,7 @@ export default defineComponent({
     // Filas de «Preguntas»: R4NavigationItems (sin icono en caja ni flecha); `conv` / `texto` viajan en el ítem para saber qué abrir
     // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
     const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
-    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
+    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas conversaciones' : 'Conversaciones frecuentes'))
     // «Últimas preguntas»: las 5 más recientes y, si hay más, «Ver todas» (abre el listado completo)
     const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
     const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
@@ -86,7 +86,7 @@ export default defineComponent({
     const onListado = (it, e) => { e.preventDefault(); props.api.abrirConversacion(it.conv, 'historial') }
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
-    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
+    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
     return { itemProps, uid, bodyId, vacio, preguntaPendiente, escribiendo, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, enlacesLista, pick, hayBusquedas, ocultarTeclado, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
@@ -96,7 +96,7 @@ export default defineComponent({
       <div ref="body" class="jusearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="jusearch-panel__group">
-          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
+          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las conversaciones" @select="onListado" />
         </div>
         <!-- Pregunta en curso: spinner mientras escribe; a 0,3 s sin escribir, el mensaje y el CTA (Figma «Proyectos - Chatbot» 22:13453) -->
         <div v-else-if="preguntaPendiente" class="jusearch-panel__complex">
@@ -122,12 +122,7 @@ export default defineComponent({
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
-          <div v-if="api.results.length" class="jusearch-panel__groups">
-            <section v-for="g in gruposVisibles" :key="g.id" class="jusearch-panel__group" :aria-labelledby="'jusearch-g-' + g.id + '-' + uid">
-              <R4Text :id="'jusearch-g-' + g.id + '-' + uid" tag="h3" size="medium" font-style="strong" class="jusearch-panel__group-title" :text="g.label + ' (' + g.items.length + ')'" />
-              <R4SearchResults class="jusearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
-            </section>
-          </div>
+          <R4SearchResults v-if="api.results.length" class="jusearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in api.results" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
           <div v-else class="jusearch-panel__empty">
             <Icon class="jusearch-panel__empty-icon" name="ic-file-search" />
             <div class="jusearch-panel__empty-texts">
