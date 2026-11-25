@@ -122,7 +122,7 @@ export default defineComponent({
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
-          <R4SearchResults v-if="api.results.length" class="jusearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in api.results" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
+          <R4SearchResults v-if="api.results.length" class="jusearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in api.results" :key="i" v-bind="itemProps(r)" size="medium" @select="pick(r.name, $event)" /></R4SearchResults>
           <div v-else class="jusearch-panel__empty">
             <Icon class="jusearch-panel__empty-icon" name="ic-file-search" />
             <div class="jusearch-panel__empty-texts">
@@ -150,7 +150,7 @@ export default defineComponent({
                 <span class="jusearch-msg__who">{{ m.role === 'user' ? 'Tú' : 'Asistente' }}</span>
                 <p v-if="m.legal" class="jusearch-msg__text">Este chat utiliza inteligencia artificial para ayudarte con la operativa y gestión de tu cuenta en Renta 4, recuerda que puede cometer errores. Para mejorar tu experiencia, nuestro equipo puede revisar las conversaciones. Proporciona solo los detalles necesarios y evita incluir datos personales. Si deseas más información, lee <R4Link type="inline" size="medium" href="https://jbarral-dev.github.io/r4-prototipos/chatbot-jose/#" target="_blank" rel="noopener">nuestra información de protección de datos</R4Link>.</p>
                 <p v-else class="jusearch-msg__text">{{ m.text }}</p>
- <R4SearchResults v-if="m.resultados" class="jusearch-panel__results jusearch-msg__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in m.resultados" :key="i" v-bind="itemProps(r)" :highlight="''" @select="pick(r.name, $event)" /></R4SearchResults>
+ <R4SearchResults v-if="m.resultados" class="jusearch-panel__results jusearch-msg__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in m.resultados" :key="i" v-bind="itemProps(r)" size="small" :highlight="''" @select="pick(r.name, $event)" /></R4SearchResults>
                 <ul v-if="enlacesLista(m)" class="jusearch-msg__list"><li v-for="l in enlacesLista(m)" :key="l.label"><R4Link size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></li></ul>
                 <div v-else-if="m.links" class="jusearch-msg__links"><R4Link v-for="l in m.links" :key="l.label" size="medium" href="#" @click.prevent="api.accion(l)">{{ l.label }}</R4Link></div>
               </div>

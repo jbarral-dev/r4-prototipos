@@ -51,15 +51,26 @@
 .r4-searchresult__market { display: flex; align-items: center; gap: var(--spacing-1); }
 .r4-searchresult__market .r4-icon { flex: none; width: var(--spacing-4); height: var(--spacing-4); border-radius: var(--radius-full); }
 
+/* Tamaños (Figma 1117:20355). Medidas comunes: logo 32 (large, medium); fila con padding 8/4 (medium, small) o 12/4 (large). --auto: lo decide la anchura de la fila (container query), como antes. */
+.r4-searchresult--large .r4-searchresult__id:not(:last-child)::after, .r4-searchresult--large .r4-searchresult__market:not(:last-child)::after { content: '·'; margin-left: var(--spacing-2); }
+.r4-searchresult--large .r4-searchresult__logo, .r4-searchresult--large .r4-searchresult__logo--img, .r4-searchresult--large .r4-searchresult__logo--default { width: var(--spacing-8); height: var(--spacing-8); }
 @container (min-width: 480px) {
-  .r4-searchresult__id:not(:last-child)::after, .r4-searchresult__market:not(:last-child)::after { content: '·'; margin-left: var(--spacing-2); }
+  .r4-searchresult--auto .r4-searchresult__id:not(:last-child)::after, .r4-searchresult--auto .r4-searchresult__market:not(:last-child)::after { content: '·'; margin-left: var(--spacing-2); }
 }
+/* medium (antiguo small): metadatos bajo el nombre, mercado a la derecha en text/subdued */
+.r4-searchresult--medium, .r4-searchresult--small { padding-block: var(--spacing-2); }
+.r4-searchresult--medium .r4-searchresult__logo--default, .r4-searchresult--medium .r4-searchresult__logo--img { width: var(--spacing-8); height: var(--spacing-8); }
+.r4-searchresult--medium .r4-searchresult__sub, .r4-searchresult--small .r4-searchresult__sub { display: flex; }
+.r4-searchresult--medium .r4-searchresult__id { display: none; }
+.r4-searchresult--medium .r4-searchresult__market { color: var(--text-subdued); }
+/* small (compacta): sin logo; una línea de metadatos en body/xs (12/16) muted que incluye el mercado; a la derecha solo la etiqueta */
+.r4-searchresult--small .r4-searchresult__sub { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); }
 @container (max-width: 479px) {
-  .r4-searchresult--rich .r4-searchresult__logo--default { width: var(--spacing-8); height: var(--spacing-8); }
-  .r4-searchresult__sub { display: flex; }
-  .r4-searchresult__id { display: none; }
-  .r4-searchresult__market { color: var(--text-subdued); }
+  .r4-searchresult--auto .r4-searchresult__logo--default { width: var(--spacing-8); height: var(--spacing-8); }
+  .r4-searchresult--auto .r4-searchresult__sub { display: flex; }
+  .r4-searchresult--auto .r4-searchresult__id { display: none; }
+  .r4-searchresult--auto .r4-searchresult__market { color: var(--text-subdued); }
 }
-@container r4page (max-width: 599px) { .r4-searchresult--rich { padding-block: var(--spacing-2); } }
+@container r4page (max-width: 599px) { .r4-searchresult--auto.r4-searchresult--rich { padding-block: var(--spacing-2); } }
 .r4-searchresult__logo--img { width: calc(var(--spacing-6) + var(--spacing-1)); height: calc(var(--spacing-6) + var(--spacing-1)); border-radius: 0; object-fit: cover; }
-@container (max-width: 479px) { .r4-searchresult--rich .r4-searchresult__logo--img { width: var(--spacing-8); height: var(--spacing-8); } }
+@container (max-width: 479px) { .r4-searchresult--auto .r4-searchresult__logo--img { width: var(--spacing-8); height: var(--spacing-8); } }
