@@ -1,0 +1,19 @@
+/* _AppTabBar — valores leídos de Figma (Templates 1.0, TabBar 12468:57 · menuOpened=no 12135:4909). Fija abajo; el halo y el CTA sobresalen de la barra. */
+.app-tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 120; display: flex; align-items: flex-end; justify-content: center; filter: var(--r4-tabbar-shadow); }
+.app-tabbar__bar { flex: 1 1 0; min-width: 0; background: var(--surface-default); }
+.app-tabbar__list { display: flex; align-items: center; justify-content: space-between; margin: 0; padding: 0; list-style: none; }
+.app-tabbar__li { flex: 1 1 0; min-width: 0; }
+.app-tabbar__gap { flex: none; width: calc(var(--spacing-12)); height: calc(var(--spacing-8) + var(--spacing-05)); } /* hueco del CTA: 48 × 34 */
+.app-tabbar__item { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-1); height: var(--spacing-16); padding: var(--spacing-3) 0; border-top: var(--spacing-05) solid transparent; color: var(--text-muted); text-decoration: none; }
+.app-tabbar__item.is-current { border-top-color: var(--accent-border); color: var(--accent-text); }
+.app-tabbar__item:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--r4-line-width) var(--accent-border), var(--effect-card-focus-outline); }
+.app-tabbar__item .r4-icon { width: var(--spacing-5); height: var(--spacing-5); }
+.app-tabbar__label { font-family: var(--font-family-body); font-size: var(--r4-tabbar-label-size); line-height: var(--spacing-4); font-weight: var(--font-weight-regular); text-align: center; }
+.app-tabbar__halo { position: absolute; left: 50%; top: calc(var(--spacing-6) * -1); width: var(--spacing-16); height: var(--spacing-16); transform: translateX(-50%); border-radius: var(--radius-full); background: var(--surface-default); }
+.app-tabbar__cta { position: absolute; left: 50%; top: calc(var(--spacing-5) * -1); display: flex; align-items: center; justify-content: center; width: calc(var(--spacing-12) + var(--spacing-2)); height: calc(var(--spacing-12) + var(--spacing-2)); transform: translateX(-50%); padding: 0; border: 0; border-radius: var(--radius-full); background: var(--accent-default); color: var(--accent-text-on-accent); cursor: pointer; filter: drop-shadow(0 var(--spacing-1) calc(var(--spacing-1) + var(--spacing-05)) color-mix(in srgb, var(--accent-default) 50%, transparent)); }
+.app-tabbar__cta .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.app-tabbar__cta:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+/* Con la TabBar: el dock de acciones de la ficha queda justo encima y el contenido no se oculta tras la barra (64) */
+.template-detail:has(.app-tabbar) .r4-buttondock { bottom: var(--spacing-16); }
+.template-detail:has(.app-tabbar) .template-detail__page { padding-bottom: var(--spacing-16); }

@@ -1,0 +1,12 @@
+/* _AppHeader — medidas leídas de la captura de Figma (Chatbot 54:1612, 390 × 56): fondo surface/default, alto 56, botones de 40 con icono de 24 (menú a la izquierda, lupa a la derecha), isotipo de 26 junto al menú
+   y título centrado en body/m. Fijo arriba (sticky). */
+.app-header { position: sticky; top: 0; z-index: 100; display: flex; align-items: center; gap: var(--spacing-1); height: calc(var(--spacing-12) + var(--spacing-2)); padding: 0 var(--spacing-1); background: var(--surface-default); color: var(--text-default); }
+.app-header__button { position: relative; display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-default); cursor: pointer; }
+.app-header__button:hover { background: var(--surface-subtle); }
+.app-header__button:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.app-header__button .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.app-header__logo { display: flex; flex: none; }
+.app-header__logo .r4-brandtypes, .app-header__logo svg { width: calc(var(--spacing-6) + var(--spacing-05)); height: calc(var(--spacing-6) + var(--spacing-05)); }
+.app-header__title { position: absolute; left: 50%; margin: 0; transform: translateX(-50%); color: var(--text-subdued); font-family: var(--font-family-body); font-size: var(--size-body-m); line-height: var(--line-height-body-m); font-weight: var(--font-weight-regular); white-space: nowrap; pointer-events: none; }
+.app-header__search { margin-left: auto; }
+.app-header__badge { position: absolute; top: var(--spacing-2); right: var(--spacing-2); pointer-events: none; }

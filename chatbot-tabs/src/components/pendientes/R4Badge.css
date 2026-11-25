@@ -23,6 +23,11 @@
   font-weight: var(--font-weight-semibold);
   white-space: nowrap;
 }
-.r4-badge--negative { --r4-badge-bg: var(--component-badge-negative-bg); box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-badge-negative-border); color: var(--text-default); }
+/* Estilos (Confluence R4Badge, releída 2026-11-18): positive = fondo negro, texto blanco, borde blanco · negative = fondo gris claro, texto negro, borde negro · highlight = fondo melocotón, texto negro, borde negro.
+   `outline` = borde exterior de 2 px del estilo (sin outline no hay borde). */
+.r4-badge--negative { --r4-badge-bg: var(--component-badge-negative-bg); color: var(--text-default); }
+.r4-badge--highlight { --r4-badge-bg: var(--component-badge-highlight-bg); color: var(--text-default); }
 .r4-badge--outline.r4-badge--positive { box-shadow: 0 0 0 var(--spacing-05) var(--component-badge-positive-border); }
+.r4-badge--outline.r4-badge--negative { box-shadow: 0 0 0 var(--spacing-05) var(--component-badge-negative-border); }
+.r4-badge--outline.r4-badge--highlight { box-shadow: 0 0 0 var(--spacing-05) var(--component-badge-highlight-border); }
 .r4-badge--dot { min-width: var(--spacing-3); width: var(--spacing-3); height: var(--spacing-3); padding: 0; }

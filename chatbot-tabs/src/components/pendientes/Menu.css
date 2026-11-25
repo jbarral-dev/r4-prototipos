@@ -158,3 +158,8 @@
 .menu__access--filled { background: var(--accent-default); color: var(--accent-text-on-accent); }
 .menu__logotype-link { color: var(--text-on-inverse); }
 .menu--client-potencial .menu__logotype { display: block; height: var(--spacing-8); width: auto; }
+
+/* Punto de «conversación activa» sobre la lupa (extra del prototipo del buscador): arriba a la derecha del icono; en mobile el botón es de 56 y el icono más pequeño */
+.menu__search, .menu__compact-button--search { position: relative; }
+.menu__badge { position: absolute; top: var(--spacing-2); right: var(--spacing-2); pointer-events: none; }
+@container r4page (max-width: 599px) { .menu__compact-button--search .menu__badge { top: var(--spacing-4); right: var(--spacing-4); } }
