@@ -61,7 +61,10 @@
 .r4-table-v2__bar--compact { display: none; }
 @container r4page (max-width: 1023px) {
   .r4-table-v2__bar--wide { display: none; }
-  .r4-table-v2__bar--compact { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-2); }
+  .r4-table-v2__bar--compact { display: flex; align-items: center; gap: var(--spacing-4); }
+  .r4-table-v2__bar--compact .r4-chip { flex: 0 0 calc((100% - var(--spacing-4)) / 2); min-width: 0; box-sizing: border-box; } /* las dos chips ocupan mitad y mitad (con 16 de gap) */
+  .r4-table-v2__bar--compact .r4-chip--no-chevron { justify-content: center; }
+  /* Mobile: la primera columna (frozen) con ancho fijo para que al cambiar de vista se vea parte de la segunda columna y se note el cambio; los textos largos se recortan con puntos suspensivos */
 }
 @container r4page (min-width: 1024px) {
   .r4-table-v2__sheet--view { display: none; }
@@ -83,3 +86,8 @@
 
 /* Popover de vistas (variante A, desktop): alineado al borde derecho del chip, que está en el extremo derecho de la barra */
 .r4-table-v2__popover--end { left: auto; right: 0; }
+
+/* Mobile (< 600 px): primera columna fija de 160 para que, al cambiar de vista, se vea parte de la segunda columna y se note el cambio (en la vista adicional el nombre llegaba al 30 % del ancho mínimo de la tabla y ocupaba toda la pantalla) */
+@container r4page (max-width: 599px) {
+  .r4-table-v2 { --r4-table-frozen-width: calc(var(--spacing-16) * 2 + var(--spacing-8)); } /* 160 */
+}

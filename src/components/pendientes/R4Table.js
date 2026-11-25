@@ -80,8 +80,19 @@ export default defineComponent({
     const alternar = (r) => { const s = new Set(abiertas.value); const k = r[props.dataKey]; if (s.has(k)) s.delete(k); else s.add(k); abiertas.value = s }
     const idHijo = (r, i) => `r4-table-${r[props.dataKey]}-hijo-${i}`
     const idsHijos = (r) => r.children.map((_, i) => idHijo(r, i)).join(' ')
-    // Con la columna del botón (40 px fijos) las demás columnas con `width` en % se calculan sobre el ancho restante (100 % - 40 px), así el botón mide exactamente 40 y la tabla no desborda
-    const anchoColumna = (c) => (expandible.value && c.width && c.width.endsWith('%') ? `calc((100% - var(--r4-table-toggle-width)) * ${(parseFloat(c.width) / 100).toFixed(4)})` : c.width)
+    // Anchos de columna en %: con la columna del botón (40 px fijos) el resto se calcula sobre el ancho restante (100 % - 40 px), así el botón mide exactamente 40 y la tabla no desborda.
+    // La columna `frozen` puede fijarse a un ancho propio con la variable --r4-table-frozen-width (R4TableV2 la usa en mobile: 160 px); el resto de columnas se reparte el ancho que queda.
+    const pct = (c) => (c.width && c.width.endsWith('%') ? parseFloat(c.width) : null)
+    const anchoColumna = (c) => {
+      const p = pct(c)
+      if (p === null) return c.width
+      const total = '100%' + (expandible.value ? ' - var(--r4-table-toggle-width)' : '')
+      const fz = props.columns.find((x) => x.frozen && pct(x) !== null)
+      if (!fz) return expandible.value ? `calc((${total}) * ${(p / 100).toFixed(4)})` : c.width
+      const F = pct(fz)
+      const anchoFz = `var(--r4-table-frozen-width, calc((${total}) * ${(F / 100).toFixed(4)}))`
+      return c.frozen ? anchoFz : `calc((${total} - ${anchoFz}) * ${(p / (100 - F)).toFixed(5)})`
+    }
     const filasSkeleton = computed(() => Array.from({ length: props.rows }, (_, i) => i))
     return { expandible, tieneHijos, estaAbierta, alternar, idHijo, idsHijos, anchoColumna, filasSkeleton, page, pageCount, visibles, paginas, ir, sort, toggleSort, sortIcon, ariaSort }
   },
