@@ -84,7 +84,7 @@ export default defineComponent({
       { icon: 'ic-comments-alt', text: 'Formula una pregunta, pulsa “Enter” y comenzaremos un chat.' },
     ]
     // Barra «¿No encuentras lo que buscas?»: fija abajo con los resultados a la vista (como en «Chatbot»)
-    const mostrarBarra = computed(() => props.api.mode === 'search' && !vacio.value && props.api.results.length > 0)
+    const mostrarBarra = computed(() => false) // sin barra fija de «¿No encuentras…?»: la pestaña Chat lleva al asistente
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
     return { hayMas, historialItems, enListado, onListado, enlacesLista, hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
   },
