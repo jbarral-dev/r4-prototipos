@@ -102,7 +102,7 @@ export default defineComponent({
         <div v-else-if="preguntaPendiente" class="usearch-panel__complex">
           <R4Spinner v-if="escribiendo" size="medium" aria-label="Escribiendo tu pregunta" />
           <template v-else>
-            <R4Text size="medium" class="usearch-panel__complex-text">Parece que estás formulando una pregunta. Acaba de escribirla y pulsa “Enter” <span class="usearch-panel__enter" aria-hidden="true">↵</span> y accederás al asistente.</R4Text>
+            <R4Text size="medium" class="usearch-panel__complex-text">Parece que estás formulando una pregunta. Acaba de escribirla y pulsa “Enter” <span class="usearch-panel__enter" aria-hidden="true">↵</span> para acceder al chat con el asistente.</R4Text>
           </template>
         </div>
         <div v-else-if="vacio" class="usearch-panel__start">
