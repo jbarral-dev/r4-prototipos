@@ -25,7 +25,10 @@ export const leerFecha = (s) => {
 export default defineComponent({
   name: '_DatePickerMenu',
   components: { Icon },
-  props: { modelValue: { type: String, default: '' } },
+  props: {
+    modelValue: { type: String, default: '' },
+    inline: { type: Boolean, default: false }, // extra: el calendario ocupa el 100 % de su contenedor y sin sombra (pantalla propia de un R4Sheet en mobile)
+  },
   emits: ['select', 'close'],
   setup(props, { emit }) {
     const hoy = new Date()
@@ -64,7 +67,7 @@ export default defineComponent({
     return { vista, titulo, mover, subir, dias, meses, años, DIAS, elegirDia, elegirMes, elegirAño, etiquetaMover }
   },
   template: `
-    <div class="r4-datepicker" :class="'r4-datepicker--' + vista" role="dialog" aria-label="Calendario">
+    <div class="r4-datepicker" :class="['r4-datepicker--' + vista, { 'r4-datepicker--inline': inline }]" role="dialog" aria-label="Calendario">
       <div class="r4-datepicker__header">
         <button type="button" class="r4-datepicker__nav" :aria-label="etiquetaMover[0]" @click="mover(-1)"><Icon name="chevron-left" /></button>
         <button type="button" class="r4-datepicker__title" :class="{ 'r4-datepicker__title--static': vista === 'year' }" :disabled="vista === 'year'" :aria-label="vista === 'year' ? titulo : titulo + ' (cambiar de vista)'" @click="subir">{{ titulo }}</button>

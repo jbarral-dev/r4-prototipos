@@ -29,3 +29,6 @@
 .r4-datepicker__item:hover:not(:disabled):not(.is-active) { background: var(--surface-subtle); }
 .r4-datepicker__item.is-active { background: var(--surface-inverse); color: var(--text-on-inverse); }
 .r4-datepicker__item.is-disabled, .r4-datepicker__item:disabled { color: var(--text-disabled); cursor: default; }
+
+/* inline: dentro de un sheet (mobile), a todo el ancho y sin sombra */
+.r4-datepicker.r4-datepicker--inline { width: 100%; border-radius: 0; box-shadow: none; }

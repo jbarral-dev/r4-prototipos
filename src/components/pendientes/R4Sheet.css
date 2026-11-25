@@ -118,3 +118,9 @@ html.r4-scroll-lock body { position: fixed; width: 100%; overflow: hidden; }
 .r4-sheet__scrim { touch-action: none; }
 .r4-sheet__content { overscroll-behavior: contain; }
 .r4-sheet--bottom.is-full-height { height: var(--r4-sheet-bottom-maxheight); }
+
+/* Flecha de volver (showBackLink): mismo botón circular que el de cerrar, a la izquierda del título */
+.r4-sheet__back { display: flex; flex: none; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); margin-left: calc(var(--spacing-2) * -1); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-default); cursor: pointer; }
+.r4-sheet__back:hover { background: var(--surface-subtle); }
+.r4-sheet__back .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.r4-sheet__back:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }

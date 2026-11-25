@@ -22,6 +22,7 @@ export default defineComponent({
   props: {
     type: { type: String, default: 'text', validator: (v) => ['text', 'number', 'datepicker'].includes(v) },
     step: { type: Number, default: 1 }, // type=number: incremento de las flechas
+    externalCalendar: { type: Boolean, default: false }, // type=datepicker (extra): no abre la capa; emite `calendar` para que lo muestre otra pantalla (mobile: pantalla propia de un R4Sheet). El campo pasa a solo lectura.
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' }, // type=datepicker: dónde se monta la capa del calendario
     modelValue: { type: String, default: '' },
     label: { type: String, default: undefined }, // la doc lo marca obligatorio; con aria-label se puede omitir el visible
@@ -34,7 +35,7 @@ export default defineComponent({
     name: { type: String, default: undefined },
   },
   inheritAttrs: false, // aria-label y demás atributos van al <input>, no al contenedor
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'calendar'],
   setup(props, { emit, attrs }) {
     const id = `r4-input-text-${++uid}`
     const classes = computed(() => ['r4-input-text', `r4-input-text--${props.status.toLowerCase()}`, `r4-input-text--${props.type}`, { 'r4-input-text--disabled': props.disabled }])
@@ -51,14 +52,23 @@ export default defineComponent({
       const f = fieldEl.value; const l = layerEl.value
       if (!f || !l) return
       const gap = 8
+      const host = f.closest('.r4-popover, .r4-sheet') // dentro de un popover o de un sheet, el calendario sale a su lado (derecha; si no cabe, izquierda) y no lo tapa
       l.style.setProperty('--r4-datepicker-avail', document.documentElement.clientWidth - gap * 2 + 'px') // ancho útil (sin la barra de scroll) para que el calendario no se salga
       const r = f.getBoundingClientRect(); const w = l.offsetWidth; const h = l.offsetHeight
-      const left = Math.max(gap, Math.min(r.left, document.documentElement.clientWidth - w - gap))
+      const cw = document.documentElement.clientWidth
+      if (host) {
+        const hr = host.getBoundingClientRect()
+        const left = hr.right + gap + w <= cw - gap ? hr.right + gap : hr.left - gap - w >= gap ? hr.left - gap - w : Math.max(gap, Math.min(r.left, cw - w - gap))
+        const top = Math.max(gap, Math.min(hr.top, window.innerHeight - h - gap))
+        pos.value = { top: top + 'px', left: left + 'px' }
+        return
+      }
+      const left = Math.max(gap, Math.min(r.left, cw - w - gap))
       const top = r.bottom + gap + h <= window.innerHeight || r.top - gap - h < 0 ? r.bottom + gap : r.top - gap - h
       pos.value = { top: top + 'px', left: left + 'px' }
     }
     const cerrar = () => { abierto.value = false }
-    const abrir = async () => { if (props.disabled || props.readonly) return; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
+    const abrir = async () => { if (props.disabled || props.readonly) return; if (props.externalCalendar) { emit('calendar'); return }; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
     const alternar = () => (abierto.value ? cerrar() : abrir())
     const elegir = (f) => { emit('update:modelValue', f); cerrar() }
     const onDoc = (e) => { if (abierto.value && !e.target.closest('.r4-datepicker-layer') && !(fieldEl.value && fieldEl.value.contains(e.target))) cerrar() }
@@ -77,7 +87,7 @@ export default defineComponent({
       </label>
       <div ref="fieldEl" class="r4-input-text__field">
         <input class="r4-input-text__input" :id="id" :type="type === 'number' ? 'number' : 'text'" :step="type === 'number' ? step : undefined" :inputmode="type === 'datepicker' ? 'numeric' : undefined" :name="name" :value="modelValue" :placeholder="placeholder || (type === 'datepicker' ? 'dd/mm/aaaa' : ' ')"
-               :disabled="disabled" :readonly="readonly" :aria-required="required ? 'true' : undefined"
+                   :disabled="disabled" :readonly="readonly || (type === 'datepicker' && externalCalendar)" :aria-required="required ? 'true' : undefined"
                :aria-invalid="status === 'Error' ? 'true' : undefined" :aria-describedby="caption ? id + '-caption' : undefined"
                v-bind="inputAttrs" @input="onInput" @click="type === 'datepicker' && abrir()" />
         <span v-if="type === 'number'" class="r4-input-text__stepper">

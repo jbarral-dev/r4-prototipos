@@ -7,7 +7,7 @@
 // Accesibilidad según la doc: role="dialog" aria-modal="true" aria-labelledby (título) · botón de cierre con aria-label "Cerrar" · Escape cierra · foco al botón de cierre al abrir,
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
-// primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
+// primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). showBackLink (extra del prototipo: flecha `ic-arrow-left` a la izquierda del título, evento `back`; la doc define `backLinkURL`; con la flecha visible Escape vuelve en lugar de cerrar). NO reconstruido: la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
 // Scroll (decisión de Jon): mientras haya un sheet visible abierto la página no hace scroll (clase r4-scroll-lock en <html>, contador compartido entre sheets).
 // Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, negro al 30 %, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
 // (`.r4-sheet-layer`, display: contents) que recibe la class/style de la pantalla. Figma no define el velo: opacidad provisional (ver pending.css).
@@ -42,9 +42,11 @@ export default defineComponent({
     secondaryActionDisabled: { type: Boolean, default: false }, // extra (R4TableV2): botón secundario deshabilitado
     secondaryActionIcon: { type: String, default: undefined }, // extra (R4TableV2): icono del botón secundario (type=text)
     showActions: { type: Boolean, default: false }, // extra: = showActions de Figma con el contenido del bloque en el slot `actions` (en lugar de primaryActionLabel / secondaryActionLabel)
+    showBackLink: { type: Boolean, default: false }, // extra: flecha de volver junto al título (evento `back`)
+    backLinkLabel: { type: String, default: 'Volver' },
     fullHeight: { type: Boolean, default: false }, // extra: el bottom sheet ocupa siempre su alto máximo (contenido de altura variable, p. ej. un buscador con resultados)
   },
-  emits: ['close', 'primary', 'secondary'],
+  emits: ['close', 'primary', 'secondary', 'back'],
   setup(props, { emit, slots }) {
     const titleId = `r4-sheet-title-${++uid}`
     const root = ref(null)
@@ -57,7 +59,7 @@ export default defineComponent({
     const visible = () => root.value && root.value.getClientRects().length > 0 // el CSS oculta la variante que no toca (en la capa envolvente; offsetParent no sirve con position: fixed)
 
     const onKeydown = (e) => {
-      if (e.key === 'Escape') { e.stopPropagation(); emit('close'); return }
+      if (e.key === 'Escape') { e.stopPropagation(); emit(props.showBackLink ? 'back' : 'close'); return }
       if (e.key !== 'Tab') return
       const f = focusables()
       if (!f.length) return
@@ -91,6 +93,7 @@ export default defineComponent({
     <Transition :name="'r4-sheet-' + position">
       <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': hasActions, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
+          <button v-if="showBackLink" type="button" class="r4-sheet__back" :aria-label="backLinkLabel" @click="$emit('back')"><Icon name="ic-arrow-left" /></button>
           <slot name="header" :title-id="titleId"><h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2></slot>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>
         </div>
