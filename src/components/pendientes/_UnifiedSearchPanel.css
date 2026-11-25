@@ -86,5 +86,9 @@
 .usearch-panel__complex .usearch-panel__complex-text { margin: 0; color: var(--text-muted); text-align: center; }
 .usearch-panel__complex .r4-button { width: 100%; }
 .usearch-panel:has(.usearch-panel__complex) .usearch-panel__body { flex: 1 1 auto; }
+.usearch-panel__complex:has(.usearch-panel__empty) { display: block; margin-block: 0; padding: 0; }
 
 .usearch-assistant-access { display: flex; flex-direction: column; gap: var(--spacing-2); }
+
+/* Símbolo de la tecla Intro dentro del texto de «pregunta en curso» (carácter ↵: en Primitivos 1.2 no hay icono de «enter») */
+.usearch-panel__enter { display: inline-block; padding-inline: var(--spacing-1); font-weight: var(--font-weight-semibold); color: var(--text-default); }

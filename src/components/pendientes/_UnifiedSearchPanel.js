@@ -29,7 +29,7 @@ export default defineComponent({
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
     const vacio = computed(() => !props.api.mode || (props.api.mode === 'search' && !props.api.autocompletar))
-    // Pregunta en curso (el enrutado la ve como pregunta): mientras el usuario escribe se muestra el spinner; si deja de escribir 0,5 s, el mensaje «Para consultas más complejas» con el CTA «Pregunta al asistente». Intro envía la pregunta al chat.
+    // Pregunta en curso (el enrutado la ve como pregunta): mientras el usuario escribe se muestra el spinner; si deja de escribir 0,5 s, un mensaje que invita a acabar la pregunta y pulsar Intro (sin botón). Intro envía la pregunta al chat.
     const escribiendo = ref(false)
     let idle = null
     watch(() => props.api.query, () => { escribiendo.value = true; clearTimeout(idle); idle = setTimeout(() => { escribiendo.value = false }, 500) })
@@ -98,13 +98,16 @@ export default defineComponent({
         <div v-if="enListado" class="usearch-panel__group">
           <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las conversaciones" @select="onListado" />
         </div>
-        <!-- Pregunta en curso: spinner mientras escribe; a 0,5 s sin escribir, el mensaje y el CTA (Figma «Proyectos - Chatbot» 22:13453) -->
+        <!-- Pregunta en curso: spinner mientras escribe; a 0,5 s sin escribir, el mensaje (sin botón; texto de Jon, 2026-11-25) -->
         <div v-else-if="preguntaPendiente" class="usearch-panel__complex">
           <R4Spinner v-if="escribiendo" size="medium" aria-label="Escribiendo tu pregunta" />
-          <template v-else>
-            <R4Text size="medium" class="usearch-panel__complex-text" text="Para consultas más complejas" />
-            <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="api.preguntarLoEscrito()" />
-          </template>
+          <div v-else class="usearch-panel__empty">
+            <Icon class="usearch-panel__empty-icon" name="ic-comments-alt" />
+            <div class="usearch-panel__empty-texts">
+              <R4Text size="large" font-style="strong" text="Parece que estás formulando una pregunta" />
+              <R4Text size="medium">Acaba de escribirla y pulsa “Enter” <span class="usearch-panel__enter" aria-hidden="true">↵</span> para acceder al chat con el asistente.</R4Text>
+            </div>
+          </div>
         </div>
         <div v-else-if="vacio" class="usearch-panel__start">
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
