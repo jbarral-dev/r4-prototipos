@@ -15,6 +15,8 @@ export function crearEstado() {
   const query = ref('')
   const prompt = ref('') // texto del campo de prompt de la conversación (abajo del popover)
   const locked = ref(null) // 'search' | 'chat' | null: modo elegido a mano
+  // Mensaje legal: primera burbuja del asistente en el primer chat del usuario nuevo (después, la pregunta del usuario y la respuesta). `legalVisto`: ya se mostró (o el usuario ya ha usado el chat).
+  const legalVisto = ref(false)
   const thread = ref([]) // { role: 'user' | 'assistant', text, links? }
   const pending = ref(false)
   const lastSent = ref('')
@@ -32,6 +34,8 @@ export function crearEstado() {
   const results = computed(() => buscar(searchTerm.value))
   // Conversación «pintada»: hay mensajes o se eligió la pestaña a mano. Entonces el campo de arriba queda disabled y se escribe en el prompt de abajo.
   const chatView = computed(() => mode.value === 'chat' && (thread.value.length > 0 || locked.value === 'chat'))
+  // Chat recién abierto (pestaña «Chat») sin preguntar aún: el aviso legal se pinta ya, antes del saludo; se guarda en la conversación al enviar la primera pregunta
+  const legalPendiente = computed(() => chatView.value && !legalVisto.value && !thread.value.some((m) => m.legal))
   const auto = computed(() => !locked.value && !thread.value.length && !!ruta.value.mode)
 
   const anotar = (evento, detalle = '') => {
@@ -59,6 +63,7 @@ export function crearEstado() {
     const text = query.value.trim()
     if (!text || pending.value) return
     if (!convActual) { convActual = { titulo: text, thread: thread.value }; historial.conversaciones.unshift(convActual); historial.conversaciones.splice(3) }
+    if (!legalVisto.value && !thread.value.some((m) => m.legal)) { thread.value.push({ role: 'assistant', legal: true }); legalVisto.value = true; anotar('aviso legal', 'primera burbuja del asistente') }
     thread.value.push({ role: 'user', text })
     lastSent.value = text
     query.value = text // el campo conserva siempre la cadena (también al cambiar de pestaña); en mobile mantiene así la X para cerrar la capa
@@ -86,7 +91,7 @@ export function crearEstado() {
   // Chip de «Búsquedas»: lleva a la ficha del primer resultado de esa búsqueda
   const abrirBusqueda = (term) => { anotar('elige búsqueda', term); registrarBusqueda(term); const r = buscar(term)[0]; abrirResultado(r ? r.name : term) }
   // Fila de «Preguntas»: con historial se pinta la conversación completa; sin historial se abre una conversación nueva con la pregunta ya formulada
-  const abrirConversacion = (conv) => { gen++; locked.value = null; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
+  const abrirConversacion = (conv) => { gen++; locked.value = null; legalVisto.value = true; convActual = conv; thread.value = conv.thread; lastSent.value = ([...conv.thread].reverse().find((m) => m.role === 'user') || {}).text || ''; query.value = lastSent.value; pending.value = false; anotar('abre conversación del historial', conv.titulo) }
   const enviarPrompt = () => { const t = prompt.value.trim(); if (!t || pending.value) return; prompt.value = ''; query.value = t; enviar() }
   const preguntar = (texto) => { limpiar(); query.value = texto; anotar('elige pregunta de ejemplo', texto); enviar() }
   const abrirResultado = (name) => { if (query.value.trim()) registrarBusqueda(query.value.trim()); anotar('abre resultado', name); avisar(`Prototipo: se abriría «${name}»`); cerrar() }
@@ -100,6 +105,7 @@ export function crearEstado() {
   const conversacionEjemplo = (q) => ({ titulo: q, thread: [{ role: 'user', text: q }, { role: 'assistant', ...responder(q) }] })
   const cargarEstado = (tipo) => {
     limpiar()
+    legalVisto.value = tipo === 'historial'
     historial.busquedas = tipo === 'historial' ? ['Telefónica', 'Iberdrola'] : []
     historial.conversaciones = tipo === 'historial' ? [conversacionEjemplo('¿Cómo funcionan los planes de pensiones?'), conversacionEjemplo('¿Puedo invertir en Fidelity de renta variable europea?')] : []
     anotar('estado de partida', tipo)
@@ -107,7 +113,7 @@ export function crearEstado() {
   if (new URLSearchParams(location.search).get('u') === 'historial') cargarEstado('historial')
 
   return reactive({
-    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
+    open, query, locked, thread, pending, lastSent, toast, log, opciones, prompt, chatView, legalPendiente, legalVisto, historial, populares, ejemplosPregunta, ruta, mode, auto, searchTerm, results,
     abrir, cerrar, limpiar, escribir, enviar, enviarOBuscar, setMode, nuevaConversacion, usarTexto, abrirResultado, abrirBusqueda, abrirConversacion, preguntar, enviarPrompt, cargarEstado, accion, reiniciar, avisar, anotar,
   })
 }
