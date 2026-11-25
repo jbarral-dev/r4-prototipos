@@ -231,3 +231,35 @@ export const vistasMovimientos = [
     filters: [fFechaM, fTipoM, fValorM, fSigno],
     initial: { fecha: ['3m'], tipo: ['Criptoactivos'] } },
 ]
+
+// ───────────────────────── Escenario «Fondos» (Facilitador › Escenarios) ─────────────────────────
+// Basado en la página «Buscador» de fondos del espacio cliente logado (fondotop). De los pantallazos de Jon (2026-11-26) SOLO se toman los nombres de las vistas (las tabs) y las columnas de cada una; el contenido de la tabla
+// (agrupaciones, celdas con gráficos, ratios…) NO se reproduce: las filas llevan únicamente el nombre del fondo y, para que los filtros tengan sobre qué actuar, la divisa y el tipo de activo (leídos de la vista básica del pantallazo).
+// Vistas: Básico · Rentabilidad · Ratios · Ranking · General (la tab «Personalizada» no se incluye: la configura el usuario y no tiene columnas propias). Las columnas agrupadas en el original («Fecha valor», «Comisión», «Rentabilidad»…) van planas.
+export const fondos = [
+  ['Ab All China EQ A EUR', 'EUR', 'RV'], ['Ab All China EQ A USD', 'USD', 'RV'], ['Ab All China EQ C EUR', 'EUR', 'RV'], ['Ab American Growth A EUR', 'EUR', 'RV'], ['Ab American Growth A EUR H', 'EUR', 'RV'],
+  ['Ab American Growth A USD', 'USD', 'RV'], ['Ab American Growth C EUR', 'EUR', 'RV'], ['Ab American Growth C USD', 'USD', 'RV'], ['Ab American Income A2 EUR H', 'EUR', 'RF'], ['Ab American Income A2 USD', 'USD', 'RF'],
+  ['Ab American Income C2 EUR H', 'EUR', 'RF'], ['Ab American Income C2 USD', 'USD', 'RF'], ['Ab Asia Ex-Japan EQ A USD', 'USD', 'RV'], ['Ab Concentrated US EQ A USD', 'USD', 'RV'], ['Ab Em Multi-Asset A USD', 'USD', 'MX'],
+  ['Ab Emerging Markets Debt A2 USD', 'USD', 'RF'], ['Ab Emerging Markets Gr A EUR', 'EUR', 'RV'], ['Ab Emerging Markets Gr C EUR', 'EUR', 'RV'], ['Ab Emerging Markets Growth A USD', 'USD', 'RV'], ['Ab European EQ A EUR', 'EUR', 'RV'],
+  ['Ab European Income A2 EUR', 'EUR', 'RF'], ['Ab Eurozone Growth Axx EUR ACC', 'EUR', 'RV'], ['Ab Global High Yield A2 USD', 'USD', 'RF'], ['Ab Global High Yield At Aud H', 'AUD', 'RF'], ['Ab India Growth A EUR', 'EUR', 'RV'],
+  ['Ab India Growth A USD', 'USD', 'RV'], ['Ab International Tech A EUR', 'EUR', 'RV'], ['Ab Intl Health Care A USD', 'USD', 'RV'],
+].map(([name, divisa, activo], i) => ({ id: `fondo-${i}`, name, divisa, activo }))
+
+const fDivisaF = { id: 'divisa', label: 'Divisa', type: 'multiple', highlighted: true, options: opc('EUR', 'USD', 'AUD'), predicate: (r, vs) => vs.includes(r.divisa) }
+const fActivoF = { id: 'activo', label: 'Activo', type: 'multiple', highlighted: true, options: opc(['RV', 'Renta variable'], ['RF', 'Renta fija'], ['MX', 'Mixto']), predicate: (r, vs) => vs.includes(r.activo) }
+const nombreF = { field: 'name', header: 'Nombre', frozen: true, width: '20%' }
+const colF = (field, header, width, align = 'right') => ({ field, header, align, width })
+const accionF = { field: 'accion', header: '', srHeader: 'Acciones', align: 'right', width: '4%' }
+const filtrosF = [fDivisaF, fActivoF]
+export const vistasFondos = [
+  { value: 'basico', label: 'Básico', filters: filtrosF, initial: {},
+    columns: [nombreF, colF('vliq', 'V.Liq.', '8%'), { ...colF('divisa', 'Divisa', '6%', 'left') }, { ...colF('activo', 'Activo', '6%', 'left') }, colF('fvSusc', 'F. valor susc.', '8%'), colF('fvReemb', 'F. valor reemb.', '8%'), colF('comGestion', 'Gestión', '8%'), colF('ter', 'TER/OGC', '8%'), colF('comSusc', 'Suscr.', '8%'), colF('comReemb', 'Reemb.', '8%'), colF('invMin', 'Inv.Mín. Inicial', '8%'), accionF] },
+  { value: 'rentabilidad', label: 'Rentabilidad', filters: filtrosF, initial: {},
+    columns: [{ ...nombreF, width: '26%' }, { ...colF('graf3m', '3 meses', '12%', 'left') }, colF('rentAnio', 'Año', '8%'), colF('rent1m', '1m', '8%'), colF('rent3m', '3m', '8%'), colF('rent6m', '6m', '8%'), colF('rent1a', '1a', '8%'), colF('rent3a', '3 años anualiz.', '8%'), colF('rent5a', '5 años anualiz.', '8%'), { ...accionF, width: '6%' }] },
+  { value: 'ratios', label: 'Ratios', filters: filtrosF, initial: {},
+    columns: [{ ...nombreF, width: '28%' }, colF('volatilidad', 'Volatilidad', '11%'), colF('sharpe', 'Sharpe', '10%'), colF('r2', 'R²', '9%'), colF('alpha', 'Alpha', '9%'), colF('beta', 'Beta', '9%'), colF('infoRatio', 'Info. Ratio', '10%'), colF('tracking', 'Tracking Error', '10%'), { ...accionF, width: '4%' }] },
+  { value: 'ranking', label: 'Ranking', filters: filtrosF, initial: {},
+    columns: [{ ...nombreF, width: '24%' }, colF('rkActual', 'Año Actual', '10%'), colF('rk1m', '1 mes', '8%'), colF('rk3m', '3 meses', '9%'), colF('rk6m', '6 meses', '9%'), colF('rk1a', '1 año', '8%'), colF('rk3a', '3 años', '8%'), colF('rk5a', '5 años', '8%'), colF('rk10a', '10 años', '9%'), { ...accionF, width: '7%' }] },
+  { value: 'general', label: 'General', filters: filtrosF, initial: {},
+    columns: [{ ...nombreF, width: '26%' }, { ...colF('isin', 'Isin', '14%', 'left') }, { ...colF('activo', 'Activo', '8%', 'left') }, { ...colF('sector', 'Sector', '16%', 'left') }, { ...colF('categoria', 'Categoría', '16%', 'left') }, { ...colF('area', 'Área Geográfica', '14%', 'left') }, { ...accionF, width: '6%' }] },
+]

@@ -2,7 +2,7 @@
 // Contenido: tabla «Acciones · Mercado continuo» de r4.com (pantallazo de Jon, 2026-11-19) y logos de «Resources - Logos» (Figma).
 // Composición (TemplateDetail, superficie gris, sin Footer como en el frame): Header (Menu type=default, Cliente=Logado) · Main: [R4Wrapper compact: R4PageTitleSection «Acciones», sin botones de acción]
 // · [R4Wrapper compact: R4TableV2]. El R4TableV2 lleva «Filters and Views» + R4Section con la tabla (R4Table de Storybook). Interacción de filtros y vistas: ver la cabecera de R4TableV2.js.
-// Facilitador: bloque «Escenarios» (Acciones · Movimientos; parámetro de URL ?escenario=movimientos). Los datos de «Movimientos» son inventados.
+// Facilitador: bloque «Escenarios» (Acciones · Movimientos · Fondos; parámetro de URL ?escenario=movimientos). Los datos de «Movimientos» son inventados.
 // Los enlaces de cada fila y el botón de compra no navegan (prototipo).
 import { defineComponent, ref, computed } from '../../vendor/vue.esm-browser.prod.js'
 import TemplateDetail from '../templates/TemplateDetail.js'
@@ -15,21 +15,22 @@ import R4Button from '../components/pendientes/R4Button.js'
 import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
-import { filas, vistas, movimientos, vistasMovimientos, logosCripto } from '../data/r4table-v2.js'
+import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vistasFondos } from '../data/r4table-v2.js'
 
 // Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
 const FACILITADOR = [
-  { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }] }] },
+  { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }, { value: 'fondos', label: 'Fondos' }] }] },
 ]
 const ESCENARIOS = {
   acciones: { titulo: 'Acciones', breadcrumb: { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] }, views: vistas, data: filas, aria: 'Acciones del Mercado continuo', footnote: 'Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.' },
+  fondos: { titulo: 'Fondos', breadcrumb: { items: [{ label: 'Fondos y planes', href: '#' }, { label: 'Fondos' }] }, views: vistasFondos, data: fondos, aria: 'Fondos', footnote: undefined, menuActual: 2 }, // Menu: «Fondos y planes» activo
   movimientos: { titulo: 'Movimientos', breadcrumb: { items: [{ label: 'Tu cuenta', href: '#' }, { label: 'Movimientos' }] }, views: vistasMovimientos, data: movimientos, aria: 'Movimientos de la cuenta', footnote: undefined },
 }
 const logoPorNombre = { ...Object.fromEntries(filas.map((f) => [f.name, f.logoURL])), ...logosCripto }
 const colorTipo = { Acciones: 'blue', Criptoactivos: 'blue', ETFs: 'blue', Fondos: 'blue' } // el tipo de producto es siempre R4Tag blue
 const fmtE = (v) => nf(2).format(v) + '\u2009€'
 
-const navItems = ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === 0 })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú
+const navItemsDe = (actual) => ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === actual })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú; en Fondos, «Fondos y planes»
 
 // Como en r4.com: separador de miles también en 4 cifras (1.558) y decimales según el valor (191,5 · 3,356 · 0,0817)
 const nf = (d) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: d, useGrouping: 'always' })
@@ -46,6 +47,7 @@ export default defineComponent({
     document.title = `R4Table (v2) - ${props.variante.toUpperCase()} · Prototipo R4`
     const caso = ref(valoresPorDefecto(FACILITADOR))
     const esc = computed(() => ESCENARIOS[caso.value.escenario])
+    const navItems = computed(() => navItemsDe(esc.value.menuActual ?? 0))
     return { caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `

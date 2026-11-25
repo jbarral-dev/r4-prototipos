@@ -91,3 +91,6 @@
 @container r4page (max-width: 599px) {
   .r4-table-v2 { --r4-table-frozen-width: calc(var(--spacing-16) * 2 + var(--spacing-8)); } /* 160 */
 }
+
+/* Cabeceras de columna: pueden partirse en varias líneas (en el original, «Inv.Mín Inicial» va en dos); evita recortar títulos largos como «3 años anualiz.» */
+.r4-table-v2 .r4-table__th { white-space: normal; overflow-wrap: anywhere; }
