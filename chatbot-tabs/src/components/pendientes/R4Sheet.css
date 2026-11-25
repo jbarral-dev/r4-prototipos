@@ -2,7 +2,7 @@
  * R4Sheet — valores leídos de Figma (position=bottom y side).
  * bottom: ancho 100 %, radio superior component/sheet/bottom/radius, borde 1 px border/subtle, sombra 0 -8 24 negro al 20 %; cabecera de 72 (padding 16/8/16/16, gap 8)
  *   con título heading/s en Exo 2 Bold y botón de cierre de 40; contenido con padding superior 80 e inferior 32; el slot tiene padding horizontal 16 y gap 24.
- * side: 520 de ancho a toda la altura, sin radio (component/sheet/side/radius), borde border/subtle, sombra -4 0 12 negro al 10 %; cabecera de 80 (padding 20/16/20/48),
+ * side: 520 de ancho a toda la altura, sin radio (component/sheet/side/radius), borde border/subtle, sombra -4 0 12 negro al 10 %; cabecera de 80 (padding 20/16/20/24; Figma 14424:531 actualizado: antes 48),
  *   contenido con padding 88 / 48 y slot con padding horizontal 48, gap 32.
  * Va dentro de la capa de superposición de la Template (position: fixed relativa al viewport). El slot hace scroll; la cabecera queda fija.
  */
@@ -44,7 +44,7 @@
 .r4-sheet--bottom .r4-sheet__header { height: calc(var(--spacing-16) + var(--spacing-2)); padding: var(--spacing-4) var(--spacing-2) var(--spacing-4) var(--spacing-4); } /* 72 */
 .r4-sheet--side .r4-sheet__header {
   height: calc(var(--spacing-16) + var(--spacing-4));                                     /* 80 */
-  padding: var(--spacing-5) var(--spacing-4) var(--spacing-5) var(--spacing-12);
+  padding: var(--spacing-5) var(--spacing-4) var(--spacing-5) var(--spacing-6);
   box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle);
 }
 
@@ -80,14 +80,18 @@
 
 .r4-sheet__content { min-height: 0; overflow-y: auto; }
 .r4-sheet--bottom .r4-sheet__content { padding: calc(var(--spacing-16) + var(--spacing-4)) 0 var(--spacing-8); }
-.r4-sheet--side .r4-sheet__content { padding: calc(var(--spacing-12) * 2 - var(--spacing-2)) 0 var(--spacing-12); }
+.r4-sheet--side .r4-sheet__content { padding: calc(var(--spacing-12) * 2 - var(--spacing-2)) 0 var(--spacing-6); }
 .r4-sheet__slot { display: flex; flex-direction: column; }
 .r4-sheet--bottom .r4-sheet__slot { gap: var(--spacing-6); padding: 0 var(--spacing-4); }
-.r4-sheet--side .r4-sheet__slot { gap: var(--spacing-8); padding: 0 var(--spacing-12); }
+.r4-sheet--side .r4-sheet__slot { gap: var(--spacing-8); padding: 0 var(--spacing-6); }
 
 /* Actions (showActions): fijo bajo el contenido; padding spacing/4 (16), gap spacing/2 (8), borde superior 1 px border/subtle, fondo surface/default; R4Button large a ancho completo (Figma 2816:99277) */
 .r4-sheet__actions { display: flex; flex: none; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); background: var(--surface-default); box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle); }
-.r4-sheet--bottom.has-actions .r4-sheet__content { padding-bottom: var(--spacing-4); }
+.r4-sheet--bottom.has-actions .r4-sheet__content, .r4-sheet--side.has-actions .r4-sheet__content { padding-bottom: var(--spacing-4); }
+
+/* side (Figma 14424:531 actualizado): paddings laterales de 24 en cabecera, slot y Actions; contenido con 24 abajo; las acciones (R4Button) van en HORIZONTAL, a partes iguales (gap 8, padding 16 / 24, línea superior de 1 px) */
+.r4-sheet--side .r4-sheet__actions { flex-direction: row; align-items: flex-start; justify-content: center; padding: var(--spacing-4) var(--spacing-6); }
+.r4-sheet--side .r4-sheet__actions > * { flex: 1 1 0; min-width: 0; }
 
 /* Transiciones propias (Figma no define movimiento) */
 .r4-sheet-bottom-enter-active, .r4-sheet-bottom-leave-active,

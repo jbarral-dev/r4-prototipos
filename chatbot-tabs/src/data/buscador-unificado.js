@@ -39,17 +39,25 @@ export function enrutar(texto) {
 export const catalogo = [
   { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
   { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'O2D', metadata2: 'DE000A1J5RX9', market: 'XETRA', marketFlag: 'flag-germany', type: 'Acción', keys: ['telefonica', 'accion', 'acciones'] },
-  { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'TEF', metadata2: 'ES0178430E18', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['telefonica', 'cfd'] },
-  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
-  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'Entregas', metadata2: 'Jun 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Telefónica', logoSrc: logo('iso-tef.svg'), metadata1: 'TEF', metadata2: 'Garantía 20 %', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['telefonica', 'cfd'] },
+  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata2: 'Mar 2027 · Entregas', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Futuro Telefónica', logoSrc: logo('iso-tef.svg'), metadata2: 'Jun 2027 · Diferencia', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['telefonica', 'futuro', 'futuros'] },
   { kind: 'valor', name: 'Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['iberdrola', 'accion', 'acciones'] },
-  { kind: 'valor', name: 'Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'IBE', metadata2: 'ES0144580Y14', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['iberdrola', 'cfd'] },
-  { kind: 'valor', name: 'Futuro Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'Entregas', metadata2: 'Mar 2027', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['iberdrola', 'futuro', 'futuros'] },
+  { kind: 'valor', name: 'Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata1: 'IBE', metadata2: 'Garantía 20 %', market: 'MEFF', marketFlag: 'flag-spain', type: 'CFD', keys: ['iberdrola', 'cfd'] },
+  { kind: 'valor', name: 'Futuro Iberdrola', logoSrc: logo('iso-ibe.svg'), metadata2: 'Mar 2027 · Entregas', market: 'MEFF', marketFlag: 'flag-spain', type: 'Futuro', keys: ['iberdrola', 'futuro', 'futuros'] },
   { kind: 'valor', name: 'Banco Santander', logoSrc: logo('iso-san.svg'), metadata1: 'SAN', metadata2: 'ES0113900J37', market: 'BME', marketFlag: 'flag-spain', type: 'Acción', keys: ['santander', 'accion', 'acciones'] },
   { kind: 'fondo', name: 'Fidelity European Growth Fund', logoText: 'F', metadata1: 'Renta variable europea', metadata2: 'LU0296857971', type: 'Fondo', keys: ['fidelity', 'fondo', 'fondos', 'europa', 'europeo', 'renta variable'] },
   { kind: 'fondo', name: 'Fidelity World Fund', logoText: 'F', metadata1: 'Renta variable global', metadata2: 'LU0346388373', type: 'Fondo', keys: ['fidelity', 'fondo', 'fondos', 'global'] },
   { kind: 'fondo', name: 'Renta 4 Pegasus', logoSrc: logo('iso-r4.svg'), metadata1: 'Renta variable mixta', metadata2: 'ES0173319115', type: 'Fondo', keys: ['pegasus', 'fondo', 'fondos', 'renta 4'] },
   { kind: 'fondo', name: 'Plan de pensiones Renta 4 Jubilación', logoSrc: logo('iso-r4.svg'), metadata1: 'Plan de pensiones', metadata2: 'N5012', type: 'Plan de pensiones', keys: ['jubilacion', 'pensiones', 'plan de pensiones', 'ahorro'] },
+  // Tipos añadidos según la tabla de la documentación (Confluence 4095606798 §3.3): logo, código y mercado por tipo. El «código» de Futuro es «vencimiento, tipo de contrato» (Entregas | Diferencia); el de Opción, «vencimiento, strike» (en €); el de CFD, «garantía» (metadata2). Datos de EJEMPLO. Logos de cripto: «Resources - Cryptocurrency Logos» (Figma 8jbsiGYTKPZ8nf8le8wKgt). Sin logo (gestoras de ETF, bonos del Estado, índices) se pinta la ficha con iniciales.
+  { kind: 'valor', name: 'Santander Ibex 35 ETF', logoSrc: logo('iso-san.svg'), metadata1: 'SANIBEX', metadata2: 'ES0105046009', market: 'BME', marketFlag: 'flag-spain', type: 'ETF', keys: ['santander', 'etf', 'etfs', 'ibex'] },
+  { kind: 'valor', name: 'Bono Santander 2030', logoSrc: logo('iso-san.svg'), metadata1: 'Renta fija privada', metadata2: 'XS2345678901', type: 'Renta fija', keys: ['santander', 'bono', 'bonos', 'renta fija'] },
+  { kind: 'valor', name: 'Letras del Tesoro 12 meses', logoText: 'LT', metadata1: 'Renta fija pública', metadata2: 'ES0000012L78', type: 'Renta fija', keys: ['letras', 'tesoro', 'bono', 'bonos', 'renta fija'] },
+  { kind: 'valor', name: 'Bitcoin', logoSrc: logo('crypto-btc.svg'), metadata1: 'BTC', type: 'Cripto', keys: ['bitcoin', 'btc', 'cripto', 'criptomonedas'] },
+  { kind: 'valor', name: 'Ethereum', logoSrc: logo('crypto-eth.svg'), metadata1: 'ETH', type: 'Cripto', keys: ['ethereum', 'eth', 'cripto', 'criptomonedas'] },
+  { kind: 'valor', name: 'Opción Telefónica', logoSrc: logo('iso-tef.svg'), metadata2: 'Jun 2027 · 4,00 €', market: 'MEFF', marketFlag: 'flag-spain', type: 'Opción', keys: ['telefonica', 'opcion', 'opciones'] },
+  { kind: 'valor', name: 'Opción Ibex 35', logoText: 'IB', metadata2: 'Jun 2027 · 12.000 €', market: 'MEFF', marketFlag: 'flag-spain', type: 'Opción', keys: ['ibex', 'opcion', 'opciones'] },
   { kind: 'ayuda', name: '¿Cómo abrir una cuenta en Renta 4?', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['cuenta', 'abrir', 'alta', 'cliente'] },
   { kind: 'ayuda', name: 'Comisiones de custodia y de mantenimiento', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['comisiones', 'custodia', 'tarifas'] },
   { kind: 'ayuda', name: 'No me llega el código de verificación al móvil', metadata1: 'Centro de ayuda', type: 'Ayuda', keys: ['codigo', 'sms', 'movil', 'verificacion', 'firma'] },
@@ -95,6 +103,8 @@ const respuestas = [
     match: (t) => t.includes('jubilacion') || t.includes('pension') || t.includes('ahorr'),
     text: 'Tienes tres formas habituales: planes de pensiones (ventaja fiscal, dinero poco líquido), fondos de inversión (flexibles y traspasables) y planes de ahorro sistemáticos (aportaciones periódicas). ¿Quieres ver alguno en concreto?',
     links: [{ label: 'Ver planes de pensiones', toast: 'Listado de planes de pensiones' }, { label: 'Ver fondos de inversión', toast: 'Listado de fondos' }],
+    // Enfoque buscador: los enlaces van como lista de R4Link con viñetas (el Enfoque chat sigue usando `links`)
+    lista: [{ label: 'Ver planes de pensiones', toast: 'Listado de planes de pensiones' }, { label: 'Ver fondos de inversión', toast: 'Listado de fondos' }, { label: 'Ver planes de ahorro sistemático', toast: 'Listado de planes de ahorro' }],
   },
   {
     match: (t) => t.includes('capital riesgo'),
@@ -104,10 +114,44 @@ const respuestas = [
 ]
 const respuestaPorDefecto = {
   text: 'Esta es una respuesta de ejemplo del prototipo: el asistente real contestaría aquí. ¿Quieres que te muestre resultados relacionados?',
-  links: [{ label: 'Ver resultados', toast: '__resultados__' }],
+  links: [{ label: 'Ver resultados', toast: '__resultados__' }], // solo el Enfoque chat (su panel de resultados propio)
+}
+// Respuesta genérica del Enfoque buscador: un enlace lleva directo a su URL y un listado de productos va como lista de resultados (_SearchResultItem), nunca un enlace «Ver resultados» (Jon, 2026-11-22)
+const respuestaGenerica = (t) => {
+  const afines = buscar(t).filter((r) => r.kind === 'valor').slice(0, 3)
+  return { text: 'Esta es una respuesta de ejemplo del prototipo: el asistente real contestaría aquí. Estos son algunos productos que pueden interesarte:', resultados: afines.length ? afines : ['Telefónica', 'Iberdrola', 'Banco Santander'].map((n) => catalogo.find((r) => r.type === 'Acción' && r.name === n)) }
 }
 
-export function responder(texto) {
+export function responder(texto, enfoque = 'buscador') {
   const t = norm(texto)
-  return respuestas.find((r) => r.match(t)) || respuestaPorDefecto
+  return respuestas.find((r) => r.match(t)) || (enfoque === 'chat' ? respuestaPorDefecto : respuestaGenerica(texto))
 }
+
+// ── Respuestas de demostración (panel Facilitador · bloque «Conversación») ──
+// Un enlace · varios enlaces (lista con viñetas) · resultados (searchResultItem sin agrupar). Mismo guion en todas las condiciones.
+export const preguntasDemo = {
+  enlace: '¿Qué necesito para abrir una cuenta?',
+  varios: '¿Cómo funcionan los planes de pensiones?',
+  resultados: '¿Qué productos de Telefónica puedo contratar?',
+}
+export function respuestaDemo(tipo) {
+  if (tipo === 'varios') return responder(preguntasDemo.varios)
+  if (tipo === 'resultados') return { text: 'Estos son los productos de Telefónica que puedes contratar desde Renta 4:', resultados: catalogo.filter((r) => r.name === 'Telefónica') }
+  return responder(preguntasDemo.enlace)
+}
+
+// ── Histórico de conversaciones de ejemplo (Facilitador «Tiene histórico de conversaciones»): 12 para ver el scroll del listado ──
+export const preguntasHistorico = [
+  '¿Cómo funcionan los planes de pensiones?',
+  '¿Puedo invertir en Fidelity de renta variable europea?',
+  '¿Qué necesito para abrir una cuenta?',
+  'No me llega el código al móvil',
+  '¿Qué comisiones tiene la custodia de valores?',
+  '¿Cómo traspaso un plan de pensiones a Renta 4?',
+  '¿Puedo contratar ETFs desde la app?',
+  '¿Qué diferencia hay entre un fondo y un plan de pensiones?',
+  '¿Cómo cambio mi perfil de inversor?',
+  '¿Qué es un futuro sobre una acción?',
+  '¿Cuándo se cobran los dividendos de Telefónica?',
+  '¿Puedo invertir en fondos de capital riesgo?',
+]

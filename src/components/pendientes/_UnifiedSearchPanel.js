@@ -29,10 +29,10 @@ export default defineComponent({
     // Pregunta a medio escribir (el enrutado ya la ve como pregunta): se mantiene la pantalla inicial hasta que el usuario pulsa Intro
     const preguntaPendiente = computed(() => props.api.mode === 'chat' && !props.api.thread.length && !props.api.locked && !!props.api.query.trim())
     const vacio = computed(() => !props.api.mode || (props.api.mode === 'search' && !props.api.autocompletar))
-    // Pregunta en curso (el enrutado la ve como pregunta): mientras el usuario escribe se muestra el spinner; si deja de escribir 0,3 s, el mensaje «Para consultas más complejas» con el CTA «Pregunta al asistente». Intro envía la pregunta al chat.
+    // Pregunta en curso (el enrutado la ve como pregunta): mientras el usuario escribe se muestra el spinner; si deja de escribir 0,5 s, el mensaje «Para consultas más complejas» con el CTA «Pregunta al asistente». Intro envía la pregunta al chat.
     const escribiendo = ref(false)
     let idle = null
-    watch(() => props.api.query, () => { escribiendo.value = true; clearTimeout(idle); idle = setTimeout(() => { escribiendo.value = false }, 300) })
+    watch(() => props.api.query, () => { escribiendo.value = true; clearTimeout(idle); idle = setTimeout(() => { escribiendo.value = false }, 500) })
     onBeforeUnmount(() => clearTimeout(idle))
     // Autocompletado: resultados agrupados por tipo, en este orden (Fondos es una agrupación añadida por el prototipo: el catálogo de ejemplo también trae fondos y planes; sin Centro de ayuda: no se muestra en los resultados)
     const GRUPOS = [
@@ -75,7 +75,7 @@ export default defineComponent({
     // Filas de «Preguntas»: R4NavigationItems (sin icono en caja ni flecha); `conv` / `texto` viajan en el ítem para saber qué abrir
     // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
     const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
-    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas preguntas' : 'Preguntas frecuentes'))
+    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas conversaciones' : 'Conversaciones frecuentes'))
     // «Últimas preguntas»: las 5 más recientes y, si hay más, «Ver todas» (abre el listado completo)
     const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
     const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
@@ -86,28 +86,19 @@ export default defineComponent({
     const onListado = (it, e) => { e.preventDefault(); props.api.abrirConversacion(it.conv, 'historial') }
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado. SOLO lo que define la documentación (Confluence 4095606798, «_SearchResultItem»): logo, nombre, código (ISIN o código DGS; `metadata2`) y mercado. Sin ticker, descripción, vencimiento ni etiqueta de tipo
-    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, highlight: props.api.searchTerm })
+    const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
     return { itemProps, uid, bodyId, vacio, preguntaPendiente, escribiendo, grupos, gruposVisibles, filtroActivo, mostrarFiltros, anuncio, body, ocultarTeclado, enlacesLista, pick, busquedas, preguntas, preguntaItems, onPregunta, onListado, hayMas, historialItems, enListado, tituloBusquedas, tituloPreguntas, volver }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar" @touchmove.passive="ocultarTeclado" @click="ocultarTeclado">
       <p class="usearch-panel__live" role="status" aria-live="polite">{{ anuncio }}</p>
 
-      <!-- Filtros por tipo: fijos bajo la caja de búsqueda (no hacen scroll con los resultados); solo con el autocompletado visible -->
-      <div v-if="mostrarFiltros" class="usearch-panel__filters" role="group" aria-label="Filtrar resultados por tipo">
-        <R4Chip size="small" label="Todos" :selected="filtroActivo === 'todos'" @click="api.filtro = 'todos'" />
-        <R4Chip v-for="g in grupos" :key="g.id" size="small" :label="g.label" :selected="filtroActivo === g.id" @click="api.filtro = g.id" />
-      </div>
-
-      <!-- Volver a la pantalla inicial: fijo arriba de la conversación (donde en el estado inicial está la caja). La conversación se conserva como activa -->
-      <div v-if="api.chatView || enListado" class="usearch-panel__back"><R4Button type="text" size="medium" icon="ic-arrow-left" text="Volver" @click="volver" /></div>
-
       <div ref="body" class="usearch-panel__body" :id="bodyId">
         <!-- Vacío: campo sin texto. Use case «primera vez» (Búsquedas / Preguntas frecuentes) o «ya ha entrado» (Últimas búsquedas / Últimas preguntas, con icono de histórico) -->
         <div v-if="enListado" class="usearch-panel__group">
-          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las preguntas" @select="onListado" />
+          <R4NavigationItems size="medium" :items="historialItems" :icon-is-boxed="false" aria-label="Todas las conversaciones" @select="onListado" />
         </div>
-        <!-- Pregunta en curso: spinner mientras escribe; a 0,3 s sin escribir, el mensaje y el CTA (Figma «Proyectos - Chatbot» 22:13453) -->
+        <!-- Pregunta en curso: spinner mientras escribe; a 0,5 s sin escribir, el mensaje y el CTA (Figma «Proyectos - Chatbot» 22:13453) -->
         <div v-else-if="preguntaPendiente" class="usearch-panel__complex">
           <R4Spinner v-if="escribiendo" size="medium" aria-label="Escribiendo tu pregunta" />
           <template v-else>
@@ -131,12 +122,7 @@ export default defineComponent({
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
-          <div v-if="api.results.length" class="usearch-panel__groups">
-            <section v-for="g in gruposVisibles" :key="g.id" class="usearch-panel__group" :aria-labelledby="'usearch-g-' + g.id + '-' + uid">
-              <R4Text :id="'usearch-g-' + g.id + '-' + uid" tag="h3" size="medium" font-style="strong" class="usearch-panel__group-title" :text="g.label + ' (' + g.items.length + ')'" />
-              <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in g.items" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
-            </section>
-          </div>
+          <R4SearchResults v-if="api.results.length" class="usearch-panel__results" aria-label="Resultados"><SearchResultItem v-for="(r, i) in api.results" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
             <div class="usearch-panel__empty-texts">

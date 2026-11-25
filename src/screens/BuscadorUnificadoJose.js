@@ -139,7 +139,7 @@ export default defineComponent({
         <div v-if="api.open && contenedor === 'popover'" class="jusearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="jusearch-desk__center">
             <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
-              <R4InputSearch ref="desktopField" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+              <R4InputSearch ref="desktopField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
             </div>
@@ -157,7 +157,7 @@ export default defineComponent({
           <R4Sheet position="side" :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="jusearch-sheet__body" :class="{ 'jusearch-sheet__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheet__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
-                <R4InputSearch ref="sheetField" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="sheetField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>
@@ -173,7 +173,7 @@ export default defineComponent({
           <R4Sheet position="bottom" full-height :title="tituloCapa" :open="api.open" :show-actions="(api.barra && !tecladoVisible) || api.chatView" @close="cerrarYDevolverFoco()">
             <div class="jusearch-sheetbottom__body" :class="{ 'jusearch-sheetbottom__body--actions': (api.barra && !tecladoVisible) || api.chatView, 'jusearch-sheetbottom__body--prompt': api.chatView }">
               <div v-if="!api.chatView && api.vista !== 'historial'" class="jusearch__fieldrow">
-                <R4InputSearch ref="mobileField" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                <R4InputSearch ref="mobileField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="large" placeholder="Busca un producto o pregunta al asistente" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
               </div>

@@ -10,8 +10,11 @@ export default defineComponent({
   name: '_AssistantAccess',
   components: { R4Text, R4Button },
   emits: ['ask'],
+  // Raíz propia (columna con gap 8): en el R4Sheet side las acciones van en horizontal y este bloque debe seguir siendo texto + botón apilados
   template: `
-    <R4Text size="small" class="usearch-actions__text" text="¿No encuentras lo que buscas?" />
-    <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="$emit('ask')" />
+    <div class="usearch-assistant-access">
+      <R4Text size="small" class="usearch-actions__text" text="¿No encuentras lo que buscas?" />
+      <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="$emit('ask')" />
+    </div>
   `,
 })

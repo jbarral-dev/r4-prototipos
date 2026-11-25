@@ -27,6 +27,9 @@
 @import url("../components/pendientes/_ChartConfigPanel.css");
 @import url("../components/pendientes/_ChartComparePanel.css");
 @import url("../components/pendientes/R4Tag.css");
+@import url("../components/pendientes/R4ListIcon.css");
+@import url("../components/pendientes/_AppTabBar.css");
+@import url("../components/pendientes/_AppHeader.css");
 @import url("../components/pendientes/R4ListDetail.css");
 @import url("../components/pendientes/R4ChartLine.css");
 @import url("../components/pendientes/_ChartGauge.css");
