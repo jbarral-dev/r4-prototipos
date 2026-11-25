@@ -37,7 +37,7 @@
   .r4-table-v2__views { align-self: flex-start; }
 }
 
-/* En el sheet lateral las acciones («Ver N resultados» / «Quitar filtros») quedan pegadas abajo: el contenido ocupa el alto libre */
+/* En el sheet lateral las acciones («Ver N resultados» / «Restablecer») quedan pegadas abajo: el contenido ocupa el alto libre */
 .r4-table-v2__sheet--side .r4-sheet__content { flex: 1 1 auto; }
 
 /* Tabla ancha (hasta 11 columnas): por debajo de su ancho mínimo hace scroll horizontal con la primera columna fija (frozen, como pide la doc de R4Table para mobile) */
@@ -109,3 +109,14 @@
     --r4-chip-chevron: var(--spacing-5);
   }
 }
+
+/* Filtro booleano (R4ListDetail con toggle): popover de ayuda en ≥ 1024 px y R4Sheet bottom por debajo; el CSS decide cuál se ve (el componente abre el sheet si el popover queda oculto) */
+.r4-table-v2__bool { position: relative; }
+.r4-table-v2__help-popover { position: absolute; z-index: 200; }
+.r4-table-v2__help { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-5); width: 100%; }
+.r4-table-v2__help-title { margin: 0; color: var(--text-default); font-size: var(--size-body-l); line-height: var(--line-height-body-l); font-weight: var(--font-weight-bold); }
+.r4-table-v2__help-text { display: flex; flex-direction: column; gap: var(--spacing-3); color: var(--text-subdued); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.r4-table-v2__help-text p { margin: 0; }
+.r4-table-v2__help-text strong { font-weight: var(--font-weight-semibold); }
+@container r4page (max-width: 1023px) { .r4-table-v2__help-popover { display: none; } }
+@container r4page (min-width: 1024px) { .r4-table-v2__sheet--help { display: none; } }

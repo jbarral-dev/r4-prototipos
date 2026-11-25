@@ -4,6 +4,8 @@
  * Nombres con prefijo --r4- para distinguirlos de los tokens oficiales.
  */
 :root {
+  --r4-switch-handle-off: var(--color-neutral-gray-400);      /* _Switch: handle apagado (#ababab, antes Interaction/Input/Default/InputIcon): sin token semántico de input para el icono */
+  --r4-switch-handle-disabled: var(--color-neutral-gray-500); /* _Switch: handle deshabilitado (#707070, antes Colors/Neutral/IconDisable): sin token semántico equivalente en Theme */
   --r4-line-width: 1px;                          /* antes Size/Line Width/lineWidth y Components/Button/Global/lineWidth */
   --r4-menu-bg:var(--color-neutral-gray-600);   /* antes Components/Menu/Component/darkItemBg (#3B3B3B): sin token semántico en Theme */
   --r4-menu-height: 76px;                        /* antes menuHeight (Layout, ya no existe): 76 desktop y tablet · 56 mobile (Figma: Menu Device=Tablet 76, Device=Mobile 56) */

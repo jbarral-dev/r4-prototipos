@@ -10,23 +10,25 @@
 // Extra: action.iconPressed cambia el icono mientras está pressed (p. ej. angle-down → angle-up en un combo).
 // Extra: action.pressed mantiene el botón en estado pressed (y aria-expanded si action.haspopup) mientras el popover/sheet que abre está visible.
 // Las acciones van en una capa (.r4-listdetail__actions) del alto de la línea de texto, sin overflow oculto: el botón (32) no aumenta la altura de la fila.
+// Valor de tipo switch (Changelog SM-23040: «slot Switch en valor»): it.switch = { checked, disabled?, showText?, ariaLabel? } → `_Switch` (átomo de R4InputSwitch); evento `switch` (item, checked). El nombre accesible es el concepto.
 // Altura de fila: small 36 + 8 (separador) · medium 40 + 16.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
 import R4Button from './R4Button.js'
 import R4Tag from './R4Tag.js'
+import R4Switch from './_Switch.js'
 
 export default defineComponent({
   name: 'R4ListDetail',
-  components: { Icon, R4Button, R4Tag },
+  components: { Icon, R4Button, R4Tag, R4Switch },
   props: {
     size: { type: String, default: 'extraLarge', validator: (v) => ['small', 'medium', 'large', 'extraLarge'].includes(v) },
     items: { type: Array, required: true }, // { concept, value, valueIcon?, info?: { label }, action?: { icon, label } }
     ariaLabel: { type: String, default: undefined },
   },
-  emits: ['info', 'action'],
+  emits: ['info', 'action', 'switch'],
   setup(props) {
-    const interactive = computed(() => props.items.some((i) => i.info || i.action))
+    const interactive = computed(() => props.items.some((i) => i.info || i.action || i.switch))
     return { interactive }
   },
   template: `
@@ -39,7 +41,8 @@ export default defineComponent({
           </component>
           <component :is="interactive ? 'span' : 'dd'" class="r4-listdetail__value">
             <Icon v-if="it.valueIcon" class="r4-listdetail__value-icon" :name="it.valueIcon" />
-            <R4Tag v-if="it.tag" v-bind="{ size: 'small', ...it.tag }" />
+ <R4Switch v-if="it.switch" :checked="!!it.switch.checked" :disabled="!!it.switch.disabled" :show-text="!!it.switch.showText" :aria-label="it.switch.ariaLabel || it.concept" @update:checked="$emit('switch', it, $event)" />
+            <R4Tag v-else-if="it.tag" v-bind="{ size: 'small', ...it.tag }" />
             <span v-else class="r4-listdetail__value-text">{{ it.value }}</span>
             <div v-if="it.action" class="r4-listdetail__actions" role="toolbar" :aria-label="'Acciones de ' + it.concept">
               <R4Button class="r4-listdetail__action" type="text" size="medium" :pressed="!!it.action.pressed" :aria-haspopup="it.action.haspopup ? 'true' : undefined" :aria-expanded="it.action.haspopup ? (it.action.pressed ? 'true' : 'false') : undefined" :icon="it.action.pressed && it.action.iconPressed ? it.action.iconPressed : it.action.icon" :aria-label="it.action.label" @click="$emit('action', it, $event)" />

@@ -1,3 +1,4 @@
+import { accionCaife } from './ficha-accion.js' // texto de la ayuda de «Elegible cuenta europea (CAIFE)» (el mismo de la ficha de acción)
 // DATOS DE EJEMPLO (prototipo «R4Table (v2)»). En producción vendrían de backend.
 // Contenido de la tabla «Bolsa Nacional · Mercado continuo» de r4.com, transcrito del pantallazo que aportó Jon (2026-11-19; cotizaciones del 19/1/2026 18:14:58, horario peninsular). El pantallazo es de baja resolución:
 // algún dígito puede no coincidir con el original (el Dif.% se recalcula a partir de Último y Dif.). Logos: Figma «Resources - Logos» (YGLS4oEvLsYd8H13Kfylx5, «BME Isos»); las empresas sin logo allí dejan el hueco vacío.
@@ -140,7 +141,7 @@ export const filas = BRUTO.split('\n').map((l, i) => {
     last: u, dif: d, difPct: d === 0 ? 0 : +(d / (u - d) * 100).toFixed(2), volC: num(volC), compra: num(compra), venta: num(venta), volV: num(volV), volumen: num(volumen), hora,
     mercado: 'Mercado Continuo', indices: [...(IBEX35.has(symbol) ? ['Ibex 35'] : []), ...(EUROSTOXX50.has(symbol) ? ['DJ EuroStoxx 50'] : [])],
     max52: +(u * (1.1 + rnd(i, 7) * 0.5)).toFixed(u < 1 ? 4 : 2), min52: +(u * (0.5 + rnd(i, 8) * 0.4)).toFixed(u < 1 ? 4 : 2),
-    cap: Math.round(20 + rnd(i, 9) * 40000), per: +(5 + rnd(i, 10) * 30).toFixed(1), ytd: +((rnd(i, 11) - 0.35) * 60).toFixed(2),
+    cap: Math.round(20 + rnd(i, 9) * 40000), per: +(5 + rnd(i, 10) * 30).toFixed(1), ytd: +((rnd(i, 11) - 0.35) * 60).toFixed(2), caife: rnd(i, 12) > 0.45, // caife: dato de ejemplo (qué acciones son elegibles para la cuenta europea vendría de backend)
   }
 })
 
@@ -151,12 +152,20 @@ const fMercados = { id: 'mercados', label: 'Mercados', type: 'multiple', highlig
 const fIndices = { id: 'indices', label: 'Índices', type: 'multiple', highlighted: true,
   options: opc('Ibex 35', 'Latibex', 'DJ EuroStoxx 50', 'Dow Jones', 'S&P 500', 'PSI 20', 'OMX S30', 'OMX H25', 'NASDAQ 100', 'ITA40', 'UK100', 'DAX 40', 'CAC 40', 'BEL 20', 'AEX', 'SMI'),
   predicate: (r, vs) => r.indices.some((i) => vs.includes(i)) }
-// Filtros solo en el panel «Todos los filtros» (inventados; el encargo solo define los destacados): son por columna, así que cada vista trae los suyos
+// Filtros solo en el panel «Todos los filtros» (inventados; el encargo solo define los destacados): son comunes a todas las vistas
 const fVariacion = { id: 'variacion', label: 'Variación diaria', type: 'single', options: opc(['alza', 'Al alza'], ['baja', 'A la baja'], ['igual', 'Sin cambios']),
   predicate: (r, [v]) => (v === 'alza' ? r.dif > 0 : v === 'baja' ? r.dif < 0 : r.dif === 0) }
 const fYtd = { id: 'ytd', label: 'Rentabilidad YTD', type: 'single', options: opc(['pos', 'Positiva'], ['neg', 'Negativa']), predicate: (r, [v]) => (v === 'pos' ? r.ytd >= 0 : r.ytd < 0) }
 const fCap = { id: 'cap', label: 'Capitalización', type: 'multiple', options: opc(['peq', 'Pequeña (menos de 500 M€)'], ['med', 'Mediana (500 M€ - 5.000 M€)'], ['gran', 'Grande (más de 5.000 M€)']),
   predicate: (r, vs) => vs.includes(r.cap < 500 ? 'peq' : r.cap <= 5000 ? 'med' : 'gran') }
+
+// Filtro booleano (Confluence apartado 2 «Booleanos»; solo en «Todos los filtros», primer acordeón «Cuenta Europea»): R4ListDetail con el toggle como valor y la ayuda en el botón de información
+const fCaife = { id: 'caife', label: 'Cuenta Europea', type: 'boolean', expanded: true,
+  options: [{ value: 'si', label: 'Elegible cuenta europea (CAIFE)' }],
+  ayuda: { label: 'Más información sobre la Cuenta Europea (CAIFE)', title: accionCaife.caife.title, intro: accionCaife.caife.intro, introStrong: accionCaife.caife.introStrong, description: accionCaife.caife.description, linkText: accionCaife.caife.linkText, linkHref: accionCaife.caife.linkHref },
+  predicate: (r) => r.caife === true }
+// Todas las vistas comparten los mismos filtros (Confluence «Definición - R4Table (v2)», apartado 3) y se puede filtrar por columnas que no están en la vista activa
+const filtrosAcc = [fCaife, fMercados, fIndices, fVariacion, fYtd, fCap]
 
 // Ordenar columnas (`sortable` de R4Table): disponible en la reconstrucción y en Figma, pero NO está desarrollado todavía → de momento ninguna columna es ordenable (sin iconos de orden en la cabecera). Se activa añadiendo `sortable: true`.
 const nombre = { field: 'name', header: 'Nombre', frozen: true, width: '13%' }
@@ -165,11 +174,11 @@ const accion = { field: 'accion', header: '', srHeader: 'Acciones', align: 'righ
 export const vistas = [
   { value: 'basica', label: 'Vista básica',
     columns: [{ ...nombre, width: '20%' }, num_('last', 'Último', '10%'), num_('dif', 'Dif.', '9%'), num_('difPct', 'Dif.%', '10%'), num_('volC', 'VolC', '9%'), num_('compra', 'Compra', '9%'), num_('venta', 'Venta', '9%'), num_('volV', 'VolV', '8%'), num_('volumen', 'Volumen', '10%'), { ...accion, width: '6%' }],
-    filters: [fMercados, fIndices, fVariacion],
+    filters: filtrosAcc,
     initial: { indices: ['Ibex 35'] }, defaultSort: { field: 'name', order: 'asc' } },
   { value: 'adicional', label: 'Vista adicional',
     columns: [{ ...nombre, width: '30%' }, num_('max52', 'Máx. 52 s', '15%'), num_('min52', 'Mín. 52 s', '15%'), num_('cap', 'Cap. (M€)', '13%'), num_('per', 'PER', '9%'), num_('ytd', 'YTD', '12%'), { ...accion, width: '6%' }],
-    filters: [fMercados, fIndices, fYtd, fCap],
+    filters: filtrosAcc,
     initial: { indices: ['Ibex 35'] } },
 ]
 
@@ -221,14 +230,15 @@ const fTipoM = { id: 'tipo', label: 'Tipo', type: 'multiple', highlighted: true,
 const fValorM = { id: 'valor', label: 'Valor', type: 'multiple', highlighted: true, options: opc(...[...new Set(_movs.map((m) => m.valor))].sort((a, b) => a.localeCompare(b, 'es')).map((n) => [n, n])), predicate: (r, vs) => vs.includes(r.valor) }
 const fOperacion = { id: 'operacion', label: 'Operación', type: 'multiple', options: opc('Compra', 'Venta', 'Dividendo', 'Suscripción', 'Reembolso'), predicate: (r, vs) => vs.includes(r.operacion) }
 const fSigno = { id: 'signo', label: 'Importe', type: 'single', options: opc(['entrada', 'Entradas de dinero'], ['salida', 'Salidas de dinero']), predicate: (r, [v]) => (v === 'entrada' ? r.importe > 0 : r.importe < 0) }
+const filtrosMov = [fFechaM, fTipoM, fValorM, fOperacion, fSigno]
 export const vistasMovimientos = [
   { value: 'basica', label: 'Vista básica',
     columns: [{ field: 'fecha', header: 'Fecha', width: '14%' }, { field: 'valor', header: 'Valor', frozen: true, width: '24%' }, { field: 'descripcion', header: 'Descripción', width: '22%' }, { field: 'tipo', header: 'Tipo', width: '14%' }, num_('importe', 'Importe', '13%'), num_('saldo', 'Saldo', '13%')],
-    filters: [fFechaM, fTipoM, fValorM, fOperacion],
+    filters: filtrosMov,
     initial: { fecha: ['3m'], tipo: ['Criptoactivos'] } },
   { value: 'adicional', label: 'Vista adicional',
     columns: [{ field: 'fecha', header: 'Fecha', width: '14%' }, { field: 'valor', header: 'Valor', frozen: true, width: '26%' }, num_('cantidad', 'Cantidad', '14%'), num_('precio', 'Precio', '14%'), num_('comision', 'Comisión', '14%'), num_('importe', 'Importe', '18%')],
-    filters: [fFechaM, fTipoM, fValorM, fSigno],
+    filters: filtrosMov,
     initial: { fecha: ['3m'], tipo: ['Criptoactivos'] } },
 ]
 

@@ -1,0 +1,33 @@
+/*
+ * _Switch — Figma Primitivos 1.2 (7064:4045): track 64×32 (pill), padding 2, handle de 28; off = fondo blanco + borde 1 px, handle gris; on = track oscuro, handle blanco; disable = track gris claro, handle gris oscuro.
+ * withText: «No»/«Sí» (Open Sans SemiBold 12) en el hueco que deja el handle. El input nativo ocupa todo el control (invisible) y recibe clic y foco; el foco se pinta en el track.
+ */
+.r4-switch { position: relative; display: inline-flex; flex: none; width: var(--spacing-16); height: var(--spacing-8); }
+.r4-switch__input { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.r4-switch__track {
+  display: flex; align-items: center; box-sizing: border-box; width: 100%; height: 100%; padding: var(--spacing-05);
+  border-radius: var(--radius-full); background: var(--surface-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default);
+  transition: background-color 150ms ease, box-shadow 150ms ease;
+}
+.r4-switch__handle {
+  width: calc(var(--spacing-8) - var(--spacing-1)); height: calc(var(--spacing-8) - var(--spacing-1)); border-radius: var(--radius-full);
+  background: var(--r4-switch-handle-off); transition: transform 150ms ease, background-color 150ms ease;
+}
+.r4-switch--text .r4-switch__track { justify-content: space-between; }
+.r4-switch__text { display: flex; align-items: center; justify-content: center; width: calc(var(--spacing-8) - var(--spacing-1)); font-family: var(--font-family-body); font-weight: var(--font-weight-semibold); font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); color: var(--text-default); }
+.r4-switch--text .r4-switch__handle { order: 0; }
+.r4-switch--text:not(.is-checked) .r4-switch__track { flex-direction: row; }
+.r4-switch--text.is-checked .r4-switch__track { flex-direction: row-reverse; }
+
+.r4-switch.is-checked .r4-switch__track { background: var(--icon-default); box-shadow: inset 0 0 0 var(--r4-line-width) var(--border-inverse); }
+.r4-switch.is-checked .r4-switch__handle { background: var(--component-input-bg-default); }
+.r4-switch:not(.is-checked):not(.is-disabled):hover .r4-switch__track { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-hover); }
+.r4-switch.is-checked .r4-switch__text { color: var(--text-on-inverse); }
+.r4-switch__input:focus-visible + .r4-switch__track { box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-card-focus-outline); }
+
+.r4-switch.is-disabled .r4-switch__input { cursor: not-allowed; /* Changelog SM-19378 */ }
+.r4-switch.is-disabled .r4-switch__track { background: var(--component-input-bg-disabled); box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-default); }
+.r4-switch.is-disabled .r4-switch__handle { background: var(--r4-switch-handle-disabled); }
+@media (prefers-reduced-motion: reduce) { .r4-switch__track, .r4-switch__handle { transition: none; } }
+.r4-switch.is-checked:not(.r4-switch--text) .r4-switch__handle { transform: translateX(var(--spacing-8)); }

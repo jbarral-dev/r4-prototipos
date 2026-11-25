@@ -5,7 +5,7 @@
 //   Un filtro = { id, label, type: 'single' | 'multiple', icon?, highlighted?, options: { value, label }[], predicate(row, valoresSeleccionados) }. Los filtros son POR COLUMNA/vista. Slots `body-<field>` ({ data, value }) para las celdas que no son texto.
 // Composición: «Filters and Views» (chips + R4SegmentedControls) + R4Section boxed blanca con R4Table. Los filtros destacados (`highlighted`) son R4Chip type=multiple con R4Popover debajo (a 8 px) en ≥ 1024 px y R4Sheet bottom por debajo
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
-//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar filtros» vacía la selección del sheet (también sin aplicar).
+//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Restablecer» devuelve la selección del sheet a su estado inicial (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante A (`inline`) en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
@@ -14,8 +14,8 @@
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
-// Decisiones inferidas: «Limpiar» (popover) vacía la selección del popover y hay que pulsar «Aplicar» para aplicar (disabled si no hay nada); categorías con AND entre sí y OR dentro; el estado aplicado es por vista; el tiempo de recarga (1 s) es el pedido.
-// Filtros de selección única (R4InputRadio): nunca se pueden limpiar (sin botón «Limpiar» en el popover); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
+// Decisiones inferidas: «Restablecer» (popover) devuelve la selección del popover a su estado inicial y hay que pulsar «Aplicar» para aplicar (disabled si ya está en el inicial); categorías con AND entre sí y OR dentro; los filtros aplicados son de la tabla y se conservan al cambiar de vista (Confluence, apartado 3); el tiempo de recarga (1 s) es el pedido.
+// Filtros de selección única (R4InputRadio): no se restablecen en el popover (sin botón «Restablecer»); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
 // Extras / NO oficial: R4Chip `dismissable`/`hideChevron`, R4Accordion `defaultOpen`, R4Table `sortable`/`defaultSort`/slot `empty` (ver cada archivo). Mobile y tablet: sin diseño; se adapta con el patrón de la doc (chips en una fila con scroll, sheets bottom).
 import { defineComponent, ref, reactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Chip from './R4Chip.js'
@@ -29,6 +29,8 @@ import R4Accordion from './R4Accordion.js'
 import R4InputCheckbox from './R4InputCheckbox.js'
 import R4InputRadio from './R4InputRadio.js'
 import R4Button from './R4Button.js'
+import R4ListDetail from './R4ListDetail.js'
+import R4Link from './R4Link.js'
 
 const RECARGA_MS = 1000 // tiempo de recarga pedido por Jon
 
@@ -38,8 +40,8 @@ const pluralResultados = (n) => (n === 1 ? 'Ver 1 resultado' : `Ver ${n} resulta
 const _TableFilterPanel = defineComponent({
   name: '_TableFilterPanel',
   components: { R4Text, R4InputCheckbox, R4InputRadio, R4Button },
-  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
-  emits: ['update:modelValue', 'apply', 'clear'],
+  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
+  emits: ['update:modelValue', 'apply', 'reset'],
   template: `
     <div class="r4-table-v2__panel">
       <R4Text v-if="showTitle" size="large" font-style="strong" tag="p" :text="filter.label" />
@@ -49,15 +51,74 @@ const _TableFilterPanel = defineComponent({
       </div>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" size="medium" width="full-width" text="Aplicar" @click="$emit('apply')" />
-        <R4Button v-if="filter.type !== 'single'" type="text" size="medium" width="full-width" text="Limpiar" :disabled="!modelValue.length" @click="$emit('clear')" />
+        <R4Button v-if="filter.type !== 'single'" type="text" size="medium" width="full-width" text="Restablecer" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
       </div>
+    </div>
+  `,
+})
+
+// Filtro booleano (type: 'boolean'; Confluence apartado 2 «Booleanos»): una fila de R4ListDetail con el concepto (+ botón de información) y un toggle como valor. Solo en «Todos los filtros» (acordeón).
+// Marcado = [valor de la única opción]; sin marcar = []. El botón de información abre un popover en ≥ 1024 px y un R4Sheet bottom por debajo (patrón Progressive disclosure › «Icono de info (ayuda breve)»).
+// `filter.ayuda` = { label (nombre accesible del botón), title, intro, introStrong, description, linkText, linkHref }.
+const _TableFilterBoolean = defineComponent({
+  name: '_TableFilterBoolean',
+  components: { R4ListDetail, R4Popover, R4Sheet, R4Link },
+  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, target: { default: null } },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    const popover = ref(null) // { top, left } relativos a la fila (≥ 1024 px)
+    const popoverEl = ref(null)
+    const sheet = ref(false) // < 1024 px
+    const open = computed(() => !!popover.value || sheet.value)
+    const cerrar = () => { popover.value = null; sheet.value = false }
+    const items = computed(() => [{ concept: props.filter.options[0].label, info: { label: props.filter.ayuda.label, haspopup: true, pressed: open.value }, switch: { checked: props.modelValue.length > 0 } }])
+    const onSwitch = (it, checked) => emit('update:modelValue', checked ? [props.filter.options[0].value] : [])
+    const onInfo = async (it, e) => {
+      if (open.value) { cerrar(); return }
+      const btn = e && e.currentTarget
+      const box = btn && btn.closest('.r4-table-v2__bool')
+      if (!box) return
+      const b = btn.getBoundingClientRect(); const r = box.getBoundingClientRect()
+      const width = 320
+      popover.value = { top: b.bottom - r.top + 8, left: Math.max(0, Math.min(b.left - r.left, r.width - width)) }
+      await nextTick()
+      // El CSS decide cuál se ve (popover en ≥ 1024, bottom sheet por debajo): si el popover queda oculto se abre el sheet
+      if (popoverEl.value && getComputedStyle(popoverEl.value).display === 'none') { popover.value = null; sheet.value = true }
+    }
+    const onDocClick = (e) => { if (popover.value && !e.target.closest('.r4-table-v2__help-popover, .r4-table-v2__bool .r4-listdetail__info')) cerrar() }
+    // Escape cierra primero el aviso (popover o sheet de ayuda) sin cerrar el sheet «Todos los filtros» que tiene debajo
+    const onKey = (e) => { if (e.key === 'Escape' && open.value) { e.stopPropagation(); cerrar() } }
+    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey, true) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey, true) })
+    return { popover, popoverEl, sheet, items, onSwitch, onInfo, cerrar }
+  },
+  template: `
+    <div class="r4-table-v2__bool">
+      <R4ListDetail size="medium" :aria-label="filter.label" :items="items" @info="onInfo" @switch="onSwitch" />
+      <div v-if="popover" ref="popoverEl" class="r4-table-v2__help-popover" role="dialog" :aria-label="filter.ayuda.title" :style="{ top: popover.top + 'px', left: popover.left + 'px' }">
+        <R4Popover width="wide">
+          <div class="r4-table-v2__help">
+            <p class="r4-table-v2__help-title">{{ filter.ayuda.title }}</p>
+            <div class="r4-table-v2__help-text"><p>{{ filter.ayuda.intro }}<strong>{{ filter.ayuda.introStrong }}</strong>.</p><p>{{ filter.ayuda.description }}</p></div>
+            <R4Link type="standalone" size="medium" :href="filter.ayuda.linkHref">{{ filter.ayuda.linkText }}</R4Link>
+          </div>
+        </R4Popover>
+      </div>
+      <Teleport v-if="target" :to="target">
+        <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--help" position="bottom" :title="filter.ayuda.title" :open="sheet" @close="sheet = false">
+          <div class="r4-table-v2__help">
+            <div class="r4-table-v2__help-text"><p>{{ filter.ayuda.intro }}<strong>{{ filter.ayuda.introStrong }}</strong>.</p><p>{{ filter.ayuda.description }}</p></div>
+            <R4Link type="standalone" size="medium" :href="filter.ayuda.linkHref">{{ filter.ayuda.linkText }}</R4Link>
+          </div>
+        </R4Sheet>
+      </Teleport>
     </div>
   `,
 })
 
 export default defineComponent({
   name: 'R4TableV2',
-  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, TableFilterPanel: _TableFilterPanel },
+  components: { R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, TableFilterPanel: _TableFilterPanel, TableFilterBoolean: _TableFilterBoolean },
   props: {
     views: { type: Array, required: true },
     data: { type: Array, required: true },
@@ -73,8 +134,12 @@ export default defineComponent({
     const selectedView = ref(props.views[0].value) // lo que marca el control de vistas (inmediato)
     const contentView = ref(props.views[0].value) // lo que se ve (cambia al terminar la recarga)
     const view = computed(() => vistaPorValor(contentView.value))
-    const aplicados = reactive(Object.fromEntries(props.views.map((v) => [v.value, { ...(v.initial || {}) }]))) // { vista: { filtroId: [valores] } }
-    const actuales = computed(() => aplicados[contentView.value])
+    // Los filtros aplicados son de la tabla, no de la vista (Confluence «Definición - R4Table (v2)», apartado 3: todas las vistas comparten los mismos filtros y al cambiar de vista no se pierden)
+    const inicial = Object.assign({}, ...props.views.map((v) => v.initial || {})) // estado inicial de los filtros: { filtroId: [valores] }
+    const inicialDe = (f) => inicial[f.id] || []
+    const igualSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x))
+    const aplicados = reactive(Object.fromEntries(Object.entries(inicial).map(([k, v]) => [k, [...v]]))) // { filtroId: [valores] }
+    const actuales = computed(() => aplicados)
     const loading = ref(null) // null | 'table' | 'all'
     const orden = ref(props.views[0].defaultSort ? { ...props.views[0].defaultSort } : { field: null, order: null }) // el orden elegido se conserva al cambiar de vista
     const target = ref(null) // capa de superposición (donde se montan los sheets)
@@ -104,7 +169,7 @@ export default defineComponent({
     const etiquetas = (f, vals) => vals.map((v) => f.options.find((o) => o.value === v)?.label ?? v)
     const chipLabel = (f) => { const l = etiquetas(f, seleccion(f)); return !l.length ? f.label : l.length > 1 ? `${l[0]} +${l.length - 1}` : l[0] }
     const destacados = computed(() => view.value.filters.filter((f) => f.highlighted))
-    // Los filtros `required` (selección única que siempre tiene uno marcado, p. ej. Fecha) no cuentan como «filtro aplicado»: ni en el badge, ni en «Filtros seleccionados», ni se pueden quitar (Quitar filtros los devuelve a su valor inicial)
+    // Los filtros `required` (selección única que siempre tiene uno marcado, p. ej. Fecha) no cuentan como «filtro aplicado»: ni en el badge, ni en «Filtros seleccionados», ni se pueden quitar (Restablecer los devuelve a su valor inicial)
     const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + seleccion(f).length, 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
@@ -112,7 +177,7 @@ export default defineComponent({
     const filtroAbierto = computed(() => view.value.filters.find((f) => f.id === catAbierta.value))
     const cerrarCategoria = () => { catAbierta.value = null }
     const aplicarCategoria = (f) => {
-      aplicados[contentView.value] = { ...actuales.value, [f.id]: [...catDraft.value] }
+      aplicados[f.id] = [...catDraft.value]
       cerrarCategoria()
       recargar('table', () => {})
     }
@@ -130,9 +195,11 @@ export default defineComponent({
         const visible = (s) => [...document.querySelectorAll(s)].find((e) => e.getClientRects().length)
         ;(visible('.r4-table-v2__applied .r4-chip') || visible('.r4-sheet .r4-accordion__header'))?.focus?.()
       }) }
-    const quitarFiltros = () => { view.value.filters.forEach((f) => { draft[f.id] = f.required ? [...((view.value.initial || {})[f.id] || [])] : [] }) }
+    // «Restablecer» (Confluence apartado 2): devuelve los filtros del sheet a su estado inicial (sin aplicar hasta pulsar «Ver N resultados»)
+    const restablecer = () => { view.value.filters.forEach((f) => { draft[f.id] = [...inicialDe(f)] }) }
+    const draftEsInicial = computed(() => view.value.filters.every((f) => igualSet(draft[f.id] || [], inicialDe(f))))
     const aplicarSheet = () => {
-      aplicados[contentView.value] = Object.fromEntries(view.value.filters.map((f) => [f.id, [...(draft[f.id] || [])]]))
+      Object.assign(aplicados, Object.fromEntries(view.value.filters.map((f) => [f.id, [...(draft[f.id] || [])]])))
       cerrarSheet()
       recargar('table', () => {})
     }
@@ -173,7 +240,7 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, quitarFiltros, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
+      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -189,7 +256,7 @@ export default defineComponent({
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
                 <R4Popover width="default">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" v-model="catDraft" @apply="aplicarCategoria(f)" @clear="catDraft = []" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
               </div>
             </div>
@@ -214,7 +281,7 @@ export default defineComponent({
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
                 <R4Popover width="default">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" v-model="catDraft" @apply="aplicarCategoria(f)" @clear="catDraft = []" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
               </div>
             </div>
@@ -256,12 +323,13 @@ export default defineComponent({
 
       <Teleport v-if="target" :to="target">
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" title="Todos los filtros" :open="sheetOpen"
-                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Quitar filtros" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftTotal === 0" @primary="aplicarSheet" @secondary="quitarFiltros" @close="cerrarSheet">
+                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Restablecer" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftEsInicial" @primary="aplicarSheet" @secondary="restablecer" @close="cerrarSheet">
           <R4Accordion :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
                 <R4Chip v-for="c in chipsDraft" :key="c.filtro + c.value" size="small" :label="c.label" dismissable @dismiss="quitarChip(c)" />
               </div>
+              <TableFilterBoolean v-else-if="item.filter.type === 'boolean'" :filter="item.filter" :target="target" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
               <TableFilterPanel v-else :filter="opcionesSheet(item.filter)" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
             </template>
           </R4Accordion>
@@ -270,7 +338,7 @@ export default defineComponent({
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
         <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="filtroAbierto.label" :open="true" @close="cerrarCategoria">
-          <TableFilterPanel :filter="opcionesCategoria(filtroAbierto)" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @clear="catDraft = []" />
+          <TableFilterPanel :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
         </R4Sheet>
       </Teleport>
     </div>
