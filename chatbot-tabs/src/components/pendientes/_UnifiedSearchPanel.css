@@ -72,3 +72,4 @@
 .usearch-msg__results { margin-top: 0; }
 .usearch-msg__text + .usearch-msg__list, .usearch-msg__text + .usearch-msg__links, .usearch-msg__text + .usearch-msg__results, .usearch-msg__text + .usearch-msg__cta { margin-top: calc(var(--spacing-5) - var(--spacing-1)); }
 .usearch-msg__text .r4-link--inline { display: inline; font-weight: var(--font-weight-regular); }
+.usearch-panel__thread { margin-top: var(--spacing-3); } /* 12 px: las burbujas no quedan pegadas a las tabs (Jon) */
