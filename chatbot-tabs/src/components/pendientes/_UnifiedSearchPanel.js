@@ -52,8 +52,8 @@ export default defineComponent({
     watch(() => props.api.chatView, async (v) => {
       if (!v) return
       await nextTick()
-      const capa = promptEl.value?.$el?.closest('.usearch-mobile')
-      if (capa) { if (getComputedStyle(capa).display !== 'none') document.activeElement?.blur(); return }
+      const capa = promptEl.value?.$el?.closest('.usearch-sheetbottom')
+      if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
       promptEl.value?.focus()
     })
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }

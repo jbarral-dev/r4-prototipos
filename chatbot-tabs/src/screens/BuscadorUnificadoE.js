@@ -14,6 +14,7 @@ import R4Sheet from '../components/pendientes/R4Sheet.js'
 import Icon from '../icons/_Icon.js'
 import _UnifiedSearchPanel from '../components/pendientes/_UnifiedSearchPanel.js'
 import { crearEstado } from './_buscadorEstado.js'
+import { seguirTeclado } from '../components/prototipo/seguirTeclado.js'
 import { casosFijos } from '../data/buscador-unificado.js'
 
 export default defineComponent({
@@ -35,10 +36,10 @@ export default defineComponent({
     // Foco en el campo que se ve (el CSS oculta el otro por container query)
     const focusVisible = async () => {
       await nextTick()
-      if (contenedor.value === 'sheet') await nextTick() // R4Sheet enfoca su botón de cierre al abrir: el campo va después
+      await nextTick() // R4Sheet (side y bottom) enfoca su botón de cierre al abrir: el campo va después
       for (const f of [mobileField.value, desktopField.value, sheetField.value]) {
         const el = f && f.$el
-        if (el && el.offsetParent !== null && getComputedStyle(el.closest('.usearch-mobile') || el).display !== 'none') { f.focus(); return }
+        if (el && el.offsetParent !== null && getComputedStyle(el.closest('.usearch-sheetbottom') || el).display !== 'none') { f.focus(); return }
       }
     }
     watch(() => api.open, (o) => { if (o) focusVisible() })
@@ -61,10 +62,11 @@ export default defineComponent({
       if (api.open && e.relatedTarget && !host.contains(e.relatedTarget) && !e.relatedTarget.closest('.usearch-mobile, .usearch')) api.cerrar()
     }
     // Teclado nativo: la capa de mobile sigue al viewport visual (si no, queda por detrás del teclado y el final del contenido no se alcanza con scroll)
-    const vv = window.visualViewport
+    let dejarDeSeguir = () => {}
+    const vv = null // (sustituido por seguirTeclado: la capa de mobile es ahora un R4Sheet bottom)
     const ajustarVV = () => { const s = document.documentElement.style; s.setProperty('--usearch-vvh', vv.height + 'px'); s.setProperty('--usearch-vvt', vv.offsetTop + 'px') }
-    onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
-    onBeforeUnmount(() => { if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
+    onMounted(() => { dejarDeSeguir = seguirTeclado(); document.addEventListener('click', onDocClick); document.addEventListener('click', onDocLink); document.addEventListener('keydown', onKey); if (vv) { ajustarVV(); vv.addEventListener('resize', ajustarVV); vv.addEventListener('scroll', ajustarVV) } })
+    onBeforeUnmount(() => { dejarDeSeguir(); if (vv) { vv.removeEventListener('resize', ajustarVV); vv.removeEventListener('scroll', ajustarVV); document.documentElement.style.removeProperty('--usearch-vvh'); document.documentElement.style.removeProperty('--usearch-vvt') } document.removeEventListener('click', onDocClick); document.removeEventListener('click', onDocLink); document.removeEventListener('keydown', onKey); document.documentElement.classList.remove('usearch-lock') })
 
     return { api, contenedor, sheetField, desktopField, trigger, mobileField, placeholder, cerrarYDevolverFoco, onFocusOut, mostrarFacilitador, casos }
   },
@@ -109,17 +111,19 @@ export default defineComponent({
           </R4Sheet>
         </div>
 
-        <Transition name="usearch-layer">
-          <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
-            <div v-if="!api.chatView" class="usearch-mobile__bar usearch__fieldrow">
-              <R4InputSearch ref="mobileField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
-                             @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
-              </R4InputSearch>
+        <!-- Tablet y mobile (≤ 1023): R4Sheet bottom (alto completo, 90 %) con título «Busca o pregunta» y aspa de cerrar; dentro, el campo y el panel con las tabs. El CSS lo oculta en desktop -->
+        <div class="usearch-sheetbottom">
+          <R4Sheet position="bottom" full-height :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
+            <div class="usearch-sheetbottom__body">
+              <div v-if="!api.chatView" class="usearch__fieldrow">
+                <R4InputSearch ref="mobileField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
+                               @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
+                </R4InputSearch>
+              </div>
+              <UnifiedSearchPanel :api="api" />
             </div>
-            <div v-else class="usearch-mobile__bar usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
-            <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
-          </div>
-        </Transition>
+          </R4Sheet>
+        </div>
 
         <div v-if="api.toast" class="buscador__toast" role="status">{{ api.toast }}</div>
 

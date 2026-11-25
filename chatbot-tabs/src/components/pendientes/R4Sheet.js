@@ -2,16 +2,16 @@
 // Reconstrucción desde Figma (era VUE en el catálogo; Changelog SM-18981, SM-18293 y SM-22167 —reducción de paddings de cabecera y contenedor—). API = "API componente"
 // de Confluence (R4Sheet, 3509616693): position (bottom | side; por defecto bottom), title, backLinkURL, primaryActionURL / primaryActionLabel,
 // secondaryActionURL / secondaryActionLabel y slot por defecto.
-// Extras del prototipo (la doc dice que lo abre/cierra el padre y no define la API): `open` (boolean) y el evento `close`.
+// Extras del prototipo (la doc dice que lo abre/cierra el padre y no define la API): `open` (boolean), el evento `close` y `showActions` + slot `actions` (bloque de acciones con contenido propio: p. ej. un R4Text y un R4Button).
 // Accesibilidad según la doc: role="dialog" aria-modal="true" aria-labelledby (título) · botón de cierre con aria-label "Cerrar" · Escape cierra · foco al botón de cierre al abrir,
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
 // primary large + text large a ancho completo, padding 16, gap 8, borde superior border/subtle; extra: eventos `primary` y `secondary` en lugar de las URLs). NO reconstruido: showBackLink (ic-arrow-left) ; la animación es una transición propia (Figma no define movimiento) y no hay velo de fondo (Figma no lo define).
 // Scroll (decisión de Jon): mientras haya un sheet visible abierto la página no hace scroll (clase r4-scroll-lock en <html>, contador compartido entre sheets).
-// Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
+// Scrim (decisión de Jon): el R4Sheet coloca un velo (--r4-scrim, negro al 30 %, pending.css) sobre la página y justo debajo del sheet (z-index 299 frente a 300); clicar el velo cierra. Va en una capa envolvente
 // (`.r4-sheet-layer`, display: contents) que recibe la class/style de la pantalla. Figma no define el velo: opacidad provisional (ver pending.css).
 // bottom/side los decide el CSS del contenedor en la ficha (la doc: bottom para móvil/tablet, side para escritorio): la pantalla monta una de cada y el CSS oculta la que no toca.
-import { defineComponent, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
+import { defineComponent, computed, ref, watch, nextTick, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
 import R4Button from './R4Button.js'
 
@@ -37,10 +37,14 @@ export default defineComponent({
     open: { type: Boolean, default: false },
     primaryActionLabel: { type: String, default: undefined }, // con label hay bloque de acciones (showActions)
     secondaryActionLabel: { type: String, default: undefined },
+    primaryActionLoading: { type: Boolean, default: false }, // extra (R4TableV2): spinner en el botón primario (ver R4Button `loading`)
+    secondaryActionDisabled: { type: Boolean, default: false }, // extra (R4TableV2): botón secundario deshabilitado
+    secondaryActionIcon: { type: String, default: undefined }, // extra (R4TableV2): icono del botón secundario (type=text)
+    showActions: { type: Boolean, default: false }, // extra: = showActions de Figma con el contenido del bloque en el slot `actions` (en lugar de primaryActionLabel / secondaryActionLabel)
     fullHeight: { type: Boolean, default: false }, // extra: el bottom sheet ocupa siempre su alto máximo (contenido de altura variable, p. ej. un buscador con resultados)
   },
   emits: ['close', 'primary', 'secondary'],
-  setup(props, { emit }) {
+  setup(props, { emit, slots }) {
     const titleId = `r4-sheet-title-${++uid}`
     const root = ref(null)
     const closeBtn = ref(null)
@@ -77,21 +81,23 @@ export default defineComponent({
     })
     onBeforeUnmount(() => { opener = null; lock(false) })
 
-    return { titleId, root, closeBtn, onKeydown }
+    const hasActions = computed(() => !!(props.primaryActionLabel || props.secondaryActionLabel || (props.showActions && slots.actions)))
+    return { titleId, root, closeBtn, onKeydown, hasActions }
   },
   template: `
     <div class="r4-sheet-layer" :class="$attrs.class" :style="$attrs.style">
     <Transition name="r4-sheet-scrim"><div v-if="open" class="r4-sheet__scrim" aria-hidden="true" @click="$emit('close')"></div></Transition>
     <Transition :name="'r4-sheet-' + position">
-      <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': primaryActionLabel || secondaryActionLabel, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
+      <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': hasActions, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
-          <h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2>
+          <slot name="header" :title-id="titleId"><h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2></slot>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>
         </div>
         <div class="r4-sheet__content"><div class="r4-sheet__slot"><slot /></div></div>
-        <div v-if="primaryActionLabel || secondaryActionLabel" class="r4-sheet__actions">
-          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" @click="$emit('primary', $event)" />
-          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" @click="$emit('secondary', $event)" />
+        <div v-if="hasActions" class="r4-sheet__actions">
+          <slot name="actions" />
+          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" :loading="primaryActionLoading" @click="$emit('primary', $event)" />
+          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" :icon="secondaryActionIcon" :disabled="secondaryActionDisabled" @click="$emit('secondary', $event)" />
         </div>
       </div>
     </Transition>
