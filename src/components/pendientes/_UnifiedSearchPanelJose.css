@@ -88,3 +88,6 @@
 .jusearch-panel:has(.jusearch-panel__complex) .jusearch-panel__body { flex: 1 1 auto; }
 
 .jusearch-assistant-access { display: flex; flex-direction: column; gap: var(--spacing-2); }
+
+/* Símbolo de la tecla Intro dentro del texto de «pregunta en curso» (carácter ↵: en Primitivos 1.2 no hay icono de «enter») */
+.jusearch-panel__enter { display: inline-block; padding-inline: var(--spacing-1); font-weight: var(--font-weight-semibold); color: var(--text-default); }
