@@ -97,6 +97,14 @@ export function crearEstado() {
     if (m === mode.value) return
     anotar('CORRIGE modo', `${mode.value} → ${m}${query.value ? ` · «${query.value}»` : lastSent.value ? ` · «${lastSent.value}»` : ''}`)
     locked.value = m
+    if (m === 'chat' && query.value.trim() && query.value.trim() !== lastSent.value) {
+      // el hilo conserva lo que ya se veía en el chat vacío (aviso legal + saludo) y a continuación van la pregunta y la respuesta
+      if (!thread.value.length) {
+        if (!legalVisto.value) { thread.value.push({ role: 'assistant', legal: true }); legalVisto.value = true }
+        thread.value.push({ role: 'assistant', text: '¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.' })
+      }
+      enviar()
+    }
     if (m === 'search' && !query.value) { const t = prompt.value.trim() || lastSent.value; if (t) { query.value = t; prompt.value = '' } } // vuelve a la búsqueda con lo último escrito
   }
 
