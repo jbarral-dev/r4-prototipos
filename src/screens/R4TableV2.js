@@ -13,6 +13,7 @@ import R4TableV2 from '../components/pendientes/R4TableV2.js'
 import R4Text from '../components/pendientes/R4Text.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
+import Icon from '../icons/_Icon.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vistasFondos } from '../data/r4table-v2.js'
@@ -28,6 +29,7 @@ const ESCENARIOS = {
 }
 const logoPorNombre = { ...Object.fromEntries(filas.map((f) => [f.name, f.logoURL])), ...logosCripto }
 const colorTipo = { Acciones: 'blue', Criptoactivos: 'blue', ETFs: 'blue', Fondos: 'blue' } // el tipo de producto es siempre R4Tag blue
+const tonoTexto = (s) => (/^-/.test(s) ? 'error' : /^0,00%?$/.test(s) ? 'normal' : 'success') // porcentajes ya formateados: «-3,13%» rojo, positivos verde
 const fmtE = (v) => nf(2).format(v) + '\u2009€'
 
 const navItemsDe = (actual) => ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === actual })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú; en Fondos, «Fondos y planes»
@@ -42,13 +44,13 @@ const tono = (v) => (v > 0 ? 'success' : v < 0 ? 'error' : 'normal')
 export default defineComponent({
   name: 'R4TableV2Prototipo',
   props: { variante: { type: String, default: 'a', validator: (v) => ['a', 'b'].includes(v) } }, // a = filtros y vistas en la misma fila · b = en filas distintas (con «N resultados»)
-  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador },
+  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador, Icon },
   setup(props) {
     document.title = `R4Table (v2) - ${props.variante.toUpperCase()} · Prototipo R4`
     const caso = ref(valoresPorDefecto(FACILITADOR))
     const esc = computed(() => ESCENARIOS[caso.value.escenario])
     const navItems = computed(() => navItemsDe(esc.value.menuActual ?? 0))
-    return { caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
+    return { tonoTexto, caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `
     <TemplateDetail>
@@ -86,6 +88,9 @@ export default defineComponent({
           <template #body-cantidad="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-precio="{ value }"><R4Text :text="fmtE(value)" /></template>
           <template #body-comision="{ value }"><R4Text :text="fmtE(value)" /></template>
+          <!-- Fondos: porcentajes con variación (verde / rojo) y rating en estrellas; el resto son textos y números tal cual -->
+          <template v-for="campo in ['rentAnio', 'rent1m', 'rent3m', 'rent6m', 'rent1a', 'rent3a', 'rent5a']" #[\`body-\${campo}\`]="{ value }"><R4Text v-if="value" :text="value" :variant="tonoTexto(value)" /></template>
+          <template #body-rating="{ value }"><span v-if="value" class="r4tv2__rating" role="img" :aria-label="value + ' de 5 estrellas'"><Icon v-for="n in 5" :key="n" name="ic-star" :class="{ 'is-on': n <= value }" /></span></template>
           <template #body-accion="{ data }"><R4Button type="text" size="medium" icon="ic-shopping-cart" :aria-label="'Comprar ' + data.name" /></template>
         </R4TableV2>
       </R4Wrapper>

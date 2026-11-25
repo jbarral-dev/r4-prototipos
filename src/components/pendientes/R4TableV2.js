@@ -141,7 +141,7 @@ export default defineComponent({
       ...(draftTotal.value ? [{ id: 'aplicados', title: 'Filtros seleccionados' }] : []),
       ...view.value.filters.map((f) => ({ id: f.id, title: f.label, filter: f })),
     ])
-    const abiertos = computed(() => ['aplicados', ...view.value.filters.filter((f) => f.highlighted).map((f) => f.id)])
+    const abiertos = computed(() => ['aplicados', ...view.value.filters.filter((f) => f.highlighted || f.expanded).map((f) => f.id)]) // abiertos: los destacados y los que se marcan `expanded` (p. ej. «Tipos de filtro» de Fondos)
     // «Ver N resultados»: al cambiar N con el sheet abierto, spinner de 800 ms en el botón
     const contando = ref(false)
     let timerContar = null
