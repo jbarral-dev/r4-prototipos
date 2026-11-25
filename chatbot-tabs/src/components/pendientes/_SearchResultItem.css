@@ -63,8 +63,9 @@
 .r4-searchresult--medium .r4-searchresult__sub, .r4-searchresult--small .r4-searchresult__sub { display: flex; }
 .r4-searchresult--medium .r4-searchresult__id { display: none; }
 .r4-searchresult--medium .r4-searchresult__market { color: var(--text-subdued); }
-/* small (compacta): sin logo; una línea de metadatos en body/xs (12/16) muted que incluye el mercado; a la derecha solo la etiqueta */
+/* small (compacta): sin logo; nombre en body/s semibold (14/20); una línea de metadatos en body/xs (12/16) muted que incluye el mercado; a la derecha solo la etiqueta */
 .r4-searchresult--small .r4-searchresult__sub { font-size: var(--size-body-xs); line-height: var(--line-height-body-xs); }
+.r4-searchresult--small .r4-searchresult__name { font-size: var(--size-body-s); line-height: var(--line-height-body-s); } /* el nombre de small va en body/s (14/20); el Figma lo tenía en body/m por error (Jon) */
 @container (max-width: 479px) {
   .r4-searchresult--auto .r4-searchresult__logo--default { width: var(--spacing-8); height: var(--spacing-8); }
   .r4-searchresult--auto .r4-searchresult__sub { display: flex; }
