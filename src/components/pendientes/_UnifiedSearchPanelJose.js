@@ -101,9 +101,13 @@ export default defineComponent({
         <!-- Pregunta en curso: spinner mientras escribe; a 0,5 s sin escribir, el mensaje (sin botón; texto de Jon, 2026-11-25) -->
         <div v-else-if="preguntaPendiente" class="jusearch-panel__complex">
           <R4Spinner v-if="escribiendo" size="medium" aria-label="Escribiendo tu pregunta" />
-          <template v-else>
-            <R4Text size="medium" class="jusearch-panel__complex-text">Parece que estás formulando una pregunta. Acaba de escribirla y pulsa “Enter” <span class="jusearch-panel__enter" aria-hidden="true">↵</span> para acceder al chat con el asistente.</R4Text>
-          </template>
+          <div v-else class="jusearch-panel__empty">
+            <Icon class="jusearch-panel__empty-icon" name="ic-history" />
+            <div class="jusearch-panel__empty-texts">
+              <R4Text size="large" font-style="strong" text="Parece que estás formulando una pregunta" />
+              <R4Text size="medium">Acaba de escribirla y pulsa “Enter” <span class="jusearch-panel__enter" aria-hidden="true">↵</span> para acceder al chat con el asistente.</R4Text>
+            </div>
+          </div>
         </div>
         <div v-else-if="vacio" class="jusearch-panel__start">
           <section v-if="api.opciones.ejemplos && hayBusquedas" class="jusearch-panel__section" :aria-labelledby="'jusearch-rec-' + uid">
