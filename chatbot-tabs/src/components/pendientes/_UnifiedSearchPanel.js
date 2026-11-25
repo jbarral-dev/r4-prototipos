@@ -14,7 +14,7 @@ import R4Link from './R4Link.js'
 import R4BrandTypes from './R4BrandTypes.js'
 import R4ListIcon from './R4ListIcon.js'
 import R4Notification from './R4Notification.js'
-import R4InputTextarea from './R4InputTextarea.js'
+import _ChatComposer from './_ChatComposer.js'
 import _SearchResultItem from './_SearchResultItem.js'
 import R4SearchResults from './R4SearchResults.js'
 import Icon from '../../icons/_Icon.js'
@@ -23,7 +23,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4Link, R4BrandTypes, R4Text, R4ListIcon, R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Link, R4BrandTypes, R4Text, R4ListIcon, R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, ChatComposer: _ChatComposer, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -49,16 +49,7 @@ export default defineComponent({
     watch(() => [props.api.thread.length, props.api.pending], async () => { await nextTick(); if (body.value) body.value.scrollTop = body.value.scrollHeight })
     // El prompt tiene el foco en cuanto se pinta la conversación (el panel se monta dos veces; el campo del host oculto no admite foco)
     const composer = ref(null)
-    const promptEl = ref(null) // R4InputTextarea (crece con el texto; el botón de enviar queda abajo a la derecha)
-    // En la capa de mobile/tablet NO se enfoca el prompt: se suelta el foco del campo de arriba para que el teclado nativo se cierre y la caja quede visible; el teclado vuelve al pulsar en la caja
-    watch(() => props.api.chatView, async (v) => {
-      if (!v) return
-      await nextTick()
-      const capa = promptEl.value?.$el?.closest('.usearch-sheetbottom')
-      if (capa) { if (capa.querySelector('.r4-sheet')?.getClientRects().length) document.activeElement?.blur(); return }
-      promptEl.value?.focus()
-    })
-    // Enlaces del asistente: uno suelto (R4Link standalone) o varios en lista con viñetas; nunca varios en fila
+        // Enlaces del asistente: uno suelto (R4Link standalone) o varios en lista con viñetas; nunca varios en fila
     const enlacesLista = (m) => m.lista || (m.links && m.links.length > 1 ? m.links : null)
     const pick = (name, e) => { e.preventDefault(); props.api.abrirResultado(name) }
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
@@ -86,7 +77,7 @@ export default defineComponent({
     // Barra «¿No encuentras lo que buscas?»: fija abajo con los resultados a la vista (como en «Chatbot»)
     const mostrarBarra = computed(() => false) // sin barra fija de «¿No encuentras…?»: la pestaña Chat lleva al asistente
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { hayMas, historialItems, enListado, onListado, enlacesLista, hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
+    return { hayMas, historialItems, enListado, onListado, enlacesLista, hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, pick, busquedas, preguntas, preguntaItems, onPregunta }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
@@ -183,10 +174,7 @@ export default defineComponent({
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->
       <div v-if="api.chatView" ref="composer" class="usearch-panel__composer">
-        <R4InputTextarea ref="promptEl" class="usearch-panel__prompt" :model-value="api.prompt" auto-grow :max-rows="6" font-size="medium" :resizable="false" submit-on-enter
-                         placeholder="Escribe tu pregunta" aria-label="Tu pregunta al asistente" @update:model-value="api.prompt = $event" @submit="api.enviarPrompt()">
-          <R4Button type="primary" size="medium" icon="ic-arrow-up" aria-label="Enviar pregunta" :disabled="!api.prompt.trim() || api.pending" @click="api.enviarPrompt()" />
-        </R4InputTextarea>
+        <ChatComposer :api="api" />
       </div>
     </div>
   `,
