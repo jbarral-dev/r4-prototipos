@@ -1,0 +1,42 @@
+/*
+ * R4Prompt — valores leídos de Figma (37:1423, «Proyectos - Chatbot»): caja de mínimo 48 (spacing/12), padding 8 / 48 (derecha, para el botón) / 8 / 16, gap 12, radio component/input/radius, trazo 1 px
+ * (border/default; en foco border/inverse + sombra de foco), fondo surface/default, texto body/m 16/24 (placeholder en text/muted) y R4Button primary medium (32) con radio 4, abajo a la derecha a 7 px del borde.
+ */
+.r4-prompt {
+  --r4-prompt-border: var(--component-input-border-default);
+  --r4-prompt-min-h: var(--spacing-12);
+  position: relative;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--r4-prompt-min-h);
+  padding: var(--spacing-2) var(--spacing-12) var(--spacing-2) var(--spacing-4);
+  border-radius: var(--component-input-radius);
+  background: var(--component-input-bg-default);
+  box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-prompt-border);
+  cursor: text;
+}
+.r4-prompt:hover { --r4-prompt-border: var(--component-input-border-hover); }
+.r4-prompt:focus-within { --r4-prompt-border: var(--component-input-border-focused); box-shadow: inset 0 0 0 var(--r4-line-width) var(--r4-prompt-border), var(--effect-input-focus-shadow); }
+.r4-prompt__input {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  max-height: calc(var(--line-height-body-m) * var(--r4-prompt-max-rows, 6));
+  padding: 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  overflow-y: auto;
+  background: transparent;
+  color: var(--text-default);
+  font: var(--font-weight-regular) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body);
+}
+.r4-prompt__input::placeholder { color: var(--text-muted); opacity: 1; }
+/* Botón de enviar: dentro de la caja, abajo a la derecha, a (48 - 32) / 2 - trazo = 7 px de cada borde; radio 4 (Figma) */
+.r4-prompt .r4-prompt__send { position: absolute; right: calc((var(--r4-prompt-min-h) - var(--component-button-size-medium)) / 2 - var(--r4-line-width)); bottom: calc((var(--r4-prompt-min-h) - var(--component-button-size-medium)) / 2 - var(--r4-line-width)); border-radius: var(--radius-xs); }
+
+/* disabled (Figma 42:1516): fondo component/input/bg/disabled, trazo border/default, sin hover ni cursor de texto */
+.r4-prompt--disabled, .r4-prompt--disabled:hover { --r4-prompt-border: var(--component-input-border-default); background: var(--component-input-bg-disabled); cursor: default; }
+.r4-prompt--disabled .r4-prompt__input { cursor: default; }

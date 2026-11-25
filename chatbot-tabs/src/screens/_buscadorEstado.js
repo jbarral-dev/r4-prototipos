@@ -98,6 +98,8 @@ export function crearEstado() {
     anotar('CORRIGE modo', `${mode.value} → ${m}${query.value ? ` · «${query.value}»` : lastSent.value ? ` · «${lastSent.value}»` : ''}`)
     locked.value = m
     if (m === 'chat' && query.value.trim() && query.value.trim() !== lastSent.value) {
+      // cada búsqueda distinta que pasa al chat abre una conversación nueva (la anterior queda en el historial)
+      if (thread.value.length) { gen++; thread.value = []; convActual = null; lastSent.value = ''; pending.value = false }
       // el hilo conserva lo que ya se veía en el chat vacío (aviso legal + saludo) y a continuación van la pregunta y la respuesta
       if (!thread.value.length) {
         if (!legalVisto.value) { thread.value.push({ role: 'assistant', legal: true }); legalVisto.value = true }
