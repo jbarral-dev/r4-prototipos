@@ -74,8 +74,8 @@ export default defineComponent({
       : props.api.ejemplosPregunta.slice(0, 3).map((t) => ({ texto: t, icon: 'ic-comments-alt' }))))
     // Filas de «Preguntas»: R4NavigationItems (sin icono en caja ni flecha); `conv` / `texto` viajan en el ítem para saber qué abrir
     // Títulos de sección: lo propio del usuario con historial («Últimas…») o lo sugerido al que entra por primera vez («…frecuentes»)
-    const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Últimas búsquedas' : 'Búsquedas frecuentes'))
-    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Últimas conversaciones' : 'Conversaciones frecuentes'))
+    const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Tus últimas búsquedas' : 'Búsquedas frecuentes'))
+    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Tus conversaciones' : 'Conversaciones frecuentes'))
     // «Últimas preguntas»: las 5 más recientes y, si hay más, «Ver todas» (abre el listado completo)
     const hayMas = computed(() => props.api.historial.conversaciones.length > 5)
     const preguntaItems = computed(() => preguntas.value.slice(0, 5).map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
