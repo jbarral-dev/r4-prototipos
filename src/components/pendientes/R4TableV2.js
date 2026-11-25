@@ -230,10 +230,20 @@ export default defineComponent({
     const chipsDraft = computed(() => view.value.filters.filter((f) => !f.required).flatMap((f) => (f.type === 'range' ? ((draft[f.id] || []).length ? [{ filtro: f.id, value: '__rango', label: etiquetas(f, draft[f.id])[0] }] : []) : (draft[f.id] || []).map((v) => ({ filtro: f.id, value: v, label: etiquetas(f, [v])[0] })))))
     const nResultados = computed(() => (sheetOpen.value ? filtrar(view.value.filters, draft).length : filasMostradas.value.length))
     const primaria = computed(() => pluralResultados(nResultados.value))
-    const abrirCalendario = (f, campo) => { pantalla.value = { filtro: f.id, campo } }
-    const pantallaTitulo = (pos) => (pos === 'bottom' && pantalla.value ? (pantalla.value.campo === 0 ? 'Elige fecha de inicio' : 'Elige fecha de fin') : 'Todos los filtros')
+    // Pantalla del calendario (side y bottom): sustituye a los acordeones dentro del R4Sheet (siguen montados, ocultos) y al volver se recupera la posición del scroll y el foco en el campo que la abrió
+    const contenidoVisible = () => [...document.querySelectorAll('.r4-table-v2__sheet .r4-sheet__content')].find((e) => e.getClientRects().length)
+    const abrirCalendario = (f, campo) => { const c = contenidoVisible(); pantalla.value = { filtro: f.id, campo, scroll: c ? c.scrollTop : 0 } }
+    const volverDeCalendario = async () => {
+      const p = pantalla.value; if (!p) return
+      pantalla.value = null
+      await nextTick()
+      const c = contenidoVisible(); if (c) c.scrollTop = p.scroll
+      const campos = [...document.querySelectorAll('.r4-table-v2__sheet .r4-table-v2__range--dates .r4-input-text input')].filter((e) => e.getClientRects().length)
+      const el = campos[p.campo]; if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }) }
+    }
+    const pantallaTitulo = () => (pantalla.value ? (pantalla.value.campo === 0 ? 'Elige fecha de inicio' : 'Elige fecha de fin') : 'Todos los filtros')
     const fechaPantalla = computed(() => (pantalla.value ? (draft[pantalla.value.filtro] || [])[1 + pantalla.value.campo] || '' : ''))
-    const elegirFechaPantalla = (fecha) => { const p = pantalla.value; const v = [...(draft[p.filtro] || ['custom', '', ''])]; v[1 + p.campo] = fecha; draft[p.filtro] = v; pantalla.value = null }
+    const elegirFechaPantalla = (fecha) => { const p = pantalla.value; const v = [...(draft[p.filtro] || ['custom', '', ''])]; v[1 + p.campo] = fecha; draft[p.filtro] = v; volverDeCalendario() }
     const quitarChip = (c) => { draft[c.filtro] = c.value === '__rango' ? [] : draft[c.filtro].filter((v) => v !== c.value); nextTick(() => { // el foco no se pierde: siguiente chip o, si ya no quedan, la cabecera del primer acordeón (solo entre los elementos visibles; hay un sheet por posición)
         const visible = (s) => [...document.querySelectorAll(s)].find((e) => e.getClientRects().length)
         ;(visible('.r4-table-v2__applied .r4-chip') || visible('.r4-sheet .r4-accordion__header'))?.focus?.()
@@ -288,7 +298,7 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -370,18 +380,18 @@ export default defineComponent({
       <p class="r4-table-v2__sr" role="status" aria-live="polite">{{ estado }}</p>
 
       <Teleport v-if="target" :to="target">
-        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo(pos)" :open="sheetOpen" :show-back-link="pos === 'bottom' && !!pantalla" back-link-label="Volver a los filtros" @back="pantalla = null"
-                 :primary-action-label="pos === 'bottom' && pantalla ? undefined : primaria" :primary-action-loading="contando" :secondary-action-label="pos === 'bottom' && pantalla ? undefined : 'Restablecer'" secondary-action-icon="ic-undo" :secondary-action-disabled="draftEsInicial" @primary="aplicarSheet" @secondary="restablecer" @close="cerrarSheet">
-          <R4Accordion v-show="!(pos === 'bottom' && pantalla)" :items="accordionItems" multiple size="small" :default-open="abiertos">
+        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
+                 :primary-action-label="pantalla ? undefined : primaria" :primary-action-loading="contando" :secondary-action-label="pantalla ? undefined : 'Restablecer'" secondary-action-icon="ic-undo" :secondary-action-disabled="draftEsInicial" @primary="aplicarSheet" @secondary="restablecer" @close="cerrarSheet">
+          <R4Accordion v-show="!pantalla" :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
                 <R4Chip v-for="c in chipsDraft" :key="c.filtro + c.value" size="small" :label="c.label" dismissable @dismiss="quitarChip(c)" />
               </div>
               <TableFilterBoolean v-else-if="item.filter.type === 'boolean'" :filter="item.filter" :target="target" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
-               <TableFilterPanel v-else :filter="opcionesSheet(item.filter)" :navigate="pos === 'bottom'" :validate="intentoSheet" @calendar="abrirCalendario(item.filter, $event)" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
+               <TableFilterPanel v-else :filter="opcionesSheet(item.filter)" :navigate="true" :validate="intentoSheet" @calendar="abrirCalendario(item.filter, $event)" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
             </template>
           </R4Accordion>
-          <DatePickerMenu v-if="pos === 'bottom' && pantalla" inline :model-value="fechaPantalla" @select="elegirFechaPantalla" />
+          <DatePickerMenu v-if="pantalla" inline :model-value="fechaPantalla" @select="elegirFechaPantalla" />
         </R4Sheet>
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />

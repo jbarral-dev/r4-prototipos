@@ -109,5 +109,7 @@
 /* Intervalos (R4InputText number o datepicker): dos campos en dos columnas en el sheet y apilados en el popover (240 px) */
 .r4-table-v2__range { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-4); align-items: start; }
 .r4-table-v2__range .r4-input-text { min-width: 0; }
-/* En el popover y en el sheet inferior los campos de fecha van uno debajo del otro (minmax(0, …): el ancho intrínseco del input no ensancha la columna) */
-.r4-popover .r4-table-v2__range, .r4-sheet--bottom .r4-table-v2__range--dates { grid-template-columns: minmax(0, 1fr); }
+/* En el popover los campos van uno debajo del otro (minmax(0, …): el ancho intrínseco del input no ensancha la columna) */
+.r4-popover .r4-table-v2__range { grid-template-columns: minmax(0, 1fr); }
+/* Dentro de un R4Sheet (side o bottom) los campos de intervalo (importe y fecha) van uno junto a otro, ajustados al ancho disponible y siempre con 8 px entre ellos */
+.r4-sheet .r4-table-v2__range { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-2); }

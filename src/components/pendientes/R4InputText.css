@@ -126,3 +126,9 @@
 
 /* Capa del calendario: montada en la superposición de la Template, por encima de los sheets (z-index 300) */
 .r4-datepicker-layer { position: fixed; z-index: 400; pointer-events: auto; /* la capa de superposición de la Template no intercepta eventos salvo en sus hijos */ }
+
+/* type=number y type=datepicker (Figma Number y DataPicker): el texto del campo es body/m (16/24), no body/l (18/26) como el R4InputText de texto */
+.r4-input-text--number .r4-input-text__input, .r4-input-text--datepicker .r4-input-text__input {
+  padding-block: calc((var(--spacing-10) - var(--line-height-body-m)) / 2);
+  font-size: var(--size-body-m); line-height: var(--line-height-body-m);
+}
