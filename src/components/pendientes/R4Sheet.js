@@ -51,6 +51,7 @@ export default defineComponent({
     const titleId = `r4-sheet-title-${++uid}`
     const root = ref(null)
     const closeBtn = ref(null)
+    const backBtn = ref(null)
     let opener = null
     let locked = false
     const lock = (on) => { if (on === locked) return; locked = on; setLock(on) }
@@ -82,10 +83,12 @@ export default defineComponent({
         opener = null
       }
     })
+    // Al entrar en una pantalla con flecha de volver el foco pasa a la flecha (así Escape y Tab siguen dentro del sheet)
+    watch(() => props.showBackLink, async (on) => { if (on) { await nextTick(); backBtn.value?.focus() } })
     onBeforeUnmount(() => { opener = null; lock(false) })
 
     const hasActions = computed(() => !!(props.primaryActionLabel || props.secondaryActionLabel || (props.showActions && slots.actions)))
-    return { titleId, root, closeBtn, onKeydown, hasActions }
+    return { titleId, root, closeBtn, backBtn, onKeydown, hasActions }
   },
   template: `
     <div class="r4-sheet-layer" :class="$attrs.class" :style="$attrs.style">
@@ -93,7 +96,7 @@ export default defineComponent({
     <Transition :name="'r4-sheet-' + position">
       <div v-if="open" ref="root" class="r4-sheet" :class="['r4-sheet--' + position, { 'has-actions': hasActions, 'is-full-height': fullHeight }]" role="dialog" aria-modal="true" :aria-labelledby="title ? titleId : undefined" @keydown="onKeydown">
         <div class="r4-sheet__header">
-          <button v-if="showBackLink" type="button" class="r4-sheet__back" :aria-label="backLinkLabel" @click="$emit('back')"><Icon name="ic-arrow-left" /></button>
+          <button v-if="showBackLink" ref="backBtn" type="button" class="r4-sheet__back" :aria-label="backLinkLabel" @click="$emit('back')"><Icon name="ic-arrow-left" /></button>
           <slot name="header" :title-id="titleId"><h2 :id="titleId" class="r4-sheet__title">{{ title }}</h2></slot>
           <button ref="closeBtn" type="button" class="r4-sheet__close" aria-label="Cerrar" @click="$emit('close')"><Icon name="close" /></button>
         </div>
