@@ -101,7 +101,7 @@ export default defineComponent({
             <R4ListIcon size="medium" :items="introItems" />
           </div>
         </div>
-        <template v-else-if="vacio">
+        <div v-else-if="vacio" class="usearch-panel__start">
           <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
@@ -114,7 +114,7 @@ export default defineComponent({
             <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
             <R4Button v-if="hayMas" type="text" size="medium" width="full-width" text="Ver todas" @click="api.verHistorial()" />
           </section>
-        </template>
+        </div>
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
