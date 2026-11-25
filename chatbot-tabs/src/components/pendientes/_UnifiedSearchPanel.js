@@ -55,6 +55,8 @@ export default defineComponent({
     // Estado inicial: con historial se muestran las búsquedas y preguntas del usuario (icono de histórico); sin historial, sugerencias (lupa y comentario)
     const hayBusquedas = computed(() => props.api.historial.busquedas.length > 0)
     const busquedas = computed(() => (hayBusquedas.value ? props.api.historial.busquedas : props.api.populares).map((t) => ({ texto: t, icon: hayBusquedas.value ? 'ic-history' : 'ic-search' })))
+    const tituloBusquedas = computed(() => (hayBusquedas.value ? 'Tus últimas búsquedas' : 'Búsquedas frecuentes'))
+    const tituloPreguntas = computed(() => (props.api.historial.conversaciones.length ? 'Tus conversaciones' : 'Conversaciones frecuentes'))
     const preguntas = computed(() => (props.api.historial.conversaciones.length
       ? props.api.historial.conversaciones.map((c) => ({ texto: c.titulo, conv: c, icon: 'ic-history' }))
       : props.api.ejemplosPregunta.slice(0, 3).map((t) => ({ texto: t, icon: 'ic-comments-alt' }))))
@@ -77,7 +79,7 @@ export default defineComponent({
     // Barra «¿No encuentras lo que buscas?»: fija abajo con los resultados a la vista (como en «Chatbot»)
     const mostrarBarra = computed(() => false) // sin barra fija de «¿No encuentras…?»: la pestaña Chat lleva al asistente
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { hayMas, historialItems, enListado, onListado, enlacesLista, hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, pick, busquedas, preguntas, preguntaItems, onPregunta }
+    return { hayMas, historialItems, enListado, onListado, enlacesLista, hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, pick, busquedas, preguntas, preguntaItems, onPregunta, tituloBusquedas, tituloPreguntas }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
@@ -99,20 +101,20 @@ export default defineComponent({
             <R4ListIcon size="medium" :items="introItems" />
           </div>
         </div>
-        <template v-else-if="vacio">
+        <div v-else-if="vacio" class="usearch-panel__start">
           <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
-            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas</h3>
+            <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">{{ tituloBusquedas }}</h3>
             <div class="usearch-panel__chips">
               <R4Chip v-for="b in busquedas" :key="b.texto" size="small" :label="b.texto" :icon="b.icon" @click="api.abrirBusqueda(b.texto)" />
             </div>
           </section>
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-ej-' + uid">
-            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">Preguntas</h3>
-            <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="'Preguntas'" @select="onPregunta" />
+            <h3 :id="'usearch-ej-' + uid" class="usearch-panel__heading">{{ tituloPreguntas }}</h3>
+            <R4NavigationItems size="medium" :items="preguntaItems" :icon-is-boxed="false" :aria-label="tituloPreguntas" @select="onPregunta" />
             <R4Button v-if="hayMas" type="text" size="medium" width="full-width" text="Ver todas" @click="api.verHistorial()" />
           </section>
-        </template>
+        </div>
 
         <!-- Resultados -->
         <template v-else-if="api.mode === 'search'">
