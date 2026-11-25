@@ -81,11 +81,12 @@ export default defineComponent({
         <div v-if="api.open" class="usearch-scrim" aria-hidden="true"></div>
         <div v-if="api.open && contenedor === 'popover'" class="usearch-desk" role="dialog" aria-label="Buscar o preguntar" @focusout="onFocusOut">
           <div class="usearch-desk__center">
-            <div class="usearch__fieldrow">
+            <div v-if="!api.chatView" class="usearch__fieldrow">
               <R4InputSearch ref="desktopField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
             </div>
+            <div v-else class="usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
             <div class="usearch-desk__pop">
               <R4Popover width="wider" density="none">
                 <div class="usearch__pop"><UnifiedSearchPanel :api="api" /></div>
@@ -98,7 +99,7 @@ export default defineComponent({
         <div v-if="contenedor === 'sheet'" class="usearch-sheet">
           <R4Sheet position="side" :title="placeholder" :open="api.open" @close="cerrarYDevolverFoco()">
             <div class="usearch-sheet__body">
-              <div class="usearch__fieldrow">
+              <div v-if="!api.chatView" class="usearch__fieldrow">
                 <R4InputSearch ref="sheetField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="medium" placeholder="" :show-close="false" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                                @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
                 </R4InputSearch>
@@ -110,11 +111,12 @@ export default defineComponent({
 
         <Transition name="usearch-layer">
           <div v-if="api.open" class="usearch-mobile" role="dialog" aria-modal="true" aria-label="Buscar o preguntar">
-            <div class="usearch-mobile__bar usearch__fieldrow">
+            <div v-if="!api.chatView" class="usearch-mobile__bar usearch__fieldrow">
               <R4InputSearch ref="mobileField" :show-erase="false" :model-value="api.query" @update:model-value="api.escribir" size="large" :placeholder="placeholder" aria-label="Buscar un producto o preguntar al asistente" icon="ic-search-ai"
                              @submit="api.enviarOBuscar()" @close="cerrarYDevolverFoco()">
               </R4InputSearch>
             </div>
+            <div v-else class="usearch-mobile__bar usearch__chatbar"><button type="button" class="usearch__chatclose" aria-label="Cerrar" @click="cerrarYDevolverFoco()"><Icon name="close" /></button></div>
             <div class="usearch-mobile__panel"><UnifiedSearchPanel :api="api" /></div>
           </div>
         </Transition>

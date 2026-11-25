@@ -9,6 +9,8 @@ import R4Tabs from './R4Tabs.js'
 import R4Chip from './R4Chip.js'
 import R4NavigationItems from './R4NavigationItems.js'
 import R4Button from './R4Button.js'
+import R4Text from './R4Text.js'
+import R4ListIcon from './R4ListIcon.js'
 import R4Notification from './R4Notification.js'
 import R4InputTextarea from './R4InputTextarea.js'
 import _SearchResultItem from './_SearchResultItem.js'
@@ -19,7 +21,7 @@ let panelUid = 0
 
 export default defineComponent({
   name: '_UnifiedSearchPanel',
-  components: { R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
+  components: { R4Text, R4ListIcon, R4Tabs, R4Chip, R4NavigationItems, R4Button, R4Notification, R4InputTextarea, R4SearchResults, SearchResultItem: _SearchResultItem, Icon },
   props: { api: { type: Object, required: true } },
   setup(props) {
     const uid = ++panelUid // el panel se monta dos veces (desplegable y capa a pantalla completa): ids únicos
@@ -65,8 +67,17 @@ export default defineComponent({
     const preguntaItems = computed(() => preguntas.value.map((q) => ({ title: q.texto, icon: q.icon, linkHref: '#', showLink: false, conv: q.conv })))
     const onPregunta = (it, e) => { e.preventDefault(); if (it.conv) props.api.abrirConversacion(it.conv); else props.api.preguntar(it.title) }
     // Props del searchResultItem (diseño con mercado) a partir de una fila del catálogo; `highlight` = lo buscado
+    // Pantalla de inicio del usuario nuevo (Figma «Proyectos - Chatbot» 58:2443): ilustración, título y 2 viñetas (R4ListIcon medium). Con historial se mantienen sus búsquedas y preguntas.
+    const hayHistorial = computed(() => props.api.historial.busquedas.length > 0 || props.api.historial.conversaciones.length > 0)
+    const ilustracion = new URL('../../assets/illustrations/il-search-ai.svg', import.meta.url).href
+    const introItems = [
+      { icon: 'ic-search', text: 'Busca un producto introduciendo su nombre o ISIN.' },
+      { icon: 'ic-comments-alt', text: 'Formula una pregunta, pulsa “Enter” y comenzaremos un chat.' },
+    ]
+    // Barra «¿No encuentras lo que buscas?»: fija abajo con los resultados a la vista (como en «Chatbot»)
+    const mostrarBarra = computed(() => props.api.mode === 'search' && !vacio.value && props.api.results.length > 0)
     const itemProps = (r) => ({ name: r.name, logoSrc: r.logoSrc, logoText: r.logoText, metadata1: r.metadata1, metadata2: r.metadata2, market: r.market, marketFlag: r.marketFlag, type: r.type, highlight: props.api.searchTerm })
-    return { itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
+    return { hayHistorial, ilustracion, introItems, mostrarBarra, itemProps, uid, bodyId, modeTabs, activeTab, onTab, vacio, preguntaPendiente, valores, ayuda, anuncio, body, composer, promptEl, pick, busquedas, preguntas, preguntaItems, onPregunta }
   },
   template: `
     <div class="usearch-panel" :class="{ 'usearch-panel--chat': api.chatView }" role="region" aria-label="Buscar o preguntar">
@@ -78,7 +89,14 @@ export default defineComponent({
 
       <div ref="body" class="usearch-panel__body" :id="bodyId" :role="api.mode && !preguntaPendiente ? 'tabpanel' : undefined" :aria-labelledby="api.mode && !preguntaPendiente ? modeTabs[activeTab].id : undefined">
         <!-- Vacío: campo sin texto. Estado «usuario nuevo» (sugerencias) o «usuario con historial» (lo suyo, con icono de histórico) -->
-        <template v-if="vacio">
+        <div v-if="vacio && !hayHistorial" class="usearch-panel__intro">
+          <img class="usearch-panel__intro-il" :src="ilustracion" alt="" width="96" height="96" />
+          <div class="usearch-panel__intro-body">
+            <R4Text size="large" font-style="strong" class="usearch-panel__intro-title" text="¿Puedo ayudarte a encontrar algo?" />
+            <R4ListIcon size="medium" :items="introItems" />
+          </div>
+        </div>
+        <template v-else-if="vacio">
           <R4Notification v-if="api.opciones.caption" type="info" :dismissible="false" text="Escribe el nombre de un producto para buscarlo, o una pregunta para hablar con el asistente." />
           <section v-if="api.opciones.ejemplos" class="usearch-panel__section" :aria-labelledby="'usearch-rec-' + uid">
             <h3 :id="'usearch-rec-' + uid" class="usearch-panel__heading">Búsquedas</h3>
@@ -101,10 +119,6 @@ export default defineComponent({
             <section v-if="ayuda.length" class="usearch-panel__section" aria-label="Centro de ayuda">
               <R4SearchResults class="usearch-panel__results"><SearchResultItem v-for="(r, i) in ayuda" :key="i" v-bind="itemProps(r)" @select="pick(r.name, $event)" /></R4SearchResults>
             </section>
-            <div class="usearch-panel__exit">
-              <span>¿No encuentras lo que buscas?</span>
-              <R4Button type="text" size="medium" icon="ic-comment-alt-dots" text="Pregúntaselo al asistente" @click="api.setMode('chat')" />
-            </div>
           </template>
           <div v-else class="usearch-panel__empty">
             <Icon class="usearch-panel__empty-icon" name="ic-file-search" />
@@ -139,6 +153,12 @@ export default defineComponent({
             <li class="usearch-msg usearch-msg--assistant"><span class="usearch-msg__who">Asistente</span><p class="usearch-msg__text">¡Hola! Soy tu asistente de Renta 4. Cuéntame qué necesitas y te echo una mano.</p></li>
           </ol>
         </template>
+      </div>
+
+      <!-- Acceso al chat desde los resultados: barra fija abajo, a todo el ancho (texto small muted + R4Button secondary large con ic-ai), como en «Chatbot» -->
+      <div v-if="mostrarBarra" class="usearch-panel__bar">
+        <p class="usearch-panel__bar-text">¿No encuentras lo que buscas?</p>
+        <R4Button type="secondary" size="large" width="full-width" icon="ic-ai" text="Pregunta al asistente" @click="api.setMode('chat')" />
       </div>
 
       <!-- Con la conversación pintada el campo de arriba queda disabled y el prompt se escribe aquí, fijo bajo el contenido -->

@@ -86,3 +86,5 @@
 .jusearch-panel__complex .jusearch-panel__complex-text { margin: 0; color: var(--text-muted); text-align: center; }
 .jusearch-panel__complex .r4-button { width: 100%; }
 .jusearch-panel:has(.jusearch-panel__complex) .jusearch-panel__body { flex: 1 1 auto; }
+
+.jusearch-assistant-access { display: flex; flex-direction: column; gap: var(--spacing-2); }

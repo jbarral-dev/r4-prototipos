@@ -21,7 +21,7 @@
 
 
 /* Desktop con R4Sheet side: el cuerpo ocupa el alto útil del Sheet (alto - padding superior 88 - inferior 48) para que el panel haga scroll por dentro y el prompt quede abajo */
-.usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-3); margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 3 + var(--spacing-2) - var(--spacing-4)); } /* +16 de aire entre la cabecera del Sheet y el campo */
+.usearch-sheet__body { display: flex; flex-direction: column; gap: var(--spacing-3); margin-top: var(--spacing-4); height: calc(100vh - var(--spacing-12) * 2 + var(--spacing-2) - var(--spacing-6) - var(--spacing-4)); } /* alto útil del Sheet side: 100vh - padding superior 88 - inferior 24 - aire de 16 */ /* +16 de aire entre la cabecera del Sheet y el campo */
 .usearch-sheet__body .usearch-panel { flex: 1 1 0; }@container r4page (max-width: 1023px) { .usearch-sheet .r4-sheet, .usearch-sheet .r4-sheet__scrim { display: none; } }
 
 /* Capa a pantalla completa (tablet y mobile): campo grande arriba + panel. Vive en la capa de superposición de la Template (tamaño de viewport). */
@@ -65,3 +65,15 @@ html.usearch-lock { overflow: hidden; }
 /* Campo + cierre (el cierre aparece solo con el campo disabled, es decir, con la conversación pintada). El campo mantiene SIEMPRE su alto: no se comprime aunque el contenido crezca. */
 .usearch__fieldrow { display: flex; flex: none; align-items: center; gap: var(--spacing-2); }
 .usearch__fieldrow .r4-inputsearch { flex: 1 1 0; min-width: 0; }
+
+
+/* Conversación (pestaña «Chat»): sin caja de búsqueda; solo el cierre, a la derecha (40, como el de la cabecera del R4Sheet). Al volver a «Buscador» reaparece el campo */
+.usearch__chatbar { display: flex; flex: none; justify-content: flex-end; }
+.usearch-mobile__bar.usearch__chatbar { padding: var(--spacing-2); }
+.usearch__chatclose { display: flex; align-items: center; justify-content: center; width: var(--spacing-10); height: var(--spacing-10); padding: 0; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--text-default); cursor: pointer; }
+.usearch__chatclose:hover { background: var(--surface-subtle); }
+.usearch__chatclose .r4-icon { width: var(--spacing-6); height: var(--spacing-6); }
+.usearch__chatclose:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+
+/* Con la barra «¿No encuentras…» en el R4Sheet side el cuerpo ocupa también el padding inferior (24) para que la barra llegue al borde */
+.usearch-sheet__body:has(.usearch-panel__bar) { height: calc(100vh - var(--spacing-12) * 2 + var(--spacing-2) - var(--spacing-4)); }

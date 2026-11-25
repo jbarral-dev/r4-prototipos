@@ -1,0 +1,11 @@
+/* R4ListIcon — valores leídos de Figma (12637:1496, 8 variantes). Variables por tamaño y color; sin literales. */
+.r4-listicon { --r4-listicon-gap: var(--spacing-5); --r4-listicon-item-gap: var(--spacing-4); --r4-listicon-icon: calc(var(--spacing-6) + var(--spacing-05)); --r4-listicon-font: var(--size-body-l); --r4-listicon-line: var(--line-height-body-l); --r4-listicon-text: var(--text-default); --r4-listicon-icon-color: var(--icon-default);
+  display: flex; flex-direction: column; gap: var(--r4-listicon-gap); margin: 0; padding: 0; list-style: none; }
+.r4-listicon--extraLarge { --r4-listicon-gap: var(--spacing-6); --r4-listicon-item-gap: var(--spacing-5); --r4-listicon-icon: var(--spacing-7); --r4-listicon-font: var(--size-body-xl); --r4-listicon-line: var(--line-height-body-xl); }
+.r4-listicon--medium { --r4-listicon-gap: var(--spacing-4); --r4-listicon-item-gap: var(--spacing-3); --r4-listicon-icon: calc(var(--spacing-5) + var(--spacing-05)); --r4-listicon-font: var(--size-body-m); --r4-listicon-line: var(--line-height-body-m); }
+.r4-listicon--small { --r4-listicon-gap: var(--spacing-4); --r4-listicon-item-gap: var(--spacing-2); --r4-listicon-icon: var(--spacing-5); --r4-listicon-font: var(--size-body-s); --r4-listicon-line: var(--line-height-body-s); }
+.r4-listicon--darkGray { --r4-listicon-text: var(--text-subdued); --r4-listicon-icon-color: var(--icon-subdued); }
+.r4-listicon__item { display: flex; align-items: flex-start; gap: var(--r4-listicon-item-gap); }
+.r4-listicon__icon { flex: none; width: var(--r4-listicon-icon); height: var(--r4-listicon-icon); color: var(--r4-listicon-icon-color); }
+.r4-listicon__content { display: flex; flex: 1 1 0; min-width: 0; align-items: center; gap: var(--spacing-2); }
+.r4-listicon__text { flex: 1 1 0; min-width: 0; color: var(--r4-listicon-text); font-family: var(--font-family-body); font-size: var(--r4-listicon-font); line-height: var(--r4-listicon-line); font-weight: var(--font-weight-regular); }
