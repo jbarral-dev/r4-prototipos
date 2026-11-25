@@ -89,7 +89,7 @@
 .r4-sheet__actions { display: flex; flex: none; flex-direction: column; gap: var(--spacing-2); padding: var(--spacing-4); background: var(--surface-default); box-shadow: inset 0 var(--r4-line-width) 0 var(--border-subtle); }
 .r4-sheet--bottom.has-actions .r4-sheet__content, .r4-sheet--side.has-actions .r4-sheet__content { padding-bottom: var(--spacing-4); }
 
-/* side (Figma 14424:531 actualizado): paddings laterales de 24 en cabecera, slot y Actions; contenido con 24 abajo; las acciones (R4Button) van en HORIZONTAL, a partes iguales (gap 8, padding 16 / 24, línea superior de 1 px) */
+/* side (Figma 14424:531 actualizado): paddings laterales de 24 en cabecera, slot y Actions; contenido con 24 abajo; las acciones (R4Button) van en HORIZONTAL, a partes iguales (gap 8, padding 16 / 24, línea superior de 1 px), con el secundario a la izquierda y el primario a la derecha (Jon, 2026-11-26) */
 .r4-sheet--side .r4-sheet__actions { flex-direction: row; align-items: flex-start; justify-content: center; padding: var(--spacing-4) var(--spacing-6); }
 .r4-sheet--side .r4-sheet__actions > * { flex: 1 1 0; min-width: 0; }
 

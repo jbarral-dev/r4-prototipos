@@ -3,6 +3,7 @@
 // de Confluence (R4Sheet, 3509616693): position (bottom | side; por defecto bottom), title, backLinkURL, primaryActionURL / primaryActionLabel,
 // secondaryActionURL / secondaryActionLabel y slot por defecto.
 // Extras del prototipo (la doc dice que lo abre/cierra el padre y no define la API): `open` (boolean), el evento `close` y `showActions` + slot `actions` (bloque de acciones con contenido propio: p. ej. un R4Text y un R4Button).
+// Capa de acciones del side: secundario a la izquierda y primario a la derecha (Jon, 2026-11-26); en el bottom, apilados con el primario arriba.
 // Accesibilidad según la doc: role="dialog" aria-modal="true" aria-labelledby (título) · botón de cierre con aria-label "Cerrar" · Escape cierra · foco al botón de cierre al abrir,
 // focus trap mientras está abierto y el foco vuelve al disparador al cerrar · foco visible manual en el botón de cierre.
 // Reconstruido (leído en Figma): position bottom y side, cabecera con título y botón de cierre, slot de contenido y el bloque de acciones (showActions: primaryActionLabel + secondaryActionLabel, R4Button
@@ -96,8 +97,15 @@ export default defineComponent({
         <div class="r4-sheet__content"><div class="r4-sheet__slot"><slot /></div></div>
         <div v-if="hasActions" class="r4-sheet__actions">
           <slot name="actions" />
-          <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" :loading="primaryActionLoading" @click="$emit('primary', $event)" />
-          <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" :icon="secondaryActionIcon" :disabled="secondaryActionDisabled" @click="$emit('secondary', $event)" />
+          <!-- Side: el secundario a la izquierda y el primario a la derecha (Jon, 2026-11-26; también en el DOM, para que el orden de foco coincida con el visual). Bottom: apilados, primario arriba -->
+          <template v-if="position === 'side'">
+            <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" :icon="secondaryActionIcon" :disabled="secondaryActionDisabled" @click="$emit('secondary', $event)" />
+            <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" :loading="primaryActionLoading" @click="$emit('primary', $event)" />
+          </template>
+          <template v-else>
+            <R4Button v-if="primaryActionLabel" type="primary" size="large" width="full-width" :text="primaryActionLabel" :loading="primaryActionLoading" @click="$emit('primary', $event)" />
+            <R4Button v-if="secondaryActionLabel" type="text" size="large" width="full-width" :text="secondaryActionLabel" :icon="secondaryActionIcon" :disabled="secondaryActionDisabled" @click="$emit('secondary', $event)" />
+          </template>
         </div>
       </div>
     </Transition>
