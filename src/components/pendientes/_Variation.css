@@ -1,0 +1,5 @@
+/* _Variation — Figma Primitivos 1.2: gap 2, SemiBold 16 (Body/Medium/SemiBold), color por tipo */
+.r4-variation { display: inline-flex; align-items: center; gap: var(--spacing-05); white-space: nowrap; font-family: var(--font-family-body); font-weight: var(--font-weight-semibold); font-size: var(--size-body-m); line-height: var(--line-height-body-m); }
+.r4-variation--negative { color: var(--chart-negative); }
+.r4-variation--positive { color: var(--chart-positive); }
+.r4-variation--neutral { color: var(--text-muted); }

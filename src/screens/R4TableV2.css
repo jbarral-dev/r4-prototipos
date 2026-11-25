@@ -15,6 +15,3 @@
 .r4tv2__detalle { padding-left: calc(var(--spacing-6) + var(--spacing-2)); }
 
 /* Rating en estrellas (columna «Rating Morningstar» de Fondos): 5 estrellas de 16, las activas en icon/default y el resto en gris */
-.r4tv2__rating { display: inline-flex; flex-wrap: nowrap; gap: var(--spacing-05); }
-.r4tv2__rating .r4-icon { width: var(--spacing-4); height: var(--spacing-4); color: var(--icon-disabled); }
-.r4tv2__rating .r4-icon.is-on { color: var(--icon-default); }

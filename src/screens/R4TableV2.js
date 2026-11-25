@@ -13,7 +13,8 @@ import R4TableV2 from '../components/pendientes/R4TableV2.js'
 import R4Text from '../components/pendientes/R4Text.js'
 import R4Button from '../components/pendientes/R4Button.js'
 import ProductDefaultLogo from '../components/pendientes/_ProductDefaultLogo.js'
-import Icon from '../icons/_Icon.js'
+import R4Variation from '../components/pendientes/_Variation.js'
+import R4Rating from '../components/pendientes/_Rating.js'
 import R4Tag from '../components/pendientes/R4Tag.js'
 import Facilitador, { valoresPorDefecto } from '../components/prototipo/Facilitador.js'
 import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vistasFondos } from '../data/r4table-v2.js'
@@ -29,7 +30,8 @@ const ESCENARIOS = {
 }
 const logoPorNombre = { ...Object.fromEntries(filas.map((f) => [f.name, f.logoURL])), ...logosCripto }
 const colorTipo = { Acciones: 'blue', Criptoactivos: 'blue', ETFs: 'blue', Fondos: 'blue' } // el tipo de producto es siempre R4Tag blue
-const tonoTexto = (s) => (/^-/.test(s) ? 'error' : /^0,00%?$/.test(s) ? 'normal' : 'success') // porcentajes ya formateados: «-3,13%» rojo, positivos verde
+const tipoVar = (v) => (v > 0 ? 'positive' : v < 0 ? 'negative' : 'neutral') // _Variation: type según el signo
+const partesPct = (s) => { const n = /^-/.test(s); const f = s.replace(/^-/, '').replace(/\s*%$/, ''); return { type: n ? 'negative' : /^0,00$/.test(f) ? 'neutral' : 'positive', figure: f, unit: '%' } } // «-3,13%» → negative · 3,13 · %
 const fmtE = (v) => nf(2).format(v) + '\u2009€'
 
 const navItemsDe = (actual) => ['Tu cuenta', 'Carteras gestionadas', 'Fondos y planes', 'Bolsas y derivados', 'Renta fija', 'Soluciones Easy', 'Análisis e ideas'].map((label, i) => ({ label, current: i === actual })) // Figma: Menu Cliente=Logado con «Tu cuenta» activo y sin submenú; en Fondos, «Fondos y planes»
@@ -44,13 +46,13 @@ const tono = (v) => (v > 0 ? 'success' : v < 0 ? 'error' : 'normal')
 export default defineComponent({
   name: 'R4TableV2Prototipo',
   props: { variante: { type: String, default: 'a', validator: (v) => ['a', 'b'].includes(v) } }, // a = filtros y vistas en la misma fila · b = en filas distintas (con «N resultados»)
-  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador, Icon },
+  components: { TemplateDetail, Menu, R4Wrapper, R4PageTitleSection, R4TableV2, R4Text, R4Button, R4Tag, ProductDefaultLogo, Facilitador, R4Variation, R4Rating },
   setup(props) {
     document.title = `R4Table (v2) - ${props.variante.toUpperCase()} · Prototipo R4`
     const caso = ref(valoresPorDefecto(FACILITADOR))
     const esc = computed(() => ESCENARIOS[caso.value.escenario])
     const navItems = computed(() => navItemsDe(esc.value.menuActual ?? 0))
-    return { tonoTexto, caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
+    return { partesPct, tipoVar, caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `
     <TemplateDetail>
@@ -64,8 +66,8 @@ export default defineComponent({
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
           <template #body-last="{ value }"><R4Text :text="fmt(value)" /></template>
-          <template #body-dif="{ value }"><R4Text :text="signo(value, fmt(abs(value)))" :variant="tono(value)" /></template>
-          <template #body-difPct="{ data }"><R4Text :text="signo(data.difPct, nf(2).format(abs(data.difPct)).replace(/^(\\d+)$/, '$1,00') + ' %')" :variant="tono(data.difPct)" /></template>
+          <template #body-dif="{ value }"><R4Variation :type="tipoVar(value)" :figure="fmt(abs(value))" /></template>
+          <template #body-difPct="{ data }"><R4Variation :type="tipoVar(data.difPct)" :figure="nf(2).format(abs(data.difPct)).replace(/^(\\d+)$/, '$1,00')" unit="%" /></template>
           <template #body-volC="{ value }"><R4Text :text="fmtN(value)" /></template>
           <template #body-compra="{ value }"><R4Text :text="fmt(value)" /></template>
           <template #body-venta="{ value }"><R4Text :text="fmt(value)" /></template>
@@ -89,8 +91,8 @@ export default defineComponent({
           <template #body-precio="{ value }"><R4Text :text="fmtE(value)" /></template>
           <template #body-comision="{ value }"><R4Text :text="fmtE(value)" /></template>
           <!-- Fondos: porcentajes con variación (verde / rojo) y rating en estrellas; el resto son textos y números tal cual -->
-          <template v-for="campo in ['rentAnio', 'rent1m', 'rent3m', 'rent6m', 'rent1a', 'rent3a', 'rent5a']" #[\`body-\${campo}\`]="{ value }"><R4Text v-if="value" :text="value" :variant="tonoTexto(value)" /></template>
-          <template #body-rating="{ value }"><span v-if="value" class="r4tv2__rating" role="img" :aria-label="value + ' de 5 estrellas'"><Icon v-for="n in 5" :key="n" name="ic-star" :class="{ 'is-on': n <= value }" /></span></template>
+          <template v-for="campo in ['rentAnio', 'rent1m', 'rent3m', 'rent6m', 'rent1a', 'rent3a', 'rent5a']" #[\`body-\${campo}\`]="{ value }"><R4Variation v-if="value" v-bind="partesPct(value)" /></template>
+          <template #body-rating="{ value }"><R4Rating :rating="value" /></template>
           <template #body-accion="{ data }"><R4Button type="text" size="medium" icon="ic-shopping-cart" :aria-label="'Comprar ' + data.name" /></template>
         </R4TableV2>
       </R4Wrapper>

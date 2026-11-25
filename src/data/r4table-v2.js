@@ -250,7 +250,7 @@ const accionF = { field: 'accion', header: '', srHeader: 'Acciones', align: 'rig
 const filtrosF = [tiposFiltro, fDivisaF, fActivoF]
 export const vistasFondos = [
   { value: 'basico', label: 'Básico', filters: filtrosF, initial: {},
-    columns: [nombreF, colF('vliq', 'V.Liq.', '7%'), colF('divisa', 'Divisa', '6%', 'left'), colF('activo', 'Activo', '6%', 'left'), colF('fvSusc', 'F. valor susc.', '7%'), colF('fvReemb', 'F. valor reemb.', '7%'), colF('comGestion', 'Gestión', '7%'), colF('ter', 'TER/OGC', '7%'), colF('comSusc', 'Suscr.', '6%'), colF('comReemb', 'Reemb.', '6%'), colF('invMin', 'Inv.Mín. Inicial', '8%'), { field: 'rating', header: '', srHeader: 'Rating Morningstar', align: 'left', width: '8%' }, accionF] },
+    columns: [nombreF, colF('vliq', 'V.Liq.', '7%'), colF('divisa', 'Divisa', '6%', 'left'), colF('activo', 'Activo', '6%', 'left'), colF('fvSusc', 'F. valor susc.', '7%'), colF('fvReemb', 'F. valor reemb.', '7%'), colF('comGestion', 'Gestión', '7%'), colF('ter', 'TER/OGC', '7%'), colF('comSusc', 'Suscr.', '6%'), colF('comReemb', 'Reemb.', '7%'), colF('invMin', 'Inv.Mín. Inicial', '7%'), { field: 'rating', header: '', srHeader: 'Rating Morningstar', align: 'left', width: '8%' }, accionF] },
   { value: 'rentabilidad', label: 'Rentabilidad', filters: filtrosF, initial: {},
     columns: [{ ...nombreF, width: '26%' }, colF('graf3m', '3 meses', '12%', 'left'), colF('rentAnio', 'Año', '8%'), colF('rent1m', '1m', '8%'), colF('rent3m', '3m', '8%'), colF('rent6m', '6m', '8%'), colF('rent1a', '1a', '8%'), colF('rent3a', '3 años anualiz.', '8%'), colF('rent5a', '5 años anualiz.', '8%'), { ...accionF, width: '6%' }] },
   { value: 'ratios', label: 'Ratios', filters: filtrosF, initial: {},
