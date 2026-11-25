@@ -95,21 +95,6 @@
 /* Cabeceras de columna: pueden partirse en varias líneas (en el original, «Inv.Mín Inicial» va en dos); evita recortar títulos largos como «3 años anualiz.» */
 .r4-table-v2 .r4-table__th { white-space: normal; overflow-wrap: anywhere; }
 
-/* Mobile (≤ 599 px; Jon, 2026-11-26): las chips de filtros y vista de la barra compacta son size medium (valores de R4Chip medium); en tablet siguen en small */
-@container r4page (max-width: 599px) {
-  .r4-table-v2__bar--compact .r4-chip--small,
-  .r4-table-v2__views-chip.r4-chip--small {
-    --r4-chip-height: var(--component-chip-size-medium);
-    --r4-chip-gap: var(--spacing-2);
-    --r4-chip-pad: var(--spacing-4);
-    --r4-chip-pad-end: var(--spacing-3);
-    --r4-chip-font: var(--size-body-m);
-    --r4-chip-line: var(--line-height-body-m);
-    --r4-chip-icon: var(--spacing-4);
-    --r4-chip-chevron: var(--spacing-5);
-  }
-}
-
 /* Filtro booleano (R4ListDetail con toggle): popover de ayuda en ≥ 1024 px y R4Sheet bottom por debajo; el CSS decide cuál se ve (el componente abre el sheet si el popover queda oculto) */
 .r4-table-v2__bool { position: relative; }
 .r4-table-v2__help-popover { position: absolute; z-index: 200; }
@@ -120,3 +105,7 @@
 .r4-table-v2__help-text strong { font-weight: var(--font-weight-semibold); }
 @container r4page (max-width: 1023px) { .r4-table-v2__help-popover { display: none; } }
 @container r4page (min-width: 1024px) { .r4-table-v2__sheet--help { display: none; } }
+
+/* Intervalos (R4InputText number o datepicker): dos campos en dos columnas en el sheet y apilados en el popover (240 px) */
+.r4-table-v2__range { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-4); align-items: start; }
+.r4-popover .r4-table-v2__range { grid-template-columns: 1fr; }

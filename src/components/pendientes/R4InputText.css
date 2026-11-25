@@ -104,3 +104,25 @@
 }
 .r4-input-text--error .r4-input-text__caption { color: var(--feedback-error-text); }
 .r4-input-text--success .r4-input-text__caption { color: var(--feedback-success-text); }
+
+/* type=number (Figma Number): stepper de 24 px (fondo surface/muted, chevron arriba / línea / chevron abajo), radio 4, número a la derecha */
+.r4-input-text--number .r4-input-text__field { padding: 0 0 0 var(--spacing-2); border-radius: var(--radius-xs); overflow: hidden; }
+.r4-input-text--number .r4-input-text__input { text-align: right; padding-inline-end: var(--spacing-2); -moz-appearance: textfield; appearance: textfield; }
+.r4-input-text--number .r4-input-text__input::-webkit-outer-spin-button, .r4-input-text--number .r4-input-text__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.r4-input-text__stepper { display: flex; flex: none; flex-direction: column; align-self: stretch; width: var(--spacing-6); background: var(--surface-muted); box-shadow: inset var(--r4-line-width) 0 0 var(--component-input-border-default); }
+.r4-input-text__step { display: flex; flex: 1 1 0; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; color: var(--icon-muted); cursor: pointer; }
+.r4-input-text__step + .r4-input-text__step { box-shadow: inset 0 var(--r4-line-width) 0 var(--component-input-border-default); }
+.r4-input-text__step .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+.r4-input-text__step--up .r4-icon { transform: scaleY(-1); }
+.r4-input-text__step:disabled { cursor: not-allowed; }
+
+/* type=datepicker (Figma DataPicker): texto «dd/mm/aaaa» a la derecha y pestaña de 40×40 con el icono de calendario */
+.r4-input-text--datepicker .r4-input-text__field { padding: 0 0 0 calc(var(--spacing-3) - var(--spacing-05) / 2); gap: calc(var(--spacing-2) + var(--spacing-05)); overflow: hidden; }
+.r4-input-text--datepicker .r4-input-text__input { text-align: right; cursor: pointer; }
+.r4-input-text__post { display: flex; flex: none; align-items: center; justify-content: center; align-self: stretch; width: var(--spacing-10); padding: 0; border: 0; background: var(--surface-muted); box-shadow: inset var(--r4-line-width) 0 0 var(--component-input-border-default); color: var(--icon-default); cursor: pointer; }
+.r4-input-text__post .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
+.r4-input-text__post:disabled { cursor: not-allowed; color: var(--icon-disabled); }
+.r4-input-text__post:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-card-focus-outline); }
+
+/* Capa del calendario: montada en la superposición de la Template, por encima de los sheets (z-index 300) */
+.r4-datepicker-layer { position: fixed; z-index: 400; pointer-events: auto; /* la capa de superposición de la Template no intercepta eventos salvo en sus hijos */ }

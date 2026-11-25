@@ -224,13 +224,22 @@ export const logosCripto = Object.fromEntries(['bitcoin', 'ethereum', 'solana', 
 export const movimientos = _movs
 const FECHAS = { hoy: 0, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
 const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', required: true, icon: 'ic-calendar', highlighted: true,
-  options: opc(['hoy', 'Hoy'], ['1w', 'Última semana'], ['1m', 'Último mes'], ['3m', 'Últimos 3 meses'], ['1y', 'Último año']),
-  predicate: (r, [v]) => r.dias <= FECHAS[v] }
+  options: [...opc(['hoy', 'Hoy'], ['1w', 'Última semana'], ['1m', 'Último mes'], ['3m', 'Últimos 3 meses'], ['1y', 'Último año']), { value: 'custom', label: 'Personalizado', custom: true }],
+  // «Personalizado» (Confluence apartado 2: rango desde / hasta): valor = ['custom', 'dd/mm/aaaa', 'dd/mm/aaaa']; un límite vacío o con formato incorrecto no restringe
+  predicate: (r, [v, desde, hasta]) => {
+    if (v !== 'custom') return r.dias <= FECHAS[v]
+    const leer = (s) => { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null }
+    const f = new Date(HOY); f.setDate(f.getDate() - r.dias); f.setHours(0, 0, 0, 0)
+    const d = leer(desde); const h = leer(hasta)
+    return (!d || f >= d) && (!h || f <= h)
+  } }
 const fTipoM = { id: 'tipo', label: 'Tipo', type: 'multiple', highlighted: true, options: opc('Acciones', 'Criptoactivos', 'ETFs', 'Fondos'), predicate: (r, vs) => vs.includes(r.tipo) }
 const fValorM = { id: 'valor', label: 'Valor', type: 'multiple', highlighted: true, options: opc(...[...new Set(_movs.map((m) => m.valor))].sort((a, b) => a.localeCompare(b, 'es')).map((n) => [n, n])), predicate: (r, vs) => vs.includes(r.valor) }
 const fOperacion = { id: 'operacion', label: 'Operación', type: 'multiple', options: opc('Compra', 'Venta', 'Dividendo', 'Suscripción', 'Reembolso'), predicate: (r, vs) => vs.includes(r.operacion) }
-const fSigno = { id: 'signo', label: 'Importe', type: 'single', options: opc(['entrada', 'Entradas de dinero'], ['salida', 'Salidas de dinero']), predicate: (r, [v]) => (v === 'entrada' ? r.importe > 0 : r.importe < 0) }
-const filtrosMov = [fFechaM, fTipoM, fValorM, fOperacion, fSigno]
+// Intervalo numérico (Confluence apartado 2: «Mínimo y máximo»): solo en «Todos los filtros»; valor = [mínimo, máximo] (texto; vacío = sin límite)
+const fImporte = { id: 'importe', label: 'Importe', type: 'range', unit: '€', options: [],
+  predicate: (r, [mn = '', mx = '']) => (mn === '' || r.importe >= Number(mn)) && (mx === '' || r.importe <= Number(mx)) }
+const filtrosMov = [fFechaM, fTipoM, fValorM, fOperacion, fImporte]
 export const vistasMovimientos = [
   { value: 'basica', label: 'Vista básica',
     columns: [{ field: 'fecha', header: 'Fecha', width: '14%' }, { field: 'valor', header: 'Valor', frozen: true, width: '24%' }, { field: 'descripcion', header: 'Descripción', width: '22%' }, { field: 'tipo', header: 'Tipo', width: '14%' }, num_('importe', 'Importe', '13%'), num_('saldo', 'Saldo', '13%')],

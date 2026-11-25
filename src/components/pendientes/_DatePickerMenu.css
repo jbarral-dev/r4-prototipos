@@ -1,0 +1,31 @@
+/*
+ * _DatePicker Menu — Figma Primitivos 1.2 (10252:2731): fondo surface/default, radio 8; cabecera de 42 (padding 9 8, flechas 16, título R4Text strong medium) con línea inferior border/subtle;
+ * contenido con padding 8 20; celdas de 38 de alto (padding 3 6); ítem de 32 de alto, radio 8, padding 12: inactive (text/default), hover (surface/subtle), active (surface/inverse + text/on-inverse), disabled (text/disabled).
+ * Day: 7 columnas (429 de ancho en Figma) · Month y Year: 3 columnas (321). El ancho se limita al disponible.
+ */
+.r4-datepicker {
+  display: flex; flex-direction: column; box-sizing: border-box; width: min(var(--r4-datepicker-width-day), var(--r4-datepicker-avail, calc(100vw - var(--spacing-4))));
+  border-radius: var(--radius-sm); background: var(--surface-default); font-family: var(--font-family-body);
+  box-shadow: 0 var(--spacing-1) var(--spacing-4) color-mix(in srgb, var(--color-neutral-black) 12%, transparent);
+}
+.r4-datepicker--month, .r4-datepicker--year { width: min(var(--r4-datepicker-width-month), var(--r4-datepicker-avail, calc(100vw - var(--spacing-4)))); }
+.r4-datepicker__header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-10); padding: calc(var(--spacing-2) + var(--spacing-05)) var(--spacing-2); box-shadow: inset 0 calc(var(--r4-line-width) * -1) 0 var(--border-subtle); }
+.r4-datepicker__nav { display: flex; align-items: center; justify-content: center; flex: none; width: var(--spacing-4); height: var(--spacing-4); padding: 0; border: 0; background: transparent; color: var(--icon-muted); cursor: pointer; }
+.r4-datepicker__nav .r4-icon { width: 100%; height: 100%; }
+.r4-datepicker__nav--next .r4-icon { transform: scaleX(-1); }
+.r4-datepicker__nav:focus-visible, .r4-datepicker__title:focus-visible, .r4-datepicker__item:focus-visible { outline: 0; box-shadow: var(--effect-card-focus-outline); }
+.r4-datepicker__title { padding: 0; border: 0; background: transparent; color: var(--text-default); font: var(--font-weight-bold) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); cursor: pointer; }
+.r4-datepicker__title--static, .r4-datepicker__title:disabled { cursor: default; color: var(--text-default); }
+.r4-datepicker__content { padding: var(--spacing-2) var(--spacing-5); }
+.r4-datepicker__row, .r4-datepicker__grid { display: grid; }
+.r4-datepicker__row, .r4-datepicker__grid--days { grid-template-columns: repeat(7, 1fr); }
+.r4-datepicker__grid--cols3 { grid-template-columns: repeat(3, 1fr); }
+.r4-datepicker__cell { display: flex; align-items: center; justify-content: center; min-height: calc(var(--spacing-10) - var(--spacing-05)); padding: calc(var(--spacing-1) - var(--spacing-05) / 2) var(--spacing-1); box-sizing: border-box; }
+.r4-datepicker__weekday { font: var(--font-weight-regular) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); color: var(--text-default); }
+.r4-datepicker__item {
+  display: flex; align-items: center; justify-content: center; min-width: var(--spacing-8); height: var(--spacing-8); padding: 0 var(--spacing-3); border: 0; border-radius: var(--radius-sm);
+  background: transparent; color: var(--text-default); font: var(--font-weight-regular) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); cursor: pointer;
+}
+.r4-datepicker__item:hover:not(:disabled):not(.is-active) { background: var(--surface-subtle); }
+.r4-datepicker__item.is-active { background: var(--surface-inverse); color: var(--text-on-inverse); }
+.r4-datepicker__item.is-disabled, .r4-datepicker__item:disabled { color: var(--text-disabled); cursor: default; }

@@ -9,7 +9,7 @@
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Variante A (`inline`) en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
 // Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
-// Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea, las dos chips size small, a mitad y mitad con 16 px entre ellas (Jon, 2026-11-26): «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
+// Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea, las dos chips size medium (Jon, 2026-11-26: también en tablet), a mitad y mitad con 16 px entre ellas (Jon, 2026-11-26): «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Cada opción de filtro lleva entre paréntesis su nº de resultados (las que dan 0 salen deshabilitadas, Jon 2026-11-25). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
@@ -31,6 +31,8 @@ import R4InputRadio from './R4InputRadio.js'
 import R4Button from './R4Button.js'
 import R4ListDetail from './R4ListDetail.js'
 import R4Link from './R4Link.js'
+import R4InputText from './R4InputText.js'
+import { leerFecha } from './_DatePickerMenu.js'
 
 const RECARGA_MS = 1000 // tiempo de recarga pedido por Jon
 
@@ -39,16 +41,40 @@ const pluralResultados = (n) => (n === 1 ? 'Ver 1 resultado' : `Ver ${n} resulta
 // Contenido de una categoría de filtro (popover y sheet de categoría): título R4Text large strong + checkboxes o radios (+ botones en el popover)
 const _TableFilterPanel = defineComponent({
   name: '_TableFilterPanel',
-  components: { R4Text, R4InputCheckbox, R4InputRadio, R4Button },
+  components: { R4Text, R4InputCheckbox, R4InputRadio, R4Button, R4InputText },
   props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
   emits: ['update:modelValue', 'apply', 'reset'],
+  setup(props, { emit }) {
+    // Intervalo numérico (type 'range'): valor = [mínimo, máximo] (texto) o [] si no hay ninguno. Se pueden dejar vacíos (sin límite) y el mínimo no puede superar al máximo.
+    const rango = computed(() => [props.modelValue[0] ?? '', props.modelValue[1] ?? ''])
+    const setRango = (i, v) => { const r = [...rango.value]; r[i] = v; emit('update:modelValue', r[0] === '' && r[1] === '' ? [] : r) }
+    const rangoInvalido = computed(() => rango.value[0] !== '' && rango.value[1] !== '' && Number(rango.value[0]) > Number(rango.value[1]))
+    // Fecha personalizada (single con opción `custom`): valor = ['custom', desde, hasta] («dd/mm/aaaa»)
+    const esPersonalizado = computed(() => props.filter.type === 'single' && props.filter.options.some((o) => o.custom) && props.modelValue[0] === 'custom')
+    const fechas = computed(() => [props.modelValue[1] ?? '', props.modelValue[2] ?? ''])
+    const setFecha = (i, v) => { const f = [...fechas.value]; f[i] = v; emit('update:modelValue', ['custom', f[0], f[1]]) }
+    const fechaMal = (v) => v !== '' && !leerFecha(v)
+    const desdeMayor = computed(() => !!leerFecha(fechas.value[0]) && !!leerFecha(fechas.value[1]) && leerFecha(fechas.value[0]) > leerFecha(fechas.value[1]))
+    const elegir = (v) => emit('update:modelValue', v === 'custom' ? ['custom', ...(props.modelValue[0] === 'custom' ? fechas.value : ['', ''])] : [v])
+    return { rango, setRango, rangoInvalido, esPersonalizado, fechas, setFecha, fechaMal, desdeMayor, elegir }
+  },
   template: `
     <div class="r4-table-v2__panel">
       <R4Text v-if="showTitle" size="large" font-style="strong" tag="p" :text="filter.label" />
+      <div v-if="filter.type === 'range'" class="r4-table-v2__range">
+        <R4InputText type="number" label="Mínimo" :aria-label="filter.label + ': mínimo'" placeholder="0" :model-value="rango[0]" @update:model-value="setRango(0, $event)" />
+        <R4InputText type="number" label="Máximo" :aria-label="filter.label + ': máximo'" placeholder="0" :model-value="rango[1]" :status="rangoInvalido ? 'Error' : 'Default'" :caption="rangoInvalido ? 'El máximo no puede ser menor que el mínimo' : undefined" @update:model-value="setRango(1, $event)" />
+      </div>
+      <template v-else>
       <div class="r4-table-v2__options">
         <R4InputCheckbox v-if="filter.type === 'multiple'" :options="filter.options" :model-value="modelValue" :aria-label="filter.label" @update:model-value="$emit('update:modelValue', $event)" />
-        <R4InputRadio v-else type="default" :options="filter.options" :selected-value="modelValue[0]" @change="$emit('update:modelValue', [$event])" />
+        <R4InputRadio v-else type="default" :options="filter.options" :selected-value="modelValue[0]" @change="elegir($event)" />
       </div>
+      <div v-if="esPersonalizado" class="r4-table-v2__range">
+        <R4InputText type="datepicker" label="Desde" aria-label="Fecha desde" :model-value="fechas[0]" :status="fechaMal(fechas[0]) ? 'Error' : 'Default'" :caption="fechaMal(fechas[0]) ? 'La fecha no es correcta' : undefined" @update:model-value="setFecha(0, $event)" />
+        <R4InputText type="datepicker" label="Hasta" aria-label="Fecha hasta" :model-value="fechas[1]" :status="fechaMal(fechas[1]) || desdeMayor ? 'Error' : 'Default'" :caption="fechaMal(fechas[1]) ? 'La fecha no es correcta' : desdeMayor ? 'La fecha «Hasta» no puede ser anterior a «Desde»' : undefined" @update:model-value="setFecha(1, $event)" />
+      </div>
+      </template>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" size="medium" width="full-width" text="Aplicar" @click="$emit('apply')" />
         <R4Button v-if="filter.type !== 'single'" type="text" size="medium" width="full-width" text="Restablecer" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
@@ -160,17 +186,21 @@ export default defineComponent({
       const otros = view.value.filters.filter((x) => x.id !== f.id && (sel[x.id] || []).length)
       return props.data.filter((r) => otros.every((x) => x.predicate(r, sel[x.id])) && f.predicate(r, [o.value])).length
     }
-    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: n === 0 && !(sel[f.id] || []).includes(o.value) } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
+    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { if (o.custom) return { value: o.value, label: o.label, custom: true, n: 1, disabled: false }; const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: n === 0 && !(sel[f.id] || []).includes(o.value) } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
     const opcionesCategoria = (f) => opcionesDe(f, { ...actuales.value, [f.id]: catDraft.value }) // popover / sheet de una categoría
     const opcionesSheet = (f) => opcionesDe(f, draft) // sheet «Todos los filtros»
 
     // — Chips de categoría y popover —
     const seleccion = (f) => actuales.value[f.id] || []
-    const etiquetas = (f, vals) => vals.map((v) => f.options.find((o) => o.value === v)?.label ?? v)
-    const chipLabel = (f) => { const l = etiquetas(f, seleccion(f)); return !l.length ? f.label : l.length > 1 ? `${l[0]} +${l.length - 1}` : l[0] }
+    // Texto de los valores: intervalo numérico → «Importe: de 100 a 500 €»; fecha personalizada → «dd/mm/aaaa - dd/mm/aaaa»; el resto, el texto de cada opción
+    const textoRango = (f, [mn = '', mx = '']) => (mn !== '' && mx !== '' ? `de ${mn} a ${mx}` : mn !== '' ? `desde ${mn}` : `hasta ${mx}`) + (f.unit ? ` ${f.unit}` : '')
+    const textoFechas = ([, d = '', h = '']) => (d && h ? `${d} - ${h}` : d ? `Desde ${d}` : h ? `Hasta ${h}` : 'Personalizado')
+    const etiquetas = (f, vals) => (f.type === 'range' ? (vals.length ? [`${f.label}: ${textoRango(f, vals)}`] : []) : vals[0] === 'custom' ? [textoFechas(vals)] : vals.map((v) => f.options.find((o) => o.value === v)?.label ?? v))
+    const cuenta = (f, vals) => (f.type === 'range' ? (vals.length ? 1 : 0) : vals.length) // un intervalo cuenta como un solo filtro
+    const chipLabel = (f) => { const l = f.type === 'range' && seleccion(f).length ? [textoRango(f, seleccion(f))] : etiquetas(f, seleccion(f)); return !l.length ? f.label : l.length > 1 ? `${l[0]} +${l.length - 1}` : l[0] }
     const destacados = computed(() => view.value.filters.filter((f) => f.highlighted))
     // Los filtros `required` (selección única que siempre tiene uno marcado, p. ej. Fecha) no cuentan como «filtro aplicado»: ni en el badge, ni en «Filtros seleccionados», ni se pueden quitar (Restablecer los devuelve a su valor inicial)
-    const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + seleccion(f).length, 0))
+    const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + cuenta(f, seleccion(f)), 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
     const abrirCategoria = (f) => { vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
@@ -187,11 +217,11 @@ export default defineComponent({
     const draft = reactive({}) // { filtroId: [valores] } (sin aplicar)
     const abrirSheet = () => { cerrarCategoria(); view.value.filters.forEach((f) => { draft[f.id] = [...seleccion(f)] }); sheetOpen.value = true }
     const cerrarSheet = () => { sheetOpen.value = false }
-    const draftTotal = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + (draft[f.id] || []).length, 0))
-    const chipsDraft = computed(() => view.value.filters.filter((f) => !f.required).flatMap((f) => (draft[f.id] || []).map((v) => ({ filtro: f.id, value: v, label: etiquetas(f, [v])[0] }))))
+    const draftTotal = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + cuenta(f, draft[f.id] || []), 0))
+    const chipsDraft = computed(() => view.value.filters.filter((f) => !f.required).flatMap((f) => (f.type === 'range' ? ((draft[f.id] || []).length ? [{ filtro: f.id, value: '__rango', label: etiquetas(f, draft[f.id])[0] }] : []) : (draft[f.id] || []).map((v) => ({ filtro: f.id, value: v, label: etiquetas(f, [v])[0] })))))
     const nResultados = computed(() => (sheetOpen.value ? filtrar(view.value.filters, draft).length : filasMostradas.value.length))
     const primaria = computed(() => pluralResultados(nResultados.value))
-    const quitarChip = (c) => { draft[c.filtro] = draft[c.filtro].filter((v) => v !== c.value); nextTick(() => { // el foco no se pierde: siguiente chip o, si ya no quedan, la cabecera del primer acordeón (solo entre los elementos visibles; hay un sheet por posición)
+    const quitarChip = (c) => { draft[c.filtro] = c.value === '__rango' ? [] : draft[c.filtro].filter((v) => v !== c.value); nextTick(() => { // el foco no se pierde: siguiente chip o, si ya no quedan, la cabecera del primer acordeón (solo entre los elementos visibles; hay un sheet por posición)
         const visible = (s) => [...document.querySelectorAll(s)].find((e) => e.getClientRects().length)
         ;(visible('.r4-table-v2__applied .r4-chip') || visible('.r4-sheet .r4-accordion__header'))?.focus?.()
       }) }
@@ -232,7 +262,7 @@ export default defineComponent({
     }
 
     // Cierre del popover: clic fuera y Escape
-    const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer')) { cerrarCategoria(); vistaPopover.value = false } }
+    const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer, .r4-datepicker-layer')) { cerrarCategoria(); vistaPopover.value = false } }
     const onKey = (e) => { if (e.key === 'Escape') { cerrarCategoria(); vistaPopover.value = false } }
     onMounted(() => { target.value = document.querySelector(props.overlay); document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
@@ -265,7 +295,7 @@ export default defineComponent({
         <div class="r4-table-v2__meta">
           <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
           <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
-          <R4Chip class="r4-table-v2__views-chip" type="multiple" size="small" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+          <R4Chip class="r4-table-v2__views-chip" type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
         </div>
       </div>
 
@@ -303,8 +333,8 @@ export default defineComponent({
 
       <!-- Tablet y mobile (≤ 1023 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
       <div class="r4-table-v2__bar r4-table-v2__bar--compact">
-        <R4Chip type="multiple" size="small" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
-        <R4Chip type="multiple" size="small" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+        <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
+        <R4Chip type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
       </template>
 
@@ -323,7 +353,7 @@ export default defineComponent({
 
       <Teleport v-if="target" :to="target">
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" title="Todos los filtros" :open="sheetOpen"
-                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Restablecer" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftEsInicial" @primary="aplicarSheet" @secondary="restablecer" @close="cerrarSheet">
+                 :primary-action-label="primaria" :primary-action-loading="contando" secondary-action-label="Restablecer" secondary-action-icon="ic-undo" :secondary-action-disabled="draftEsInicial" @primary="aplicarSheet" @secondary="restablecer" @close="cerrarSheet">
           <R4Accordion :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
