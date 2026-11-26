@@ -45,7 +45,7 @@ const pluralResultados = (n) => (n === 1 ? 'Ver 1 resultado' : `Ver ${n} resulta
 const _TableFilterPanel = defineComponent({
   name: '_TableFilterPanel',
   components: { R4Text, R4InputCheckbox, R4InputRadio, R4Button, R4InputText },
-  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, navigate: { type: Boolean, default: false }, validate: { type: Boolean, default: false }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
+  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, navigate: { type: Boolean, default: false }, validate: { type: Boolean, default: false }, buttonSize: { type: String, default: 'medium' }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
   emits: ['update:modelValue', 'apply', 'reset', 'calendar'],
   setup(props, { emit }) {
     // Intervalo numérico (type 'range'): valor = [mínimo, máximo] (texto) o [] si no hay ninguno. Se pueden dejar vacíos (sin límite) y el mínimo no puede superar al máximo.
@@ -81,8 +81,8 @@ const _TableFilterPanel = defineComponent({
       </div>
       </template>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
-        <R4Button type="primary" size="medium" width="full-width" text="Aplicar" @click="$emit('apply')" />
-        <R4Button v-if="filter.type !== 'single'" type="text" size="medium" width="full-width" text="Restablecer" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
+        <R4Button type="primary" :size="buttonSize" width="full-width" text="Aplicar" @click="$emit('apply')" />
+        <R4Button v-if="filter.type !== 'single'" type="text" :size="buttonSize" width="full-width" text="Restablecer" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
       </div>
     </div>
   `,
@@ -397,7 +397,7 @@ export default defineComponent({
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
         <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="filtroAbierto.label" :open="true" @close="cerrarCategoria">
-          <TableFilterPanel :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
+          <TableFilterPanel :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" button-size="large" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
         </R4Sheet>
       </Teleport>
     </div>
