@@ -4,6 +4,7 @@
 // Vista Day: cabecera «Mes Año» (negrita) con flechas ‹ › (mes anterior / siguiente), días de la semana «Do Lu Ma Mi Ju Vi Sa» (la semana empieza en domingo, como en Figma) y 6 filas de 7 días; los días de otros meses van en `Disabled`.
 // Hoy y futuro: el día de hoy lleva el estado `Today` (Figma `_DatePicker Menu Item` Variant=Today, creado por Jon el 2026-11-26: borde de 2 px `border/strong`, sin relleno, texto normal; solo existe en Interaction=Default, el hover se deriva del de Inactive). Se ve siempre que hoy no sea la fecha elegida;
 // al pulsar hoy pasa de `Today` a `Active`. `Active` es solo la fecha elegida. Lo mismo en las vistas de meses (mes actual) y de años (año actual). Todo lo posterior a hoy (días, meses y años) va en `Disabled` y no se puede elegir.
+// Rango (extra para el filtro «Personalizado»): `rangeStart` y `rangeEnd` («dd/mm/aaaa»): ambos extremos van en `Active` y los días visibles entre ellos en `InRange` (Figma `_DatePicker Menu Item` Variant=InRange, leído el 2026-11-26: fondo secondary/light, esquinas rectas, texto text/subdued, solo Interaction=Default; aquí la banda se continúa entre celdas). `minDate`: los días anteriores salen en `Disabled` (al elegir «Hasta»).
 // Vista Month: cabecera «Año» con flechas (año anterior / siguiente) y 12 meses abreviados en 3 columnas. Vista Year: cabecera «2020 - 2029» con flechas (década) y 12 años (el anterior y el siguiente de la década en `Disabled`).
 // Pulsar el título de la cabecera sube de vista (día → mes → año); elegir un año baja a la vista de meses; elegir un mes baja a la de días; elegir un día emite `select` («dd/mm/aaaa») y cierra.
 // Props: modelValue («dd/mm/aaaa» o ''). Eventos: select, close. NO reconstruido: el pie (`Footer`, oculto en Figma), rango de fechas ni fechas mínima/máxima.
@@ -29,14 +30,20 @@ export default defineComponent({
   components: { Icon },
   props: {
     modelValue: { type: String, default: '' },
-    inline: { type: Boolean, default: false }, // extra: el calendario ocupa el 100 % de su contenedor y sin sombra (pantalla propia de un R4Sheet en mobile)
+    inline: { type: Boolean, default: false },
+    rangeStart: { type: String, default: '' },
+    rangeEnd: { type: String, default: '' },
+    minDate: { type: String, default: '' }, // extra: el calendario ocupa el 100 % de su contenedor y sin sombra (pantalla propia de un R4Sheet en mobile)
   },
   emits: ['select', 'close'],
   setup(props, { emit }) {
     const hoy = new Date()
     const hoy0 = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())
     const sel = computed(() => leerFecha(props.modelValue))
-    const base = sel.value || hoy
+    const rIni = computed(() => leerFecha(props.rangeStart))
+    const rFin = computed(() => leerFecha(props.rangeEnd))
+    const minD = computed(() => leerFecha(props.minDate))
+    const base = rIni.value || rFin.value || sel.value || hoy
     const vista = ref('day') // day | month | year
     const año = ref(base.getFullYear())
     const mes = ref(base.getMonth())
@@ -58,14 +65,18 @@ export default defineComponent({
         const d = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + i)
         const fuera = d.getMonth() !== mes.value
         const esHoy = d.getTime() === hoy0.getTime()
-        return { d, n: d.getDate(), fuera, futuro: d > hoy0, esHoy, activo: !fuera && !!sel.value && d.getTime() === sel.value.getTime(), hoy: esHoy,
+        const t = d.getTime()
+        const hayRango = !!rIni.value || !!rFin.value
+        const extremo = (!!rIni.value && t === rIni.value.getTime()) || (!!rFin.value && t === rFin.value.getTime())
+        const enRango = !!rIni.value && !!rFin.value && d > rIni.value && d < rFin.value
+        return { d, n: d.getDate(), fuera, futuro: d > hoy0, antes: !!minD.value && d < minD.value, esHoy, activo: !fuera && (hayRango ? extremo : !!sel.value && t === sel.value.getTime()), rango: !fuera && enRango, hoy: esHoy,
           etiqueta: `${d.getDate()} de ${MESES[d.getMonth()].toLowerCase()} de ${d.getFullYear()}${esHoy ? ' (hoy)' : ''}` }
       })
     })
         const meses = computed(() => MESES_CORTOS.map((t, i) => ({ i, t, futuro: año.value > hoy0.getFullYear() || (año.value === hoy0.getFullYear() && i > hoy0.getMonth()), activo: !!sel.value && sel.value.getFullYear() === año.value && sel.value.getMonth() === i, hoy: hoy0.getFullYear() === año.value && hoy0.getMonth() === i, etiqueta: `${MESES[i]} de ${año.value}` })))
     const años = computed(() => Array.from({ length: 12 }, (_, i) => { const y = decada.value - 1 + i; return { y, fuera: i === 0 || i === 11 || y > hoy0.getFullYear(), activo: !!sel.value && sel.value.getFullYear() === y, hoy: hoy0.getFullYear() === y } }))
 
-    const elegirDia = (c) => { if (c.fuera || c.futuro) return; emit('select', formatearFecha(c.d)) }
+    const elegirDia = (c) => { if (c.fuera || c.futuro || c.antes) return; emit('select', formatearFecha(c.d)) }
     const elegirMes = (m) => { if (m.futuro) return; mes.value = m.i; vista.value = 'day' }
     const elegirAño = (a) => { if (a.fuera) return; año.value = a.y; vista.value = 'month' }
     const etiquetaMover = computed(() => (vista.value === 'day' ? ['Mes anterior', 'Mes siguiente'] : vista.value === 'month' ? ['Año anterior', 'Año siguiente'] : ['Década anterior', 'Década siguiente']))
@@ -82,7 +93,7 @@ export default defineComponent({
         <div class="r4-datepicker__row r4-datepicker__weekdays" aria-hidden="true"><span v-for="d in DIAS" :key="d" class="r4-datepicker__cell"><span class="r4-datepicker__weekday">{{ d }}</span></span></div>
         <div class="r4-datepicker__grid r4-datepicker__grid--days">
           <span v-for="(c, i) in dias" :key="i" class="r4-datepicker__cell">
-            <button type="button"  class="r4-datepicker__item" :class="{ 'is-active': c.activo, 'is-today': c.hoy && !c.activo, 'is-disabled': c.fuera || c.futuro }" :disabled="c.fuera || c.futuro" :aria-label="c.etiqueta" :aria-pressed="c.activo ? 'true' : 'false'" @click="elegirDia(c)">{{ c.n }}</button>
+            <button type="button"  class="r4-datepicker__item" :class="{ 'is-active': c.activo, 'is-in-range': c.rango && !c.activo, 'is-today': c.hoy && !c.activo && !c.rango, 'is-disabled': c.fuera || c.futuro || c.antes }" :disabled="c.fuera || c.futuro || c.antes" :aria-label="c.etiqueta" :aria-pressed="c.activo ? 'true' : 'false'" @click="elegirDia(c)">{{ c.n }}</button>
           </span>
         </div>
       </div>

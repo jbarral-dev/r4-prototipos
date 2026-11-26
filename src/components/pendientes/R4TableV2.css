@@ -133,11 +133,7 @@
 /* Sin padding propio: el nº de resultados queda a la izquierda de la caja y las vistas a la derecha (space-between; el slot del R4Section alinea a la izquierda, por eso `align-self: stretch`) */
 .r4-table-v2__meta--inside { align-self: stretch; padding: 0; }
 
-/* Campos de fecha del panel (popover y sheet de un filtro): más cerca de la opción «Personalizado» (12 px entre la opción y las etiquetas) y más lejos del botón «Aplicar» (24 px) */
-.r4-table-v2__panel > .r4-table-v2__range--dates { margin-top: calc(var(--spacing-3) * -1); margin-bottom: var(--spacing-2); }
 
-/* Campos de fecha «Desde» / «Hasta» (dos columnas: ~139 px en el popover wide): para que quepa «dd/mm/aaaa» entero se reduce el aire interior del campo (padding izquierdo 8 y 4 hasta la pestaña del calendario, en lugar de los 11 y 10 de Figma) */
-.r4-table-v2__range--dates .r4-input-text--datepicker .r4-input-text__field { padding-left: var(--spacing-2); gap: var(--spacing-1); }
 
 /* Decisiones del equipo (2026-11-26) */
 /* Chip seleccionado: fondo secondary/light (solo en este prototipo; el R4Chip del sistema usa surface/page) */
@@ -148,3 +144,14 @@
 .r4-table-v2 .r4-table tr > :first-child { padding-left: 0; }
 .r4-table-v2 .r4-table tr > :last-child { padding-right: 0; }
 .r4-table-v2 .r4-table__toggle-cell { text-align: left; }
+
+/* Selector de rango del filtro «Personalizado» (_DateRangePanel): campos «Desde» y «Hasta» arriba y el calendario debajo */
+.r4-daterange { display: flex; flex-direction: column; gap: var(--spacing-4); width: 100%; }
+.r4-daterange__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-4); align-items: start; }
+.r4-sheet .r4-daterange__fields { gap: var(--spacing-2); }
+.r4-daterange__fields .r4-input-text { min-width: 0; }
+
+/* Filtro «Personalizado»: resumen de las fechas elegidas (R4ListDetail vertical) bajo la opción, el error del rango incompleto y el selector de rango en un segundo popover a la derecha del popover del filtro (8 px) */
+.r4-table-v2__daterange { margin-top: calc(var(--spacing-3) * -1); }
+.r4-table-v2__daterror { margin-top: calc(var(--spacing-3) * -1); }
+.r4-table-v2__datepop { position: absolute; top: 0; left: calc(100% + var(--spacing-2)); z-index: 1; }

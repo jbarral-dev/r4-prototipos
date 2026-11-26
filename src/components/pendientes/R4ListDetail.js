@@ -11,6 +11,7 @@
 // Extra: action.pressed mantiene el botón en estado pressed (y aria-expanded si action.haspopup) mientras el popover/sheet que abre está visible.
 // Las acciones van en una capa (.r4-listdetail__actions) del alto de la línea de texto, sin overflow oculto: el botón (32) no aumenta la altura de la fila.
 // Valor de tipo switch (Changelog SM-23040: «slot Switch en valor»): it.switch = { checked, disabled?, showText?, ariaLabel? } → `_Switch` (átomo de R4InputSwitch); evento `switch` (item, checked). El nombre accesible es el concepto.
+// `orientation` (horizontal por defecto | vertical; Figma `listItemDetail` 12792:2758, variantes orientation=vertical leídas el 2026-11-26 en size=medium: contenido en fila con gap 16 y padding vertical 8; a la izquierda una columna (gap 4) con el concepto (text/subdued Regular) y debajo el valor (text/default SemiBold), alineados a la izquierda; a la derecha, las acciones (R4Button text icono, 32). NO reconstruido: tabular.
 // Altura de fila: small 36 + 8 (separador) · medium 40 + 16.
 import { defineComponent, computed } from '../../../vendor/vue.esm-browser.prod.js'
 import Icon from '../../icons/_Icon.js'
@@ -23,6 +24,7 @@ export default defineComponent({
   components: { Icon, R4Button, R4Tag, R4Switch },
   props: {
     size: { type: String, default: 'extraLarge', validator: (v) => ['small', 'medium', 'large', 'extraLarge'].includes(v) },
+    orientation: { type: String, default: 'horizontal', validator: (v) => ['horizontal', 'vertical'].includes(v) },
     items: { type: Array, required: true }, // { concept, value, valueIcon?, info?: { label }, action?: { icon, label } }
     ariaLabel: { type: String, default: undefined },
   },
@@ -32,9 +34,18 @@ export default defineComponent({
     return { interactive }
   },
   template: `
-    <component :is="interactive ? 'ul' : 'dl'" class="r4-listdetail" :class="'r4-listdetail--' + size" :role="interactive ? 'list' : undefined" :aria-label="ariaLabel">
+    <component :is="interactive ? 'ul' : 'dl'" class="r4-listdetail" :class="['r4-listdetail--' + size, 'r4-listdetail--' + orientation]" :role="interactive ? 'list' : undefined" :aria-label="ariaLabel">
       <component :is="interactive ? 'li' : 'div'" v-for="(it, i) in items" :key="i" class="r4-listdetail__row">
-        <div class="r4-listdetail__content">
+        <div v-if="orientation === 'vertical'" class="r4-listdetail__content">
+          <div class="r4-listdetail__stack">
+            <component :is="interactive ? 'span' : 'dt'" class="r4-listdetail__concept"><span>{{ it.concept }}</span></component>
+            <component :is="interactive ? 'span' : 'dd'" class="r4-listdetail__value"><span class="r4-listdetail__value-text">{{ it.value }}</span></component>
+          </div>
+          <div v-if="it.action" class="r4-listdetail__actions" role="toolbar" :aria-label="'Acciones de ' + it.concept">
+            <R4Button class="r4-listdetail__action" type="text" size="medium" :icon="it.action.icon" :aria-label="it.action.label" @click="$emit('action', it, $event)" />
+          </div>
+        </div>
+        <div v-else class="r4-listdetail__content">
           <component :is="interactive ? 'span' : 'dt'" class="r4-listdetail__concept">
             <span>{{ it.concept }}</span>
             <R4Button v-if="it.info" class="r4-listdetail__info" type="text" size="medium" icon="ic-info-circle" :pressed="!!it.info.pressed" :aria-haspopup="it.info.haspopup ? 'dialog' : undefined" :aria-expanded="it.info.haspopup ? (it.info.pressed ? 'true' : 'false') : undefined" :aria-label="it.info.label" @click="$emit('info', it, $event)" />

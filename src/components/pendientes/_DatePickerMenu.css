@@ -34,3 +34,6 @@
 
 /* inline: dentro de un sheet (mobile), a todo el ancho y sin sombra */
 .r4-datepicker.r4-datepicker--inline { width: 100%; border-radius: 0; box-shadow: none; }
+
+/* Variant=InRange: fondo secondary/light, esquinas rectas y texto text/subdued; la banda se continúa entre celdas (el item ocupa el ancho de la celda más su padding) */
+.r4-datepicker__item.is-in-range { width: calc(100% + var(--spacing-2)); min-width: 0; margin-inline: calc(var(--spacing-1) * -1); padding-inline: 0; border-radius: 0; background: var(--secondary-light); color: var(--text-subdued); }

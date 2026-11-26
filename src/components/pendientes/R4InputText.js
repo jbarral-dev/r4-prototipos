@@ -23,6 +23,7 @@ export default defineComponent({
     type: { type: String, default: 'text', validator: (v) => ['text', 'number', 'datepicker'].includes(v) },
     hideOptional: { type: Boolean, default: false }, // extra del prototipo: no muestra «(opcional)» en el label aunque el campo no sea obligatorio (sin aria-required)
     step: { type: Number, default: 1 }, // type=number: incremento de las flechas
+    calendar: { type: Boolean, default: true }, // type=datepicker (extra): false = sin capa de calendario (lo muestra el padre junto al campo; el icono solo da foco al campo)
     externalCalendar: { type: Boolean, default: false }, // type=datepicker (extra): no abre la capa; emite `calendar` para que lo muestre otra pantalla (mobile: pantalla propia de un R4Sheet). El campo pasa a solo lectura.
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' }, // type=datepicker: dónde se monta la capa del calendario
     modelValue: { type: String, default: '' },
@@ -70,8 +71,9 @@ export default defineComponent({
     }
     const cerrar = () => { abierto.value = false }
     let anchoAlAbrir = 0
-    const abrir = async () => { if (props.disabled || props.readonly) return; if (props.externalCalendar) { emit('calendar'); return }; anchoAlAbrir = window.innerWidth; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
-    const alternar = () => (abierto.value ? cerrar() : abrir())
+    const abrir = async () => { if (!props.calendar) return; if (props.disabled || props.readonly) return; if (props.externalCalendar) { emit('calendar'); return }; anchoAlAbrir = window.innerWidth; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
+    const inputEl = ref(null)
+    const alternar = () => { if (!props.calendar) { inputEl.value && inputEl.value.focus(); return } abierto.value ? cerrar() : abrir() }
     const elegir = (f) => { emit('update:modelValue', f); cerrar() }
     const onDoc = (e) => { if (abierto.value && !e.composedPath().some((el) => el.classList && el.classList.contains('r4-datepicker-layer')) && !(fieldEl.value && e.composedPath().includes(fieldEl.value))) cerrar() }
     // Solo un cambio de ANCHO cierra la capa: en móvil el teclado cambia el alto de la ventana y la cerraba nada más abrirla
@@ -81,7 +83,7 @@ export default defineComponent({
     onMounted(() => { document.addEventListener('click', onDoc); document.addEventListener('keydown', onKey, true); window.addEventListener('scroll', onScroll, true); window.addEventListener('resize', onResize) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey, true); window.removeEventListener('scroll', onScroll, true); window.removeEventListener('resize', onResize) })
     const inputAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== "class" && k !== "style")))
-    return { id, classes, onInput, inputAttrs, paso, fieldEl, layerEl, abierto, destino, pos, abrir, cerrar, alternar, elegir }
+    return { inputEl, id, classes, onInput, inputAttrs, paso, fieldEl, layerEl, abierto, destino, pos, abrir, cerrar, alternar, elegir }
   },
   template: `
     <div :class="[classes, $attrs.class]" :style="$attrs.style">
@@ -90,7 +92,7 @@ export default defineComponent({
         <span v-if="!required && !hideOptional" class="r4-input-text__optional">(opcional)</span>
       </label>
       <div ref="fieldEl" class="r4-input-text__field">
-        <input class="r4-input-text__input" :id="id" :type="type === 'number' ? 'number' : 'text'" :step="type === 'number' ? step : undefined" :inputmode="type === 'datepicker' ? 'numeric' : undefined" :name="name" :value="modelValue" :placeholder="placeholder || (type === 'datepicker' ? 'dd/mm/aaaa' : ' ')"
+        <input ref="inputEl" class="r4-input-text__input" :id="id" :type="type === 'number' ? 'number' : 'text'" :step="type === 'number' ? step : undefined" :inputmode="type === 'datepicker' ? 'numeric' : undefined" :name="name" :value="modelValue" :placeholder="placeholder || (type === 'datepicker' ? 'dd/mm/aaaa' : ' ')"
                    :disabled="disabled" :readonly="readonly || (type === 'datepicker' && externalCalendar)" :aria-required="required ? 'true' : undefined"
                :aria-invalid="status === 'Error' ? 'true' : undefined" :aria-describedby="caption ? id + '-caption' : undefined"
                v-bind="inputAttrs" @input="onInput" @click="type === 'datepicker' && abrir()" />

@@ -92,3 +92,10 @@
 
 .r4-listdetail__divider { display: flex; align-items: center; height: calc(var(--r4-ld-divider-pad) * 2); } /* la línea de 1 px no suma altura (Figma: Divider Line de alto 0) */
 .r4-listdetail__divider::before { content: ''; width: 100%; height: var(--r4-line-width); background: var(--border-subtle); }
+
+/* orientation=vertical (Figma listItemDetail, size=medium): columna concepto + valor (gap 4) a la izquierda y las acciones a la derecha, con 16 entre ambas; el concepto sin padding derecho y el valor alineado a la izquierda */
+.r4-listdetail--vertical .r4-listdetail__content { gap: var(--spacing-4); }
+.r4-listdetail__stack { display: flex; flex: 1 1 0; flex-direction: column; align-items: flex-start; gap: var(--spacing-1); min-width: 0; }
+.r4-listdetail--vertical .r4-listdetail__concept { flex: none; padding-right: 0; }
+.r4-listdetail--vertical .r4-listdetail__value { justify-content: flex-start; text-align: left; white-space: normal; }
+.r4-listdetail--vertical .r4-listdetail__actions { height: auto; }
