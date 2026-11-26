@@ -15,3 +15,6 @@
 .r4tv2__detalle { padding-left: calc(var(--spacing-6) + var(--spacing-2)); }
 
 /* Rating en estrellas (columna «Rating Morningstar» de Fondos): 5 estrellas de 16, las activas en icon/default y el resto en gris */
+
+/* Fondo de la página: surface/default (blanco) en lugar de surface/page (gris), decisión del equipo (2026-11-26); solo en este prototipo */
+html, body, .template-detail__container, .template-detail__page { background: var(--surface-default); }

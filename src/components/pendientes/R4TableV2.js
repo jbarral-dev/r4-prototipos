@@ -194,7 +194,7 @@ export default defineComponent({
       const otros = view.value.filters.filter((x) => x.id !== f.id && (sel[x.id] || []).length)
       return props.data.filter((r) => otros.every((x) => x.predicate(r, sel[x.id])) && f.predicate(r, [o.value])).length
     }
-    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { if (o.custom) return { value: o.value, label: o.label, custom: true, n: 1, disabled: false }; const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: n === 0 && !(sel[f.id] || []).includes(o.value) } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
+    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { if (o.custom) return { value: o.value, label: o.label, custom: true, n: 1, disabled: false }; const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: false } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
     const opcionesCategoria = (f) => opcionesDe(f, { ...actuales.value, [f.id]: catDraft.value }) // popover / sheet de una categoría
     const opcionesSheet = (f) => opcionesDe(f, draft) // sheet «Todos los filtros»
 
@@ -383,7 +383,7 @@ export default defineComponent({
       </template>
 
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
-        <R4Section appearance="boxed" background-color="white">
+        <div class="r4-table-v2__box"><!-- sin contenedor: la tabla ya no va dentro de un R4Section (decisión del equipo, 2026-11-26) -->
           <div v-if="layout === 'inside'" class="r4-table-v2__meta r4-table-v2__meta--inside">
             <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
             <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="small" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
@@ -396,7 +396,7 @@ export default defineComponent({
             </template>
           </R4Table>
           <R4Text v-if="footnote && filasMostradas.length" class="r4-table-v2__footnote" size="small" variant="paragraph" :text="footnote" />
-        </R4Section>
+        </div>
       </div>
       <p class="r4-table-v2__sr" role="status" aria-live="polite">{{ estado }}</p>
 

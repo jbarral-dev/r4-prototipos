@@ -22,9 +22,8 @@ import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vis
 // Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
 const FACILITADOR = [
   { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }, { value: 'fondos', label: 'Fondos' }] }] },
-  { label: 'Vistas', controls: [{ id: 'vistas', type: 'radio', param: 'vistas', options: [{ value: 'una-fila', label: 'En 1 fila, con los filtros', default: true }, { value: 'dos-filas', label: 'En 2 filas' }, { value: 'dentro-tabla', label: 'Dentro de la tabla' }] }] }, // disposición de las vistas y del nº de resultados (antes, prototipos A y B)
 ]
-const LAYOUTS = { 'una-fila': 'inline', 'dos-filas': 'stacked', 'dentro-tabla': 'inside' } // valor del Facilitador → `layout` de R4TableV2
+// Disposición elegida por el equipo (2026-11-26): «En 2 filas» (`layout="stacked"`): filtros en una fila y, debajo, «N resultados» + vistas. Las otras dos (`inline`, `inside`) siguen en R4TableV2 pero ya no se pueden elegir en el Facilitador.
 const ESCENARIOS = {
   acciones: { titulo: 'Acciones', breadcrumb: { items: [{ label: 'Invertir', href: '#' }, { label: 'Acciones' }] }, views: vistas, data: filas, aria: 'Acciones del Mercado continuo', footnote: 'Cotizaciones en tiempo real. Datos obtenidos a 19/1/2026 18:14:58. Horario peninsular.' },
   fondos: { titulo: 'Fondos', breadcrumb: { items: [{ label: 'Fondos y planes', href: '#' }, { label: 'Fondos' }] }, views: vistasFondos, data: fondos, aria: 'Fondos', footnote: undefined, menuActual: 2 }, // Menu: «Fondos y planes» activo
@@ -53,7 +52,7 @@ export default defineComponent({
     const caso = ref(valoresPorDefecto(FACILITADOR))
     const esc = computed(() => ESCENARIOS[caso.value.escenario])
     const navItems = computed(() => navItemsDe(esc.value.menuActual ?? 0))
-    return { LAYOUTS, partesPct, tipoVar, caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
+    return { partesPct, tipoVar, caso, esc, FACILITADOR, logoPorNombre, colorTipo, fmtE, breadcrumb: null, navItems, filas, vistas, fmt, fmtN, signo, tono, abs: Math.abs, nf }
   },
   template: `
     <TemplateDetail>
@@ -62,7 +61,7 @@ export default defineComponent({
       <R4Wrapper density="compact" layout="12"><R4PageTitleSection :title="esc.titulo" :breadcrumb="esc.breadcrumb" /></R4Wrapper>
 
       <R4Wrapper density="compact" layout="12">
-        <R4TableV2 :key="caso.escenario + caso.vistas" :layout="LAYOUTS[caso.vistas]" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
+        <R4TableV2 :key="caso.escenario" layout="stacked" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
           <template #body-name="{ data }">
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
