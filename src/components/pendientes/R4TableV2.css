@@ -130,4 +130,5 @@
 
 /* «Dentro de la tabla»: filtros en una fila sobre la tabla (24 px, como «En 1 fila») y «N resultados» + vistas dentro del R4Section, sobre la cabecera */
 .r4-table-v2--inside { gap: var(--spacing-6); }
-.r4-table-v2__meta--inside { padding: var(--spacing-3) var(--spacing-3) var(--spacing-2); } /* alineado con el texto de la cabecera de la tabla (padding de celda 12) */
+/* Sin padding propio: el nº de resultados queda a la izquierda de la caja y las vistas a la derecha (space-between; el slot del R4Section alinea a la izquierda, por eso `align-self: stretch`) */
+.r4-table-v2__meta--inside { align-self: stretch; padding: 0; }

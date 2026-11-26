@@ -370,7 +370,7 @@ export default defineComponent({
         <R4Section appearance="boxed" background-color="white">
           <div v-if="layout === 'inside'" class="r4-table-v2__meta r4-table-v2__meta--inside">
             <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
-            <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
+            <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="small" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
             <R4Chip class="r4-table-v2__views-chip" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
           </div>
           <R4Table :key="contentView" :loading="!!loading" :data="filasMostradas" :columns="view.columns" :data-key="dataKey" paginator :rows="rows" :aria-label="ariaLabel"
