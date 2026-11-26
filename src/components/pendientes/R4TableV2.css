@@ -119,11 +119,15 @@
   .r4-table-v2__filtros-chip { padding: 0 var(--r4-chip-pad); justify-content: center; }
 }
 
-/* PRUEBA (Jon, 2026-11-26) — versión B, mobile (< 600 px): la chip de vistas en modo «ghost», sin borde visible ni fondo. NO existe en el R4Design System. Solo se conserva el anillo de foco para el teclado. */
-@container r4page (max-width: 599px) {
+/* PRUEBA (Jon, 2026-11-26) — «En 2 filas» y «Dentro de la tabla», tablet y mobile (≤ 1023 px): la chip de vistas en modo «ghost», sin borde visible ni fondo. NO existe en el R4 Design System. Solo se conserva el anillo de foco para el teclado. */
+@container r4page (max-width: 1023px) {
   .r4-table-v2 .r4-table-v2__views-chip.r4-chip,
   .r4-table-v2 .r4-table-v2__views-chip.r4-chip:hover,
   .r4-table-v2 .r4-table-v2__views-chip.r4-chip:active,
   .r4-table-v2 .r4-table-v2__views-chip.r4-chip.is-selected { background: transparent; box-shadow: none; }
   .r4-table-v2 .r4-table-v2__views-chip.r4-chip:focus-visible { background: transparent; box-shadow: var(--effect-card-focus-outline); }
 }
+
+/* «Dentro de la tabla»: filtros en una fila sobre la tabla (24 px, como «En 1 fila») y «N resultados» + vistas dentro del R4Section, sobre la cabecera */
+.r4-table-v2--inside { gap: var(--spacing-6); }
+.r4-table-v2__meta--inside { padding: var(--spacing-3) var(--spacing-3) var(--spacing-2); } /* alineado con el texto de la cabecera de la tabla (padding de celda 12) */

@@ -7,8 +7,8 @@
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
 //   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Restablecer» devuelve la selección del sheet a su estado inicial (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
-// Variante A (`inline`) en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
-// Variante B (`layout="stacked"`): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
+// Disposición «En 1 fila» (`layout="inline"`; antes «variante A») en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
+// Disposición «En 2 filas» (`layout="stacked"`; antes «variante B») y «Dentro de la tabla» (`layout="inside"`, igual pero con «N resultados» + vistas dentro del R4Section; en tablet y mobile la chip de vistas va en modo ghost, sin borde: prueba de Jon, 2026-11-26): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
 // Tablet y mobile (≤ 1023 px; Jon, 2026-11-24): filtros y vistas en una línea, las dos chips size medium (Jon, 2026-11-26: también en tablet), a mitad y mitad con 16 px entre ellas (Jon, 2026-11-26): «Filtros» (R4Chip con icono y badge) a la izquierda y la vista actual (R4Chip multiple) a la derecha, que abre un R4Sheet bottom con las vistas (R4InputRadio). Los filtros destacados de la fila ancha solo se alcanzan desde «Filtros».
 // Cada opción de filtro lleva entre paréntesis su nº de resultados (las que dan 0 salen deshabilitadas, Jon 2026-11-25). Los títulos de los acordeones van sin contador (Jon, 2026-11-25; antes llevaban el nº en una R4Tag blue).
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
@@ -156,9 +156,8 @@ export default defineComponent({
     dataKey: { type: String, required: true },
     rows: { type: Number, default: 25 },
     ariaLabel: { type: String, default: undefined },
-    viewsMode: { type: String, default: 'segmented', validator: (v) => ['segmented', 'inside'].includes(v) }, // visualización de las vistas (prototipo, panel Facilitador › Vistas): 'segmented' = la actual (SegmentedControl en desktop de la B, chip en tablet y mobile, chip ghost en mobile de la B; chip con popover en la A) · 'inside' = «Inside table» (PENDIENTE de definir: de momento igual que 'segmented')
     footnote: { type: String, default: undefined }, // (se oculta cuando la tabla no tiene resultados) nota al pie bajo la tabla (R4Table v1.1.0 de Confluence: «Footnote»); extra aquí: se pinta con R4Text small
-    layout: { type: String, default: 'inline', validator: (v) => ['inline', 'stacked'].includes(v) }, // inline (A): filtros y vistas en la misma fila · stacked (B): filtros en una fila y, 16 px debajo, «N resultados» + vistas
+    layout: { type: String, default: 'inline', validator: (v) => ['inline', 'stacked', 'inside'].includes(v) }, // disposición de filtros, vistas y nº de resultados (panel Facilitador › Vistas): inline = «En 1 fila, con los filtros» · stacked = «En 2 filas» (filtros en una fila y, 4 px sobre la tabla, «N resultados» a la izquierda y las vistas a la derecha: R4SegmentedControls en desktop, chip ghost en tablet y mobile) · inside = «Dentro de la tabla» (filtros en una fila y «N resultados» + vistas dentro del R4Section que contiene la tabla, con los mismos controles de vistas que stacked)
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' },
   },
   setup(props) {
@@ -279,7 +278,7 @@ export default defineComponent({
 
     // — Vistas —
     const vistaOpen = ref(false)
-    const vistaPopover = ref(false) // popover de vistas (variante A, desktop)
+    const vistaPopover = ref(false) // popover de vistas («En 1 fila», desktop)
     const alternarVistaPopover = () => { cerrarCategoria(); vistaPopover.value = !vistaPopover.value }
     const vistaActual = computed(() => vistaPorValor(selectedView.value))
     const itemsVistas = computed(() => props.views.map((v) => ({ label: v.label, value: v.value })))
@@ -302,9 +301,9 @@ export default defineComponent({
       opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
-    <div class="r4-table-v2" :class="['r4-table-v2--' + layout, 'r4-table-v2--views-' + viewsMode]" :aria-busy="loading ? 'true' : undefined">
-      <!-- Variante B (stacked): fila de filtros y, debajo (16 px), «N resultados» a la izquierda y las vistas a la derecha (R4SegmentedControls en desktop; R4Chip multiple en tablet y mobile) -->
-      <div v-if="layout === 'stacked'" class="r4-table-v2__toolbar">
+    <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
+      <!-- «En 2 filas» (stacked) y «Dentro de la tabla» (inside): fila de filtros; en stacked, debajo, «N resultados» a la izquierda y las vistas a la derecha (R4SegmentedControls en desktop; R4Chip ghost en tablet y mobile); en inside esa fila va dentro del R4Section de la tabla -->
+      <div v-if="layout !== 'inline'" class="r4-table-v2__toolbar">
         <div class="r4-table-v2__filters" role="group" aria-label="Filtros de la tabla">
           <div class="r4-table-v2__all">
             <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Todos los filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'"
@@ -321,7 +320,7 @@ export default defineComponent({
             </div>
           </div>
         </div>
-        <div class="r4-table-v2__meta">
+        <div v-if="layout === 'stacked'" class="r4-table-v2__meta">
           <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
           <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
           <R4Chip class="r4-table-v2__views-chip" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
@@ -369,6 +368,11 @@ export default defineComponent({
 
       <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <R4Section appearance="boxed" background-color="white">
+          <div v-if="layout === 'inside'" class="r4-table-v2__meta r4-table-v2__meta--inside">
+            <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
+            <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
+            <R4Chip class="r4-table-v2__views-chip" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+          </div>
           <R4Table :key="contentView" :loading="!!loading" :data="filasMostradas" :columns="view.columns" :data-key="dataKey" paginator :rows="rows" :aria-label="ariaLabel"
                    :default-sort="orden" @sort-change="orden = $event">
             <template v-for="c in view.columns" #[\`body-\${c.field}\`]="slotProps">
