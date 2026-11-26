@@ -323,7 +323,7 @@ export default defineComponent({
         <div class="r4-table-v2__meta">
           <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
           <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
-          <R4Chip class="r4-table-v2__views-chip" type="multiple" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+          <R4Chip class="r4-table-v2__views-chip" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
         </div>
       </div>
 
