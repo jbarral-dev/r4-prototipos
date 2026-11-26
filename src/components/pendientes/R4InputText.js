@@ -69,14 +69,17 @@ export default defineComponent({
       pos.value = { top: top + 'px', left: left + 'px' }
     }
     const cerrar = () => { abierto.value = false }
-    const abrir = async () => { if (props.disabled || props.readonly) return; if (props.externalCalendar) { emit('calendar'); return }; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
+    let anchoAlAbrir = 0
+    const abrir = async () => { if (props.disabled || props.readonly) return; if (props.externalCalendar) { emit('calendar'); return }; anchoAlAbrir = window.innerWidth; destino.value = document.querySelector(props.overlay); abierto.value = true; await nextTick(); colocar() }
     const alternar = () => (abierto.value ? cerrar() : abrir())
     const elegir = (f) => { emit('update:modelValue', f); cerrar() }
-    const onDoc = (e) => { if (abierto.value && !e.target.closest('.r4-datepicker-layer') && !(fieldEl.value && fieldEl.value.contains(e.target))) cerrar() }
+    const onDoc = (e) => { if (abierto.value && !e.composedPath().some((el) => el.classList && el.classList.contains('r4-datepicker-layer')) && !(fieldEl.value && e.composedPath().includes(fieldEl.value))) cerrar() }
+    // Solo un cambio de ANCHO cierra la capa: en móvil el teclado cambia el alto de la ventana y la cerraba nada más abrirla
+    const onResize = () => { if (abierto.value && window.innerWidth !== anchoAlAbrir) cerrar() }
     const onKey = (e) => { if (e.key === 'Escape' && abierto.value) { e.stopPropagation(); cerrar() } }
     const onScroll = (e) => { if (abierto.value && !(e.target.closest && e.target.closest('.r4-datepicker-layer'))) cerrar() }
-    onMounted(() => { document.addEventListener('click', onDoc); document.addEventListener('keydown', onKey, true); window.addEventListener('scroll', onScroll, true); window.addEventListener('resize', cerrar) })
-    onBeforeUnmount(() => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey, true); window.removeEventListener('scroll', onScroll, true); window.removeEventListener('resize', cerrar) })
+    onMounted(() => { document.addEventListener('click', onDoc); document.addEventListener('keydown', onKey, true); window.addEventListener('scroll', onScroll, true); window.addEventListener('resize', onResize) })
+    onBeforeUnmount(() => { document.removeEventListener('click', onDoc); document.removeEventListener('keydown', onKey, true); window.removeEventListener('scroll', onScroll, true); window.removeEventListener('resize', onResize) })
     const inputAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([k]) => k !== "class" && k !== "style")))
     return { id, classes, onInput, inputAttrs, paso, fieldEl, layerEl, abierto, destino, pos, abrir, cerrar, alternar, elegir }
   },

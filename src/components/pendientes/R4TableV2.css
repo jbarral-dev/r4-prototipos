@@ -132,3 +132,6 @@
 .r4-table-v2--inside { gap: var(--spacing-6); }
 /* Sin padding propio: el nº de resultados queda a la izquierda de la caja y las vistas a la derecha (space-between; el slot del R4Section alinea a la izquierda, por eso `align-self: stretch`) */
 .r4-table-v2__meta--inside { align-self: stretch; padding: 0; }
+
+/* Campos de fecha del panel (popover y sheet de un filtro): más cerca de la opción «Personalizado» (8 px en lugar de 16, escala del sistema) y más lejos del botón «Aplicar» (24 px) */
+.r4-table-v2__panel > .r4-table-v2__range--dates { margin-top: calc(var(--spacing-2) * -1); margin-bottom: var(--spacing-2); }

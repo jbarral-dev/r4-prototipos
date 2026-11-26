@@ -34,6 +34,9 @@ import R4Link from './R4Link.js'
 import R4InputText from './R4InputText.js'
 import DatePickerMenu, { leerFecha } from './_DatePickerMenu.js'
 
+// ¿El clic ocurrió dentro de algo que coincide con el selector? Se mira la ruta original del evento (composedPath): si el elemento pulsado se desmonta al reaccionar (p. ej. un día del calendario) `e.target.closest` ya no encuentra a sus padres y se tomaría por un clic fuera
+const dentroDe = (e, selector) => e.composedPath().some((el) => el.matches && el.matches(selector))
+
 // «Personalizado» (fecha): los dos límites son obligatorios y deben ser fechas válidas, con «Desde» ≤ «Hasta». Si no, no se aplica y el campo muestra el error en línea.
 const personalizadoInvalido = (f, vals) => f.type === 'single' && f.options.some((o) => o.custom) && vals[0] === 'custom' && (!leerFecha(vals[1]) || !leerFecha(vals[2]) || leerFecha(vals[1]) > leerFecha(vals[2]))
 
@@ -116,7 +119,7 @@ const _TableFilterBoolean = defineComponent({
       // El CSS decide cuál se ve (popover en ≥ 1024, bottom sheet por debajo): si el popover queda oculto se abre el sheet
       if (popoverEl.value && getComputedStyle(popoverEl.value).display === 'none') { popover.value = null; sheet.value = true }
     }
-    const onDocClick = (e) => { if (popover.value && !e.target.closest('.r4-table-v2__help-popover, .r4-table-v2__bool .r4-listdetail__info')) cerrar() }
+    const onDocClick = (e) => { if (popover.value && !dentroDe(e, '.r4-table-v2__help-popover, .r4-table-v2__bool .r4-listdetail__info')) cerrar() }
     // Escape cierra primero el aviso (popover o sheet de ayuda) sin cerrar el sheet «Todos los filtros» que tiene debajo
     const onKey = (e) => { if (e.key === 'Escape' && open.value) { e.stopPropagation(); cerrar() } }
     onMounted(() => { document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey, true) })
@@ -208,12 +211,25 @@ export default defineComponent({
     const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + cuenta(f, seleccion(f)), 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
+    const pantallaCat = ref(null) // pantalla propia del calendario en el sheet bottom de un filtro destacado { campo, scroll }
     const intentoCat = ref(false) // se pulsó «Aplicar» en el popover con una fecha personalizada incompleta: se muestran los errores en línea
     const intentoSheet = ref(false)
     const pantalla = ref(null) // mobile: pantalla propia del calendario dentro del sheet { filtro, campo } (0 = inicio, 1 = fin)
-    const abrirCategoria = (f) => { intentoCat.value = false; vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
+    const abrirCategoria = (f) => { pantallaCat.value = null; intentoCat.value = false; vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
     const filtroAbierto = computed(() => view.value.filters.find((f) => f.id === catAbierta.value))
-    const cerrarCategoria = () => { catAbierta.value = null }
+    const cerrarCategoria = () => { catAbierta.value = null; pantallaCat.value = null }
+    const contenidoCat = () => document.querySelector('.r4-table-v2__sheet--category .r4-sheet__content')
+    const abrirCalendarioCat = (campo) => { const c = contenidoCat(); pantallaCat.value = { campo, scroll: c ? c.scrollTop : 0 } }
+    const volverDeCalendarioCat = async () => {
+      const p = pantallaCat.value; if (!p) return
+      pantallaCat.value = null
+      await nextTick()
+      const c = contenidoCat(); if (c) c.scrollTop = p.scroll
+      const el = [...document.querySelectorAll('.r4-table-v2__sheet--category .r4-table-v2__range--dates .r4-input-text input')][p.campo]; if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }) }
+    }
+    const tituloCat = computed(() => (pantallaCat.value ? (pantallaCat.value.campo === 0 ? 'Elige fecha de inicio' : 'Elige fecha de fin') : (filtroAbierto.value ? filtroAbierto.value.label : '')))
+    const fechaPantallaCat = computed(() => (pantallaCat.value ? catDraft.value[1 + pantallaCat.value.campo] || '' : ''))
+    const elegirFechaCat = (fecha) => { const p = pantallaCat.value; const v = catDraft.value[0] === 'custom' ? [...catDraft.value] : ['custom', '', '']; v[1 + p.campo] = fecha; catDraft.value = v; volverDeCalendarioCat() }
     const aplicarCategoria = (f) => {
       if (personalizadoInvalido(f, catDraft.value)) { intentoCat.value = true; return } // no se aplica nada
       aplicados[f.id] = [...catDraft.value]
@@ -290,7 +306,7 @@ export default defineComponent({
     }
 
     // Cierre del popover: clic fuera y Escape
-    const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !e.target.closest('.r4-table-v2__anchor, .r4-sheet-layer, .r4-datepicker-layer')) { cerrarCategoria(); vistaPopover.value = false } }
+    const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !dentroDe(e, '.r4-table-v2__anchor, .r4-sheet-layer, .r4-datepicker-layer')) { cerrarCategoria(); vistaPopover.value = false } }
     const onKey = (e) => { if (e.key === 'Escape') { cerrarCategoria(); vistaPopover.value = false } }
     onMounted(() => { target.value = document.querySelector(props.overlay); document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
@@ -298,7 +314,7 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, fechaPantallaCat, elegirFechaCat, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -401,8 +417,9 @@ export default defineComponent({
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
-        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="filtroAbierto.label" :open="true" @close="cerrarCategoria">
-          <TableFilterPanel :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" button-size="large" :show-title="false" v-model="catDraft" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
+        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
+          <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat($event)" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
+          <DatePickerMenu v-if="pantallaCat" inline :model-value="fechaPantallaCat" @select="elegirFechaCat" />
         </R4Sheet>
       </Teleport>
     </div>
