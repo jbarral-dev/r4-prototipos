@@ -119,3 +119,12 @@
   .r4-table-v2__filtros-chip .r4-chip__chevron { display: none; }
   .r4-table-v2__filtros-chip { padding: 0 var(--r4-chip-pad); justify-content: center; }
 }
+
+/* PRUEBA (Jon, 2026-11-26) — versión B, mobile (< 600 px): la chip de vistas en modo «ghost», sin borde visible ni fondo. NO existe en el R4Design System. Solo se conserva el anillo de foco para el teclado. */
+@container r4page (max-width: 599px) {
+  .r4-table-v2 .r4-table-v2__views-chip.r4-chip,
+  .r4-table-v2 .r4-table-v2__views-chip.r4-chip:hover,
+  .r4-table-v2 .r4-table-v2__views-chip.r4-chip:active,
+  .r4-table-v2 .r4-table-v2__views-chip.r4-chip.is-selected { background: transparent; box-shadow: none; }
+  .r4-table-v2 .r4-table-v2__views-chip.r4-chip:focus-visible { background: transparent; box-shadow: var(--effect-card-focus-outline); }
+}
