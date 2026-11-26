@@ -329,7 +329,7 @@ export default defineComponent({
             <div v-for="f in destacados" :key="f.id" class="r4-table-v2__anchor">
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
-                <R4Popover width="default">
+                <R4Popover :width="f.popoverWidth || 'default'">
                   <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
               </div>
@@ -354,7 +354,7 @@ export default defineComponent({
             <div v-for="f in destacados" :key="f.id" class="r4-table-v2__anchor">
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
-                <R4Popover width="default">
+                <R4Popover :width="f.popoverWidth || 'default'">
                   <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
               </div>

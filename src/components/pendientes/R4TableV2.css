@@ -108,8 +108,8 @@
 /* Intervalos (R4InputText number o datepicker): dos campos en dos columnas en el sheet y apilados en el popover (240 px) */
 .r4-table-v2__range { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-4); align-items: start; }
 .r4-table-v2__range .r4-input-text { min-width: 0; }
-/* En el popover los campos van uno debajo del otro (minmax(0, …): el ancho intrínseco del input no ensancha la columna) */
-.r4-popover .r4-table-v2__range { grid-template-columns: minmax(0, 1fr); }
+/* minmax(0, …): el ancho intrínseco del input no ensancha la columna */
+/* (el popover de la fecha es wide: «Desde» y «Hasta» uno junto a otro, al 100 % del popover y con 16 px entre ellos; el gap de .r4-table-v2__range) */
 /* Dentro de un R4Sheet (side o bottom) los campos de intervalo (importe y fecha) van uno junto a otro, ajustados al ancho disponible y siempre con 8 px entre ellos */
 .r4-sheet .r4-table-v2__range { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-2); }
 
@@ -135,3 +135,6 @@
 
 /* Campos de fecha del panel (popover y sheet de un filtro): más cerca de la opción «Personalizado» (12 px entre la opción y las etiquetas) y más lejos del botón «Aplicar» (24 px) */
 .r4-table-v2__panel > .r4-table-v2__range--dates { margin-top: calc(var(--spacing-3) * -1); margin-bottom: var(--spacing-2); }
+
+/* Campos de fecha «Desde» / «Hasta» (dos columnas: ~139 px en el popover wide): para que quepa «dd/mm/aaaa» entero se reduce el aire interior del campo (padding izquierdo 8 y 4 hasta la pestaña del calendario, en lugar de los 11 y 10 de Figma) */
+.r4-table-v2__range--dates .r4-input-text--datepicker .r4-input-text__field { padding-left: var(--spacing-2); gap: var(--spacing-1); }

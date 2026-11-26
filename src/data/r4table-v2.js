@@ -223,7 +223,7 @@ const _movs = [...MOV].reverse().map(([dias, valor, tipo, operacion, cantidad, p
 export const logosCripto = Object.fromEntries(['bitcoin', 'ethereum', 'solana', 'dogecoin'].map((n) => [n[0].toUpperCase() + n.slice(1), logo(`iso-crypto-${n}.svg`)]))
 export const movimientos = _movs
 const FECHAS = { hoy: 0, '1w': 7, '1m': 30, '3m': 90, '1y': 365 }
-const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', required: true, icon: 'ic-calendar', highlighted: true,
+const fFechaM = { id: 'fecha', label: 'Fecha', type: 'single', required: true, icon: 'ic-calendar', highlighted: true, popoverWidth: 'wide', // popoverWidth: ancho del R4Popover del filtro (por defecto default; aquí wide para que «Desde» y «Hasta» quepan uno junto a otro)
   options: [...opc(['hoy', 'Hoy'], ['1w', 'Última semana'], ['1m', 'Último mes'], ['3m', 'Últimos 3 meses'], ['1y', 'Último año']), { value: 'custom', label: 'Personalizado', custom: true }],
   // «Personalizado» (Confluence apartado 2: rango desde / hasta): valor = ['custom', 'dd/mm/aaaa', 'dd/mm/aaaa']; un límite vacío o con formato incorrecto no restringe
   predicate: (r, [v, desde, hasta]) => {
