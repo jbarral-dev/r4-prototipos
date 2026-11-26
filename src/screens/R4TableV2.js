@@ -21,8 +21,8 @@ import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vis
 
 // Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
 const FACILITADOR = [
-  { label: 'Vistas', controls: [{ id: 'vistas', type: 'radio', param: 'vistas', options: [{ value: 'una-fila', label: 'En 1 fila, con los filtros', default: true }, { value: 'dos-filas', label: 'En 2 filas' }, { value: 'dentro-tabla', label: 'Dentro de la tabla' }] }] }, // disposición de las vistas y del nº de resultados (antes, prototipos A y B)
   { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }, { value: 'fondos', label: 'Fondos' }] }] },
+  { label: 'Vistas', controls: [{ id: 'vistas', type: 'radio', param: 'vistas', options: [{ value: 'una-fila', label: 'En 1 fila, con los filtros', default: true }, { value: 'dos-filas', label: 'En 2 filas' }, { value: 'dentro-tabla', label: 'Dentro de la tabla' }] }] }, // disposición de las vistas y del nº de resultados (antes, prototipos A y B)
 ]
 const LAYOUTS = { 'una-fila': 'inline', 'dos-filas': 'stacked', 'dentro-tabla': 'inside' } // valor del Facilitador → `layout` de R4TableV2
 const ESCENARIOS = {
