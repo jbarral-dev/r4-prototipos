@@ -104,7 +104,7 @@ export default defineComponent({
           <thead v-if="showHeader">
             <tr>
               <th v-if="expandible" scope="col" class="r4-table__th r4-table__toggle-cell r4-table__frozen"><span class="r4-table__sr">Detalle</span></th>
-              <th v-for="c in columns" :key="c.field" scope="col" class="r4-table__th" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]" :aria-sort="ariaSort(c)">
+              <th v-for="c in columns" :key="c.field" scope="col" class="r4-table__th" :class="['r4-table__cell--' + (c.align || 'left'), { 'r4-table__frozen': c.frozen }]" :aria-sort="ariaSort(c)" :title="c.header || undefined">
                 <button v-if="c.sortable" type="button" class="r4-table__sort" :class="'r4-table__sort--' + (c.align || 'left')" @click="toggleSort(c.field)">
                   <span>{{ c.header }}</span><Icon class="r4-table__sort-icon" :class="{ 'is-desc': sort.field === c.field && sort.order === 'desc' }" :name="sortIcon(c.field)" />
                 </button>

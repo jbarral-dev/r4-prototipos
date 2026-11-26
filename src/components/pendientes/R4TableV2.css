@@ -92,8 +92,8 @@
   .r4-table-v2 { --r4-table-frozen-width: calc(var(--spacing-16) * 2 + var(--spacing-8)); } /* 160 */
 }
 
-/* Cabeceras de columna: pueden partirse en varias líneas (en el original, «Inv.Mín Inicial» va en dos); evita recortar títulos largos como «3 años anualiz.» */
-.r4-table-v2 .r4-table__th { white-space: normal; overflow-wrap: anywhere; }
+/* Cabeceras de columna: nunca ocupan 2 líneas de alto; si no caben se truncan en una línea con puntos suspensivos (Jon, 2026-11-26; antes se partían en varias líneas) */
+.r4-table-v2 .r4-table__th { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Filtro booleano (R4ListDetail con toggle): popover de ayuda en ≥ 1024 px y R4Sheet bottom por debajo; el CSS decide cuál se ve (el componente abre el sheet si el popover queda oculto) */
 .r4-table-v2__bool { position: relative; }
