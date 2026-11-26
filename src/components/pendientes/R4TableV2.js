@@ -156,6 +156,7 @@ export default defineComponent({
     dataKey: { type: String, required: true },
     rows: { type: Number, default: 25 },
     ariaLabel: { type: String, default: undefined },
+    viewsMode: { type: String, default: 'segmented', validator: (v) => ['segmented', 'inside'].includes(v) }, // visualización de las vistas (prototipo, panel Facilitador › Vistas): 'segmented' = la actual (SegmentedControl en desktop de la B, chip en tablet y mobile, chip ghost en mobile de la B; chip con popover en la A) · 'inside' = «Inside table» (PENDIENTE de definir: de momento igual que 'segmented')
     footnote: { type: String, default: undefined }, // (se oculta cuando la tabla no tiene resultados) nota al pie bajo la tabla (R4Table v1.1.0 de Confluence: «Footnote»); extra aquí: se pinta con R4Text small
     layout: { type: String, default: 'inline', validator: (v) => ['inline', 'stacked'].includes(v) }, // inline (A): filtros y vistas en la misma fila · stacked (B): filtros en una fila y, 16 px debajo, «N resultados» + vistas
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' },
@@ -301,7 +302,7 @@ export default defineComponent({
       opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaTitulo, fechaPantalla, elegirFechaPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
-    <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
+    <div class="r4-table-v2" :class="['r4-table-v2--' + layout, 'r4-table-v2--views-' + viewsMode]" :aria-busy="loading ? 'true' : undefined">
       <!-- Variante B (stacked): fila de filtros y, debajo (16 px), «N resultados» a la izquierda y las vistas a la derecha (R4SegmentedControls en desktop; R4Chip multiple en tablet y mobile) -->
       <div v-if="layout === 'stacked'" class="r4-table-v2__toolbar">
         <div class="r4-table-v2__filters" role="group" aria-label="Filtros de la tabla">

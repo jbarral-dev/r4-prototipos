@@ -21,6 +21,7 @@ import { filas, vistas, movimientos, vistasMovimientos, logosCripto, fondos, vis
 
 // Escenarios reproducibles con el panel Facilitador (herramienta del prototipo): «Acciones» (por defecto) y «Movimientos». (Jon pidió «3 opciones» pero solo enumeró estas dos.)
 const FACILITADOR = [
+  { label: 'Vistas', controls: [{ id: 'vistas', type: 'radio', param: 'vistas', options: [{ value: 'segmented', label: 'SegmentedControl / Chip (Ghost)', default: true }, { value: 'inside', label: 'Inside table' }] }] }, // visualizaciones de las vistas: la actual (SegmentedControl en desktop / chip en tablet / chip ghost en mobile) o «Inside table» (pendiente de definir)
   { label: 'Escenarios', controls: [{ id: 'escenario', type: 'radio', options: [{ value: 'acciones', label: 'Acciones', default: true }, { value: 'movimientos', label: 'Movimientos' }, { value: 'fondos', label: 'Fondos' }] }] },
 ]
 const ESCENARIOS = {
@@ -61,7 +62,7 @@ export default defineComponent({
       <R4Wrapper density="compact" layout="12"><R4PageTitleSection :title="esc.titulo" :breadcrumb="esc.breadcrumb" /></R4Wrapper>
 
       <R4Wrapper density="compact" layout="12">
-        <R4TableV2 :key="caso.escenario" :layout="variante === 'b' ? 'stacked' : 'inline'" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote">
+        <R4TableV2 :key="caso.escenario" :layout="variante === 'b' ? 'stacked' : 'inline'" :views="esc.views" :data="esc.data" data-key="id" :aria-label="esc.aria" :footnote="esc.footnote" :views-mode="caso.vistas">
           <template #body-name="{ data }">
             <span class="r4tv2__nombre"><img v-if="data.logoURL" class="r4tv2__logo" :src="data.logoURL" alt="" /><ProductDefaultLogo v-else :name="data.name" size="extraSmall" /><a class="r4tv2__link" href="#" @click.prevent>{{ data.name }}</a></span>
           </template>
