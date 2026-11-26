@@ -37,7 +37,9 @@
 .r4-table__table--fixed .r4-table__td, .r4-table__table--fixed .r4-table__th { overflow: hidden; text-overflow: ellipsis; }
 
 /* Orden de columna (R4Table v2). Medidas de la cabecera leídas en Figma (R4TableRowHeader--wide, Proyectos - Tablas): padding 16 vertical / 12 horizontal, gap 8, «Order Button» de 20 con icono de 12 (radio xs). */
-.r4-table--has-sort .r4-table__th { padding-block: var(--spacing-4); }
+/* La cabecera (th) tiene la misma altura que una fila: mismo padding vertical que las celdas, según `size` (Jon, 2026-11-26; antes 16 con `sortable`). */
+/* El contenido inline-flex de una celda (tag, logo + enlace, botón de expandir…) se alinea arriba de la línea (24 px): si no, la línea base añade 1-2 px y la fila pasa de 48 a 50 */
+.r4-table__td > * { vertical-align: top; }
 .r4-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-2); margin: 0; padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .r4-table__sort--right { flex-direction: row-reverse; }
 .r4-table__sort:hover .r4-table__sort-icon { background: var(--surface-subtle); }

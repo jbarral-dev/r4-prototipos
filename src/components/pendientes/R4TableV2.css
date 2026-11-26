@@ -48,8 +48,7 @@
 .r4-table-v2__views .r4-segmented__item { flex: 0 0 auto; padding-inline: var(--spacing-4); }
 .r4-table-v2__footnote { display: block; padding: 0 var(--spacing-3); margin-top: 0; padding-bottom: var(--spacing-2); }
 
-/* Cabecera de 56 como en Figma (padding vertical 16) aunque las columnas no sean ordenables (R4Table solo lo aplica cuando hay `sortable`) */
-.r4-table-v2 .r4-table__th { padding-block: var(--spacing-4); }
+/* La cabecera (th) usa el padding vertical de R4Table según `size`, para tener la misma altura que las filas (Jon, 2026-11-26; antes 56 con padding de 16) */
 
 /* Opciones de filtro (R4InputCheckbox y R4InputRadio): texto en medium (body/m 16/24) en vez de large (18/26), solo en R4TableV2 */
 .r4-table-v2 .r4-input-checkbox__option,
