@@ -113,3 +113,9 @@
 .r4-popover .r4-table-v2__range { grid-template-columns: minmax(0, 1fr); }
 /* Dentro de un R4Sheet (side o bottom) los campos de intervalo (importe y fecha) van uno junto a otro, ajustados al ancho disponible y siempre con 8 px entre ellos */
 .r4-sheet .r4-table-v2__range { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-2); }
+
+/* Chip «Filtros» de la barra compacta (versión A): en mobile (< 600 px) es multiselect, con chevron como la chip de vistas (Jon, 2026-11-26); en tablet (≥ 600 px) sigue sin chevron, con icono + texto + badge centrados */
+@container r4page (min-width: 600px) {
+  .r4-table-v2__filtros-chip .r4-chip__chevron { display: none; }
+  .r4-table-v2__filtros-chip { padding: 0 var(--r4-chip-pad); justify-content: center; }
+}
