@@ -347,7 +347,7 @@ export default defineComponent({
         </div>
         <!-- Variante A, desktop: las vistas en un R4Chip multiple (la vista actual, seleccionada) que abre un R4Popover con las vistas (R4InputRadio); elegir una cambia la vista al instante -->
         <div class="r4-table-v2__anchor r4-table-v2__anchor--views">
-          <R4Chip type="multiple" icon="ic-line-columns" :label="vistaActual.label" selected :expanded="vistaPopover" aria-haspopup="dialog" @click="alternarVistaPopover" />
+          <R4Chip type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaPopover" aria-haspopup="dialog" @click="alternarVistaPopover" />
           <div v-if="vistaPopover" class="r4-table-v2__popover r4-table-v2__popover--end" role="dialog" aria-label="Vista">
             <R4Popover width="default">
               <div class="r4-table-v2__panel">
@@ -362,7 +362,7 @@ export default defineComponent({
       <!-- Tablet y mobile (≤ 1023 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
       <div class="r4-table-v2__bar r4-table-v2__bar--compact">
         <R4Chip type="multiple" hide-chevron icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
-        <R4Chip type="multiple" icon="ic-line-columns" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+        <R4Chip type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
       </template>
 
