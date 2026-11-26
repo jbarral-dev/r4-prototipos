@@ -21,6 +21,7 @@ export default defineComponent({
   components: { Icon, DatePickerMenu },
   props: {
     type: { type: String, default: 'text', validator: (v) => ['text', 'number', 'datepicker'].includes(v) },
+    hideOptional: { type: Boolean, default: false }, // extra del prototipo: no muestra «(opcional)» en el label aunque el campo no sea obligatorio (sin aria-required)
     step: { type: Number, default: 1 }, // type=number: incremento de las flechas
     externalCalendar: { type: Boolean, default: false }, // type=datepicker (extra): no abre la capa; emite `calendar` para que lo muestre otra pantalla (mobile: pantalla propia de un R4Sheet). El campo pasa a solo lectura.
     overlay: { type: String, default: '.template-detail__overlay > .r4-layout-modes' }, // type=datepicker: dónde se monta la capa del calendario
@@ -83,7 +84,7 @@ export default defineComponent({
     <div :class="[classes, $attrs.class]" :style="$attrs.style">
       <label v-if="label" class="r4-input-text__label" :for="id">
         <span class="r4-input-text__label-text">{{ label }}</span>
-        <span v-if="!required" class="r4-input-text__optional">(opcional)</span>
+        <span v-if="!required && !hideOptional" class="r4-input-text__optional">(opcional)</span>
       </label>
       <div ref="fieldEl" class="r4-input-text__field">
         <input class="r4-input-text__input" :id="id" :type="type === 'number' ? 'number' : 'text'" :step="type === 'number' ? step : undefined" :inputmode="type === 'datepicker' ? 'numeric' : undefined" :name="name" :value="modelValue" :placeholder="placeholder || (type === 'datepicker' ? 'dd/mm/aaaa' : ' ')"

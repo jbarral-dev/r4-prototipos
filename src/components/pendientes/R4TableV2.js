@@ -67,8 +67,8 @@ const _TableFilterPanel = defineComponent({
     <div class="r4-table-v2__panel">
       <R4Text v-if="showTitle" size="large" font-style="strong" tag="p" :text="filter.label" />
       <div v-if="filter.type === 'range'" class="r4-table-v2__range">
-        <R4InputText type="number" label="Mínimo" :aria-label="filter.label + ': mínimo'" placeholder="0" :model-value="rango[0]" @update:model-value="setRango(0, $event)" />
-        <R4InputText type="number" label="Máximo" :aria-label="filter.label + ': máximo'" placeholder="0" :model-value="rango[1]" :status="rangoInvalido ? 'Error' : 'Default'" :caption="rangoInvalido ? 'El máximo no puede ser menor que el mínimo' : undefined" @update:model-value="setRango(1, $event)" />
+        <R4InputText type="number" hide-optional label="Mínimo" :aria-label="filter.label + ': mínimo'" placeholder="0" :model-value="rango[0]" @update:model-value="setRango(0, $event)" />
+        <R4InputText type="number" hide-optional label="Máximo" :aria-label="filter.label + ': máximo'" placeholder="0" :model-value="rango[1]" :status="rangoInvalido ? 'Error' : 'Default'" :caption="rangoInvalido ? 'El máximo no puede ser menor que el mínimo' : undefined" @update:model-value="setRango(1, $event)" />
       </div>
       <template v-else>
       <div class="r4-table-v2__options">
