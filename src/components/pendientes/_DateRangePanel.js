@@ -1,12 +1,12 @@
 // PENDIENTE-IT: no oficial. Sustituir cuando exista en la librería Vue.
 // Selector de rango de fechas del filtro «Personalizado» de R4Table v2 (prueba de Jon, 2026-11-26). NO está en Figma como componente: compone dos R4InputText `type=datepicker` («Desde» y «Hasta») y, debajo, el calendario `_DatePicker Menu`
 // con el rango pintado (`Active` en los extremos, `InRange` entre ellos).
-// Interacción: al abrirse el foco está en «Desde». Al elegir una fecha en el calendario ese campo se rellena y el foco pasa a «Hasta» (con «Desde» elegida, los días anteriores quedan deshabilitados). Al elegir «Hasta» se emite `done` a los 100 ms.
+// Interacción: al abrirse el foco está en «Desde». Al elegir una fecha en el calendario ese campo se rellena y el foco pasa a «Hasta» (todos los días siguen disponibles, salvo los futuros). Al elegir «Hasta» se emite `done` a los 100 ms; si la fecha elegida es anterior a «Desde», se intercambian (el rango queda de la más antigua a la más reciente).
 // Pulsar un campo cambia el que se está eligiendo; volver a elegir «Desde» vacía «Hasta». Los campos son de solo lectura (no sale el teclado en móvil): se rellenan con el calendario.
 // Props: modelValue = [desde, hasta] («dd/mm/aaaa» o ''), validate (campos vacíos en error: «La fecha es obligatoria»). Eventos: update:modelValue, done.
 import { defineComponent, ref, computed, onMounted, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
 import R4InputText from './R4InputText.js'
-import DatePickerMenu from './_DatePickerMenu.js'
+import DatePickerMenu, { leerFecha } from './_DatePickerMenu.js'
 
 export default defineComponent({
   name: '_DateRangePanel',
@@ -25,8 +25,9 @@ export default defineComponent({
         emit('update:modelValue', [fecha, ''])
         activo.value = 1
         nextTick(() => enfocar(1))
-      } else { // «Hasta»: se cierra a los 100 ms
-        emit('update:modelValue', [desde.value, fecha])
+      } else { // «Hasta»: se cierra a los 100 ms; si es anterior a «Desde», se intercambian
+        const d = leerFecha(desde.value); const h = leerFecha(fecha)
+        emit('update:modelValue', d && h && h < d ? [fecha, desde.value] : [desde.value, fecha])
         setTimeout(() => emit('done'), 100)
       }
     }
@@ -39,7 +40,7 @@ export default defineComponent({
         <R4InputText type="datepicker" required readonly :calendar="false" label="Desde" aria-label="Fecha desde" :model-value="desde" :status="error(0) ? 'Error' : 'Default'" :caption="error(0)" @focus="activo = 0" />
         <R4InputText type="datepicker" required readonly :calendar="false" label="Hasta" aria-label="Fecha hasta" :model-value="hasta" :status="error(1) ? 'Error' : 'Default'" :caption="error(1)" @focus="activo = 1" />
       </div>
-      <DatePickerMenu inline model-value="" :range-start="desde" :range-end="hasta" :min-date="activo === 1 ? desde : ''" @select="onSelect" />
+      <DatePickerMenu inline model-value="" :range-start="desde" :range-end="hasta" @select="onSelect" />
     </div>
   `,
 })
