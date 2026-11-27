@@ -29,6 +29,7 @@ import R4Accordion from './R4Accordion.js'
 import R4InputCheckbox from './R4InputCheckbox.js'
 import R4InputRadio from './R4InputRadio.js'
 import R4Button from './R4Button.js'
+import Icon from '../../icons/_Icon.js'
 import R4ListDetail from './R4ListDetail.js'
 import R4Link from './R4Link.js'
 import R4InputText from './R4InputText.js'
@@ -154,7 +155,7 @@ const _TableFilterBoolean = defineComponent({
 
 export default defineComponent({
   name: 'R4TableV2',
-  components: { DateRangePanel, R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, TableFilterPanel: _TableFilterPanel, TableFilterBoolean: _TableFilterBoolean },
+  components: { Icon, DateRangePanel, R4Chip, R4SegmentedControls, R4Section, R4Table, R4Text, R4Popover, R4Sheet, R4Accordion, R4InputCheckbox, R4InputRadio, R4Button, TableFilterPanel: _TableFilterPanel, TableFilterBoolean: _TableFilterBoolean },
   props: {
     views: { type: Array, required: true },
     data: { type: Array, required: true },
@@ -328,9 +329,10 @@ export default defineComponent({
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
     watch(contentView, () => {}, { flush: 'post' })
 
+    const vacio = computed(() => !loading.value && filasMostradas.value.length === 0) // sin resultados: se sustituye la tabla por un mensaje
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      chipsFijos, altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      vacio, chipsFijos, altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -356,7 +358,7 @@ export default defineComponent({
             </div>
           </div>
         </div>
-        <div v-if="layout === 'stacked'" class="r4-table-v2__meta">
+        <div v-if="layout === 'stacked' && !vacio" class="r4-table-v2__meta">
           <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
           <R4SegmentedControls class="r4-table-v2__views r4-table-v2__views--segmented" size="medium" aria-label="Vistas de la tabla" :items="itemsVistas" :selected-value="selectedView" @select="cambiarVista" />
           <R4Chip class="r4-table-v2__views-chip" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
@@ -402,11 +404,19 @@ export default defineComponent({
       <!-- Tablet y mobile (≤ 1023 px): filtros y vistas en una sola línea. A la izquierda «Filtros» (icono + texto; con badge si hay filtros aplicados) y a la derecha un R4Chip multiple con la vista actual, que abre un sheet para elegir vista -->
       <div class="r4-table-v2__bar r4-table-v2__bar--compact">
         <R4Chip class="r4-table-v2__filtros-chip" type="multiple" :expanded="sheetOpen" icon="ic-sliders-h" label="Filtros" :selected="totalAplicados > 0" :badge="totalAplicados || undefined" :badge-aria-label="totalAplicados + ' filtros aplicados'" aria-haspopup="dialog" @click="abrirSheet" />
-        <R4Chip type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
+        <R4Chip v-if="!vacio" type="multiple" icon="ic-th-list" :label="vistaActual.label" selected :expanded="vistaOpen" aria-haspopup="dialog" @click="vistaOpen = true" />
       </div>
       </template>
 
-      <div class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
+      <!-- Sin resultados (Jon, 2026-11-27): ni tabla, ni cabeceras, ni «N resultados» + vistas; solo este mensaje (misma estructura que «Sin coincidencias» del buscador) -->
+      <div v-if="vacio" class="r4-table-v2__empty">
+        <Icon class="r4-table-v2__empty-icon" name="ic-meh" />
+        <div class="r4-table-v2__empty-texts">
+          <R4Text size="large" font-style="strong" text="No hemos encontrado resultados" />
+          <R4Text size="medium" text="Por favor modifica los criterios de filtrado" />
+        </div>
+      </div>
+      <div v-else class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <div class="r4-table-v2__box"><!-- sin contenedor: la tabla ya no va dentro de un R4Section (decisión del equipo, 2026-11-26) -->
           <div v-if="layout === 'inside'" class="r4-table-v2__meta r4-table-v2__meta--inside">
             <R4Text class="r4-table-v2__count" aria-hidden="true" :text="filasMostradas.length === 1 ? '1 resultado' : filasMostradas.length + ' resultados'" />
