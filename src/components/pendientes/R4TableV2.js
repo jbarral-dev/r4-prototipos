@@ -14,7 +14,7 @@
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
-// Decisiones inferidas: «Limpiar» (popover) devuelve la selección del popover a su estado inicial y hay que pulsar «Aplicar» para aplicar (disabled si ya está en el inicial); categorías con AND entre sí y OR dentro; los filtros aplicados son de la tabla y se conservan al cambiar de vista (Confluence, apartado 3); el tiempo de recarga (1 s) es el pedido.
+// Decisiones inferidas: «Limpiar» (popover) quita la selección del popover (activo solo si hay algo seleccionado) y hay que pulsar «Aplicar» para aplicar (disabled si ya está en el inicial); categorías con AND entre sí y OR dentro; los filtros aplicados son de la tabla y se conservan al cambiar de vista (Confluence, apartado 3); el tiempo de recarga (1 s) es el pedido.
 // Filtros de selección única (R4InputRadio): no se restablecen en el popover (sin botón «Limpiar»); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
 // Extras / NO oficial: R4Chip `dismissable`/`hideChevron`, R4Accordion `defaultOpen`, R4Table `sortable`/`defaultSort`/slot `empty` (ver cada archivo). Mobile y tablet: sin diseño; se adapta con el patrón de la doc (chips en una fila con scroll, sheets bottom).
 import { defineComponent, ref, reactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
@@ -88,7 +88,7 @@ const _TableFilterPanel = defineComponent({
       </template>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" :size="buttonSize" width="full-width" text="Aplicar" @click="$emit('apply')" />
-        <R4Button v-if="filter.type !== 'single'" type="text" :size="buttonSize" width="full-width" text="Limpiar" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
+        <R4Button v-if="filter.type !== 'single'" type="text" :size="buttonSize" width="full-width" text="Limpiar" :disabled="!modelValue.length" @click="$emit('reset')" />
       </div>
     </div>
   `,
@@ -355,7 +355,7 @@ export default defineComponent({
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" :class="{ 'is-range': rangoPop }" role="dialog" :aria-label="f.label">
                 <R4Popover :width="f.popoverWidth || 'default'">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = []" />
                 </R4Popover>
                 <!-- «Personalizado» (prueba de Jon, 2026-11-27): el popover del filtro se oculta y, en su misma posición, aparece otro (wider) con «Desde» y «Hasta»; fundido de 0,2 s entre ambos. Al elegir «Hasta» se aplica el rango y se cierra todo -->
                 <Transition name="r4-fade">
@@ -384,7 +384,7 @@ export default defineComponent({
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
               <div v-if="catAbierta === f.id" class="r4-table-v2__popover" :class="{ 'is-range': rangoPop }" role="dialog" :aria-label="f.label">
                 <R4Popover :width="f.popoverWidth || 'default'">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = []" />
                 </R4Popover>
                 <!-- «Personalizado» (prueba de Jon, 2026-11-27): el popover del filtro se oculta y, en su misma posición, aparece otro (wider) con «Desde» y «Hasta»; fundido de 0,2 s entre ambos. Al elegir «Hasta» se aplica el rango y se cierra todo -->
                 <Transition name="r4-fade">
@@ -461,7 +461,7 @@ export default defineComponent({
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
         <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :full-height="filtroAbierto.options.some((o) => o.custom)" :style="pantallaCat && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
-          <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
+          <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = []" />
            <DateRangePanel v-if="pantallaCat" :auto-focus="false" :initial="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
         </R4Sheet>
       </Teleport>
