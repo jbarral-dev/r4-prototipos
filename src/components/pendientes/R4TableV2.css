@@ -164,7 +164,7 @@
 @media (prefers-reduced-motion: reduce) { .r4-table-v2__popover > .r4-popover, .r4-fade-enter-active, .r4-fade-leave-active { transition: none; } }
 
 /* Bottom sheet: la pantalla del rango mantiene el alto de la pantalla anterior (variable fijada por R4TableV2) */
-.r4-table-v2__sheet--bottom .r4-sheet--bottom, .r4-table-v2__sheet--category .r4-sheet--bottom { height: var(--r4-sheet-alto, auto); }
+.r4-sheet-layer[style*="--r4-sheet-alto"] .r4-sheet--bottom { height: var(--r4-sheet-alto); }
 
 /* Sheets de la tabla: el contenido ocupa el alto libre y las acciones quedan fijas abajo */
 .r4-table-v2__sheet .r4-sheet__content { flex: 1 1 auto; }

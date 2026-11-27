@@ -49,7 +49,7 @@ const pluralResultados = (n) => (n === 1 ? 'Ver 1 resultado' : `Ver ${n} resulta
 const _TableFilterPanel = defineComponent({
   name: '_TableFilterPanel',
   components: { R4Text, R4InputCheckbox, R4InputRadio, R4Button, R4InputText, R4ListDetail, R4Popover, DateRangePanel },
-  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, navigate: { type: Boolean, default: false }, validate: { type: Boolean, default: false }, intento: { type: Number, default: 0 }, buttonSize: { type: String, default: 'medium' }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
+  props: { filter: { type: Object, required: true }, modelValue: { type: Array, required: true }, initial: { type: Array, default: () => [] }, navigate: { type: Boolean, default: false }, validate: { type: Boolean, default: false }, intento: { type: Number, default: 0 }, buttonSize: { type: String, default: 'large' }, showTitle: { type: Boolean, default: true }, showActions: { type: Boolean, default: true } },
   emits: ['update:modelValue', 'apply', 'reset', 'calendar'],
   setup(props, { emit }) {
     // Intervalo numérico (type 'range'): valor = [mínimo, máximo] (texto) o [] si no hay ninguno. Se pueden dejar vacíos (sin límite) y el mínimo no puede superar al máximo.
@@ -442,7 +442,7 @@ export default defineComponent({
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
-        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :style="pantallaCat && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
+        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :full-height="filtroAbierto.options.some((o) => o.custom)" :style="pantallaCat && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
           <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
            <DateRangePanel v-if="pantallaCat" :auto-focus="false" :initial="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
         </R4Sheet>

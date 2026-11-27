@@ -58,7 +58,7 @@ export default defineComponent({
         </div>
       </div>
       <DatePickerMenu v-if="abierto !== null" inline model-value="" :range-start="desde" :range-end="hasta" :min-date="abierto === 1 ? desde : ''" @select="onSelect" />
-      <R4Button v-if="showApply" type="primary" text="Aplicar" @click="aplicar" />
+      <R4Button v-if="showApply" type="primary" size="large" text="Aplicar" @click="aplicar" />
     </div>
   `,
 })
