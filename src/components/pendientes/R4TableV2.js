@@ -197,7 +197,7 @@ export default defineComponent({
       const otros = view.value.filters.filter((x) => x.id !== f.id && (sel[x.id] || []).length)
       return props.data.filter((r) => otros.every((x) => x.predicate(r, sel[x.id])) && f.predicate(r, [o.value])).length
     }
-    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { if (o.custom) return { value: o.value, label: o.label, custom: true, n: 1, disabled: false }; const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: false } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
+    const opcionesDe = (f, sel) => ({ ...f, options: f.options.map((o) => { if (o.custom) { const v = sel[f.id] || []; return { value: o.value, label: v[0] === 'custom' && v[1] && v[2] ? textoFechas(v) : o.label, custom: true, n: 1, disabled: false } } /* activo: muestra el rango en lugar de «Personalizado» */; const n = conteoOpcion(f, o, sel); return { value: o.value, label: `${o.label} (${n})`, n, disabled: false } }) }) // las de 0 resultados se deshabilitan (si ya estaba marcada sigue habilitada para poder desmarcarla)
     const opcionesCategoria = (f) => opcionesDe(f, { ...actuales.value, [f.id]: catDraft.value }) // popover / sheet de una categoría
     const opcionesSheet = (f) => opcionesDe(f, draft) // sheet «Todos los filtros»
 
@@ -205,7 +205,10 @@ export default defineComponent({
     const seleccion = (f) => actuales.value[f.id] || []
     // Texto de los valores: intervalo numérico → «Importe: de 100 a 500 €»; fecha personalizada → «dd/mm/aaaa - dd/mm/aaaa»; el resto, el texto de cada opción
     const textoRango = (f, [mn = '', mx = '']) => (mn !== '' && mx !== '' ? `de ${mn} a ${mx}` : mn !== '' ? `desde ${mn}` : `hasta ${mx}`) + (f.unit ? ` ${f.unit}` : '')
-    const textoFechas = ([, d = '', h = '']) => (d && h ? `${d} - ${h}` : d ? `Desde ${d}` : h ? `Hasta ${h}` : 'Personalizado')
+    // Fechas del rango personalizado en texto: «1 nov 26» (Jon, 2026-11-27); los campos siguen en «dd/mm/aaaa»
+    const MESES_ABR = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+    const fechaCorta = (t) => { const f = leerFecha(t); return f ? `${f.getDate()} ${MESES_ABR[f.getMonth()]} ${String(f.getFullYear()).slice(-2)}` : t }
+    const textoFechas = ([, d = '', h = '']) => (d && h ? `${fechaCorta(d)} - ${fechaCorta(h)}` : d ? `Desde ${fechaCorta(d)}` : h ? `Hasta ${fechaCorta(h)}` : 'Personalizado')
     const etiquetas = (f, vals) => (f.type === 'range' ? (vals.length ? [`${f.label}: ${textoRango(f, vals)}`] : []) : vals[0] === 'custom' ? [textoFechas(vals)] : vals.map((v) => f.options.find((o) => o.value === v)?.label ?? v))
     const cuenta = (f, vals) => (f.type === 'range' ? (vals.length ? 1 : 0) : vals.length) // un intervalo cuenta como un solo filtro
     const chipLabel = (f) => { const l = f.type === 'range' && seleccion(f).length ? [textoRango(f, seleccion(f))] : etiquetas(f, seleccion(f)); return !l.length ? f.label : l.length > 1 ? `${l[0]} +${l.length - 1}` : l[0] }
@@ -229,7 +232,7 @@ export default defineComponent({
     // «Aplicar» en la pantalla del rango (R4Sheet): con las dos fechas vuelve al panel anterior; si falta alguna, marca el error en línea
     const aplicarRango = () => { const p = pantalla.value; if (!p) return; const d = draft[p.filtro] || []; if (d[1] && d[2]) volverDeCalendario(); else { intentoSheet.value = true } }
     const aplicarRangoCat = () => { if (catDraft.value[1] && catDraft.value[2]) volverDeCalendarioCat(); else { intentoCat.value = true } }
-    const abrirCalendarioCat = () => { medirSheet('.r4-table-v2__sheet--category .r4-sheet'); const c = contenidoCat(); pantallaCat.value = { scroll: c ? c.scrollTop : 0 } }
+    const abrirCalendarioCat = () => { const c = contenidoCat(); pantallaCat.value = { scroll: c ? c.scrollTop : 0 } }
     const volverDeCalendarioCat = async () => {
       const p = pantallaCat.value; if (!p) return
       pantallaCat.value = null
@@ -237,7 +240,7 @@ export default defineComponent({
       const c = contenidoCat(); if (c) c.scrollTop = p.scroll
       const el = document.querySelector('.r4-table-v2__sheet--category input[type=radio][value="custom"]'); if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }) }
     }
-    const tituloCat = computed(() => (pantallaCat.value ? 'Selecciona tus fechas' : (filtroAbierto.value ? filtroAbierto.value.label : '')))
+    const tituloCat = computed(() => (pantallaCat.value ? 'Elige tus fechas' : (filtroAbierto.value ? filtroAbierto.value.label : '')))
     const rangoCat = computed(() => [catDraft.value[1] || '', catDraft.value[2] || ''])
     const setRangoCat = (arr) => { catDraft.value = ['custom', arr[0], arr[1]] }
     // «Eliminar todos los filtros» (mensaje de sin resultados): vacía todos, también los prefijados, salvo los obligatorios (p. ej. Fecha), que conservan su valor
@@ -267,10 +270,9 @@ export default defineComponent({
     const primaria = computed(() => pluralResultados(nResultados.value))
     // Pantalla del calendario (side y bottom): sustituye a los acordeones dentro del R4Sheet (siguen montados, ocultos) y al volver se recupera la posición del scroll y el foco en el campo que la abrió
     const contenidoVisible = () => [...document.querySelectorAll('.r4-table-v2__sheet .r4-sheet__content')].find((e) => e.getClientRects().length)
-    // Bottom sheet (mobile): la pantalla del rango mantiene el alto de la pantalla de la que viene, para evitar un salto brusco de la interfaz
-    const altoSheet = ref(0)
-    const medirSheet = (sel) => { const e = [...document.querySelectorAll(sel)].find((x) => x.getClientRects().length); altoSheet.value = e ? Math.round(e.getBoundingClientRect().height) : 0 }
-    const abrirCalendario = (f) => { medirSheet('.r4-table-v2__sheet--bottom:not(.r4-table-v2__sheet--category) .r4-sheet'); const c = contenidoVisible(); pantalla.value = { filtro: f.id, scroll: c ? c.scrollTop : 0 } }
+    // Mobile (< 600 px): el calendario de «Personalizado» se ve desde el principio (Jon, 2026-11-27); en tablet y desktop se abre al pulsar un campo
+    const calendarioInicial = () => (target.value ? target.value.getBoundingClientRect().width : window.innerWidth) < 600
+    const abrirCalendario = (f) => { const c = contenidoVisible(); pantalla.value = { filtro: f.id, scroll: c ? c.scrollTop : 0 } }
     const volverDeCalendario = async () => {
       const p = pantalla.value; if (!p) return
       pantalla.value = null
@@ -280,7 +282,7 @@ export default defineComponent({
       const el = visible('.r4-table-v2__sheet input[type=radio][value="custom"]')
       if (el) { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest' }) }
     }
-    const pantallaTitulo = () => (pantalla.value ? 'Selecciona tus fechas' : 'Todos los filtros')
+    const pantallaTitulo = () => (pantalla.value ? 'Elige tus fechas' : 'Todos los filtros')
     const rangoPantalla = computed(() => (pantalla.value ? [(draft[pantalla.value.filtro] || [])[1] || '', (draft[pantalla.value.filtro] || [])[2] || ''] : ['', '']))
     const setRangoPantalla = (arr) => { draft[pantalla.value.filtro] = ['custom', arr[0], arr[1]] }
     const quitarChip = (c) => { draft[c.filtro] = c.value === '__rango' ? [] : draft[c.filtro].filter((v) => v !== c.value); nextTick(() => { // el foco no se pierde: siguiente chip o, si ya no quedan, la cabecera del primer acordeón (solo entre los elementos visibles; hay un sheet por posición)
@@ -339,7 +341,7 @@ export default defineComponent({
     const vacio = computed(() => !loading.value && filasMostradas.value.length === 0) // sin resultados: se sustituye la tabla por un mensaje
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      eliminarFiltros, vacio, chipsFijos, altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      eliminarFiltros, vacio, chipsFijos, calendarioInicial, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -443,8 +445,8 @@ export default defineComponent({
       <p class="r4-table-v2__sr" role="status" aria-live="polite">{{ estado }}</p>
 
       <Teleport v-if="target" :to="target">
-        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :style="pantalla && pos === 'bottom' && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
-                 :primary-action-label="pantalla ? 'Aplicar' : primaria" :primary-action-loading="pantalla ? false : contando" :secondary-action-label="pantalla ? undefined : 'Quitar todos'" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftEsInicial" @primary="pantalla ? aplicarRango() : aplicarSheet()" @secondary="restablecer" @close="cerrarSheet">
+        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
+                 :primary-action-label="pantalla ? (pos === 'side' ? 'Aplicar' : undefined) : primaria" :primary-action-loading="pantalla ? false : contando" :secondary-action-label="pantalla ? undefined : 'Quitar todos'" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftEsInicial" @primary="pantalla ? aplicarRango() : aplicarSheet()" @secondary="restablecer" @close="cerrarSheet">
           <R4Accordion v-show="!pantalla" :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
@@ -455,14 +457,14 @@ export default defineComponent({
                <TableFilterPanel v-else :filter="opcionesSheet(item.filter)" :navigate="true" :validate="intentoSheet" :intento="intentoSheetN" @calendar="abrirCalendario(item.filter)" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
             </template>
           </R4Accordion>
-           <DateRangePanel v-if="pantalla" :auto-focus="false" :initial="rangoPantalla" :validate="intentoSheet" @update:model-value="setRangoPantalla" @done="volverDeCalendario" />
+           <DateRangePanel v-if="pantalla" :auto-focus="false" :show-apply="pos === 'bottom'" :calendario-inicial="pos === 'bottom' && calendarioInicial()" :initial="rangoPantalla" :validate="intentoSheet" @update:model-value="setRangoPantalla" @done="aplicarRango()" />
         </R4Sheet>
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
-        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :full-height="filtroAbierto.options.some((o) => o.custom)" :style="pantallaCat && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
+        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
           <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = []" />
-           <DateRangePanel v-if="pantallaCat" :auto-focus="false" :initial="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
+           <DateRangePanel v-if="pantallaCat" :auto-focus="false" show-apply :calendario-inicial="calendarioInicial()" :initial="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="aplicarRangoCat()" />
         </R4Sheet>
       </Teleport>
     </div>
