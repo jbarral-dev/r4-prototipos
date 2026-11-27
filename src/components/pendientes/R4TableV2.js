@@ -240,6 +240,13 @@ export default defineComponent({
     const tituloCat = computed(() => (pantallaCat.value ? 'Selecciona tus fechas' : (filtroAbierto.value ? filtroAbierto.value.label : '')))
     const rangoCat = computed(() => [catDraft.value[1] || '', catDraft.value[2] || ''])
     const setRangoCat = (arr) => { catDraft.value = ['custom', arr[0], arr[1]] }
+    // «Eliminar todos los filtros» (mensaje de sin resultados): vacía todos, también los prefijados, salvo los obligatorios (p. ej. Fecha), que conservan su valor
+    const eliminarFiltros = () => {
+      const obligatorios = new Set(props.views.flatMap((v) => v.filters).filter((f) => f.required).map((f) => f.id))
+      Object.keys(aplicados).forEach((k) => { if (!obligatorios.has(k)) aplicados[k] = [] })
+      recargar('table', () => {})
+      nextTick(() => { const c = document.querySelector('.r4-table-v2__all .r4-chip'); if (c) c.focus({ preventScroll: true }) })
+    }
     const aplicarCategoria = (f) => {
       if (personalizadoInvalido(f, catDraft.value)) { intentoCat.value = true; intentoCatN.value++; return } // no se aplica nada
       aplicados[f.id] = [...catDraft.value]
@@ -332,7 +339,7 @@ export default defineComponent({
     const vacio = computed(() => !loading.value && filasMostradas.value.length === 0) // sin resultados: se sustituye la tabla por un mensaje
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      vacio, chipsFijos, altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      eliminarFiltros, vacio, chipsFijos, altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -415,6 +422,7 @@ export default defineComponent({
           <R4Text size="large" font-style="strong" text="No hemos encontrado resultados" />
           <R4Text size="medium" text="Por favor modifica los criterios de filtrado" />
         </div>
+        <R4Button type="secondary" icon="ic-trash-alt" text="Eliminar todos los filtros" @click="eliminarFiltros" />
       </div>
       <div v-else class="r4-table-v2__table" :class="{ 'is-loading': loading }" :inert="!!loading">
         <div class="r4-table-v2__box"><!-- sin contenedor: la tabla ya no va dentro de un R4Section (decisión del equipo, 2026-11-26) -->
