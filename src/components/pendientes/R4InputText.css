@@ -117,7 +117,9 @@
 .r4-input-text__step:disabled { cursor: not-allowed; }
 
 /* type=datepicker (Figma DataPicker): texto «dd/mm/aaaa» a la derecha y pestaña de 40×40 con el icono de calendario */
-.r4-input-text--datepicker .r4-input-text__field { padding: 0 0 0 calc(var(--spacing-3) - var(--spacing-05) / 2); gap: calc(var(--spacing-2) + var(--spacing-05)); overflow: hidden; }
+.r4-input-text--datepicker .r4-input-text__field { padding: 0 0 0 calc(var(--spacing-3) - var(--spacing-05) / 2); gap: calc(var(--spacing-2) + var(--spacing-05)); }
+/* La pestaña gris queda dentro del borde (margen = grosor de línea, radio interior): así el borde y el anillo de foco del campo no se cortan ni quedan tapados por ella */
+.r4-input-text--datepicker .r4-input-text__post { margin: var(--r4-line-width) var(--r4-line-width) var(--r4-line-width) 0; border-radius: 0 calc(var(--component-input-radius) - var(--r4-line-width)) calc(var(--component-input-radius) - var(--r4-line-width)) 0; }
 .r4-input-text--datepicker .r4-input-text__input { text-align: right; cursor: pointer; }
 .r4-input-text__post { display: flex; flex: none; align-items: center; justify-content: center; align-self: stretch; width: var(--spacing-10); padding: 0; border: 0; background: var(--surface-muted); box-shadow: inset var(--r4-line-width) 0 0 var(--component-input-border-default); color: var(--icon-default); cursor: pointer; }
 .r4-input-text__post .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
