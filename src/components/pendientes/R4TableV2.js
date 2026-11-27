@@ -5,7 +5,7 @@
 //   Un filtro = { id, label, type: 'single' | 'multiple', icon?, highlighted?, options: { value, label }[], predicate(row, valoresSeleccionados) }. Los filtros son POR COLUMNA/vista. Slots `body-<field>` ({ data, value }) para las celdas que no son texto.
 // Composición: «Filters and Views» (chips + R4SegmentedControls) + R4Section boxed blanca con R4Table. Los filtros destacados (`highlighted`) son R4Chip type=multiple con R4Popover debajo (a 8 px) en ≥ 1024 px y R4Sheet bottom por debajo
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
-//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Restablecer» devuelve la selección del sheet a su estado inicial (también sin aplicar).
+//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar todos» devuelve la selección del sheet a su estado inicial (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Disposición «En 1 fila» (`layout="inline"`; antes «variante A») en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
 // Disposición «En 2 filas» (`layout="stacked"`; antes «variante B») y «Dentro de la tabla» (`layout="inside"`, igual pero con «N resultados» + vistas dentro del R4Section; en tablet y mobile la chip de vistas va en modo ghost, sin borde: prueba de Jon, 2026-11-26): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
@@ -14,8 +14,8 @@
 // Acordeones del sheet: size small en todos los anchos (desktop incluido, Jon 2026-11-23); «Filtros seleccionados» solo aparece si hay filtros activos; abiertos los filtros destacados y cerrados el resto; el botón primario muestra un spinner de 800 ms cada vez que cambia N.
 // El orden de columna (R4Table `sortable`) se conserva al cambiar de vista: si la columna ordenada existe en la nueva vista (p. ej. Nombre), sigue ordenada igual.
 // Chip de categoría: sin selección = nombre de la categoría; con una = su texto; con varias = la primera + «+N». «Todos los filtros» lleva badge con el nº de filtros seleccionados (valores) y pasa a selected.
-// Decisiones inferidas: «Restablecer» (popover) devuelve la selección del popover a su estado inicial y hay que pulsar «Aplicar» para aplicar (disabled si ya está en el inicial); categorías con AND entre sí y OR dentro; los filtros aplicados son de la tabla y se conservan al cambiar de vista (Confluence, apartado 3); el tiempo de recarga (1 s) es el pedido.
-// Filtros de selección única (R4InputRadio): no se restablecen en el popover (sin botón «Restablecer»); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
+// Decisiones inferidas: «Limpiar» (popover) devuelve la selección del popover a su estado inicial y hay que pulsar «Aplicar» para aplicar (disabled si ya está en el inicial); categorías con AND entre sí y OR dentro; los filtros aplicados son de la tabla y se conservan al cambiar de vista (Confluence, apartado 3); el tiempo de recarga (1 s) es el pedido.
+// Filtros de selección única (R4InputRadio): no se restablecen en el popover (sin botón «Limpiar»); si el filtro es `required` (Fecha) siempre hay uno marcado y no cuenta como filtro aplicado.
 // Extras / NO oficial: R4Chip `dismissable`/`hideChevron`, R4Accordion `defaultOpen`, R4Table `sortable`/`defaultSort`/slot `empty` (ver cada archivo). Mobile y tablet: sin diseño; se adapta con el patrón de la doc (chips en una fila con scroll, sheets bottom).
 import { defineComponent, ref, reactive, computed, watch, nextTick, onMounted, onBeforeUnmount } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Chip from './R4Chip.js'
@@ -88,7 +88,7 @@ const _TableFilterPanel = defineComponent({
       </template>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" :size="buttonSize" width="full-width" text="Aplicar" @click="$emit('apply')" />
-        <R4Button v-if="filter.type !== 'single'" type="text" :size="buttonSize" width="full-width" text="Restablecer" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
+        <R4Button v-if="filter.type !== 'single'" type="text" :size="buttonSize" width="full-width" text="Limpiar" :disabled="modelValue.length === initial.length && modelValue.every((x) => initial.includes(x))" @click="$emit('reset')" />
       </div>
     </div>
   `,
@@ -444,7 +444,7 @@ export default defineComponent({
 
       <Teleport v-if="target" :to="target">
         <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :style="pantalla && pos === 'bottom' && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
-                 :primary-action-label="pantalla ? 'Aplicar' : primaria" :primary-action-loading="pantalla ? false : contando" :secondary-action-label="pantalla ? undefined : 'Restablecer'" secondary-action-icon="ic-undo" :secondary-action-disabled="draftEsInicial" @primary="pantalla ? aplicarRango() : aplicarSheet()" @secondary="restablecer" @close="cerrarSheet">
+                 :primary-action-label="pantalla ? 'Aplicar' : primaria" :primary-action-loading="pantalla ? false : contando" :secondary-action-label="pantalla ? undefined : 'Quitar todos'" secondary-action-icon="ic-trash-alt" :secondary-action-disabled="draftEsInicial" @primary="pantalla ? aplicarRango() : aplicarSheet()" @secondary="restablecer" @close="cerrarSheet">
           <R4Accordion v-show="!pantalla" :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
               <div v-if="item.id === 'aplicados'" class="r4-table-v2__applied" tabindex="-1">
