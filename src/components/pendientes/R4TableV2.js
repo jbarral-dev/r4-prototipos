@@ -228,7 +228,7 @@ export default defineComponent({
     // «Aplicar» en la pantalla del rango (R4Sheet): con las dos fechas vuelve al panel anterior; si falta alguna, marca el error en línea
     const aplicarRango = () => { const p = pantalla.value; if (!p) return; const d = draft[p.filtro] || []; if (d[1] && d[2]) volverDeCalendario(); else { intentoSheet.value = true } }
     const aplicarRangoCat = () => { if (catDraft.value[1] && catDraft.value[2]) volverDeCalendarioCat(); else { intentoCat.value = true } }
-    const abrirCalendarioCat = () => { const c = contenidoCat(); pantallaCat.value = { scroll: c ? c.scrollTop : 0 } }
+    const abrirCalendarioCat = () => { medirSheet('.r4-table-v2__sheet--category .r4-sheet'); const c = contenidoCat(); pantallaCat.value = { scroll: c ? c.scrollTop : 0 } }
     const volverDeCalendarioCat = async () => {
       const p = pantallaCat.value; if (!p) return
       pantallaCat.value = null
@@ -257,7 +257,10 @@ export default defineComponent({
     const primaria = computed(() => pluralResultados(nResultados.value))
     // Pantalla del calendario (side y bottom): sustituye a los acordeones dentro del R4Sheet (siguen montados, ocultos) y al volver se recupera la posición del scroll y el foco en el campo que la abrió
     const contenidoVisible = () => [...document.querySelectorAll('.r4-table-v2__sheet .r4-sheet__content')].find((e) => e.getClientRects().length)
-    const abrirCalendario = (f) => { const c = contenidoVisible(); pantalla.value = { filtro: f.id, scroll: c ? c.scrollTop : 0 } }
+    // Bottom sheet (mobile): la pantalla del rango mantiene el alto de la pantalla de la que viene, para evitar un salto brusco de la interfaz
+    const altoSheet = ref(0)
+    const medirSheet = (sel) => { const e = [...document.querySelectorAll(sel)].find((x) => x.getClientRects().length); altoSheet.value = e ? Math.round(e.getBoundingClientRect().height) : 0 }
+    const abrirCalendario = (f) => { medirSheet('.r4-table-v2__sheet--bottom:not(.r4-table-v2__sheet--category) .r4-sheet'); const c = contenidoVisible(); pantalla.value = { filtro: f.id, scroll: c ? c.scrollTop : 0 } }
     const volverDeCalendario = async () => {
       const p = pantalla.value; if (!p) return
       pantalla.value = null
@@ -325,7 +328,7 @@ export default defineComponent({
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      altoSheet, aplicarRango, aplicarRangoCat, rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -420,7 +423,7 @@ export default defineComponent({
       <p class="r4-table-v2__sr" role="status" aria-live="polite">{{ estado }}</p>
 
       <Teleport v-if="target" :to="target">
-        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
+        <R4Sheet v-for="pos in ['side', 'bottom']" :key="pos" class="r4-table-v2__sheet" :class="'r4-table-v2__sheet--' + pos" :position="pos" :title="pantallaTitulo()" :open="sheetOpen" :style="pantalla && pos === 'bottom' && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantalla" back-link-label="Volver a los filtros" @back="volverDeCalendario()"
                  :primary-action-label="pantalla ? 'Aplicar' : primaria" :primary-action-loading="pantalla ? false : contando" :secondary-action-label="pantalla ? undefined : 'Restablecer'" secondary-action-icon="ic-undo" :secondary-action-disabled="draftEsInicial" @primary="pantalla ? aplicarRango() : aplicarSheet()" @secondary="restablecer" @close="cerrarSheet">
           <R4Accordion v-show="!pantalla" :items="accordionItems" multiple size="small" :default-open="abiertos">
             <template #content="{ item }">
@@ -436,7 +439,7 @@ export default defineComponent({
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
-        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
+        <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :style="pantallaCat && altoSheet ? { '--r4-sheet-alto': altoSheet + 'px' } : undefined" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" :primary-action-label="pantallaCat ? 'Aplicar' : undefined" @primary="aplicarRangoCat()" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
           <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
            <DateRangePanel v-if="pantallaCat" :initial="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
         </R4Sheet>
