@@ -5,7 +5,7 @@
 //   Un filtro = { id, label, type: 'single' | 'multiple', icon?, highlighted?, options: { value, label }[], predicate(row, valoresSeleccionados) }. Los filtros son POR COLUMNA/vista. Slots `body-<field>` ({ data, value }) para las celdas que no son texto.
 // Composición: «Filters and Views» (chips + R4SegmentedControls) + R4Section boxed blanca con R4Table. Los filtros destacados (`highlighted`) son R4Chip type=multiple con R4Popover debajo (a 8 px) en ≥ 1024 px y R4Sheet bottom por debajo
 //   (patrón Progressive disclosure, Confluence 4016603138). «Todos los filtros» abre un R4Sheet (side en ≥ 1024, bottom por debajo) con R4Accordion: el primero lista los filtros aplicados en R4Chip `dismissable`; el resto, un grupo de R4InputCheckbox (multiselección)
-//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar todos» devuelve la selección del sheet a su estado inicial (también sin aplicar).
+//   o R4InputRadio type=default (selección única) por filtro. Nada se aplica hasta pulsar el primario «Ver N resultados» (N se actualiza en vivo); «Quitar todos» vacía todos los filtros del sheet, incluso los prefijados, salvo los obligatorios (también sin aplicar).
 //   Al aplicar (sheet o popover) la tabla muestra R4Skeleton (Jon, 2026-11-24; antes R4Spinner con opacidad) y 1 s después se pinta con los nuevos resultados. Cambiar de vista es instantáneo (sin spinner): cambian a la vez las columnas y los filtros.
 // Disposición «En 1 fila» (`layout="inline"`; antes «variante A») en desktop: las vistas van en un R4Chip multiple con la vista actual (Jon, 2026-11-25; antes R4SegmentedControls) que abre un R4Popover con las vistas; en la B siguen siendo un R4SegmentedControls.
 // Disposición «En 2 filas» (`layout="stacked"`; antes «variante B») y «Dentro de la tabla» (`layout="inside"`, igual pero con «N resultados» + vistas dentro del R4Section; en tablet y mobile la chip de vistas va en modo ghost, sin borde: prueba de Jon, 2026-11-26): los filtros ocupan una fila (en tablet y mobile con scroll horizontal; sus categorías se abren en bottom sheet) y, 16 px debajo, «N resultados» (nº total de filas) a la izquierda y las vistas a la derecha.
@@ -287,9 +287,9 @@ export default defineComponent({
         const visible = (s) => [...document.querySelectorAll(s)].find((e) => e.getClientRects().length)
         ;(visible('.r4-table-v2__applied .r4-chip') || visible('.r4-sheet .r4-accordion__header'))?.focus?.()
       }) }
-    // «Restablecer» (Confluence apartado 2): devuelve los filtros del sheet a su estado inicial (sin aplicar hasta pulsar «Ver N resultados»)
-    const restablecer = () => { view.value.filters.forEach((f) => { draft[f.id] = [...inicialDe(f)] }) }
-    const draftEsInicial = computed(() => view.value.filters.every((f) => igualSet(draft[f.id] || [], inicialDe(f))))
+    // «Quitar todos» (sheet «Todos los filtros»): vacía todos los filtros del sheet, también los prefijados, salvo los obligatorios (p. ej. Fecha), que conservan su valor (sin aplicar hasta pulsar «Ver N resultados»)
+    const restablecer = () => { view.value.filters.forEach((f) => { if (!f.required) draft[f.id] = [] }) }
+    const draftEsInicial = computed(() => view.value.filters.every((f) => f.required || !(draft[f.id] || []).length)) // = nada que quitar (deshabilita el botón)
     const aplicarSheet = () => {
       if (view.value.filters.some((f) => personalizadoInvalido(f, draft[f.id] || []))) { // no se aplica nada: errores en línea y foco en el primer campo con error
         intentoSheet.value = true
