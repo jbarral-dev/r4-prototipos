@@ -100,7 +100,7 @@ export default defineComponent({
           <button type="button" class="r4-input-text__step r4-input-text__step--up" tabindex="-1" aria-label="Aumentar" :disabled="disabled || readonly" @click="paso(1)"><Icon name="chevron-down" /></button>
           <button type="button" class="r4-input-text__step" tabindex="-1" aria-label="Disminuir" :disabled="disabled || readonly" @click="paso(-1)"><Icon name="chevron-down" /></button>
         </span>
-        <button v-if="type === 'datepicker'" type="button" class="r4-input-text__post" aria-label="Abrir calendario" aria-haspopup="dialog" :aria-expanded="abierto ? 'true' : 'false'" :disabled="disabled || readonly" @click="alternar"><Icon name="ic-calendar" /></button>
+        <button v-if="type === 'datepicker'" type="button" class="r4-input-text__post" :class="{ 'is-readonly': readonly && !disabled }" aria-label="Abrir calendario" aria-haspopup="dialog" :aria-expanded="abierto ? 'true' : 'false'" :disabled="disabled || readonly" @click="alternar"><Icon name="ic-calendar" /></button>
       </div>
       <Teleport v-if="type === 'datepicker' && abierto && destino" :to="destino">
         <div ref="layerEl" class="r4-datepicker-layer" :style="pos"><DatePickerMenu :model-value="modelValue" @select="elegir" /></div>

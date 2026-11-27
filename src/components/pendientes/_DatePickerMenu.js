@@ -1,7 +1,7 @@
 // PENDIENTE-IT: no oficial. Sustituir cuando exista en la librería Vue.
 // Reconstrucción de `_DatePicker Menu` (la capa del calendario de R4InputText › Variant=DataPicker; Figma Primitivos 1.2, component set 10252:2731 con Variant = Day | Month | Year y `_DatePicker Menu Item` 10246:2653 con
 // Variant = Active | Inactive | Disabled × Interaction = Default | Hover; leídos con use_figma). La página de Confluence R4InputDate (2801729671) solo dice que «al seleccionar el componente se desplegará un calendario» y enlaza a Figma 1.0.
-// Vista Day: cabecera «Mes Año» (negrita) con flechas ‹ › (mes anterior / siguiente), días de la semana «Do Lu Ma Mi Ju Vi Sa» (la semana empieza en domingo, como en Figma) y 6 filas de 7 días; los días de otros meses van en `Disabled`.
+// Vista Day: cabecera «Mes Año» (negrita) con flechas ‹ › (mes anterior / siguiente), días de la semana «Lu Ma Mi Ju Vi Sa Do» (la semana empieza en lunes, Jon 2026-11-27; en Figma empieza en domingo) y 6 filas de 7 días; los días de otros meses van en `Disabled`.
 // Hoy y futuro: el día de hoy lleva el estado `Today` (Figma `_DatePicker Menu Item` Variant=Today, creado por Jon el 2026-11-26: borde de 2 px `border/strong`, sin relleno, texto normal; solo existe en Interaction=Default, el hover se deriva del de Inactive). Se ve siempre que hoy no sea la fecha elegida;
 // al pulsar hoy pasa de `Today` a `Active`. `Active` es solo la fecha elegida. Lo mismo en las vistas de meses (mes actual) y de años (año actual). Todo lo posterior a hoy (días, meses y años) va en `Disabled` y no se puede elegir.
 // Rango (extra para el filtro «Personalizado»): `rangeStart` y `rangeEnd` («dd/mm/aaaa»): ambos extremos van en `Active` y los días visibles entre ellos en `InRange` (Figma `_DatePicker Menu Item` Variant=InRange, leído el 2026-11-26: fondo secondary/light, esquinas rectas, texto text/subdued, solo Interaction=Default; aquí la banda se continúa entre celdas). `minDate`: los días anteriores salen en `Disabled` (al elegir «Hasta»).
@@ -14,7 +14,7 @@ import Icon from '../../icons/_Icon.js'
 
 const MESES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
-const DIAS = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa']
+const DIAS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
 const pad = (n) => String(n).padStart(2, '0')
 export const formatearFecha = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`
 // «dd/mm/aaaa» → Date (o null si no es una fecha válida)
@@ -60,7 +60,7 @@ export default defineComponent({
     // 6 filas × 7 días (los de otros meses, deshabilitados)
     const dias = computed(() => {
       const primero = new Date(año.value, mes.value, 1)
-      const inicio = new Date(año.value, mes.value, 1 - primero.getDay())
+      const inicio = new Date(año.value, mes.value, 1 - ((primero.getDay() + 6) % 7))
       return Array.from({ length: 42 }, (_, i) => {
         const d = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + i)
         const fuera = d.getMonth() !== mes.value

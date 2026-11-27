@@ -19,8 +19,8 @@
 .r4-datepicker__title--static, .r4-datepicker__title:disabled { cursor: default; color: var(--text-default); }
 .r4-datepicker__content { padding: var(--spacing-2) var(--spacing-5); }
 .r4-datepicker__row, .r4-datepicker__grid { display: grid; }
-.r4-datepicker__row, .r4-datepicker__grid--days { grid-template-columns: repeat(7, 1fr); }
-.r4-datepicker__grid--cols3 { grid-template-columns: repeat(3, 1fr); }
+.r4-datepicker__row, .r4-datepicker__grid--days { grid-template-columns: repeat(7, minmax(0, 1fr)); } /* minmax(0, …): el contenido no ensancha las columnas (en mobile se desalineaban) */
+.r4-datepicker__grid--cols3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .r4-datepicker__cell { display: flex; align-items: center; justify-content: center; min-height: calc(var(--spacing-10) - var(--spacing-05)); padding: calc(var(--spacing-1) - var(--spacing-05) / 2) var(--spacing-1); box-sizing: border-box; }
 .r4-datepicker__weekday { font: var(--font-weight-regular) var(--size-body-m) / var(--line-height-body-m) var(--font-family-body); color: var(--text-default); }
 .r4-datepicker__item {
@@ -31,6 +31,9 @@
 .r4-datepicker__item.is-active { background: var(--surface-inverse); color: var(--text-on-inverse); }
 .r4-datepicker__item.is-today { box-shadow: inset 0 0 0 var(--spacing-05) var(--border-strong); } /* Variant=Today: borde de 2 px, sin relleno */
 .r4-datepicker__item.is-disabled, .r4-datepicker__item:disabled { color: var(--text-disabled); cursor: default; }
+
+/* Vista de días: el día ocupa 32 px de ancho (no ensancha la columna en pantallas estrechas) */
+.r4-datepicker__grid--days .r4-datepicker__item { width: var(--spacing-8); min-width: 0; padding: 0; }
 
 /* inline: dentro de un sheet (mobile), a todo el ancho y sin sombra */
 .r4-datepicker.r4-datepicker--inline { width: 100%; border-radius: 0; box-shadow: none; }

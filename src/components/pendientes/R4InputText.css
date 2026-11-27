@@ -124,6 +124,7 @@
 .r4-input-text__post { display: flex; flex: none; align-items: center; justify-content: center; align-self: stretch; width: var(--spacing-10); padding: 0; border: 0; background: var(--surface-muted); box-shadow: inset var(--r4-line-width) 0 0 var(--component-input-border-default); color: var(--icon-default); cursor: pointer; }
 .r4-input-text__post .r4-icon { width: var(--spacing-4); height: var(--spacing-4); }
 .r4-input-text__post:disabled { cursor: not-allowed; color: var(--icon-disabled); }
+.r4-input-text__post.is-readonly:disabled { cursor: pointer; color: var(--icon-default); } /* campo de solo lectura que abre el calendario fuera del campo: el icono mantiene el color por defecto (no parece deshabilitado) */
 .r4-input-text__post:focus-visible { outline: 0; box-shadow: inset 0 0 0 var(--r4-line-width) var(--component-input-border-focused), var(--effect-card-focus-outline); }
 
 /* Capa del calendario: montada en la superposición de la Template, por encima de los sheets (z-index 300) */
