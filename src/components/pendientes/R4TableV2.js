@@ -62,21 +62,14 @@ const _TableFilterPanel = defineComponent({
     const rangoCompleto = computed(() => !!leerFecha(fechas.value[0]) && !!leerFecha(fechas.value[1]))
     const corto = (s) => { const d = leerFecha(s); return d ? String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getFullYear()).slice(-2) : s } // dd/mm/aa
     const resumen = computed(() => [{ concept: 'Desde - Hasta', value: corto(fechas.value[0]) + ' - ' + corto(fechas.value[1]), action: { icon: 'ic-edit', label: 'Editar las fechas' } }])
-    const rangoAbierto = ref(false)
-    const abrirRango = () => { if (props.navigate) emit('calendar'); else rangoAbierto.value = true }
-    const cerrarRango = () => { rangoAbierto.value = false }
-    const setRangoFechas = (arr) => emit('update:modelValue', ['custom', arr[0], arr[1]])
-    const elegir = (v) => { emit('update:modelValue', v === 'custom' ? ['custom', ...(props.modelValue[0] === 'custom' ? fechas.value : ['', ''])] : [v]); if (v === 'custom') abrirRango(); else cerrarRango() }
-    // Pulsar «Personalizado» cuando ya estaba elegido (y aún sin fechas) vuelve a abrir el selector
-    const onOpcionClick = (e) => { const inp = e.target.closest && e.target.closest('label') && e.target.closest('label').querySelector('input[type=radio]'); if (inp && inp.value === 'custom' && esPersonalizado.value && !rangoCompleto.value && !rangoAbierto.value) abrirRango() }
+    // Al elegir «Personalizado» (o pulsarlo de nuevo, o el botón de editar) se emite `calendar`: el padre muestra el selector de rango (segundo popover en desktop; segunda pantalla del R4Sheet)
+    const abrirRango = () => emit('calendar')
+    const elegir = (v) => { emit('update:modelValue', v === 'custom' ? ['custom', ...(props.modelValue[0] === 'custom' ? fechas.value : ['', ''])] : [v]); if (v === 'custom') abrirRango() }
+    // Pulsar «Personalizado» cuando ya estaba elegido vuelve a abrir el selector (el rango se elige de nuevo)
+    const onOpcionClick = (e) => { const inp = e.target.closest && e.target.closest('label') && e.target.closest('label').querySelector('input[type=radio]'); if (inp && inp.value === 'custom' && esPersonalizado.value) abrirRango() }
     // «Aplicar» con el rango incompleto: no se aplica y se abre el selector (cada intento)
     watch(() => props.intento, () => { if (esPersonalizado.value && !rangoCompleto.value) abrirRango() })
-    watch(esPersonalizado, (v) => { if (!v) cerrarRango() })
-    // Escape cierra primero el selector (sin cerrar el popover que tiene debajo)
-    const onKey = (e) => { if (e.key === 'Escape' && rangoAbierto.value) { e.stopPropagation(); cerrarRango() } }
-    onMounted(() => document.addEventListener('keydown', onKey, true))
-    onBeforeUnmount(() => document.removeEventListener('keydown', onKey, true))
-    return { rango, setRango, rangoInvalido, esPersonalizado, fechas, rangoCompleto, resumen, rangoAbierto, abrirRango, setRangoFechas, cerrarRango, onOpcionClick, elegir }
+    return { rango, setRango, rangoInvalido, esPersonalizado, fechas, rangoCompleto, resumen, abrirRango, onOpcionClick, elegir }
   },
   template: `
     <div class="r4-table-v2__panel">
@@ -90,13 +83,10 @@ const _TableFilterPanel = defineComponent({
         <R4InputCheckbox v-if="filter.type === 'multiple'" :options="filter.options" :model-value="modelValue" :aria-label="filter.label" @update:model-value="$emit('update:modelValue', $event)" />
         <R4InputRadio v-else type="default" :options="filter.options" :selected-value="modelValue[0]" @change="elegir($event)" />
       </div>
-      <div v-if="esPersonalizado && rangoCompleto && !rangoAbierto" class="r4-table-v2__daterange">
+      <div v-if="esPersonalizado && rangoCompleto" class="r4-table-v2__daterange">
         <R4ListDetail size="medium" orientation="vertical" aria-label="Fechas elegidas" :items="resumen" @action="abrirRango" />
       </div>
-      <div v-else-if="esPersonalizado && validate && !rangoCompleto && !rangoAbierto" class="r4-table-v2__daterror"><R4Text size="small" variant="error" text="Selecciona las fechas «Desde» y «Hasta»." /></div>
-      <div v-if="rangoAbierto && !navigate" class="r4-table-v2__datepop">
-        <R4Popover width="wider"><DateRangePanel :model-value="fechas" :validate="validate" @update:model-value="setRangoFechas" @done="cerrarRango" /></R4Popover>
-      </div>
+      <div v-else-if="esPersonalizado && validate && !rangoCompleto" class="r4-table-v2__daterror"><R4Text size="small" variant="error" text="Selecciona las fechas «Desde» y «Hasta»." /></div>
       </template>
       <div v-if="showActions" class="r4-table-v2__panel-actions">
         <R4Button type="primary" :size="buttonSize" width="full-width" text="Aplicar" @click="$emit('apply')" />
@@ -226,15 +216,17 @@ export default defineComponent({
     const totalAplicados = computed(() => view.value.filters.filter((f) => !f.required).reduce((n, f) => n + cuenta(f, seleccion(f)), 0))
     const catAbierta = ref(null) // id del filtro con popover/sheet abierto
     const catDraft = ref([])
+    const rangoPop = ref(false) // desktop: el segundo popover (Desde / Hasta) está a la vista
+    const terminarRangoPop = (f) => { rangoPop.value = false; aplicarCategoria(f) }
     const pantallaCat = ref(null) // pantalla propia del selector de fechas en el sheet bottom de un filtro destacado { scroll }
     const intentoCat = ref(false) // se pulsó «Aplicar» con una fecha personalizada incompleta: se muestra el error en línea
     const intentoSheet = ref(false)
     const intentoCatN = ref(0) // nº de intentos fallidos (cada uno vuelve a abrir el selector)
     const intentoSheetN = ref(0)
     const pantalla = ref(null) // mobile: pantalla propia del calendario dentro del sheet { filtro, campo } (0 = inicio, 1 = fin)
-    const abrirCategoria = (f) => { pantallaCat.value = null; intentoCat.value = false; vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
+    const abrirCategoria = (f) => { rangoPop.value = false; pantallaCat.value = null; intentoCat.value = false; vistaPopover.value = false; if (catAbierta.value === f.id) { catAbierta.value = null; return } sheetOpen.value = false; catAbierta.value = f.id; catDraft.value = [...seleccion(f)] }
     const filtroAbierto = computed(() => view.value.filters.find((f) => f.id === catAbierta.value))
-    const cerrarCategoria = () => { catAbierta.value = null; pantallaCat.value = null }
+    const cerrarCategoria = () => { catAbierta.value = null; pantallaCat.value = null; rangoPop.value = false }
     const contenidoCat = () => document.querySelector('.r4-table-v2__sheet--category .r4-sheet__content')
     const abrirCalendarioCat = () => { const c = contenidoCat(); pantallaCat.value = { scroll: c ? c.scrollTop : 0 } }
     const volverDeCalendarioCat = async () => {
@@ -326,14 +318,14 @@ export default defineComponent({
 
     // Cierre del popover: clic fuera y Escape
     const onDocClick = (e) => { if ((catAbierta.value || vistaPopover.value) && !dentroDe(e, '.r4-table-v2__anchor, .r4-sheet-layer, .r4-datepicker-layer')) { cerrarCategoria(); vistaPopover.value = false } }
-    const onKey = (e) => { if (e.key === 'Escape') { cerrarCategoria(); vistaPopover.value = false } }
+    const onKey = (e) => { if (e.key === 'Escape') { if (rangoPop.value) { rangoPop.value = false; return } cerrarCategoria(); vistaPopover.value = false } }
     onMounted(() => { target.value = document.querySelector(props.overlay); document.addEventListener('click', onDocClick); document.addEventListener('keydown', onKey) })
     onBeforeUnmount(() => { document.removeEventListener('click', onDocClick); document.removeEventListener('keydown', onKey) })
     watch(contentView, () => {}, { flush: 'post' })
 
     const estado = computed(() => (loading.value ? 'Cargando resultados' : `${filasMostradas.value.length} resultados`))
     return { selectedView, contentView, view, loading, target, filasMostradas, seleccion, chipLabel, destacados, totalAplicados, catAbierta, catDraft, abrirCategoria, filtroAbierto, cerrarCategoria, aplicarCategoria,
-      opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
+      rangoPop, terminarRangoPop, opcionesCategoria, opcionesSheet, contando, abiertos, vistaOpen, vistaActual, vistaPopover, alternarVistaPopover, orden, sheetOpen, draft, abrirSheet, cerrarSheet, draftTotal, chipsDraft, primaria, quitarChip, restablecer, draftEsInicial, inicialDe, aplicarSheet, intentoCat, intentoSheet, pantalla, abrirCalendario, volverDeCalendario, pantallaCat, abrirCalendarioCat, volverDeCalendarioCat, tituloCat, rangoCat, setRangoCat, intentoCatN, intentoSheetN, pantallaTitulo, rangoPantalla, setRangoPantalla, accordionItems, itemsVistas, cambiarVista, estado }
   },
   template: `
     <div class="r4-table-v2" :class="'r4-table-v2--' + layout" :aria-busy="loading ? 'true' : undefined">
@@ -347,10 +339,14 @@ export default defineComponent({
           <div class="r4-table-v2__highlighted">
             <div v-for="f in destacados" :key="f.id" class="r4-table-v2__anchor">
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
-              <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
+              <div v-if="catAbierta === f.id" class="r4-table-v2__popover" :class="{ 'is-range': rangoPop }" role="dialog" :aria-label="f.label">
                 <R4Popover :width="f.popoverWidth || 'default'">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
+                <!-- «Personalizado» (prueba de Jon, 2026-11-27): el popover del filtro se oculta y, en su misma posición, aparece otro (wider) con «Desde» y «Hasta»; fundido de 0,2 s entre ambos. Al elegir «Hasta» se aplica el rango y se cierra todo -->
+                <Transition name="r4-fade">
+                  <div v-if="rangoPop" class="r4-table-v2__datepop"><R4Popover width="wider"><DateRangePanel :validate="intentoCat" @update:model-value="setRangoCat" @done="terminarRangoPop(f)" /></R4Popover></div>
+                </Transition>
               </div>
             </div>
           </div>
@@ -372,10 +368,14 @@ export default defineComponent({
           <div class="r4-table-v2__highlighted">
             <div v-for="f in destacados" :key="f.id" class="r4-table-v2__anchor">
               <R4Chip type="multiple" :icon="f.icon" :label="chipLabel(f)" :selected="seleccion(f).length > 0" :expanded="catAbierta === f.id" aria-haspopup="dialog" @click="abrirCategoria(f)" />
-              <div v-if="catAbierta === f.id" class="r4-table-v2__popover" role="dialog" :aria-label="f.label">
+              <div v-if="catAbierta === f.id" class="r4-table-v2__popover" :class="{ 'is-range': rangoPop }" role="dialog" :aria-label="f.label">
                 <R4Popover :width="f.popoverWidth || 'default'">
-                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
+                  <TableFilterPanel :filter="opcionesCategoria(f)" :initial="inicialDe(f)" :validate="intentoCat" :intento="intentoCatN" v-model="catDraft" @calendar="rangoPop = true" @apply="aplicarCategoria(f)" @reset="catDraft = [...inicialDe(f)]" />
                 </R4Popover>
+                <!-- «Personalizado» (prueba de Jon, 2026-11-27): el popover del filtro se oculta y, en su misma posición, aparece otro (wider) con «Desde» y «Hasta»; fundido de 0,2 s entre ambos. Al elegir «Hasta» se aplica el rango y se cierra todo -->
+                <Transition name="r4-fade">
+                  <div v-if="rangoPop" class="r4-table-v2__datepop"><R4Popover width="wider"><DateRangePanel :validate="intentoCat" @update:model-value="setRangoCat" @done="terminarRangoPop(f)" /></R4Popover></div>
+                </Transition>
               </div>
             </div>
           </div>
@@ -431,14 +431,14 @@ export default defineComponent({
                <TableFilterPanel v-else :filter="opcionesSheet(item.filter)" :navigate="true" :validate="intentoSheet" :intento="intentoSheetN" @calendar="abrirCalendario(item.filter)" :show-title="false" :show-actions="false" :model-value="draft[item.filter.id] || []" @update:model-value="draft[item.filter.id] = $event" />
             </template>
           </R4Accordion>
-          <DateRangePanel v-if="pantalla" :model-value="rangoPantalla" :validate="intentoSheet" @update:model-value="setRangoPantalla" @done="volverDeCalendario" />
+          <DateRangePanel v-if="pantalla" :validate="intentoSheet" @update:model-value="setRangoPantalla" @done="volverDeCalendario" />
         </R4Sheet>
         <R4Sheet class="r4-table-v2__sheet r4-table-v2__sheet--view" position="bottom" title="Vista" :open="vistaOpen" @close="vistaOpen = false">
           <R4InputRadio type="default" :options="itemsVistas" :selected-value="selectedView" @change="cambiarVista($event); vistaOpen = false" />
         </R4Sheet>
         <R4Sheet v-if="filtroAbierto" class="r4-table-v2__sheet r4-table-v2__sheet--category" position="bottom" :title="tituloCat" :open="true" :show-back-link="!!pantallaCat" back-link-label="Volver al filtro" @back="volverDeCalendarioCat()" @close="cerrarCategoria">
           <TableFilterPanel v-show="!pantallaCat" :filter="opcionesCategoria(filtroAbierto)" :initial="inicialDe(filtroAbierto)" :validate="intentoCat" :intento="intentoCatN" :navigate="true" button-size="large" :show-title="false" v-model="catDraft" @calendar="abrirCalendarioCat()" @apply="aplicarCategoria(filtroAbierto)" @reset="catDraft = [...inicialDe(filtroAbierto)]" />
-          <DateRangePanel v-if="pantallaCat" :model-value="rangoCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
+          <DateRangePanel v-if="pantallaCat" :validate="intentoCat" @update:model-value="setRangoCat" @done="volverDeCalendarioCat" />
         </R4Sheet>
       </Teleport>
     </div>

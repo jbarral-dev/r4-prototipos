@@ -154,4 +154,11 @@
 /* Filtro «Personalizado»: resumen de las fechas elegidas (R4ListDetail vertical) bajo la opción, el error del rango incompleto y el selector de rango en un segundo popover a la derecha del popover del filtro (8 px) */
 .r4-table-v2__daterange { margin-top: calc(var(--spacing-3) * -1); }
 .r4-table-v2__daterror { margin-top: calc(var(--spacing-3) * -1); }
-.r4-table-v2__datepop { position: absolute; top: 0; left: calc(100% + var(--spacing-2)); z-index: 1; }
+.r4-table-v2__datepop { position: absolute; top: 0; left: 0; z-index: 1; }
+
+/* «Personalizado» en desktop: fundido de 0,2 s entre el popover del filtro y el de Desde / Hasta (misma posición) */
+.r4-table-v2__popover > .r4-popover { transition: opacity 200ms ease; }
+.r4-table-v2__popover.is-range > .r4-popover { opacity: 0; pointer-events: none; }
+.r4-fade-enter-active, .r4-fade-leave-active { transition: opacity 200ms ease; }
+.r4-fade-enter-from, .r4-fade-leave-to { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .r4-table-v2__popover > .r4-popover, .r4-fade-enter-active, .r4-fade-leave-active { transition: none; } }
