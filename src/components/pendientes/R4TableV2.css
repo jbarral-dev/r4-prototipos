@@ -165,3 +165,6 @@
 
 /* Bottom sheet: la pantalla del rango mantiene el alto de la pantalla anterior (variable fijada por R4TableV2) */
 .r4-table-v2__sheet--bottom .r4-sheet--bottom, .r4-table-v2__sheet--category .r4-sheet--bottom { height: var(--r4-sheet-alto, auto); }
+
+/* Sheets de la tabla: el contenido ocupa el alto libre y las acciones quedan fijas abajo */
+.r4-table-v2__sheet .r4-sheet__content { flex: 1 1 auto; }

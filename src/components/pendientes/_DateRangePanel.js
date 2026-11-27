@@ -2,7 +2,7 @@
 // Selector de rango de fechas del filtro «Personalizado» de R4Table v2 (prueba de Jon, 2026-11-27). NO está en Figma como componente: compone dos R4InputText `type=datepicker` («Desde» y «Hasta») y, debajo, el calendario `_DatePicker Menu`.
 // Por pasos: al abrirse solo se ven los campos (prerrellenos con `initial` si ya había un rango personalizado; vacíos si no). Pulsar un campo muestra el calendario debajo; al elegir una fecha el calendario se oculta y el campo se rellena. Al elegir «Hasta» los días anteriores a «Desde» van en `Disabled`.
 // Con el rango completo se emite `update:modelValue` ([desde, hasta]) tras cada elección; `done` (cierre / aplicar) solo al elegir «Hasta», a los 100 ms. Si se elige «Desde» posterior a una «Hasta» ya puesta, esta se vacía. Los campos son de solo lectura (no sale el teclado en móvil): se abren con clic, Enter o Espacio.
-// Escape con el calendario visible lo oculta (sin cerrar lo que haya debajo). Props: initial ([desde, hasta]), validate (campos vacíos en error: «La fecha es obligatoria»). Eventos: update:modelValue, done. `showApply`: botón «Aplicar» (primary) bajo el calendario (popover de desktop); emite `done`.
+// Escape con el calendario visible lo oculta (sin cerrar lo que haya debajo). Props: initial ([desde, hasta]), validate (campos vacíos en error: «La fecha es obligatoria»). Eventos: update:modelValue, done. `autoFocus` (por defecto true; en los R4Sheet false: el foco queda en la flecha de volver). `showApply`: botón «Aplicar» (primary) bajo el calendario (popover de desktop); emite `done`.
 import { defineComponent, ref, computed, onMounted, onBeforeUnmount, nextTick } from '../../../vendor/vue.esm-browser.prod.js'
 import R4Button from './R4Button.js'
 import R4InputText from './R4InputText.js'
@@ -11,7 +11,7 @@ import DatePickerMenu, { leerFecha } from './_DatePickerMenu.js'
 export default defineComponent({
   name: '_DateRangePanel',
   components: { R4Button, R4InputText, DatePickerMenu },
-  props: { initial: { type: Array, default: () => ['', ''] }, showApply: { type: Boolean, default: false }, validate: { type: Boolean, default: false } },
+  props: { initial: { type: Array, default: () => ['', ''] }, showApply: { type: Boolean, default: false }, autoFocus: { type: Boolean, default: true }, validate: { type: Boolean, default: false } },
   emits: ['update:modelValue', 'done'],
   setup(props, { emit }) {
     const root = ref(null)
@@ -20,7 +20,7 @@ export default defineComponent({
     const abierto = ref(null) // campo cuyo calendario se ve: null | 0 (Desde) | 1 (Hasta)
     const campo = (i) => root.value && root.value.querySelectorAll('.r4-daterange__fields input')[i]
     const enfocar = (i) => { const c = campo(i); if (c) c.focus({ preventScroll: true }) }
-    onMounted(async () => { await nextTick(); enfocar(0) })
+    onMounted(async () => { await nextTick(); if (props.autoFocus) enfocar(0) })
     const abrir = (i) => { abierto.value = abierto.value === i ? null : i }
     const completar = (cerrar) => {
       emit('update:modelValue', [desde.value, hasta.value]) // también incompleto: el padre no debe quedarse con un rango anterior
