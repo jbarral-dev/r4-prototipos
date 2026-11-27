@@ -175,3 +175,6 @@
 
 /* «Filtros seleccionados» (R4Sheet, teleportado fuera de .r4-table-v2): los chips, activos y descartables, con fondo secondary/light */
 .r4-table-v2__applied .r4-chip, .r4-table-v2__applied .r4-chip:hover:not([aria-disabled='true']), .r4-table-v2__applied .r4-chip:active:not([aria-disabled='true']) { background: var(--secondary-light); }
+
+/* Selector de rango: «Aplicar» y «Reiniciar» (R4Button large, a ancho completo) bajo el calendario */
+.r4-daterange__actions { display: flex; flex-direction: column; gap: var(--spacing-2); }
